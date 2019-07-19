@@ -1,0 +1,136 @@
+\documentclass{article}
+\usepackage[operators,lambda,keys,sets,primitives,adversary,asymptotics]{cryptocode}
+\usepackage{notations}
+\usepackage{mdframed}
+\usepackage{enumitem}
+\usepackage{amsmath,amsthm}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}{Lemma}
+
+\begin{document}
+\title{RSA-based Polynomial Commitment}
+\maketitle
+\section{Preliminaries}
+The security of the scheme relies on the fractional root assumption which is a generalization of the strong RSA assumption. The assumption states that an adversary cannot compute fractional roots of random group elements. B\"unz, Boneh and Fisch \cite{accumulator} show that this assumption is satisfied in the generic group model.  
+\begin{definition}[Pseudo root assumption]
+The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\adv$:
+\[        
+                \Pr\left[y^\beta = g^{\alpha} \wedge  \beta \not\vert~ \alpha   : 
+                \begin{array}{l} 
+                      \GG \sample \ggen(\lambda) \\ 
+                      g \sample \GG \\
+                      \alpha, \beta \in \ZZ,y\in \GG \sample \adv(\GG, g) 
+                \end{array} 
+        \right] \leq \negl.
+\]
+\end{definition}
+We now define a security games for polynomial commitments
+
+
+\begin{definition}[Evaluation Binding]
+We say a polynomial commitment scheme, consisting of algorithms $(\setup,\commit)$ and the interactive protocol $\open$, is sound if for all polynomial degrees $d=\poly\in \NN$ and for any efficient adversary $\adv$:
+	\[        
+                \Pr\left[\begin{array}{c}\open_{\adv,\verifier}(\crs,z,y_0,C)=\open_{\adv,\verifier}(\crs,z,y_1,C)=\text{"accept"}\\
+                \wedge\\
+                y_0\neq y_1\end{array}  : 
+                \begin{array}{l} 
+                      \crs \sample \setup(\lambda, d) \\
+                      (C,z,y_0,y_1)\sample \adv(\crs)]
+                \end{array} 
+        \right] \leq \negl.
+\]
+\end{definition}
+
+\begin{definition}[PolyCommit extraction]
+We say a polynomial commitment scheme, consisting of algorithms $(\setup,\commit)$ and the interactive protocol $\open$, is extractable if there exists an extractor $\extractor$ such that for all polynomial degrees $d=\poly\in \NN$ and for any efficient adversary $\adv$:
+	\[        
+                \Pr\left[\begin{array}{c}\open_{\adv,\verifier}(\crs,z,y,C)=\text{"accept"}\\
+                \wedge\\
+                p(x)\gets\extractor(\crs,\adv,C)\in \FF_p[X]\\
+                \wedge\\
+               \commit(p(x),d)\neq C\vee p(z)\neq y \vee \deg(p)\neq d
+                 \end{array}  : 
+                \begin{array}{l} 
+                      \crs \sample \setup(\lambda, d) \\
+                      (C,d,z,y)\sample \adv(\crs)]
+                      
+                \end{array} 
+        \right] \leq \negl.
+\]
+\end{definition}
+\section{Protocol}
+\label{sec:protocol}
+\begin{mdframed}[userdefinedwidth=0.8\textwidth]
+\begin{minipage}{\textwidth}
+	\begin{flushleft}
+	\setup(\secpar,p,d):
+		\begin{enumerate}[nolistsep]
+			\item $ \GG \sample \ggen(\secpar)$
+			\item $ g \sample \GG$
+			\item $q\gets 2^k \text{s.t.} q> p \cdot \lceil \log_2(d+1)+1\rceil $
+			\item $\pcreturn \crs=\{\secpar,p,\GG,g,q\}$
+		\end{enumerate}
+		$\commit(\crs,p(x)\in \FF_p[X])$
+		\begin{enumerate}[nolistsep]
+			\item 	$\hat{p}(x)\gets p(x) \in \ZZ[X]$
+			\item $y\gets \hat{p}(q)$
+			\item $\pcreturn g^y,\deg(p)$
+		\end{enumerate}
+		
+	\end{flushleft}
+\end{minipage}
+\end{mdframed}
+\begin{small}
+ \begin{minipage}{1.1\textwidth}
+\begin{mdframed}[userdefinedwidth=1\textwidth]  \label{prot:Opening}
+
+Opening proof at point $y=p(z)\in \FF_p$ $d$. Commitment $C$. $p(x)=\sum_{i=0}^{d} c_i x^{i}$
+\begin{enumerate}[nolistsep]
+\item \pcif $d=0$:
+\item \pcind[1] Prover computes $\hat{y}=\hat{p} \in \ZZ$, i.e. $\hat{p}(x)$ is a constant. 
+\item \pcind[1] Prover sends $\hat{y}$ to the verifier.
+\item \pcind[1] Verifier checks that $0\leq\hat{y}< q$,  $\hat{y} \bmod p=y$ and $g^{\hat{y}}=C$ otherwise rejects
+\item \pcelse:
+\item \pcind[1] Prover computes $p_0(x)=\sum_{i=0}^{d/2-1} c_i x^i\in \ZZ$ and $p_1(x)=\sum_{i=0}^{d/2-1} c_{d/2+i} x^{i}\in \ZZ$
+\item \pcind[1] $y_0=p_0(z) \bmod p$, $y_1=p_1(z)\bmod p$, $C_0\gets\commit(p_0)$,$C_1\gets\commit(p_1)$
+\item \pcind[1] Prover sends $y_0,y_1,C_0,C_1$ to the Verifier
+\item \pcind[1] Verifier checks that $y_0+z^{d/2} y_1=y\in \FF_p$ and that $C_0C_1^{q^{d/2}}=C$\footnote{Using $\textsf{PoE}(C_1,C/C_0,q^{d/2})$}
+\item \pcind[1] Verifier samples $\alpha \sample \FF_p$ and sends it to the prover
+\item \pcind[1] Prover and Verifier compute $y'\gets\alpha y_0 +y_1 \bmod p$, $C'\gets C_0^{\alpha}C_1 \in \GG$. \\Prover also computs $p'(x)\gets\alpha  \cdot \hat{p}_0(x)+\hat{p}_1(x) \in \ZZ[X]$ 
+\item \pcind[1] Prover and Verifier run $\textsf{PoCEv}(y',C',d/2;p'(x))$
+\end{enumerate}
+\end{mdframed}
+\end{minipage}
+\end{small}
+
+\section{Soundness proof}
+
+\begin{lemma}[Soundness extraction]
+	Assuming the polynomial commitment has extraction it is also sound.
+\end{lemma}
+\begin{proof}
+	Assume there is an adversary which can break the soundness property, i.e. output a tuple $(C,z,y_0,y_1)$ such that the verifier accepts with high probability both opening transcripts. Now run the extractor to extract two polynomials $p_0$ and $p_1$ such that $p_0(z)=y_0$ and $p_0(z)=y_1$. Both polynomials are of degree $d$. We write the integer representation using coefficients of size less than $q$ of $p_0$ as $\hat{p}_0$ and the serialization of $p_1$ as $\hat{p}_1$. Note tha
+\end{proof}
+\begin{theorem}
+	The polynomial commitment scheme from Section \ref{sec:protocol} is sound under the Fractional Root Assumption. We show that we can either extract a fractional root of $g$ or a witness \footnote{Formally we should define witness extended emulation }
+\end{theorem}
+\begin{proof}
+
+If $d=0$ then we can directly extract $p(x)=y\in \FF_p[X]$ as the witness. 
+
+
+	We prove the statement through induction over the degree $d$. If $d=0$ and there exists an efficient adversary that can produce a tuple $(C,z,y_0,y_1)$ with non-negligble probability such that the opening verifier accepts then this implies that $g^{y_0}=g^{y_1}=C$ for $y_0\neq y_1$. This however implies that $g^{y_0-y_1}=1$. $y_0-y_1\neq 0$ is a multiple of the order of $g$ and can be used to find non trivial roots of $g$ which directly breaks the fractional root assumption.
+
+
+
+Extraction step: $C=C_0^{\alpha}C_1=g^{y}$ and $C'=C_0^{\alpha'}C_1=g^{y'}$ for distinct $\alpha$ and $\alpha'$. This gives us $C_0^{\alpha-\alpha'}=g^{y-y'}$. Either $\alpha-\alpha'\not\vert~y-y' $ which would directly break the pseudo root assumption or $g^{\hat{y}_0}=g^{\frac{y-y'}{\alpha-\alpha'}}=C_0$. In that case $C_1=g^{\hat{y}_1}=g^{y-\alpha\frac{y-y'}{\alpha-\alpha'}}$. Let $\hat{y}_1=y-\alpha\frac{y-y'}{\alpha-\alpha'}$. Note that if $y<q$ then $\hat{y}_0\leq 2q$ and $\hat{y}_1\leq p \cdot 2q +q\leq (2p+1)q$. Note that $\hat{y}=y+r\cdot p$ and $\hat{y}'=y'+r'\cdot p$ so $\hat{y}_0 \bmod p=\frac{\hat{y}-\hat{y}'}{\alpha-\alpha'}\bmod p=\frac{y-y'}{\alpha-\alpha'}+(r-r')\cdot ({\alpha-\alpha'})^{-1}\cdot p\bmod p=\frac{y-y'}{\alpha-\alpha'}\bmod p=y_0$ and similarly for $y_1$.
+The polynomial $\hat{p}(x)=\hat{y}_1\cdot x+ \hat{y}_0$
+$y=y_0+z^{d/2} y_1$ and $C=C_0C_1^{q^{d/2}}$. Note that $C=g^{y_0+q^{d/2}y_1}$ 
+$p(x)=y_0+x^{d/2}y_1$
+$y_0+z^{d/2} y_1$
+
+
+\end{proof}
+  
+\end{document}
