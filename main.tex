@@ -1,0 +1,228 @@
+\documentclass[10pt]{llncs}
+%\documentclass[12pt,a4paper]{article}
+\usepackage[utf8x]{inputenc}
+\usepackage{ucs}
+\usepackage[english]{babel}
+\usepackage{amsmath}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{graphicx}
+\usepackage{url}
+\usepackage{hyperref}
+%\usepackage[left=2cm,right=2cm,top=2cm,bottom=2cm]{geometry}
+
+\hypersetup{
+    colorlinks,
+    linkcolor={black},
+    citecolor={black},
+    urlcolor={black}
+}
+
+\author{Alan Szepieniec\inst{1} \and Benedikt Bünz\inst{2}}
+\institute{Nervos Foundation \\
+\texttt{alan@nervos.org} \and Stanford University}
+\title{Homomorphic Polynomial Commitments with Efficiently Verifiable Evaluation Proofs}
+
+\pagestyle{plain}
+
+\begin{document}
+\maketitle
+
+\section{Introduction}
+
+interactive proof systems for arbitrary computation
+
+ - zero-knowledge proofs
+ - arithmetization
+ - polynomial relations
+ 
+circuit model: QAP and Groth16 NILP
+
+ - construction
+ - used algebra
+ - advantages and disadvantages
+ 
+Turing model: STARK
+
+ - construction
+ - used algebra
+ - advantages and disadvantages
+
+Class group
+
+ - groups of unknown order
+ - vdfs / accumulators
+
+Our contribution:
+
+ - polynomial commitments with groups of unknown order
+ - efficiently verifiable evaluation proofs
+ - interactive proofs for arbitrary computation
+
+\section{Preliminaries}
+
+\paragraph{Notation.}
+\begin{itemize}
+\item Let $f(x) \in \mathbb{F}_p[x]$ be a polynomial of degree at most $N-1$ where $N$ is a power of two. The coefficients of $f(x)$ are denoted by $f_i$ such that $f(x) \stackrel{\triangle}{=} \sum_{i=0}^{N-1} f_i x^i$.
+\item We work in a group $\mathbb{G}$ of unknown order (\emph{e.g.} an ideal class group) with a designated base element $g \in \mathbb{G}$ with unknown order. (It might be tempting refer to this element as the \emph{generator} but that terminology would imply that $\mathbb{G}$ is cyclic, which is not necessarily true.) We use multiplicative notation.
+\item Let $q \in \mathbb{N}$ be an integer with $q \gg p$.
+\end{itemize}
+
+\subsection{Generic Group Model}
+
+\subsection{Hardness Assumptions}
+
+\section{Polynomial Commitment and Evaluation Proof}
+
+\subsection{Commitment Scheme.}
+To commit to a polynomial $f(x) \in \mathbb{F}_p[x]$, the committer raises the designated group element $g$ to the the power $\sum_{i=0}^{N-1} f_iq^i$; to open the commitment he produces this integer. Formally, the commitment scheme is described by the following functionalities:
+\begin{itemize}
+\item $\mathsf{com} : \mathbb{F}_p[x] \rightarrow \mathbb{G} \, , \, f(x) = \sum_{i=0}^{N-1} f_i x^i \mapsto g^{\sum_{i=0}^{N-1} f_i q^i}$
+\item $\mathsf{open} : \mathbb{G} \times \mathbb{Z} \rightarrow \{ \bot \} \cup \mathbb{F}_p[x] \, , \, (c, z) \mapsto \left\lbrace \begin{array}{ll}
+\textnormal{if} \, g^z \neq c: \, & \, \bot \\
+\textnormal{else:} \, & \, f(x) = \sum_{i=0}^{N-1} f_ix^i \enspace ,
+\end{array} \right.$ 
+where $\forall i \in \{0, \ldots, N-1\} : f_i \equiv z_i \, \mathsf{mod} \, p$ and where $(z_i)_{i=0}^{N-1}$ is the base-$q$ expansion of $z$, \emph{i.e.}, $z = \sum_{i=0}^{N-1} z_iq^i$ and $z_i \in \{0,\ldots, q-1\}$.
+\end{itemize}
+This commitment scheme is not meant to be hiding. It does have to be binding. The following theorem establishes this fact.
+
+\begin{theorem}[binding]
+The commitment scheme $(\mathsf{com}, \mathsf{open})$ is computationally binding under the adaptive root assumption.
+\end{theorem}
+\begin{proof}
+Let $z_0 \neq z_1 \in \mathbb{Z}$ be two different valid openings of the commitment $c$ then $g^{z_0} = g^{z_1} = c$, then $z_0 - z_1$ is a multiple of $\mathsf{ord}(g)$, which can be used in combination with the extended Euclidean algorithm to compute the $d$th root of $g$, for any $d$. This establishes that the ability to produce multiple openings of a single commitment to different polynomials breaks the adaptive root assumption. \qed
+\end{proof}
+
+This commitment scheme is sort of homomorphic. The group of integers $\mathbb{Z}, +$ acts naturally on the group of unknown order $\mathbb{G}$; we embed the group of polynomials $\mathbb{F}_p[x], +$ into the group of integers by identifying $f(x) \in \mathbb{F}_p$ with $\sum_{i=0}^{N-1} f_iq^i \in \mathbb{Z}$. This embedding implies that the coefficients of the polynomial are not reduced modulo $p$; nevertheless, from the point of view of the commitment scheme, their representatives modulo $p$ are understood. If these coefficients grow through a sequence of homomorphic operations to be larger than $q$, then the homomorphism fails. Therefore, $q$ has to be large enough such that there will never be any overflow. While the group $\mathbb{G}$ is written multiplicatively, the ``group'' of commitments is written additively.
+
+\subsection{Proof of Correct Evaluation.}
+
+We now describe a protocol that allows the prover to prove that $e$ is the evaluation of $f(x)$ in the given point $z$, where $f(x)$ was committed to in $c = \mathsf{com}(f(x))$. In particular, the verifier knows $c = \mathsf{com}(f(x)), z$, and $e$; and the prover knows $f(x)$. We denote the protocol by $\mathsf{PoCEv}[e, z, c, f(x)]$.
+
+The high-level intuition behind the proof is to recursively reduce it to a proof of a simpler statement. In every iteration, the commitment $c$ is identifiable with a polynomial $f(x)$ whose evaluation in $z$ is $f(z)=e$. The prover splits this polynomial into $f_{(0)}(x)$ and $f_{(1)}(x)$ such that $f_{(0)}(x) + x^{N/2}f_{(1)}(x) = f(x)$ and provides the verifier with two matching commitments, $c_0$ and $c_1$, as well as matching evaluations, $e_0 = f_{(0)}(z)$ and $e_1 = f_{(1)}(z)$. The verifier responds by providing a randomizer $\alpha$. The protocol then recurses on the randomized linear combination of the two components, namely in order to establish that $f'(x) = f_{(0)}(x) + \alpha{}f_{(1)}(x)$, which corresponds to $c' = c_0 + \alpha{}c_1$, evaluates to $e' = e_0 + \alpha{}e_1$ in $z$. In the last step, the polynomial consists of a single coefficient which is simply transmitted to the verifier.
+
+Formally, $\mathsf{PoCEv}$ is defined recursively as follows:
+\begin{itemize} 
+\item {\bf If $N > 1$:}
+\begin{itemize}
+\item Split $f(x)$ into two polynomials: let $f_{(0)}(x) \stackrel{\triangle}{=} \sum_{i=0}^{N/2-1} f_i x^i$ and $f_{(1)}(x) \stackrel{\triangle}{=} \sum_{i=0}^{N/2-1} f_{N/2+i} x^i$.
+\item Prover sends to Verifier: $e_0 \stackrel{\triangle}{\equiv} f_{(0)}(z) \, \mathsf{mod} \, p, e_1 \stackrel{\triangle}{\equiv} f_{(1)}(z) \, \mathsf{mod} \, p, c_0 \stackrel{\triangle}{=} \mathsf{com}(f_{(0)}(x)), c_1 \stackrel{\triangle}{=} \mathsf{com}(f_{(1)}(x))$.
+\item Verifier checks that $z^{N/2}e_1 + e_0 \stackrel{?}{\equiv} e \, \mathsf{mod} \, p$ and that $q^{N/2} c_1 + c_0 \stackrel{?}{=} c$.
+\item Verifier produces a random scalar, $\alpha \xleftarrow{\$} \mathbb{F}_p$ and sends it to Prover.
+\item Prover and Verifier proceed with the protocol $\mathsf{PoCEv}[e', z, c', f'(x)]$ where $e' \stackrel{\triangle}{\equiv} e_0 + \alpha{}e_1 \, \mathsf{mod} \, p$, $c' \stackrel{\triangle}{=} c_0 + \alpha{}c_1$, and $f'(x) \stackrel{\triangle}{=} f_{(0)}(x) + \alpha{}f_{(1)}(x)$. (The prover does not reduce the coefficients of this polynomial modulo $p$.)
+\end{itemize}
+\item {\bf If $N = 1$:}
+\begin{itemize}
+\item Prover sends the integer $f_0$ to Verifier. (Remember, at this point $f(x) = f_0$.)
+\item Verifier checks that $f_0 \stackrel{?}{\in} \{0, \ldots, q-1\}$ and $f_0 \stackrel{?}{\equiv} e \, \mathsf{mod} \, p$ and $c \stackrel{?}{=} \mathsf{com}(f(x))$.
+\end{itemize}
+\end{itemize}
+
+\subsection{Optimizations}
+\begin{itemize}
+    \item \textit{Use a proof of correct exponentiation.} Computing $q^{N/2}c_1$ naïvely is expensive. However, there is a workaround that avoids this expense, namely by having the prover compute this value and send it to the verifier. The two then engage in the proof of correct exponentiation $\mathsf{PoE}$ due to Wesolowski~\cite{conf/eurocrypt/Wesolowski19}, or the batched variant thereof, $\mathsf{PoHP}$~\cite{journals/iacr/BonehBF18a}.
+    \item \textit{Choose $q$ to be a power of 2.} In these proofs of correct exponentiation, the prover must perform a tail division by a random large-enough prime. This tail division is slightly faster when $q$ is a power of 2. Moreover, choosing a power of two makes the integer representation of a polynomial straightforward: a fixed number of bits is allocated for each coefficient.
+    \item \textit{Choose $\alpha \ll p$.} The randomizer $\alpha$ only needs to have entropy equal to the security parameter $\lambda$; when $|p|$ is larger, it is allowable to pick $\alpha$ randomly from $\{0, \ldots, 2^\lambda-1\}$. However, when $|p|$ is smaller, the protocol cannot meet the target security level.
+    \item \textit{Open at $N = 2$ or even earlier.} Rather than open all the way at $N=1$, it might make sense to terminate the recursion at a shallower depth. The increased number of coefficients to be transmitted is compensated for by the decreased number of group elements.
+    \item \textit{Precompute $g, g^q, g^{q^2}, ...$.} Rather than raising the single group element to the huge power $\sum_{i=0}^{N-1}q^if_i$, it is preferable to raise $g^{q^i}$ to the power $f_i$ and then to combine all the $g^{q^if_i}$ together. Note that the values $g^{q^i}$ are independent of the witness and even of the statement being proved.
+    \item \textit{Send only $c_1$ and $e_1$.} The prover need not send both $c_0$ and $c_1$. Just $c_1$ suffices as $c_0$ can be inferred from $c - q^{N/2}c_1$. A similar inference holds for $e_0$.
+    \item \textit{Fiat-Shamir heuristic.} The protocol can be made non-interactive in the random oracle model by replacing the verifier's public coins by the output of a hash function evaluated in the concatenation of all messages up until that point.
+\end{itemize}
+
+\subsection{Complexity Analysis.}
+
+The protocol recurses to a depth of $\mathsf{log}_2 \, N$ before it halts, at which point it triggers the case $N=1$. At this point, the constant $f_0$ was determined from the coefficients of the original $f(x)$ and via $\mathsf{log}_2 \, N$ multiplications by random elements from $\mathbb{F}_p$ but without reduction modulo $p$. So $|f_0| \leq \mathsf{log}_2 \, N \, \times \, (1 + |p|) \leq |q|$. Every iteration, the prover sends two group elements and one field element (with the optimizations) so the total communication cost is $\mathsf{log}_2 N \, \times \, (|p| + 2 |\mathbb{G}|) + |q|$, ignoring the cost incurred by the verifier. This analysis establishes that the communication cost is logarithmic in $N$.
+
+The verifier's computation involves logarithmically many (as a function of $N$) exponentiations in $\mathbb{F}_p$ (by exponent $N/2$) and as many exponentations in $\mathbb{G}$ (by exponent $q^{N/2}$). The last step requires another group exponentiation (by $f_0$). The total complexity of the field exponentiations is $O((\mathsf{log} \, N)^2)$. The total complexity of the group exponentiations is $O(N \times |q|)$ naïvely; but $O(\lambda \, \times \, \mathsf{log}_2 \, N)$ with the first optimization, where $\lambda$ is the security parameter.
+
+\section{Security Analysis}
+
+\subsection{Soundness} \label{subsection:soundness}
+We start with proving that the evaluation proof is sound under the assumption that $(\mathsf{com}, \mathsf{open})$ is a perfecly binding commitment scheme. This assumption is ridiculous in light of the fact that $\mathbb{G}$ is a finite group while the domain of $\mathsf{com}$ is infinite. However, this intermediate step provides the intuition behind soundness. Later, we drop the perfect binding assumption in favor of working in the generic group model, and prove that soundness still holds in this model. Later still, in Section~\ref{subsection:knowledge_soundness}, we show the existence of an extractor capable of extracting the polynomial $f(x)$ under the fractional root assumption (\emph{not} the generic group model).
+
+\begin{theorem}[soundness] \label{theorem:soundness_perfectly_binding}
+Suppose $(\mathsf{com}, \mathsf{open})$ is a perfectly binding commitment scheme. Then the proof system $\mathsf{PoCEv}\{e, z, c \, | \, e = f(z) \, \wedge \, c = \mathsf{com}(f(x)) \}$ is statistically sound with respect to the language $\mathcal{L}_c = \{ ({e}, {z}) \in \mathbb{F}_p \times \mathbb{F}_p \, | \, {f}({z}) = {e} \, \wedge \, \mathsf{com}({f}(x)) = c \}$.
+\end{theorem}
+\begin{proof}
+By induction on $N$.
+\begin{itemize}
+\item {\bf If $N=1$:} The fact that $f_0 \in \{0, \ldots, q-1\}$ establishes that $\mathcal{L}_c$ corresponds to a constant polynomial $f(x) = f_0$. Since there is only one coefficient, the equation $e \equiv f_0 \, \mathsf{mod} \, p$ follows from the binding property of the commitment scheme.
+
+\item {\bf If $N>1$:} Suppose $(e, z) \not \in \mathcal{L}_c$, meaning that $e \neq f(z)$, where $f(x)$ is the polynomial that corresponds to $\mathcal{L}_c$.
+
+The binding property guarantees that $f_{(0)}(x)$ and $f_{(1)}(x)$ are uniquely defined as soon as $c_0$ and $c_1$ are sent. So the languages $\mathcal{L}_{c_0}$ and $\mathcal{L}_{c_1}$ are also uniquely defined.
+
+From $(e_0, z) \in \mathcal{L}_{c_0} \Leftrightarrow e_0 = f_{(0)}(z)$ and $(e_1, z) \in \mathcal{L}_{c_1} \Leftrightarrow e_1 = f_{(1)}(z)$, one derives $(e_0, z) \in \mathcal{L}_{c_0} \, \wedge \, (e_1, z) \in \mathcal{L}_{c_1} \Rightarrow e_0 + z^{N/2}e_1 = f_{(0)}(z) + z^{N/2}f_{(1)}(z)$ and this last implicand is equivalent to $(e, z) \in \mathcal{L}_c$ because $c = c_0 + q^{N/2}c_1$ and $e = e_0 + z^{N/2}e_1$. Negation therefore yields $(e, z) \not \in \mathcal{L}_c \Rightarrow (e_0, z) \not \in \mathcal{L}_{c_0} \, \vee \, (e_1, z) \not \in \mathcal{L}_{c_1}$.
+
+Due to the binding commitment scheme, $f'(x) = f_{(0)}(x) + \alpha{}f_{(1)}(x)$ is unique as the opening of $c' = c_0 + \alpha{}c_1$. So $\mathcal{L}_{c'}$ is well defined and $(e', z) \in \mathcal{L}_{c'} \Leftrightarrow e_0 + \alpha{}e_1 = f_0(z) + \alpha{}f_1(z)$. When $e_0 \neq f_0(z)$ or $e_1 \neq f_1(z)$ this equation holds with probability $1/p$ for uniformly random $\alpha$. With the complement probability, $\alpha$ is sampled such that $(e', z) \not \in \mathcal{L}_{c'}$. The inductive assumption states that the adversary must fail (except with negligible probability) to prove this membership. \qed
+\end{itemize}
+\end{proof}
+
+The reason why the proof of Theorem~\ref{theorem:soundness_perfectly_binding} fails when dropping the perfect binding assumption, is because a given commitment $c \in \mathbb{G}$ no longer uniquely determines a polynomial $f(x)$. As a result, the language $\mathcal{L}_c$ is ill-defined. Not only does the proof fail, the theorem statement becomes nonsensical.
+
+It is possible to modify the definition by taking the union of all sets $\{(e, z) \in \mathbb{F}_p \times \mathbb{F}_p \, | \, f(z) = e \}$ for all $f(x)$ satisfying $\mathsf{com}(f(x)) = c$. The resulting language $\mathcal{L}_c^* = \{(e, z) \, | \, \exists f(x) \in \mathbb{F}_p[x] \, . \, c = \mathsf{com}(f(x)) \wedge f(z) = e \}$ is well defined, but hardly meaningful, because in general $\mathcal{L}_c^* = \mathbb{F}_p \times \mathbb{F}_p$. To see the membership of any pair $(e, z) \in \mathcal{L}_c^*$, just find a $f(x)$ such that both $f(z)=e$ and $\mathsf{com}(f(x)) = c$ are satisfied --- there are plenty of options for a generic group $\mathbb{G}$.
+
+%Instead, we want to rely on the fact that the prover $\mathsf{P}$ \emph{knows} only one $f(x)$, even though $c$ could be the proper commitment of any number of polynomials. Our strategy is motivated by the concept of \emph{knowledge} in proofs of knowledge, where the prover does not establish that his claim is correct but furthermore that he \emph{knows} a witness to this fact. In this context, ``knowledge'' is formalized by requiring the existence of an extractor machine $\mathsf{E}$ with the following properties:
+%\begin{itemize}
+%\item The extractor machine $\mathsf{E}$ has black box access to the prover $\mathsf{P}$ but only through the same interface as the verifier $\mathsf{V}$. The difference between the extractor and the verifier is that the former gets to repeat interactions, record messages, and even rewind the prover. Additionally, the extractor controls any random oracles.
+%\item If successful, the extractor machine terminates by outputting the information that the prover supposedly knows.
+%\item The computational overhead of the extractor is small, under a suitable asymptotic or concrete definition of ``small''. This requirement guarantees that the extractor is really extracting the knowledge from the prover, and not merely computing it from scratch while ignoring the prover.
+%\end{itemize}
+%The existence of $\mathsf{E}$ is a property of the proof system; the extractor should be successful for any successful prover, \emph{i.e.}, one that convinces the verifier.\note{We note that this intuitive definition omits the probabilistic expressions necessary for a rigorous definition.}
+
+%At the present level of abstraction proof-of-knowledge is not a fitting property. A slight adaptation of the protocol, whereby the verifier determines the point $z$ and the prover provides the evaluation $e=f(z)$, is trivially a proof of knowledge because the extractor can repeat the protocol $N$ times and then fit a polynomial of degree $N-1$ to the resulting points --- provided that any commitment $c$ binds the prover down to only one polynomial $f(x)$. The concept of knowledge is involved in formalizing this strong binding property. Once $f(x)$ is uniquely determined, the soundness of $\mathsf{PoCEv}\{e,z,c\}$ can be articulated and proved in relation to the language $\{(e, z) \in \mathbb{F}_p \times \mathbb{F}_p \, | \, f(z) = e\}$.
+
+%Rather than considering \emph{black box access} to the prover, we leverage the generic group model and provide the extractor only with read access to the queries and responses made to and provided by the group oracle. Let $Q \stackrel{\triangle}{=} ((q_i, r_i))_i$ be this list of queries and responses, including the queries and matching responses that were made before the commitment $c$ was produced. In order for the commitment scheme to be interchangeable with one that is perfectly binding, we require two things: first, no computationally bounded algorithm can produce a commitment with two conflicting openings; and second, the extractor computes a valid opening for $c$ from $(g, c, Q)$, provided that $c$ is a valid commitment. This second requirement captures the intuition that the list of queries and responses to and from the group oracle uniquely determines the value that the given commitment $c$ commits to. The first requirement stipulates that this value is indeed unique. We call commitment schemes that satisfy both properties \emph{relative binding}. In fact, the group hides the structure of the group and therefore the extractor's running time and memory are immaterial next to the number of queries provided in its input. Moreover, by quantifying only over valid commitment $c$, we guarantee that for every such commitment there is a matching opening. These observations motivate a functional, rather than algorithmic, characterization of the extractor.
+
+There is a definitional workaround that identifies the language $\mathcal{L}_c$ with ``the only polynomial $f(x)$ that the computationally bounded prover could possess such that $c = \mathsf{com}(f(x))$'' in a rigorous manner. This workaround involves defining the language in terms of the generic group model. To this end, the next definition relaxes the notion of binding slightly: there ought to exist an efficiently computable function that, when provided with the commitment and the list of queries made to the generic group oracle along with the corresponding answers, outputs the value that was committed to. In fact, the next definition even makes abstraction of the nature of the oracle.
+
+\begin{definition}[relative binding] \label{definition:relative_binding}
+Let $(\mathsf{com}, \mathsf{open})$ be a commitment scheme defined relative to some oracle $\mathsf{O}$. Then $(\mathsf{com}, \mathsf{open})$ is \emph{relative binding} if both conditions are satisfied:
+\begin{itemize}
+\item[1.] For all algorithms $\mathsf{C}$ making at most a polynomial number (as a function of the security parameter) of queries to the oracle, the probability that $\mathsf{C}^\mathsf{O}$ outputs a triple of values $(c, o_0, o_1)$ such that $\mathsf{open}(c, o_0) \neq \bot$ and $\mathsf{open}(c, o_1) \neq \bot$ and $o_1 \neq o_0$, is negligible (in the security parameter).
+\item[2.] There is an efficiently computable function $\mathsf{E}$ that satisfies the following. Let $\mathsf{C}$ be any algorithm making at most a polynomial number (as a function of the security parameter) of queries to the oracle and terminates by outputting a valid commitment $c \leftarrow \mathsf{C}^\mathsf{O}()$. And let $Q = ((q_i, r_i))_{i}$ be the corresponding list of queries and responses. Then $\mathsf{open}(c, \mathsf{E}(c, Q)) \neq \bot$.
+\end{itemize}
+\end{definition}
+
+Armed with this notion, it is possible to restate and fix Theorem~\ref{theorem:soundness_perfectly_binding} and its proof. Let $\mathsf{C}$ be the portion of the prover-side algorithm that outputs the original commitment $c$ but before engaging in the proof protocol; and let $\mathsf{P}$ be the portion that plays the part of the prover in the protocol. The list $Q$ consists of the queries and responses originating from $\mathsf{C}$, and is oblivious of the queries of $\mathsf{P}$ (or of $\mathsf{V}$, for that matter). Then we consider the language $\mathcal{L}_{\mathsf{C}} \stackrel{\triangle}{=} \{(e,z) \in \mathbb{F}_p \times \mathbb{F}_p \, | \, \mathsf{open}(c, \mathsf{E}(c, Q)) = f(x) \wedge e = f(z))\}$, and state and prove soundness with respect to this language.
+
+\begin{theorem} \label{theorem:soundness_relative_binding}
+Let $(\mathsf{com}, \mathsf{open})$ be a relative binding commitment scheme. Let $(\mathsf{C}, \mathsf{P})$ be a pair of algorithms that share a state and such that $c \leftarrow \mathsf{C}$ and such that $\mathsf{P}$ is a prover in the proof system $\mathsf{PoCEv}\{e, z, c \}$. Then this proof system is statistically sound with respect to the language $\mathcal{L}_{\mathsf{C}} \stackrel{\triangle}{=} \{(e,z) \in \mathbb{F}_p \times \mathbb{F}_p \, | \, \mathsf{open}(c, \mathsf{E}(c, Q)) = f(x) \wedge e = f(z))\}$.
+\end{theorem}
+
+\begin{proof}
+The proof is identical to that of Theorem~\ref{theorem:soundness_perfectly_binding}, except that the language $\mathcal{L}_c$ is replaced by $\mathcal{L}_{\mathsf{C}} \stackrel{\triangle}{=} \{(e,z) \in \mathbb{F}_p \times \mathbb{F}_p \, | \, \mathsf{open}(c, \mathsf{E}(c, Q)) = f(x) \wedge e = f(z))\}$, and $Q$ is updated at every recursion step to also contain the list of queries and responses made up until that point. \qed
+\end{proof}
+
+What remains to be proven then, is that the commitment scheme $(\mathsf{com}, \mathsf{open})$ is relative binding. We show that this holds in the generic group model.
+
+\begin{theorem} \label{theorem:relative_binding}
+Let $(\mathsf{com}, \mathsf{open})$ be the commitment scheme with
+\begin{itemize}
+\item $\mathsf{com} : \mathbb{F}_p[x] \rightarrow \mathbb{G}, f(x) = \sum_{i=0}^{N-1} f_i x^i \mapsto g^{\sum_{i=0}^{N-1} f_iq^i}$
+\item $\mathsf{open} : \mathbb{G} \times \mathbb{N} \rightarrow \mathbb{F}_p \cup \{\bot\} , (c, n) \mapsto \left\lbrace \begin{array}{ll}
+f(x) = \sum_{i=0}^{N-1} f_i x^i \quad & \textnormal{if} \, g^n = c \, ; \\
+\quad \quad \textnormal{where} \, f_i = n_i \, \mathsf{mod} \, p & \\
+\quad \quad \textnormal{and} \, \sum_{i=0}^{N-1} n_iq^i = n & \\
+\bot & \textnormal{else} \, ,
+\end{array} \right.$
+\end{itemize}
+with the group operations being computed via the group oracle. Then $(\mathsf{com}, \mathsf{open})$ is relative binding in the generic group model.
+\end{theorem}
+
+\begin{proof}
+Suppose the negation of the first item that defines relative binding, namely that there is an algorithm that makes a polynomial number (in the security parameter) of queries to the group oracle and outputs a triple $(c, o_0, o_1)$ such that $\mathsf{open}(c, o_0) \neq \bot$ and $\mathsf{open}(c, o_1) \neq \bot$ and $o_1 \neq o_0$. This implies that $g^{o_0} = g^{o_1}$, meaning that $o_0 - o_1$ is a multiple of the order of $g$. Consequently, $\mathsf{C}$, together with the extended Euclidean algorithm, can be made into a an algorithm that solves the adaptive root problem. Since this problem is impossible (with overwhelming probability) from only a polynomial number of queries in the generic group model, this ability provides the necessary contradiction to make the contrapositive argument complete. So the first item that defines relative binding holds in the generic group model.
+
+As for the second item, consider the table of discrete logarithms where every row and every column represents a group element, and the cell at $(i, j)$ either holds an integer $n_{i,j}$ indicating that group element $j$ raised to the power $n_{i,j}$ gives group element $i$; or the cell is empty, indicating that no such discrete logarithm exists. While the list of queries $Q$ does not fix the entire table, it does fix some elements (modulo the group order), namely at most $\#Q$ rows and at most $\#Q$ columns. Moreover, this partial filling out (with concrete representatives for the equivalence classes modulo the group order) can be computed by starting from a table with one element containing the value 1, and iteratively expanding and updating this table as queries from the list are processed.
+
+This table contains a discrete logarithm base $g$ for $c$, because otherwise $c$ cannot be a valid commitment. The output of $\mathsf{E}$ is the value of the cell whose indices match those of $g$ and $c$ in the list of group elements. Since $\mathsf{E}(c, Q)$ is a discrete logarithm of $c$ base $g$, we have $\mathsf{open}(c, \mathsf{E}(c,Q)) \neq \bot$. \qed
+\end{proof}
+
+\subsection{Knowledge-Soundness} \label{subsection:knowledge_soundness}
+
+
+
+\bibliography{references}{}
+\bibliographystyle{splncs03}
+
+\end{document}
