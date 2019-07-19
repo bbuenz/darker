@@ -11,8 +11,49 @@
 \begin{document}
 \title{RSA-based Polynomial Commitment}
 \maketitle
+
+\section{Introduction}
+
+interactive proof systems for arbitrary computation
+
+ - zero-knowledge proofs
+ - arithmetization
+ - polynomial relations
+ 
+circuit model: QAP and Groth16 NILP
+
+ - construction
+ - used algebra
+ - advantages and disadvantages
+ 
+Turing model: STARK
+
+ - construction
+ - used algebra
+ - advantages and disadvantages
+
+Class group
+
+ - groups of unknown order
+ - vdfs / accumulators
+
+Our contribution:
+
+ - polynomial commitments with groups of unknown order
+ - efficiently verifiable evaluation proofs
+ - interactive proofs for arbitrary computation
+
+
 \section{Preliminaries}
-The security of the scheme relies on the fractional root assumption which is a generalization of the strong RSA assumption. The assumption states that an adversary cannot compute fractional roots of random group elements. B\"unz, Boneh and Fisch \cite{accumulator} show that this assumption is satisfied in the generic group model.  
+\paragraph{Notation}
+\begin{itemize}
+\item Let $f(x) \in \mathbb{F}_p[x]$ be a polynomial of degree at most $N-1$ where $N$ is a power of two. The coefficients of $f(x)$ are denoted by $f_i$ such that $f(x) \stackrel{\triangle}{=} \sum_{i=0}^{N-1} f_i x^i$.
+\item We work in a group $\mathbb{G}$ of unknown order (\emph{e.g.} an ideal class group) with a designated base element $g \in \mathbb{G}$ with unknown order. (It might be tempting refer to this element as the \emph{generator} but that terminology would imply that $\mathbb{G}$ is cyclic, which is not necessarily true.) We use multiplicative notation.
+\item Let $q \in \mathbb{N}$ be an integer with $q \gg p$.
+\end{itemize}
+
+\subsection{Assumptions}
+The security of the scheme relies on the fractional root assumption which is a generalization of the strong RSA assumption. The assumption states that an adversary cannot compute fractional roots of random group elements. B\"unz, Boneh and Fisch \cite{journals/iacr/BonehBF18a} show that this assumption is satisfied in the generic group model.  
 \begin{definition}[Pseudo root assumption]
 The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\adv$:
 \[        
@@ -27,7 +68,7 @@ The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\ad
 \end{definition}
 We now define a security games for polynomial commitments
 
-
+\subsection{Polynomial Commitments}
 \begin{definition}[Evaluation Binding]
 We say a polynomial commitment scheme, consisting of algorithms $(\setup,\commit)$ and the interactive protocol $\open$, is sound if for all polynomial degrees $d=\poly\in \NN$ and for any efficient adversary $\adv$:
 	\[        
@@ -104,7 +145,7 @@ Opening proof at point $y=p(z)\in \FF_p$ $d$. Commitment $C$. $p(x)=\sum_{i=0}^{
 \end{minipage}
 \end{small}
 
-\section{Soundness proof}
+\section{Security}
 
 \begin{lemma}[Soundness extraction]
 	Assuming the polynomial commitment has extraction it is also sound.
@@ -132,5 +173,8 @@ $y_0+z^{d/2} y_1$
 
 
 \end{proof}
-  
+\section{Supersonic: A SNARK with trustless, constant size CRS}
+We build \emph{supersonic} by instantiating the Sonic SNARK using our trustless setup polynomial commitment scheme.
+  \bibliography{references,cryptobib/abbrev0,cryptobib/crypto}
+
 \end{document}
