@@ -4,9 +4,25 @@
 \usepackage{mdframed}
 \usepackage{enumitem}
 \usepackage{amsmath,amsthm}
+
+%Theorems
 \newtheorem{definition}{Definition}
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
+\newtheorem{assumption}{Assumption}
+
+\newif\ifcomments
+\commentstrue
+
+
+\ifcomments
+	\newcommand{\benedikt}[1]{{\textcolor{red}{[Benedikt: #1]}}}
+		\newcommand{\alan}[1]{{\textcolor{blue}{[Alan: #1]}}}
+
+	\else
+	\newcommand{\benedikt}[1]{}
+	\newcommand{\alan}[1]{}
+	\fi
 
 \begin{document}
 \title{RSA-based Polynomial Commitment}
@@ -43,18 +59,25 @@ Our contribution:
  - efficiently verifiable evaluation proofs
  - interactive proofs for arbitrary computation
 
-
+Related work:
+	
+	-Kate et al.
+	-Sonic
 \section{Preliminaries}
 \paragraph{Notation}
 \begin{itemize}
 \item Let $f(x) \in \mathbb{F}_p[x]$ be a polynomial of degree at most $N-1$ where $N$ is a power of two. The coefficients of $f(x)$ are denoted by $f_i$ such that $f(x) \stackrel{\triangle}{=} \sum_{i=0}^{N-1} f_i x^i$.
+\item In general elements with a hat e.g. $\hat{y}$ denote integers and elements without it denote elements in prime field $\FF_p$ or the corresponding polynomial rings.
+\item $p$ is a prime.
 \item We work in a group $\mathbb{G}$ of unknown order (\emph{e.g.} an ideal class group) with a designated base element $g \in \mathbb{G}$ with unknown order. (It might be tempting refer to this element as the \emph{generator} but that terminology would imply that $\mathbb{G}$ is cyclic, which is not necessarily true.) We use multiplicative notation.
 \item Let $q \in \mathbb{N}$ be an integer with $q \gg p$.
+\item $\textbf{Protocol}_{A,B}(x;w)$ denotes an interactive public coin protocol with common input $x$ and B's private input $w$
 \end{itemize}
 
 \subsection{Assumptions}
 The security of the scheme relies on the fractional root assumption which is a generalization of the strong RSA assumption. The assumption states that an adversary cannot compute fractional roots of random group elements. B\"unz, Boneh and Fisch \cite{journals/iacr/BonehBF18a} show that this assumption is satisfied in the generic group model.  
-\begin{definition}[Pseudo root assumption]
+\begin{assumption}[Pseudo root assumption]
+\label{assum:fracroot}
 The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\adv$:
 \[        
                 \Pr\left[y^\beta = g^{\alpha} \wedge  \beta \not\vert~ \alpha   : 
@@ -65,14 +88,47 @@ The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\ad
                 \end{array} 
         \right] \leq \negl.
 \]
-\end{definition}
+\end{assumption}
 We now define a security games for polynomial commitments
 
 \subsection{Polynomial Commitments}
-\begin{definition}[Evaluation Binding]
-We say a polynomial commitment scheme, consisting of algorithms $(\setup,\commit)$ and the interactive protocol $\open$, is sound if for all polynomial degrees $d=\poly\in \NN$ and for any efficient adversary $\adv$:
+\begin{definition}[Polynomial Commitment see \cite{AC:KatZavGol10} ]
+We say a polynomial commitment scheme, consisting of algorithms $(\setup,\commit)$ and the interactive protocols $\open$ and $\eval$ is secure interactive if it satisfies the following properties:
+\paragraph{Correctness}
+For an honest prover $\prover$ and a public coin honest verifier $\verifier$, is correct if for all polynomials $f(x)\in \ZZ_p[X]$ with degree polynomial in $\lambda$ and evaluation points $z\in \FF_p$:
 	\[        
-                \Pr\left[\begin{array}{c}\open_{\adv,\verifier}(\crs,z,y_0,C)=\open_{\adv,\verifier}(\crs,z,y_1,C)=\text{"accept"}\\
+                \Pr\left[\begin{array}{c}\open_{\prover,\verifier}(\crs,f(x),C)=\text{"accept"}\\
+                \eval_{\prover,\verifier}(\crs,C,z,y;f(x))=\text{"accept"}
+                \end{array}  : 
+                \begin{array}{l} 
+                      \crs \sample \setup(\lambda, \deg(p(x)) \\
+                      C\gets \commit(\crs,f(x))]\\
+               z\sample \FF_p\\
+                      y\gets f(z) \in \FF_p
+                \end{array} 
+        \right] =1.
+\]
+\benedikt{ok to mesh them together?}
+\paragraph{Opening Binding}
+We say a polynomial commitment scheme, consisting of algorithms $(\setup,\commit)$ and the interactive protocol $\open$, is opening binding if for all polynomial degrees $d=\poly\in \NN$ and for any efficient adversary $\adv$ and honest verifier $\verifier$:
+
+	\[        
+                \Pr\left[\begin{array}{c}\open_{\adv,\verifier}(\crs,C,f(x))=\text{"accept"}\\
+                \wedge\\
+           \open_{\adv,\verifier}(\crs,C,g(x))=\text{"accept"}\\
+                \wedge\\
+                f(x)\neq g(x) \vee \deg(f(x))\neq d\end{array}  : 
+                \begin{array}{l} 
+                      \crs \sample \setup(\lambda, d) \\
+                      (C,z,f(x),g(x))\sample \adv(\crs)]
+                \end{array} 
+        \right] \leq \negl.
+\]
+\paragraph{Evaluation Binding}
+	\[        
+                \Pr\left[\begin{array}{c}\eval_{\adv,\verifier}(\crs,z,y_0,C)=\text{"accept"}\\
+                \wedge\\
+                \eval_{\adv,\verifier}(\crs,z,y_1,C)=\text{"accept"}\\
                 \wedge\\
                 y_0\neq y_1\end{array}  : 
                 \begin{array}{l} 
@@ -82,24 +138,33 @@ We say a polynomial commitment scheme, consisting of algorithms $(\setup,\commit
         \right] \leq \negl.
 \]
 \end{definition}
+Note that technically a complete $\eval$ protocol suffices as one can always open a polynomial by evaluating it at $\deg(f(x))+1$ points.
 
+We additionally require a stronger extraction property that had in different variations been defined by \cite{SP:ZGKPP17} and \cite{EPRINT:MBKM19}.
 \begin{definition}[PolyCommit extraction]
-We say a polynomial commitment scheme, consisting of algorithms $(\setup,\commit)$ and the interactive protocol $\open$, is extractable if there exists an extractor $\extractor$ such that for all polynomial degrees $d=\poly\in \NN$ and for any efficient adversary $\adv$:
+We say a polynomial commitment scheme, consisting of algorithms $(\setup,\commit)$ and the interactive protocol $\eval$, is extractable if there exists a rewinding \benedikt{Define more properly}extractor $\extractor$ such that for all polynomial degrees $d=\poly\in \NN$ and for any efficient adversary $\adv$:
 	\[        
-                \Pr\left[\begin{array}{c}\open_{\adv,\verifier}(\crs,z,y,C)=\text{"accept"}\\
+                \Pr\left[\begin{array}{c}\eval_{\adv,\verifier}(\crs,C,z,y)=\text{"accept"}\\
                 \wedge\\
-                p(x)\gets\extractor(\crs,\adv,C)\in \FF_p[X]\\
+                f(x)\gets\extractor^{<\eval_{\adv,\verifier}(\crs,C,z,y)>}(\crs,C)\in \FF_p[X]\\
                 \wedge\\
-               \commit(p(x),d)\neq C\vee p(z)\neq y \vee \deg(p)\neq d
+               \commit(f(x))\neq C\vee f(z)\neq y \vee \deg(f)\neq d
                  \end{array}  : 
                 \begin{array}{l} 
                       \crs \sample \setup(\lambda, d) \\
-                      (C,d,z,y)\sample \adv(\crs)]
+                      \tau \sample (0,1)^\lambda\\
+                      (C,z,y)\sample \adv_1(\crs,\tau)]
                       
                 \end{array} 
         \right] \leq \negl.
 \]
 \end{definition}
+\begin{lemma}[Extraction soundness]
+	A polynomial commitment scheme that satisfies opening binding as well as extraction also satisfies evaluation binding.
+\end{lemma}
+\begin{proof}
+	(SKETCH) Assume an adversary $\adv_{\eval}$ can break the evaluation binding property with non negligible probability $\gamma$. Using the extractor $\extractor$ we will construct an adversary $\adv_\open$ that will break the opening binding property with non-negligible probability. Run $\adv_\eval$ to get $(C,z,y_1,y_2)$. Now using $\ext$ we extract polynomials $f(x)$ and $g(x)$ of degree $d$ with all but negligible probability. Note that $f(z)=y_1$ and $g(z)=y_2$. This means $f(x)\neq g(x)$ but since $C=\commit(p(x))=\commit(g(x))$ we have a break of the opening binding property.
+\end{proof}
 \section{Protocol}
 \label{sec:protocol}
 \begin{mdframed}[userdefinedwidth=0.8\textwidth]
@@ -114,50 +179,58 @@ We say a polynomial commitment scheme, consisting of algorithms $(\setup,\commit
 		\end{enumerate}
 		$\commit(\crs,p(x)\in \FF_p[X])$
 		\begin{enumerate}[nolistsep]
-			\item 	$\hat{p}(x)\gets p(x) \in \ZZ[X]$
-			\item $y\gets \hat{p}(q)$
-			\item $\pcreturn g^y,\deg(p)$
+			\item 	$\hat{f}(x)\gets f(x) \in \ZZ[X]$
+			\item $y\gets \hat{f}(q)$
+			\item $\pcreturn g^y,\deg(f)$
 		\end{enumerate}
-		
+		$\open(\crs,p(x)\in \FF_p[X])$
+		\begin{enumerate}[nolistsep]
+			\item Prover computes the integer encoding of $p$ $\hat{f}(x)\gets p(x) \in \ZZ[X]$
+			\item Prover sends $\hat{p}(x),p(x)$ to verifier.
+			\item Verifier checks that $\hat{f}(x) \mod p=f(x)$
+			\item Verifier checks that $\deg(f(x))=d$ and that for each coefficient $f_i$, $|f_i|\leq q/2$
+			\item If $C=g^{f(q)}$ the verifier accepts.
+		\end{enumerate}
 	\end{flushleft}
+	
 \end{minipage}
 \end{mdframed}
 \begin{small}
  \begin{minipage}{1.1\textwidth}
 \begin{mdframed}[userdefinedwidth=1\textwidth]  \label{prot:Opening}
-
-Opening proof at point $y=p(z)\in \FF_p$ $d$. Commitment $C$. $p(x)=\sum_{i=0}^{d} c_i x^{i}$
+$\eval(\crs,C,d,z,y;f(x))$\\
+Evaluation protocol $\eval$ at point $y=f(z)\in \FF_p$ $d$. Commitment $C$. $f(x)=\sum_{i=0}^{d} f_i x^{i}$
 \begin{enumerate}[nolistsep]
 \item \pcif $d=0$:
-\item \pcind[1] Prover computes $\hat{y}=\hat{p} \in \ZZ$, i.e. $\hat{p}(x)$ is a constant. 
+\item \pcind[1] Prover computes $\hat{y}=\hat{f} \in \ZZ$, i.e. $\hat{f}(x)$ is a constant. 
 \item \pcind[1] Prover sends $\hat{y}$ to the verifier.
 \item \pcind[1] Verifier checks that $0\leq\hat{y}< q$,  $\hat{y} \bmod p=y$ and $g^{\hat{y}}=C$ otherwise rejects
 \item \pcelse:
-\item \pcind[1] Prover computes $p_0(x)=\sum_{i=0}^{d/2-1} c_i x^i\in \ZZ$ and $p_1(x)=\sum_{i=0}^{d/2-1} c_{d/2+i} x^{i}\in \ZZ$
-\item \pcind[1] $y_0=p_0(z) \bmod p$, $y_1=p_1(z)\bmod p$, $C_0\gets\commit(p_0)$,$C_1\gets\commit(p_1)$
+\item \pcind[1] Prover computes $f_0(x)=\sum_{i=0}^{d/2-1} f_i x^i\in \ZZ$ and $f_1(x)=\sum_{i=0}^{d/2-1} f_{d/2+i} x^{i}\in \ZZ$
+\item \pcind[1] $y_0=f_0(z) \bmod p$, $y_1=f_1(z)\bmod p$, $C_0\gets\commit(f_0)$,$C_1\gets\commit(f_1)$
 \item \pcind[1] Prover sends $y_0,y_1,C_0,C_1$ to the Verifier
 \item \pcind[1] Verifier checks that $y_0+z^{d/2} y_1=y\in \FF_p$ and that $C_0C_1^{q^{d/2}}=C$\footnote{Using $\textsf{PoE}(C_1,C/C_0,q^{d/2})$}
 \item \pcind[1] Verifier samples $\alpha \sample \FF_p$ and sends it to the prover
-\item \pcind[1] Prover and Verifier compute $y'\gets\alpha y_0 +y_1 \bmod p$, $C'\gets C_0^{\alpha}C_1 \in \GG$. \\Prover also computs $p'(x)\gets\alpha  \cdot \hat{p}_0(x)+\hat{p}_1(x) \in \ZZ[X]$ 
-\item \pcind[1] Prover and Verifier run $\textsf{PoCEv}(y',C',d/2;p'(x))$
+\item \pcind[1] Prover and Verifier compute $y'\gets\alpha y_0 +y_1 \bmod p$, $C'\gets C_0^{\alpha}C_1 \in \GG$. \\Prover also computs $f'(x)\gets\alpha  \cdot \hat{f}_0(x)+\hat{f}_1(x) \in \ZZ[X]$ 
+\item \pcind[1] Prover and Verifier run $\eval(y',C',d/2,z,y';f'(x))$
 \end{enumerate}
 \end{mdframed}
 \end{minipage}
 \end{small}
 
 \section{Security}
-
-\begin{lemma}[Soundness extraction]
-	Assuming the polynomial commitment has extraction it is also sound.
+\begin{lemma}
+	The polynomial commitment scheme satisfies the opening binding property
 \end{lemma}
 \begin{proof}
-	Assume there is an adversary which can break the soundness property, i.e. output a tuple $(C,z,y_0,y_1)$ such that the verifier accepts with high probability both opening transcripts. Now run the extractor to extract two polynomials $p_0$ and $p_1$ such that $p_0(z)=y_0$ and $p_0(z)=y_1$. Both polynomials are of degree $d$. We write the integer representation using coefficients of size less than $q$ of $p_0$ as $\hat{p}_0$ and the serialization of $p_1$ as $\hat{p}_1$. Note tha
+	Assume $\hat{f}(x)$ and $\hat{g}(x)$ are integer encodings of two distinct polynomials $f(x),p(x) \in \FF_p[X]$. Then $\hat{h}(x)=\hat{f}(x)-\hat{g}(x) \in \ZZ[X]$ is a polynomial of degree at most $d$. Since $g^{\hat{g}(q)}=g^{\hat{f}(q)}=C$ we have that $g^{\hat{h}(q)}=1$\benedikt{Change generator base name}. Note that the coefficients of $g(x)$ and $h(x)$ are all less than $q/2$ in absolute value. By triangle inequality we have that $\hat{h}(x)$ are less than $q$. $\hat{h}$ is by assumption not the zero polynomial. This implies that $\hat{h}(q)\neq 0$ is a multiple of the order of $g\in \GG$. This however can directly be used to break the fractional root assumption (Assumption \ref{assum:fracroot}) by taking the inverse of an integer mod $h(q)$.
 \end{proof}
+
 \begin{theorem}
-	The polynomial commitment scheme from Section \ref{sec:protocol} is sound under the Fractional Root Assumption. We show that we can either extract a fractional root of $g$ or a witness \footnote{Formally we should define witness extended emulation }
+	The polynomial commitment scheme from Section \ref{sec:protocol} satisfies extraction under the Fractional Root Assumption. We show that we can either extract a fractional root of $g$ or a witness \benedikt{Formally we should define witness extended emulation }
 \end{theorem}
 \begin{proof}
-
+(SKETCH)
 If $d=0$ then we can directly extract $p(x)=y\in \FF_p[X]$ as the witness. 
 
 
