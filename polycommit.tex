@@ -10,6 +10,8 @@
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
 \newtheorem{assumption}{Assumption}
+\newtheorem{fact}{Fact}
+\newtheorem{corollary}{Corollary}
 
 \newif\ifcomments
 \commentstrue
@@ -167,6 +169,25 @@ We say a polynomial commitment scheme, consisting of algorithms $(\setup,\commit
 \end{proof}
 \section{Protocol}
 \label{sec:protocol}
+
+\subsection{Polynomial Encoding}
+
+	Consider the set $P_q\subset \ZZ[X]$ of integer polynomials with coefficients whose absolute value is less than $q/2$. $p(q) \in \ZZ$ for $p(x)\in P_q$ is a unique encoding of the polynomial:
+\begin{itemize}
+	\item Domain $P_q \subset \ZZ[X]$, Alphabet: $\ZZ$
+	\item $\enc(p(x) \in X): p(q)$
+	\item $\dec(y \in \ZZ): p_i=\frac{y \mod q^{i+1}-y \mod q^{i}}{q^i} \forall i \in [0,\lfloor\log_q(y)\rfloor]$\\
+	$p(x)=\sum_{i=0}^{\lfloor\log_q(y)\rfloor} p_i x^i$
+\end{itemize}
+
+\begin{fact}
+	The polynomial encoding scheme is uniquely decodable.
+\end{fact}
+
+Note that the encoding has limited homomorphic properties. $\enc(g(x))+\enc(h(x))=\enc(g(x)+h(x))$ if $g(x)+h(x)\in P_q$, i,.e. all its coefficients are less than $q/2$ in absolute value. This is ensured if for example the coefficients of $g$ and $h$ are less than $q/4$. Additionally $\enc(g(x))\cdot \enc(h(x))=\enc(g(x)\cdot h(x))$ if $g(x)\cdot h(x)\in P_q$.
+\subsection{Polynomial Commitment}
+ For now we assume that the degree $d$ is always a power of two
+
 \begin{mdframed}[userdefinedwidth=0.8\textwidth]
 \begin{minipage}{\textwidth}
 	\begin{flushleft}
@@ -174,7 +195,7 @@ We say a polynomial commitment scheme, consisting of algorithms $(\setup,\commit
 		\begin{enumerate}[nolistsep]
 			\item $ \GG \sample \ggen(\secpar)$
 			\item $ g \sample \GG$
-			\item $q\gets 2^k \text{s.t.} q> p \cdot \lceil \log_2(d+1)+1\rceil $
+			\item $q\gets 2^k \text{s.t.} q>(d+1) \cdot 2\cdot p^{\log_2(d+1)+1} $
 			\item $\pcreturn \crs=\{\secpar,p,\GG,g,q\}$
 		\end{enumerate}
 		$\commit(\crs,p(x)\in \FF_p[X])$
@@ -188,7 +209,7 @@ We say a polynomial commitment scheme, consisting of algorithms $(\setup,\commit
 			\item Prover computes the integer encoding of $p$ $\hat{f}(x)\gets p(x) \in \ZZ[X]$
 			\item Prover sends $\hat{p}(x),p(x)$ to verifier.
 			\item Verifier checks that $\hat{f}(x) \mod p=f(x)$
-			\item Verifier checks that $\deg(f(x))=d$ and that for each coefficient $f_i$, $|f_i|\leq q/2$
+			\item Verifier checks that $\deg(f(x))=d$ and that for each coefficient $f_i$, $|f_i|< q/2$
 			\item If $C=g^{f(q)}$ the verifier accepts.
 		\end{enumerate}
 	\end{flushleft}
@@ -199,13 +220,13 @@ We say a polynomial commitment scheme, consisting of algorithms $(\setup,\commit
  \begin{minipage}{1.1\textwidth}
 \begin{mdframed}[userdefinedwidth=1\textwidth]  \label{prot:Opening}
 $\eval(\crs,C,d,z,y;f(x))$\\
-Evaluation protocol $\eval$ at point $y=f(z)\in \FF_p$ $d$. Commitment $C$. $f(x)=\sum_{i=0}^{d} f_i x^{i}$
+Evaluation protocol $\eval$ at point $y=f(z)\in \FF_p$. Degree $d$ Commitment $C$. $f(x)=\sum_{i=0}^{d} f_i x^{i}$
 \begin{enumerate}[nolistsep]
 \item \pcif $d=0$:
 \item \pcind[1] Prover computes $\hat{y}=\hat{f} \in \ZZ$, i.e. $\hat{f}(x)$ is a constant. 
 \item \pcind[1] Prover sends $\hat{y}$ to the verifier.
-\item \pcind[1] Verifier checks that $0\leq\hat{y}< q$,  $\hat{y} \bmod p=y$ and $g^{\hat{y}}=C$ otherwise rejects
-\item \pcelse:
+\item \pcind[1] Verifier checks that $0\leq\hat{y}< (\log_2(d+1)+1)\cdot p$,  $\hat{y} \bmod p=y$ and $g^{\hat{y}}=C$ otherwise rejects
+\item \pcelse: \benedikt{Doesn't quite work for $d=1$}
 \item \pcind[1] Prover computes $f_0(x)=\sum_{i=0}^{d/2-1} f_i x^i\in \ZZ$ and $f_1(x)=\sum_{i=0}^{d/2-1} f_{d/2+i} x^{i}\in \ZZ$
 \item \pcind[1] $y_0=f_0(z) \bmod p$, $y_1=f_1(z)\bmod p$, $C_0\gets\commit(f_0)$,$C_1\gets\commit(f_1)$
 \item \pcind[1] Prover sends $y_0,y_1,C_0,C_1$ to the Verifier
@@ -219,33 +240,48 @@ Evaluation protocol $\eval$ at point $y=f(z)\in \FF_p$ $d$. Commitment $C$. $f(x
 \end{small}
 
 \section{Security}
+
+
+\begin{lemma}
+	The pseudo root assumption holds in the generic group model.
+\end{lemma}
 \begin{lemma}
 	The polynomial commitment scheme satisfies the opening binding property
 \end{lemma}
 \begin{proof}
-	Assume $\hat{f}(x)$ and $\hat{g}(x)$ are integer encodings of two distinct polynomials $f(x),p(x) \in \FF_p[X]$. Then $\hat{h}(x)=\hat{f}(x)-\hat{g}(x) \in \ZZ[X]$ is a polynomial of degree at most $d$. Since $g^{\hat{g}(q)}=g^{\hat{f}(q)}=C$ we have that $g^{\hat{h}(q)}=1$\benedikt{Change generator base name}. Note that the coefficients of $g(x)$ and $h(x)$ are all less than $q/2$ in absolute value. By triangle inequality we have that $\hat{h}(x)$ are less than $q$. $\hat{h}$ is by assumption not the zero polynomial. This implies that $\hat{h}(q)\neq 0$ is a multiple of the order of $g\in \GG$. This however can directly be used to break the fractional root assumption (Assumption \ref{assum:fracroot}) by taking the inverse of an integer mod $h(q)$.
+	Assume $\hat{f}(x)$ and $\hat{g}(x)$ are integer encodings of two distinct polynomials $f(x),p(x) \in \FF_p[X]$. Then $\hat{h}(x)=\hat{f}(x)-\hat{g}(x) \in \ZZ[X]$ is a polynomial of degree at most $d$. Since $g^{\hat{g}(q)}=g^{\hat{f}(q)}=C$ we have that $g^{\hat{h}(q)}=1$\benedikt{Change generator base name}. Note that the coefficients of $g(x)$ and $h(x)$ are all less than $q/2$ in absolute value. By triangle inequality we have that $\hat{h}(x)$ are less than $q$. $\hat{h}$ is by assumption not the zero polynomial. This implies that $\hat{h}(q)\neq 0$ is a multiple of the order of $g\in \GG$. This however can directly be used to break the pseudo root assumption (Assumption \ref{assum:fracroot}) by taking the inverse of an integer mod $h(q)$.
 \end{proof}
 
 \begin{theorem}
-	The polynomial commitment scheme from Section \ref{sec:protocol} satisfies extraction under the Fractional Root Assumption. We show that we can either extract a fractional root of $g$ or a witness \benedikt{Formally we should define witness extended emulation }
+	The polynomial commitment scheme from Section \ref{sec:protocol} satisfies extraction under the Pseudo Root Assumption and the Order assumption. We show that we can either extract a pseudo root of $g$ or a witness \benedikt{Formally we should define witness extended emulation }
 \end{theorem}
 \begin{proof}
 (SKETCH)
-If $d=0$ then we can directly extract $p(x)=y\in \FF_p[X]$ as the witness. 
-
-
-	We prove the statement through induction over the degree $d$. If $d=0$ and there exists an efficient adversary that can produce a tuple $(C,z,y_0,y_1)$ with non-negligble probability such that the opening verifier accepts then this implies that $g^{y_0}=g^{y_1}=C$ for $y_0\neq y_1$. This however implies that $g^{y_0-y_1}=1$. $y_0-y_1\neq 0$ is a multiple of the order of $g$ and can be used to find non trivial roots of $g$ which directly breaks the fractional root assumption.
-
-
-
-Extraction step: $C=C_0^{\alpha}C_1=g^{y}$ and $C'=C_0^{\alpha'}C_1=g^{y'}$ for distinct $\alpha$ and $\alpha'$. This gives us $C_0^{\alpha-\alpha'}=g^{y-y'}$. Either $\alpha-\alpha'\not\vert~y-y' $ which would directly break the pseudo root assumption or $g^{\hat{y}_0}=g^{\frac{y-y'}{\alpha-\alpha'}}=C_0$. In that case $C_1=g^{\hat{y}_1}=g^{y-\alpha\frac{y-y'}{\alpha-\alpha'}}$. Let $\hat{y}_1=y-\alpha\frac{y-y'}{\alpha-\alpha'}$. Note that if $y<q$ then $\hat{y}_0\leq 2q$ and $\hat{y}_1\leq p \cdot 2q +q\leq (2p+1)q$. Note that $\hat{y}=y+r\cdot p$ and $\hat{y}'=y'+r'\cdot p$ so $\hat{y}_0 \bmod p=\frac{\hat{y}-\hat{y}'}{\alpha-\alpha'}\bmod p=\frac{y-y'}{\alpha-\alpha'}+(r-r')\cdot ({\alpha-\alpha'})^{-1}\cdot p\bmod p=\frac{y-y'}{\alpha-\alpha'}\bmod p=y_0$ and similarly for $y_1$.
-The polynomial $\hat{p}(x)=\hat{y}_1\cdot x+ \hat{y}_0$
-$y=y_0+z^{d/2} y_1$ and $C=C_0C_1^{q^{d/2}}$. Note that $C=g^{y_0+q^{d/2}y_1}$ 
-$p(x)=y_0+x^{d/2}y_1$
-$y_0+z^{d/2} y_1$
+We prove the statement by showing that we can recursively either extract the encoding of an integer polynomial $f(x) \in \ZZ[X]$ of degree $d$ with bounded coefficients or a break of the pseudo root assumption for element $g$ or a non trivial element of known (random) order in $\GG$. We recurse over degree $\hat{d}$ up to the final degree $d$.
+In each round the extracted witness is an integer $\hat{y}$ such that $\hat{y}=\enc(f(x))$ where the coefficients of $f(x)$ are less than $B$ in absolute value and the degree is at most $\hat{d}$ and such that $g^{\hat{y}}=C$. Also $f(z) \equiv y \mod p$.
+If $\hat{d}=0$ then we can directly extract $f(x)=\hat{y}$ such that $\vert \hat{y} \vert < p^{\log_2(d+1)+1}$, $y=\hat{y}\mod p$, $f(x)=y\in \FF_p[X]$ and $g^{\hat{y}}=C$ as the witness. We proceed with $d=1$.
+For $d>0$ we have $g^{\hat{y}}=C=C_0^{\alpha}C_1$. Rewinding once we get 
+ $C=C_0^{\alpha}C_1=g^{\hat{y}}$ and $C'=C_0^{\alpha'}C_1=g^{\hat{y}'}$ for distinct $\alpha$ and $\alpha'$. 
+ This gives us $C_0^{\alpha-\alpha'}=g^{\hat{y}-\hat{y}'}$. 
+ Either $\alpha-\alpha' \not|~ \hat{y}-\hat{y}' $ which would directly break the pseudo root assumption or we can compute $D=g^{\frac{\hat{y}-\hat{y}'}{\alpha-\alpha'}}$. Either $D=C_0$ or $(D/C_0)^{\alpha-\alpha'}=1$, i.e. $D/C_0$ is an element of known random order. In either of the cases the extraction succeeds and is completed.
+ If $D=C_0$ then we have $\hat{y}_0=\frac{\hat{y}-\hat{y}'}{\alpha-\alpha'}$ and
+ $g^{\hat{y}_0}=C_0$. In that case $C_1=g^{\hat{y}_1}=g^{\hat{y}-\hat{y}_0}$. If $|y|=|y'|<B$ then $|y_0|<  2 \cdot B$ and $|y_1|<|\hat{y}-\hat{y}+\hat{y}'|=|\hat{y}'|<B$. 
+ We define $f(x)=\dec(y_0+x^{d} \cdot y_1)$ and with coefficients less than $2B$ in absolute value. 
+ Note that $y_0=\hat{y}_0 \mod p=\dec{y_0}(z)$ and $y_1=\hat{y}_1 \mod p=\dec{y_1}(z)$. Since $y=\dec{\hat{y}}(z)=\alpha \cdot \dec{\hat{y}_0(z)}+\dec{\hat{y}_1(z)}$ and $f(x)=\dec(y_0+x^{\hat{d}} \cdot y_1)$ we have that $y=y_0 +z^{\hat{d}/2}y_1 \mod p=f(z) \mod p$.
+ Additionally $C=C_0^{\alpha}C_1=\commit(f(x))$ or we get a break of the adaptive root assumption.\benedikt{So this is technically a bit difficult because it's not actually a witeness}.
+ 
+ The extractor recuses with the encoding of $f(x)$ and degree $\hat{d}'=\hat{d}\cdot 2$.
+ 
+ Repeating this $\log_2(d+1)$ times we get a polynomial $f(x)$ of degree $d$ that has coefficients that are bounded by $(d+1) \cdot p^{\log_2(d+1)+1} <q/2$. 
+ 
 
 
 \end{proof}
+
+\begin{corollary}
+	If $q<bla$ there exists an efficient adversary that can break the evaluation binding property of the polynomial commitment.
+\end{corollary}
+\benedikt{Figure out at what q we can attack the scheme. Probably needs to use negative coefficients and such.}
 \section{Supersonic: A SNARK with trustless, constant size CRS}
 We build \emph{supersonic} by instantiating the Sonic SNARK using our trustless setup polynomial commitment scheme.
   \bibliography{references,cryptobib/abbrev0,cryptobib/crypto}
