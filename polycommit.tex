@@ -4,6 +4,7 @@
 \usepackage{mdframed}
 \usepackage{enumitem}
 \usepackage{amsmath,amsthm}
+\usepackage[colorinlistoftodos]{todonotes}
 
 %Theorems
 \newtheorem{definition}{Definition}
@@ -19,11 +20,12 @@
 
 \ifcomments
 	\newcommand{\benedikt}[1]{{\textcolor{red}{[Benedikt: #1]}}}
-		\newcommand{\alan}[1]{{\textcolor{blue}{[Alan: #1]}}}
-
+	\newcommand{\alan}[1]{{\todo[color=blue!40!white]{Alan: #1}}}
+	\newcommand{\alaninline}[1]{{\todo[color=blue!20!white, inline]{Alan: #1}}}
 	\else
 	\newcommand{\benedikt}[1]{}
 	\newcommand{\alan}[1]{}
+	\newcommand{\alaninline}[1]{}
 	\fi
 
 \begin{document}
@@ -50,16 +52,21 @@ Turing model: STARK
  - used algebra
  - advantages and disadvantages
 
-Class group
+Groups of unknown order
 
- - groups of unknown order
+ - history
  - vdfs / accumulators
+ - construction: RSA
+ - construction class group
 
 Our contribution:
 
  - polynomial commitments with groups of unknown order
  - efficiently verifiable evaluation proofs
- - interactive proofs for arbitrary computation
+ - interactive proofs for arbitrary computation based on SONIC
+ -- constant-size SRS
+ -- no trusted setup (class group)
+ -- trusted setup independent of circuit (RSA)
 
 Related work:
 	
@@ -69,7 +76,6 @@ Related work:
 \paragraph{Notation}
 \begin{itemize}
 \item Let $f(x) \in \mathbb{F}_p[x]$ be a polynomial of degree at most $N-1$ where $N$ is a power of two. The coefficients of $f(x)$ are denoted by $f_i$ such that $f(x) \stackrel{\triangle}{=} \sum_{i=0}^{N-1} f_i x^i$.
-\item In general elements with a hat e.g. $\hat{y}$ denote integers and elements without it denote elements in prime field $\FF_p$ or the corresponding polynomial rings.
 \item $p$ is a prime.
 \item We work in a group $\mathbb{G}$ of unknown order (\emph{e.g.} an ideal class group) with a designated base element $g \in \mathbb{G}$ with unknown order. (It might be tempting refer to this element as the \emph{generator} but that terminology would imply that $\mathbb{G}$ is cyclic, which is not necessarily true.) We use multiplicative notation.
 \item Let $q \in \mathbb{N}$ be an integer with $q \gg p$.
@@ -77,7 +83,7 @@ Related work:
 \end{itemize}
 
 \subsection{Assumptions}
-The security of the scheme relies on the fractional root assumption which is a generalization of the strong RSA assumption. The assumption states that an adversary cannot compute fractional roots of random group elements. B\"unz, Boneh and Fisch \cite{journals/iacr/BonehBF18a} show that this assumption is satisfied in the generic group model.  
+The security of the scheme relies on the fractional root assumption which is a generalization of the strong RSA assumption. The assumption\alaninline{``this assumption'' is the strong RSA assumption or the fractional root assumption?} states that an adversary cannot compute fractional roots of random group elements. B\"unz, Boneh and Fisch \cite{journals/iacr/BonehBF18a} show that this assumption is satisfied in the generic group model.  
 \begin{assumption}[Pseudo root assumption]
 \label{assum:fracroot}
 The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\adv$:
@@ -86,7 +92,8 @@ The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\ad
                 \begin{array}{l} 
                       \GG \sample \ggen(\lambda) \\ 
                       g \sample \GG \\
-                      \alpha, \beta \in \ZZ,y\in \GG \sample \adv(\GG, g) 
+                      (\alpha, \beta, y) \sample \adv(\GG, g) \\
+                      \quad \textnormal{where} \, \alpha, \beta \in \ZZ \, \textnormal{and} \, y \in \GG 
                 \end{array} 
         \right] \leq \negl.
 \]
@@ -94,6 +101,13 @@ The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\ad
 We now define a security games for polynomial commitments
 
 \subsection{Polynomial Commitments}
+
+\alaninline{Before we state the definitions of the security properties, it makes sense to introduce the syntax first. This syntax will probably be a point of ongoing discussion because this syntax has to be a) compatible with our protocol; and b) compatible with our adaptation of Sonic (and esp. its proof).}
+\alaninline{Here's a point we can start with. There are two options for the syntax of opening: \\
+1. The output of $\open$ is a single bit, depending on whether the provided inputs are valid. The opened polynomial should be one of the input arguments. \\
+2. The output of $\open$ is either the opened polynomial itself (if all inputs are valid), or $\bot$ if the inputs are invalid. \\
+While option (2) is less common, makes more sense for our scheme. The reason is because the prover needs to know the correct encoding of $f(x)$ as an integer in addition to $f(x)$ itself. Furthermore, this choice forces us to take explicit care of the integer encoding, which is a) beneficial for implementers, and b) more likely than the alternative to catch errors related to the integer encoding (overflow but also other types of errors).}
+
 \begin{definition}[Polynomial Commitment see \cite{AC:KatZavGol10} ]
 We say a polynomial commitment scheme, consisting of algorithms $(\setup,\commit)$ and the interactive protocols $\open$ and $\eval$ is secure interactive if it satisfies the following properties:
 \paragraph{Correctness}
