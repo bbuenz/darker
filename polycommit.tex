@@ -108,6 +108,7 @@ We now define a security games for polynomial commitments
 2. The output of $\open$ is either the opened polynomial itself (if all inputs are valid), or $\bot$ if the inputs are invalid. \\
 While option (2) is less common, makes more sense for our scheme. The reason is because the prover needs to know the correct encoding of $f(x)$ as an integer in addition to $f(x)$ itself. Furthermore, this choice forces us to take explicit care of the integer encoding, which is a) beneficial for implementers, and b) more likely than the alternative to catch errors related to the integer encoding (overflow but also other types of errors).}
 \alaninline{Kate \emph{et al.} define a polynomial commitment scheme as a tuple of 6 algorithms $(\mathsf{Setup},\mathsf{Commit},\mathsf{Open},\mathsf{VerifyPoly},\mathsf{CreateWitness},\mathsf{VerifyEval})$. There is a difference between verifying a commitment and opening it. The proof-of-correct-evaluation is a ``witness''. Proving and verifying are given by non-interactive algorithms.}
+\alaninline{Sonic defines a polynomial commitment scheme as a tuple $(\mathsf{Commit}, \mathsf{Open}, \mathsf{pvC})$. The generation of the public parameters is not part of the polynomial commitment scheme. There is no special decommitment information; the $\mathsf{Commit}$ function takes a polynomial $f(x)$ and $\mathsf{Open}$ takes \emph{the same} polynomial. The algorithm $\mathsf{Open}$ outputs the evaluation $f(z)$ along with a proof; this proof is verified by $\mathsf{pcV}$.}
 
 \begin{definition}[Polynomial Commitment see \cite{AC:KatZavGol10} ]
 We say a polynomial commitment scheme, consisting of algorithms $(\setup,\commit)$ and the interactive protocols $\open$ and $\eval$ is secure interactive if it satisfies the following properties:
@@ -127,6 +128,7 @@ For an honest prover $\prover$ and a public coin honest verifier $\verifier$, is
 \]
 \benedikt{ok to mesh them together?}
 \paragraph{Opening Binding}
+\alaninline{This property is called ``polynomial binding'' in Kate \emph{et al.}}
 We say a polynomial commitment scheme, consisting of algorithms $(\setup,\commit)$ and the interactive protocol $\open$, is opening binding if for all polynomial degrees $d=\poly\in \NN$ and for any efficient adversary $\adv$ and honest verifier $\verifier$:
 
 	\[        
@@ -180,7 +182,9 @@ We say a polynomial commitment scheme, consisting of algorithms $(\setup,\commit
 	A polynomial commitment scheme that satisfies opening binding as well as extraction also satisfies evaluation binding.
 \end{lemma}
 \begin{proof}
-	(SKETCH) Assume an adversary $\adv_{\eval}$ can break the evaluation binding property with non negligible probability $\gamma$. Using the extractor $\extractor$ we will construct an adversary $\adv_\open$ that will break the opening binding property with non-negligible probability. Run $\adv_\eval$ to get $(C,z,y_1,y_2)$. Now using $\ext$ we extract polynomials $f(x)$ and $g(x)$ of degree $d$ with all but negligible probability. Note that $f(z)=y_1$ and $g(z)=y_2$. This means $f(x)\neq g(x)$ but since $C=\commit(p(x))=\commit(g(x))$ we have a break of the opening binding property.
+	(SKETCH) Assume an adversary $\adv_{\eval}$ can break the evaluation binding property with non negligible probability $\gamma$. Using the extractor $\extractor$ we will construct an adversary $\adv_\open$ that will break the opening binding property with non-negligible probability. Run $\adv_\eval$ to get $(C,z,y_1,y_2)$. Now using $\ext$ we extract polynomials $f(x)$ and $g(x)$ of degree $d$ with all but negligible probability. Note that $f(z)=y_1$ and $g(z)=y_2$. This means $f(x)\neq g(x)$ but since $C=\commit(f(x))=\commit(g(x))$ we have a break of the opening binding property.
+	
+	\alaninline{What remains to be shown is that the success probability of the extractor is also non-negligible.}
 \end{proof}
 \section{Protocol}
 \label{sec:protocol}
