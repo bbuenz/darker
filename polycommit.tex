@@ -107,6 +107,7 @@ We now define a security games for polynomial commitments
 1. The output of $\open$ is a single bit, depending on whether the provided inputs are valid. The opened polynomial should be one of the input arguments. \\
 2. The output of $\open$ is either the opened polynomial itself (if all inputs are valid), or $\bot$ if the inputs are invalid. \\
 While option (2) is less common, makes more sense for our scheme. The reason is because the prover needs to know the correct encoding of $f(x)$ as an integer in addition to $f(x)$ itself. Furthermore, this choice forces us to take explicit care of the integer encoding, which is a) beneficial for implementers, and b) more likely than the alternative to catch errors related to the integer encoding (overflow but also other types of errors).}
+\alaninline{Kate \emph{et al.} define a polynomial commitment scheme as a tuple of 6 algorithms $(\mathsf{Setup},\mathsf{Commit},\mathsf{Open},\mathsf{VerifyPoly},\mathsf{CreateWitness},\mathsf{VerifyEval})$. There is a difference between verifying a commitment and opening it. The proof-of-correct-evaluation is a ``witness''. Proving and verifying are given by non-interactive algorithms.}
 
 \begin{definition}[Polynomial Commitment see \cite{AC:KatZavGol10} ]
 We say a polynomial commitment scheme, consisting of algorithms $(\setup,\commit)$ and the interactive protocols $\open$ and $\eval$ is secure interactive if it satisfies the following properties:
