@@ -239,6 +239,11 @@ Evaluation protocol $\eval$ at point $y=f(z)\in \FF_p$. Degree $d$ Commitment $C
 \end{minipage}
 \end{small}
 
+\subsection{Fix coefficients and negative degrees}
+\begin{itemize}
+	\item Several ways to do this.
+\end{itemize}
+
 \section{Security}
 
 
@@ -263,11 +268,14 @@ If $\hat{d}=0$ then we can directly extract $f(x)=\hat{y}$ such that $\vert \hat
 For $d>0$ we have $g^{\hat{y}}=C=C_0^{\alpha}C_1$. Rewinding once we get 
  $C=C_0^{\alpha}C_1=g^{\hat{y}}$ and $C'=C_0^{\alpha'}C_1=g^{\hat{y}'}$ for distinct $\alpha$ and $\alpha'$. 
  This gives us $C_0^{\alpha-\alpha'}=g^{\hat{y}-\hat{y}'}$. 
- Either $\alpha-\alpha' \not|~ \hat{y}-\hat{y}' $ which would directly break the pseudo root assumption or we can compute $D=g^{\frac{\hat{y}-\hat{y}'}{\alpha-\alpha'}}$. Either $D=C_0$ or $(D/C_0)^{\alpha-\alpha'}=1$, i.e. $D/C_0$ is an element of known random order. In either of the cases the extraction succeeds and is completed.
+ Either $\alpha-\alpha' \not|~ \hat{y}-\hat{y}' $ which would directly break the pseudo root assumption or we can compute $D=g^{\frac{\hat{y}-\hat{y}'}{\alpha-\alpha'}}$. Either $D=C_0$ or $(D/C_0)^{\alpha-\alpha'}=1$, i.e. $D/C_0$ is an element of known order. In either of the cases the extraction succeeds and is completed. (Invoke order assumption).
+ 
  If $D=C_0$ then we have $\hat{y}_0=\frac{\hat{y}-\hat{y}'}{\alpha-\alpha'}$ and
- $g^{\hat{y}_0}=C_0$. In that case $C_1=g^{\hat{y}_1}=g^{\hat{y}-\hat{y}_0}$. If $|y|=|y'|<B$ then $|y_0|<  2 \cdot B$ and $|y_1|<|\hat{y}-\hat{y}+\hat{y}'|=|\hat{y}'|<B$. 
+ $g^{\hat{y}_0}=C_0$. In that case $C_1=g^{\hat{y}_1}=g^{\hat{y}-\alpha\hat{y}_0}$. The extractor has now successfully obtained $\hat{y}_0$ and $\hat{y}_1$
+ 
+ If $|y|=|y'|<B$ then $|y_0|<  2 \cdot B$ and $|y_1|<|\hat{y}-\hat{y}+\alpha\hat{y}'|=|\alpha \hat{y}'|<\lambda \cdot B$. 
  We define $f(x)=\dec(y_0+x^{d} \cdot y_1)$ and with coefficients less than $2B$ in absolute value. 
- Note that $y_0=\hat{y}_0 \mod p=\dec{y_0}(z)$ and $y_1=\hat{y}_1 \mod p=\dec{y_1}(z)$. Since $y=\dec{\hat{y}}(z)=\alpha \cdot \dec{\hat{y}_0(z)}+\dec{\hat{y}_1(z)}$ and $f(x)=\dec(y_0+x^{\hat{d}} \cdot y_1)$ we have that $y=y_0 +z^{\hat{d}/2}y_1 \mod p=f(z) \mod p$.
+ Note that $y_0=\hat{y}_0 \mod p=\dec(y_0)(z)$ and $y_1=\hat{y}_1 \mod p=\dec(y_1)(z)$. Since $y=\dec(\hat{y})(z)=\alpha \cdot \dec(\hat{y}_0)(z)+\dec(\hat{y}_1)(z)$ and $f(x)=\dec(y_0+x^{\hat{d}} \cdot y_1)$ we have that $y=y_0 +z^{\hat{d}/2}y_1 \mod p=f(z) \mod p$.
  Additionally $C=C_0^{\alpha}C_1=\commit(f(x))$ or we get a break of the adaptive root assumption.\benedikt{So this is technically a bit difficult because it's not actually a witeness}.
  
  The extractor recuses with the encoding of $f(x)$ and degree $\hat{d}'=\hat{d}\cdot 2$.
@@ -284,6 +292,14 @@ For $d>0$ we have $g^{\hat{y}}=C=C_0^{\alpha}C_1$. Rewinding once we get
 \benedikt{Figure out at what q we can attack the scheme. Probably needs to use negative coefficients and such.}
 \section{Supersonic: A SNARK with trustless, constant size CRS}
 We build \emph{supersonic} by instantiating the Sonic SNARK using our trustless setup polynomial commitment scheme.
+
+\section{Discussion and Optimizations}
+\begin{enumerate}
+	\item Precompute $g^{q^i}$ to use parallelism etc.
+	\item SNARK without falsifiable assumptions
+	\item First polynomial commitment scheme with constant size parameters
+	
+\end{enumerate}
   \bibliography{references,cryptobib/abbrev0,cryptobib/crypto}
 
 \end{document}
