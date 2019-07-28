@@ -383,6 +383,7 @@ The following protocol enables the prover to extract a commitment to the $i$th c
 Correctness, soundness, etc. (todo)
 
 \subsection{Inner Product}
+\label{section:inner_product}
 
 The following protocol enables the prover to extract a commitment to the inner product $\mathbf{a}^\mathsf{T} \mathbf{s}$, where $\mathbf{a} = (a_i)_{i=0}^{d-1}$ is the vector to which $C$ is a commitment. The vector $\mathbf{s} \in \mathbb{F}_p^d$ is known to the verifier in the basic protocol, but later on we show how to hide this vector and simultaneously reduce the verifier's running time.
 \begin{itemize}
@@ -395,5 +396,38 @@ The following protocol enables the prover to extract a commitment to the inner p
 Correctness, soundness, etc. (todo) Special attention for coefficient size.
 
 Note that the Verifier must process all of $z_{\bar{\mathbf{s}}}$ in order to verify the exponentiation, which in particular is linear in $d$. However, it is possible to reduce this complexity and simultaneously hide the value of $z_{\bar{\mathbf{s}}}$. To do this, the prover must have committed to $z_{\bar{\mathbf{s}}}$ by sending $g^{z_{\bar{\mathbf{s}}}}$ (possibly with respect to a different base). At this point, a batched proof of knowledge of exponent establishes that the discrete logarithms of $C^{z_{\bar{\mathbf{s}}}}$ base $C$ and of $g^{z_{\bar{\mathbf{s}}}}$ base $g$ are equal.
+
+\section{SARK}
+
+The next protocol describes an efficiently verifiable proof system for rank-one constraint satisfaction problems. Specifically, we start from a list of $m$ constraints of the form
+\begin{equation} \label{equation:r1cs}
+    \mathbf{a_i}^\mathsf{T} \mathbf{s} \times \mathbf{b}_i^\mathsf{T} \mathbf{s} = \mathbf{c_i}^\mathsf{T} \mathbf{s} \enspace ,
+\end{equation}
+where $\mathbf{s} \in \mathbb{F}_p^n$ is the secret witness and the $m$ triples $(\mathbf{a_i}, \mathbf{b_i}, \mathbf{c_i})_{i=0}^{m-1} \in \mathbb{F}_p^{3 \times m \times n}$ are the known parameters that define the constraints. Furthermore, $s_0 = 1$.
+
+Translate this to a quadratic arithmetic program (QAP) by selecting $m$ arbitrary but different elements $\{e_0, \ldots, e_{m-1}\} \subset \mathbb{F}_p$ and defining $\mathbf{a}(x) \in \mathbb{F}^n[x]$ such that $\mathbf{a}(e_i) = \mathbf{a_i}$, and similarly for $\mathbf{b}(x)$ and $\mathbf{c}(x)$. Furthermore, set $h(x) = \prod_{i=0}^{m-1} (x-e_i)$. Then Equation~\ref{equation:r1cs} becomes
+\begin{equation} \label{equation:qap_modular}
+    \mathbf{a}(x)^\mathsf{T}\mathbf{s} \times \mathbf{b}(x)^\mathsf{T}\mathbf{s} \equiv \mathbf{c}(x)^\mathsf{T}\mathbf{s} \,\, \mathsf{mod} \,\, h(x) \enspace .
+\end{equation}
+Moreover, a prover knowledgeable of $\mathbf{s}$ can produce another polynomial $t(x)$ such that
+\begin{equation} \label{equation:qap_explicit}
+    \mathbf{a}(x)^\mathsf{T}\mathbf{s} \times \mathbf{b}(x)^\mathsf{T}\mathbf{s} = \mathbf{c}(x)^\mathsf{T}\mathbf{s} + t(x) \times h(x) \enspace .
+\end{equation}
+
+The proof establishes that the prover knows a vector $\mathbf{s}$ and a polynomial $h(x)$ such that Equation~\ref{equation:qap_explicit} is satisfied. Specifically:
+\begin{itemize}
+    \item Common input to Prover and Verifier: $A = \mathsf{vcom}(\mathbf{a}(x))$, $B = \mathsf{vcom}(\mathbf{b}(x))$, $C = \mathsf{vcom}(\mathbf{c}(x))$, $H = \mathsf{com}(h(x))$, and $D = \mathsf{vcom}((1 \, 0 \, \cdots \, 0)^\mathsf{T})$.
+    \item Prover produces commitments $A_\mathbf{s} = \mathsf{com}(\mathbf{a}(x)^\mathsf{T} \mathbf{s})$, and similarly for $B_\mathbf{s}, C_\mathbf{s}$ with the inner product protocol of Section~\ref{section:inner_product}. Additionally, $D_\mathbf{s}$ is computed. All four inner product protocols are performed simultaneously, thereby establishing that the $\mathbf{s}$ used is the same in all four cases.
+    \item Prover opens $D_\mathbf{s}$ to $1$, showing that $s_0$ is $1$.
+    \item Prover multiplies $t(x)$ into $H$, thereby obtaining $H_t = \mathsf{com}(t(x) \times h(x))$.
+    \item Prover and Verifier run a proof of knowledge of exponent.
+    \item Prover multiplies $\mathbf{b}(x)^\mathsf{T} \mathbf{s}$ into $A_\mathbf{s}$, thereby obtaining $A_{\mathbf{s}B\mathbf{s}} = \mathsf{com}(\mathbf{a}(x)^\mathsf{T} \mathbf{s} \times \mathbf{b}(x)^\mathsf{T} \mathbf{s})$.
+    \item Prover and Verifier run a proof of equal discrete logarithms showing that $A_{\mathbf{s}B\mathbf{s}}$ is to $A_\mathbf{s}$ as $B$ is to $g$.
+    \item Verifier selects a random point, $z \xleftarrow{\$} \mathbb{F}_p$ and sends it to the prover.
+    \item Prover and Verifier compute the weighted commitment $K = A_{\mathbf{s}B\mathbf{s}} \times C^{-1} \times H_T^{-1} = \mathsf{com}(\mathbf{a}(x)^\mathsf{T} \mathsf{s} \times \mathbf{b}(x)^\mathsf{T} \mathbf{s} - \mathbf{c}(x)^\mathsf{T} \mathbf{s} - h(x) \times t(x)) = \mathsf{com}(k(x))$
+    \item Prover and Verifier run an evaluation proof establishing that $k(z) = 0$.
+\end{itemize}
+
+Note: we need to pay special attention to the size of the coefficients of $\mathbf{s}$ and of $t(x)$ are not too big. It is possible that the random selection of $z$ makes the prover who cheats by choosing larger coefficients overwhelmingly unlikely to succeed. Alternatively, we can devise a proof of small coefficients or something like that.
 
 \end{document}
