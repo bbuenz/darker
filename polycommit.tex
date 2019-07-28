@@ -183,8 +183,6 @@ We say a polynomial commitment scheme, consisting of algorithms $(\setup,\commit
 \end{lemma}
 \begin{proof}
 	(SKETCH) Assume an adversary $\adv_{\eval}$ can break the evaluation binding property with non negligible probability $\gamma$. Using the extractor $\extractor$ we will construct an adversary $\adv_\open$ that will break the opening binding property with non-negligible probability. Run $\adv_\eval$ to get $(C,z,y_1,y_2)$. Now using $\ext$ we extract polynomials $f(x)$ and $g(x)$ of degree $d$ with all but negligible probability. Note that $f(z)=y_1$ and $g(z)=y_2$. This means $f(x)\neq g(x)$ but since $C=\commit(f(x))=\commit(g(x))$ we have a break of the opening binding property.
-	
-	\alaninline{What remains to be shown is that the success probability of the extractor is also non-negligible.}
 \end{proof}
 \section{Protocol}
 \label{sec:protocol}
@@ -320,5 +318,35 @@ We build \emph{supersonic} by instantiating the Sonic SNARK using our trustless 
 	
 \end{enumerate}
   \bibliography{references,cryptobib/abbrev0,cryptobib/crypto}
+
+\section{Zero knowledge polynomial commitment} 
+This section sketches how to make the polynomial commitment scheme zero knowledge. 
+
+\paragraph{Commit} Let $g_1 \sample \GG$ be a random base distinct from $g$. 
+The hiding polynomial commitment is $C \leftarrow g^{f(q)}g_1^r$ for $r \sample [-2^\lambda, 2^\lambda]$. 
+
+\paragraph{Open} The opening of the entire polynomial is the same, but additionally gives the blinding factor $r$. 
+
+\paragraph{Eval}
+
+\begin{itemize}
+\item In each recursive step we commit to polynomials $f_0$ and $f_1$ using the same hiding commitment scheme, where $f_0 + f_1 q^{d/2} = f$ as integer polynomials. 
+
+\item Note that if $C_0 = g^{f_0(q)}g_1^{r_0}$ and $C_1 = g^{f_1(q)} g_1^{r_1}$ then $C_0 \cdot C_1^{q^{d/2}} = C \cdot g_1^{r'}$ where $r' = r_0 + q^{d/2} r_1$. The prover can give a non-interactive zk proof of this relation to the verifier using a sigma protocol. E.g., the prover provides $C_1' = C_1^{q^{d/2}}$ with a PoE, and then a zk-PoKE of $r'$ such that $g_1^{r'} = C_0 C_1' / C$. 
+
+\item We could then recurse on $C_0^\alpha C_1$ which commits to $\alpha f_0 + f_1$ with the blinding factor $\alpha r_0 + r_1$. BUT we are not done yet, see next bullet point... 
+
+\item The remaining problem is that the evaluation protocol opens $y_0 = f_0(z) \bmod p$ and $y_1 = f_1(z) \bmod p$, which is not zero knowledge. We need $y_0, y_1$ to be independently distributed subject to the constraint $y_0 + z^{d/2} y_1 = y \bmod p$, which the verifier checks. 
+
+A solution is to modify $f_0$ and $f_1$ by adding constant terms $\alpha, \beta$ to each that cancel, i.e. $\alpha + z^{d/2} \beta = 0 \bmod p$, where $\alpha$ is uniformly distributed in $\ZZ_p$. This way the polynomials $f_0' = f_0 + \alpha$ and $f_1' = f_1 + \beta$ satisfy the relation $f_0'(z) + z^{d/2}f_1'(z) = f(z) \bmod p$. We end up revealing $y_0' = y_0 + \alpha \bmod p$ and $y_1' = y_1 + \beta \bmod p$, which is uniformly distributed in $\ZZ_p$ subject to $y_0' + y_1' = y \bmod p$. 
+
+Finally, the prover needs to convince the verifier that it modified the $C_0$ and $C_1$ commitments appropriately. (It could not simply choose $f_0'$ and $f_1'$ in the first step because $f_0' + q^{d/2} f_1' \neq f$ as integer polynomials). 
+
+However, the solution is still simple. The prover creates hiding commitments $C_\alpha$ to $\alpha$ and $C_\beta$ to $\beta$ and provides a zero-knowledge proof that $C_\alpha C_\beta ^{z^{d/2}}$ is a commitment to an integer multiple of $p$. This can be done efficiently through a combination of PoE and a PoKE. (Given $g^a$, to prove that $a = 0 \bmod p$ it suffices to provide $Q$ such that $Q^p = g^a$ and a PoKE for $Q$ base g. This can be made zero knowledge w/ the standard tricks). 
+
+The protocol then proceeds on modified commitments $C_0' = C_0 C_\alpha$ and $C_1' = C_1 C_\beta$.
+
+\end{itemize}
+
 
 \end{document}

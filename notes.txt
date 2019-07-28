@@ -1,0 +1,34 @@
+# Alan's notes from the conf call 26 July 2019
+
+## vector commitment
+
+The q-ary integer encoding also enables a vector commitment. The prover produces c_0 = com(a[0:i]), c_1 = com(a[i+1:n]), a_i. The verifier checks that c == c_0 * (q^i * com(a_i)) * (q^(i+1) * c_1). Opening is constant-size.
+
+This vector commitment scheme enables batch openings but only of consecutive elements. Batch opening of non-consecutive elements is an interesting open problem, worth further thought.
+
+## bivariate polynomial commitment
+
+com(a(x,y)) = g^(a(q, q^d)) where d is deg_x(a). Proof-of-correct-evaluation uses the regular, univariate, protocol twice: once to fold in y-direction, once to fold in x-direction. The overall protocol remains logarithmic in the number of coefficients.
+
+## signature of correct computation
+
+This component of Sonic can be realized easily via a bivariate polynomial commitment. The prover's computation will be quadratic. It's worthwhile studying the solutions of Sonic to realize a signature of correct computation because they might lead to overall protocols with smaller prover complexity.
+
+## proof issues
+
+There is a subtle point wrt the group elements' mutual relations and how they relate to the hardness assumptions.
+
+There is currently a gap between the smallest q we can prove and the largest q we can attack with. It's possible to close this gap with more intense study.
+
+Alan raises an issue with the extractability => evaluation-binding theorem: the adversary is assumed to succeed with only probability gamma, but the extractor runs it multiple times with independent randomness. So the extractor's success probability must degrade accordingly. However, that's not an issue because extractability means there is an extractor that succeeds with overwhelming probability. 
+
+## misc
+
+Benedikt will look at Spartan, maybe that leads to a construction that's more efficient in concrete terms.
+
+The prover in the protocol does not need to send both y0 and y1; he can send just y0 and the verifier can infer y1. Same holds for C0 and C1.
+
+Benedikt's name proposals:
+ - Sonic -> SuperSonic
+ - Spartan -> Persian
+ - STARK -> TARGARYEN
