@@ -348,5 +348,52 @@ The protocol then proceeds on modified commitments $C_0' = C_0 C_\alpha$ and $C_
 
 \end{itemize}
 
+\section{Vector Commitment}
+
+
+\subsection{Commitment Scheme}
+
+In the following we denote by $(a_i)_{i=0}^{d-1} \in \mathbb{F}_p^{d}$ a vector of prime field elements. The vector commitment scheme is given by the following algorithms.
+\begin{itemize}
+\item $\mathsf{vcom} : \mathbb{F}_p^d \rightarrow \mathbb{G} \, , \quad (a_i)_{i=0}^{d-1} \mapsto g^{\sum_{i=0}^{d-1} a_iq^i} \enspace .$
+\item $\mathsf{vopen} : \mathbb{G} \times \mathbb{Z} \rightarrow \mathbb{F}_p^d \cup \{\bot\} \, , $
+\item[] $\phantom{\mathsf{vopen} :} (C, z = \sum_{i=0}^{d-1} z_iq^i) \mapsto \left\lbrace \begin{array}{ll}
+(z_i \, \mathsf{mod} \, p)_{i=0}^{d-1} & \textnormal{\bf if } g^z = C \\
+\quad \textnormal{where all } z_i \in \{0,\ldots,q-1\} & \\
+\bot & \textnormal{\bf otherwise.}
+\end{array} \right.$ 
+\end{itemize}
+
+Note: somewhat homomorphic properties: multiplication by constant, additivity. As long as coefficients don't overflow.
+
+\subsection{Coordinate Extraction}
+
+The following protocol enables the prover to extract a commitment to the $i$th component of the vector. Both Prover and Verifier know $i, g, C$. Only the prover knows an integer $z$ such that $g^z = C$ and corresponding to a vector $(a_j)_{j=0}^{d-1}$.
+\begin{itemize}
+\item Prover computes (or already knows) the $q$-ary expansion of $z$, \emph{i.e.}, $(z_j)_{j=0}^{d-1}$ such that $\sum_{j=0}^{d-1} z_j q^j = z$ and all $z_j \in \{0,\ldots, q-1\}$. He then sends to Verifier:
+\begin{itemize}
+\item $C_l = g^{\sum_{j=0}^{i-1} z_jq^j}, C_i = g^{z_i}, C_r = g^{\sum_{j=i+1}^{d-1} z_j q^{j-i-1}}$
+\item $C_i^{q^i}, C_r^{q^{i+1}}$
+\end{itemize}
+\item Prover and Verifier run a proof of correct exponentiation to establish that $C_m^{q^i}, C_r^{q^{i+1}}$ were computed correctly.
+\item Verifier checks that $C_l \times C_i^{q^i} \times C_r^{q^{i+1}} \stackrel{?}{=} C$ and aborts if false.
+\item Prover and Verifier run a range proof to establish that the discrete logarithm of $C_l$ base $g$ is within the range $\{0, \ldots, q^i-1\}$.
+\end{itemize}
+
+Correctness, soundness, etc. (todo)
+
+\subsection{Inner Product}
+
+The following protocol enables the prover to extract a commitment to the inner product $\mathbf{a}^\mathsf{T} \mathbf{s}$, where $\mathbf{a} = (a_i)_{i=0}^{d-1}$ is the vector to which $C$ is a commitment. The vector $\mathbf{s} \in \mathbb{F}_p^d$ is known to the verifier in the basic protocol, but later on we show how to hide this vector and simultaneously reduce the verifier's running time.
+\begin{itemize}
+\item Prover and Verifier flip $\mathbf{s}$ to obtain $\bar{\mathbf{s}} = (s_{d-1-i})_{i=0}^{d-1}$ and the matching integer encoding $z_{\bar{\mathbf{s}}} = \sum_{i=0}^{d-1} s_{d-1-i} q^i$.
+\item Prover computes $C^{z_{\bar{\mathbf{s}}}}$ and sends this value to the verifier.
+\item Prover and Verifier engage in a proof of correct exponentiation.
+\item Prover and Verifier extract a commitment to coordinate $d$, which is exactly $\sum_{i=0}^{d-1} a_is_i$ modulo $p$.
+\end{itemize}
+
+Correctness, soundness, etc. (todo) Special attention for coefficient size.
+
+Note that the Verifier must process all of $z_{\bar{\mathbf{s}}}$ in order to verify the exponentiation, which in particular is linear in $d$. However, it is possible to reduce this complexity and simultaneously hide the value of $z_{\bar{\mathbf{s}}}$. To do this, the prover must have committed to $z_{\bar{\mathbf{s}}}$ by sending $g^{z_{\bar{\mathbf{s}}}}$ (possibly with respect to a different base). At this point, a batched proof of knowledge of exponent establishes that the discrete logarithms of $C^{z_{\bar{\mathbf{s}}}}$ base $C$ and of $g^{z_{\bar{\mathbf{s}}}}$ base $g$ are equal.
 
 \end{document}
