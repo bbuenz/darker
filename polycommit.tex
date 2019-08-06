@@ -255,11 +255,64 @@ Evaluation protocol $\eval$ at point $y=f(z)\in \FF_p$. Degree $d$ Commitment $C
 \end{mdframed}
 \end{minipage}
 \end{small}
+\subsection{Multivariate Commitment}
+For now we assume that the degree $d$ is always a power of two
 
+\begin{mdframed}[userdefinedwidth=0.8\textwidth]
+\begin{minipage}{\textwidth}
+	\begin{flushleft}
+	\setup(\secpar,p,d):
+		\begin{enumerate}[nolistsep]
+			\item $ \GG \sample \ggen(\secpar)$
+			\item $ g \sample \GG$
+			\item $q\gets 2^k \text{s.t.} q>\prod_{i=1}^n(d_i+1) \cdot 2\cdot p^{\log_2(d+1)+1} $
+			\item $\pcreturn \crs=\{\secpar,p,\GG,g,q\}$
+		\end{enumerate}
+		$\commit(\crs,p(x)\in \FF_p[X])$
+		\begin{enumerate}[nolistsep]
+			\item 	$\hat{f}(x)\gets f(x) \in \ZZ[X]$
+			\item $y\gets \hat{f}(q)$
+			\item $\pcreturn g^y,\deg(f)$
+		\end{enumerate}
+		$\open(\crs,p(x)\in \FF_p[X])$
+		\begin{enumerate}[nolistsep]
+			\item Prover computes the integer encoding of $p$ $\hat{f}(x)\gets p(x) \in \ZZ[X]$
+			\item Prover sends $\hat{p}(x),p(x)$ to verifier.
+			\item Verifier checks that $\hat{f}(x) \mod p=f(x)$
+			\item Verifier checks that $\deg(f(x))=d$ and that for each coefficient $f_i$, $|f_i|< q/2$
+			\item If $C=g^{f(q)}$ the verifier accepts.
+		\end{enumerate}
+	\end{flushleft}
+	
+\end{minipage}
+\end{mdframed}
+\begin{small}
+ \begin{minipage}{1.1\textwidth}
+\begin{mdframed}[userdefinedwidth=1\textwidth]  \label{prot:Opening}
+$\eval(\crs,C,d,z,y;f(x))$\\
+Evaluation protocol $\eval$ at point $y=f(z)\in \FF_p$. Degree $d$ Commitment $C$. $f(x)=\sum_{i=0}^{d} f_i x^{i}$
+\begin{enumerate}[nolistsep]
+\item \pcif $d=0$:
+\item \pcind[1] Prover computes $\hat{y}=\hat{f} \in \ZZ$, i.e. $\hat{f}(x)$ is a constant. 
+\item \pcind[1] Prover sends $\hat{y}$ to the verifier.
+\item \pcind[1] Verifier checks that $0\leq\hat{y}< (\log_2(d+1)+1)\cdot p$,  $\hat{y} \bmod p=y$ and $g^{\hat{y}}=C$ otherwise rejects
+\item \pcelse: \benedikt{Doesn't quite work for $d=1$}
+\item \pcind[1] Prover computes $f_0(x)=\sum_{i=0}^{d/2-1} f_i x^i\in \ZZ$ and $f_1(x)=\sum_{i=0}^{d/2-1} f_{d/2+i} x^{i}\in \ZZ$
+\item \pcind[1] $y_0=f_0(z) \bmod p$, $y_1=f_1(z)\bmod p$, $C_0\gets\commit(f_0)$,$C_1\gets\commit(f_1)$
+\item \pcind[1] Prover sends $y_0,y_1,C_0,C_1$ to the Verifier
+\item \pcind[1] Verifier checks that $y_0+z^{d/2} y_1=y\in \FF_p$ and that $C_0C_1^{q^{d/2}}=C$\footnote{Using $\textsf{PoE}(C_1,C/C_0,q^{d/2})$}
+\item \pcind[1] Verifier samples $\alpha \sample \FF_p$ and sends it to the prover
+\item \pcind[1] Prover and Verifier compute $y'\gets\alpha y_0 +y_1 \bmod p$, $C'\gets C_0^{\alpha}C_1 \in \GG$. \\Prover also computs $f'(x)\gets\alpha  \cdot \hat{f}_0(x)+\hat{f}_1(x) \in \ZZ[X]$ 
+\item \pcind[1] Prover and Verifier run $\eval(y',C',d/2,z,y';f'(x))$
+\end{enumerate}
+\end{mdframed}
+\end{minipage}
+\end{small}
 \subsection{Fix coefficients and negative degrees}
 \begin{itemize}
 	\item Several ways to do this.
 \end{itemize}
+\subsection{Range Proofs}
 
 \section{Security}
 
