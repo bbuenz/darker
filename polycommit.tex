@@ -29,8 +29,59 @@
 	\fi
 
 \begin{document}
-\title{RSA-based Polynomial Commitment}
+\title{DARK Proof Systems}
 \maketitle
+
+\section*{Notes for Writing}
+\begin{table}
+    \caption{Notation}
+    \label{tab:notation}
+    \centering
+    \begin{tabular}{l|l}
+        symbol & meaning   \\ \hline \hline
+        {\bf polynomials} & \\ \hline
+        $f \in \mathbb{F}_p[x]$ & polynomial modulo $p$ \\
+        $f_{(0)}, f_{(1)} \in \mathbb{F}_p[x]$ & first and second half of $f(x)$ \\
+        $f_0, f_1, f_i \in \mathbb{F}_p$ & coefficients \emph{s.t.} $f(x) = \sum_{i=0}^d f_ix^i$ \\
+        $\hat{f}(x) \in \mathbb{Z}[x]$ & polynomial with integer coefficients, typically in $\{0,\ldots,p-1\}$ \\ 
+        $\hat{f}(q) \in \mathbb{Z}$ & integer encoding of a polynomial \\ \hline
+        {\bf group elements} & (proposal by Alan) \\ \hline
+        $\mathsf{g} \in \mathbb{G}$ & designated base element (the term ``generator'' is misleading) \\
+        $\mathsf{c}, \mathsf{c}_0, \mathsf{c}_1 \in \mathbb{G}$ & commitments \\
+        $\mathsf{c}_0^a \times \mathsf{c}_1^b, \, a, b \in \mathbb{Z}$ & multiplicative notation \\ \hline
+        {\bf schemes} & (proposal by Alan) {actually, I don't really like this anymore} \\ \hline
+        $\mathbf{Commit}_{\mathbb{A}} : \mathbb{A} \rightarrow \mathbb{G}$ & commit to an element from algebra $\mathbb{A}$. \\
+         & This notation allows stacking algebras, $\emph{e.g.}$, $\mathbf{Commit}_{(\mathbb{F}_p[x]_{\leq d})^n}$ \\
+        $\mathbf{Open}_\mathbb{A} : \{0,1\}^* \times \mathbb{G} \rightarrow \mathbb{A} \cup \{\bot\}$ & open a commitment by providing the decommitment information \\
+         & (in the basic scheme: an integer) and the commitment; if the pro- \\
+         & vided input is invalid, the function outputs $\bot$.\\
+    \end{tabular}
+\end{table}
+
+\subsection*{Structure:}
+\begin{itemize}
+    \item introduction
+    \item tools
+    \begin{itemize}
+        \item syntax of poly/vector commitment
+        \item construction: poly/vector commitment
+        \item eval (log / const size)
+        \item coeff extract (log / const size)
+        \item inner product
+        \item flip
+    \end{itemize}
+    \item illustration: simple QAP
+    \item proof systems
+    \begin{itemize}
+        \item short paragraph for each of:
+        \item sonic
+        \item spartan
+        \item bulletproof
+        \item stark
+        \item other?
+        \item[+] comparison
+    \end{itemize}
+\end{itemize}
 
 \section{Introduction}
 
@@ -450,7 +501,7 @@ Correctness, soundness, etc. (todo) Special attention for coefficient size.
 
 Note that the Verifier must process all of $z_{\bar{\mathbf{s}}}$ in order to verify the exponentiation, which in particular is linear in $d$. However, it is possible to reduce this complexity and simultaneously hide the value of $z_{\bar{\mathbf{s}}}$. To do this, the prover must have committed to $z_{\bar{\mathbf{s}}}$ by sending $g^{z_{\bar{\mathbf{s}}}}$ (possibly with respect to a different base). At this point, a batched proof of knowledge of exponent establishes that the discrete logarithms of $C^{z_{\bar{\mathbf{s}}}}$ base $C$ and of $g^{z_{\bar{\mathbf{s}}}}$ base $g$ are equal.
 
-\section{SARK}
+\section{QAP-based SARK}
 
 The next protocol describes an efficiently verifiable proof system for rank-one constraint satisfaction problems. Specifically, we start from a list of $m$ constraints of the form
 \begin{equation} \label{equation:r1cs}
@@ -482,5 +533,17 @@ The proof establishes that the prover knows a vector $\mathbf{s}$ and a polynomi
 \end{itemize}
 
 Note: we need to pay special attention to the size of the coefficients of $\mathbf{s}$ and of $t(x)$ are not too big. It is possible that the random selection of $z$ makes the prover who cheats by choosing larger coefficients overwhelmingly unlikely to succeed. Alternatively, we can devise a proof of small coefficients or something like that.
+
+\section{Proof of Correct Flipping}
+
+The following protocol establishes that two commitments, $c_a$ and $c_b$ represent polynomials $f_a, f_b \in \mathbb{F}_p$ (or vectors, for that matter) whose coefficients are flipped. Specifically, that $f_a = \sum_{i=0}^{d}f_i x^i$ for some coefficients $f_i$, and $f_b = \sum_{i=0}^df_ix^{d-i}$ for the same coefficients $f_i$. To see why it works, observe that $f_a(x) = x^df_b(x^{-1})$ and we can test this equation probabilistically by choosing a random $z \in \mathbb{F}_p \backslash \{0\}$ to evaluate $f_a$ and $f_b$ in. If $f_a$ is indeed the flipping of $f_b$ then the polynomial $F = f_a(x) - x^df_b(x^{-1})$ is identically zero; but otherwise it has at most $d$ zeros, and so the inequality will be exposed with overwhelming probability $(p-1-d)/(p-1)$.
+
+Protocol:
+\begin{itemize}
+    \item Common knowledge: $c_a, c_b \in \mathbb{G}$.
+    \item Verifier chooses $z \xleftarrow{\$} \mathbb{F}_p \backslash \{0\}$ and sends it to Prover.
+    \item Prover and Verifier engage in proofs of correct evaluation producing $f_a(z)$ and $f_b(z^{-1})$, matching $c_a$ and $c_b$, respectively.
+    \item Verifier checks that $f_a(z) \stackrel{?}{=} z^d f_b(z^{-1})$.
+\end{itemize}
 
 \end{document}
