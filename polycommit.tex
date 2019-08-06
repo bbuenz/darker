@@ -260,7 +260,7 @@ Boneh et al. \cite{journals/iacr/BonehBF18a} built on top of PoE to also develop
 
 Note that the encoding has limited homomorphic properties. $\enc(g(x))+\enc(h(x))=\enc(g(x)+h(x))$ if $g(x)+h(x)\in P_q$, i,.e. all its coefficients are less than $q/2$ in absolute value. This is ensured if for example the coefficients of $g$ and $h$ are less than $q/4$. Additionally $\enc(g(x))\cdot \enc(h(x))=\enc(g(x)\cdot h(x))$ if $g(x)\cdot h(x)\in P_q$.
 \subsection{Polynomial Commitment}
- For now we assume that the degree $d$ is always a power of two
+ For now we assume that the degree $d$ is always a power of two. We describe the commitment scheme for integer polynomials with coefficients bounded in absolute value by $p$. The scheme naturally extends for polynomials in $\FF_p$.
 
 \begin{mdframed}[userdefinedwidth=0.8\textwidth]
 \begin{minipage}{\textwidth}
@@ -272,14 +272,14 @@ Note that the encoding has limited homomorphic properties. $\enc(g(x))+\enc(h(x)
 			\item $q\gets 2^k \text{s.t.} q>(d+1) \cdot 2\cdot p^{\log_2(d+1)+1} $
 			\item $\pcreturn \crs=\{\secpar,p,\GG,g,q\}$
 		\end{enumerate}
-		$\commit(\crs,p(x)\in \FF_p[X])$
+		$\commit(\crs,f(x)\in \ZZ[X])$ \pccomment{$f(x)$'s coefficients are less than $p$}
 		\begin{enumerate}[nolistsep]
 			\item 	$f(q)\gets \enc(f(x)) \in \ZZ$
 			\item $\pcreturn g^{f(q)},\deg(f)$
 		\end{enumerate}
-		$\open(\crs,f(x)\in \FF_p[X])$
+		$\open(\crs,f(x)\in \ZZ[X])$
 		\begin{enumerate}[nolistsep]
-			\item Prover computes the integer encoding of $f$ $f(q)\gets \enc(f(x)) \in \ZZ$
+			\item $f(q)\gets \enc(f(x)) \in \ZZ$
 			\item Prover sends $f(q),f(x)$ to verifier.
 			\item Verifier checks that $\dec(f(q)) \mod p=f(x)$
 			\item If $C=g^{f(q)}$ the verifier accepts.
@@ -294,7 +294,7 @@ Note that the encoding has limited homomorphic properties. $\enc(g(x))+\enc(h(x)
 	\noindent \underline{\textsf{Protocol \eval} (Polynomial evaluation)}\\
 \noindent Params: $\crs=\{\secpar,p,\GG,g,d_{\max},q\}$;\ \
 Inputs: $C\in \GG,z,y\in \FF_p,d \in \NN $\\
-Witness: $f(x) \in \ZZ[X]$ of degree at most d and with coefficients bounded by $p$;\\ 
+Witness: $f(x) \in \ZZ[X]$ of degree at most d and with coefficients bounded by $p$\footnote{We describe the protocol using an integer polynomial with bounded coefficient. This generalizes the case where the polynomial is in $\FF_p[X]$};\\ 
 Claim: $C=g^{f(q)},\deg(f)\leq d$ and $y=f(z) \mod p$
 
 \begin{enumerate}[nolistsep]
@@ -333,7 +333,7 @@ Claim: $C=g^{f(q)},\deg(f)\leq d$ and $y=f(z) \mod p$
 	The polynomial commitment scheme satisfies the opening binding property
 \end{lemma}
 \begin{proof}
-	Assume $\hat{f}(x)$ and $\hat{g}(x)$ are integer encodings of two distinct polynomials $f(x),p(x) \in \FF_p[X]$. Then $\hat{h}(x)=\hat{f}(x)-\hat{g}(x) \in \ZZ[X]$ is a polynomial of degree at most $d$. Since $g^{\hat{g}(q)}=g^{\hat{f}(q)}=C$ we have that $g^{\hat{h}(q)}=1$\benedikt{Change generator base name}. Note that the coefficients of $g(x)$ and $h(x)$ are all less than $q/2$ in absolute value. By triangle inequality we have that $\hat{h}(x)$ are less than $q$. $\hat{h}$ is by assumption not the zero polynomial. This implies that $\hat{h}(q)\neq 0$ is a multiple of the order of $g\in \GG$. This however can directly be used to break the pseudo root assumption (Assumption \ref{assum:fracroot}) by taking the inverse of an integer mod $h(q)$.
+	Assume $f(x)$ and $g(x)$ are integer encodings of two distinct polynomials $f(x),p(x) \in \FF_p[X]$. Then $\hat{h}(x)=\hat{f}(x)-\hat{g}(x) \in \ZZ[X]$ is a polynomial of degree at most $d$. Since $g^{\hat{g}(q)}=g^{\hat{f}(q)}=C$ we have that $g^{\hat{h}(q)}=1$\benedikt{Change generator base name}. Note that the coefficients of $g(x)$ and $h(x)$ are all less than $q/2$ in absolute value. By triangle inequality we have that $\hat{h}(x)$ are less than $q$. $\hat{h}$ is by assumption not the zero polynomial. This implies that $\hat{h}(q)\neq 0$ is a multiple of the order of $g\in \GG$. This however can directly be used to break the pseudo root assumption (Assumption \ref{assum:fracroot}) by taking the inverse of an integer mod $h(q)$.
 \end{proof}
 
 \begin{theorem}
