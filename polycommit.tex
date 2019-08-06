@@ -67,7 +67,7 @@
         \item construction: poly/vector commitment
         \item eval (log / const size)
         \item coeff extract (log / const size)
-        \item inner product
+        \item inner product (log/ const size)
         \item flip
     \end{itemize}
     \item illustration: simple QAP
@@ -235,6 +235,12 @@ We say a polynomial commitment scheme, consisting of algorithms $(\setup,\commit
 \begin{proof}
 	(SKETCH) Assume an adversary $\adv_{\eval}$ can break the evaluation binding property with non negligible probability $\gamma$. Using the extractor $\extractor$ we will construct an adversary $\adv_\open$ that will break the opening binding property with non-negligible probability. Run $\adv_\eval$ to get $(C,z,y_1,y_2)$. Now using $\ext$ we extract polynomials $f(x)$ and $g(x)$ of degree $d$ with all but negligible probability. Note that $f(z)=y_1$ and $g(z)=y_2$. This means $f(x)\neq g(x)$ but since $C=\commit(f(x))=\commit(g(x))$ we have a break of the opening binding property.
 \end{proof}
+
+
+\subsection{Proofs of Exponentiation}
+Wesolowski \cite{EC:Wesolowski19} in his work on efficient verifiable delay functions introduced a simple yet powerful proof of exponentiation in groups of unknown order. A prover can efficiently convince a verifier that a large exponentiation in a group of unknown order was done correctly. The verifier needs to do little more than read the exponent. If the exponent is smooth then the protocol takes constant space/time in the security parameter.
+\benedikt{Describe PoE protocol}
+Boneh et al. \cite{journals/iacr/BonehBF18a} built on top of PoE to also develop PoKEs. \benedikt{Finish this section}
 \section{Protocol}
 \label{sec:protocol}
 
@@ -268,16 +274,14 @@ Note that the encoding has limited homomorphic properties. $\enc(g(x))+\enc(h(x)
 		\end{enumerate}
 		$\commit(\crs,p(x)\in \FF_p[X])$
 		\begin{enumerate}[nolistsep]
-			\item 	$\hat{f}(x)\gets f(x) \in \ZZ[X]$
-			\item $y\gets \hat{f}(q)$
-			\item $\pcreturn g^y,\deg(f)$
+			\item 	$f(q)\gets \enc(f(x)) \in \ZZ$
+			\item $\pcreturn g^{f(q)},\deg(f)$
 		\end{enumerate}
-		$\open(\crs,p(x)\in \FF_p[X])$
+		$\open(\crs,f(x)\in \FF_p[X])$
 		\begin{enumerate}[nolistsep]
-			\item Prover computes the integer encoding of $p$ $\hat{f}(x)\gets p(x) \in \ZZ[X]$
-			\item Prover sends $\hat{p}(x),p(x)$ to verifier.
-			\item Verifier checks that $\hat{f}(x) \mod p=f(x)$
-			\item Verifier checks that $\deg(f(x))=d$ and that for each coefficient $f_i$, $|f_i|< q/2$
+			\item Prover computes the integer encoding of $f$ $f(q)\gets \enc(f(x)) \in \ZZ$
+			\item Prover sends $f(q),f(x)$ to verifier.
+			\item Verifier checks that $\dec(f(q)) \mod p=f(x)$
 			\item If $C=g^{f(q)}$ the verifier accepts.
 		\end{enumerate}
 	\end{flushleft}
@@ -287,78 +291,32 @@ Note that the encoding has limited homomorphic properties. $\enc(g(x))+\enc(h(x)
 \begin{small}
  \begin{minipage}{1.1\textwidth}
 \begin{mdframed}[userdefinedwidth=1\textwidth]  \label{prot:Opening}
-$\eval(\crs,C,d,z,y;f(x))$\\
-Evaluation protocol $\eval$ at point $y=f(z)\in \FF_p$. Degree $d$ Commitment $C$. $f(x)=\sum_{i=0}^{d} f_i x^{i}$
+	\noindent \underline{\textsf{Protocol \eval} (Polynomial evaluation)}\\
+\noindent Params: $\crs=\{\secpar,p,\GG,g,d_{\max},q\}$;\ \
+Inputs: $C\in \GG,z,y\in \FF_p,d \in \NN $\\
+Witness: $f(x) \in \ZZ[X]$ of degree at most d and with coefficients bounded by $p$;\\ 
+Claim: $C=g^{f(q)},\deg(f)\leq d$ and $y=f(z) \mod p$
+
 \begin{enumerate}[nolistsep]
 \item \pcif $d=0$:
-\item \pcind[1] Prover computes $\hat{y}=\hat{f} \in \ZZ$, i.e. $\hat{f}(x)$ is a constant. 
-\item \pcind[1] Prover sends $\hat{y}$ to the verifier.
-\item \pcind[1] Verifier checks that $0\leq\hat{y}< (\log_2(d+1)+1)\cdot p$,  $\hat{y} \bmod p=y$ and $g^{\hat{y}}=C$ otherwise rejects
-\item \pcelse: \benedikt{Doesn't quite work for $d=1$}
-\item \pcind[1] Prover computes $f_0(x)=\sum_{i=0}^{d/2-1} f_i x^i\in \ZZ$ and $f_1(x)=\sum_{i=0}^{d/2-1} f_{d/2+i} x^{i}\in \ZZ$
-\item \pcind[1] $y_0=f_0(z) \bmod p$, $y_1=f_1(z)\bmod p$, $C_0\gets\commit(f_0)$,$C_1\gets\commit(f_1)$
+\item \pcind[1] Prover sends $f(x)$ to the verifier, $f(x)$ is a constant. 
+\item \pcind[1] Verifier checks that $0\leq f(q)< (\log_2(d+1)+1)\cdot p$,  $f(z) \bmod p=y$ and $g^{f(q)}=C$ otherwise rejects
+\item \pcelse: 
+\item \pcind[1] $d'\gets \frac{d+1}{2}-1$
+\item \pcind[1] Prover computes $f_0(x)\gets\sum_{i=0}^{d'} f_i x^i\in \ZZ$ and $f_1(x)\gets\sum_{i=0}^{d'} f_{d'+1+i} x^{i}\in \ZZ$
+\item \pcind[1] $y_0\gets f_0(z) \bmod p$, $y_1\gets f_1(z)\bmod p$, $C_0\gets g^{f_0(q)}$,$C_1\gets g^{f_1(q)}$
 \item \pcind[1] Prover sends $y_0,y_1,C_0,C_1$ to the Verifier
-\item \pcind[1] Verifier checks that $y_0+z^{d/2} y_1=y\in \FF_p$ and that $C_0C_1^{q^{d/2}}=C$\footnote{Using $\textsf{PoE}(C_1,C/C_0,q^{d/2})$}
+\item \pcind[1] Verifier checks that $y_0+z^{d'+1} y_1=y\in \FF_p$ 
+\item \pcind[1] Prover and Verifier engage in $\textsf{PoE}(C_1,C/C_0,q^{d'+1})$ to show that $C_0C_1^{(q^{d'+1})}=C$
 \item \pcind[1] Verifier samples $\alpha \sample \FF_p$ and sends it to the prover
-\item \pcind[1] Prover and Verifier compute $y'\gets\alpha y_0 +y_1 \bmod p$, $C'\gets C_0^{\alpha}C_1 \in \GG$. \\Prover also computs $f'(x)\gets\alpha  \cdot \hat{f}_0(x)+\hat{f}_1(x) \in \ZZ[X]$ 
-\item \pcind[1] Prover and Verifier run $\eval(y',C',d/2,z,y';f'(x))$
+\item \pcind[1] Prover and Verifier compute $y'\gets\alpha y_0 +y_1 \bmod p$, $C'\gets C_0^{\alpha}C_1 \in \GG$. \\Prover also computs $f'(x)\gets\alpha  \cdot f_0(x)+f_1(x) \in \ZZ[X]$ 
+\item \pcind[1] Prover and Verifier run $\eval(C',z,y',d';f'(x))$
 \end{enumerate}
 \end{mdframed}
 \end{minipage}
 \end{small}
 \subsection{Multivariate Commitment}
-For now we assume that the degree $d$ is always a power of two
-
-\begin{mdframed}[userdefinedwidth=0.8\textwidth]
-\begin{minipage}{\textwidth}
-	\begin{flushleft}
-	\setup(\secpar,p,d):
-		\begin{enumerate}[nolistsep]
-			\item $ \GG \sample \ggen(\secpar)$
-			\item $ g \sample \GG$
-			\item $q\gets 2^k \text{s.t.} q>\prod_{i=1}^n(d_i+1) \cdot 2\cdot p^{\log_2(d+1)+1} $
-			\item $\pcreturn \crs=\{\secpar,p,\GG,g,q\}$
-		\end{enumerate}
-		$\commit(\crs,p(x)\in \FF_p[X])$
-		\begin{enumerate}[nolistsep]
-			\item 	$\hat{f}(x)\gets f(x) \in \ZZ[X]$
-			\item $y\gets \hat{f}(q)$
-			\item $\pcreturn g^y,\deg(f)$
-		\end{enumerate}
-		$\open(\crs,p(x)\in \FF_p[X])$
-		\begin{enumerate}[nolistsep]
-			\item Prover computes the integer encoding of $p$ $\hat{f}(x)\gets p(x) \in \ZZ[X]$
-			\item Prover sends $\hat{p}(x),p(x)$ to verifier.
-			\item Verifier checks that $\hat{f}(x) \mod p=f(x)$
-			\item Verifier checks that $\deg(f(x))=d$ and that for each coefficient $f_i$, $|f_i|< q/2$
-			\item If $C=g^{f(q)}$ the verifier accepts.
-		\end{enumerate}
-	\end{flushleft}
-	
-\end{minipage}
-\end{mdframed}
-\begin{small}
- \begin{minipage}{1.1\textwidth}
-\begin{mdframed}[userdefinedwidth=1\textwidth]  \label{prot:Opening}
-$\eval(\crs,C,d,z,y;f(x))$\\
-Evaluation protocol $\eval$ at point $y=f(z)\in \FF_p$. Degree $d$ Commitment $C$. $f(x)=\sum_{i=0}^{d} f_i x^{i}$
-\begin{enumerate}[nolistsep]
-\item \pcif $d=0$:
-\item \pcind[1] Prover computes $\hat{y}=\hat{f} \in \ZZ$, i.e. $\hat{f}(x)$ is a constant. 
-\item \pcind[1] Prover sends $\hat{y}$ to the verifier.
-\item \pcind[1] Verifier checks that $0\leq\hat{y}< (\log_2(d+1)+1)\cdot p$,  $\hat{y} \bmod p=y$ and $g^{\hat{y}}=C$ otherwise rejects
-\item \pcelse: \benedikt{Doesn't quite work for $d=1$}
-\item \pcind[1] Prover computes $f_0(x)=\sum_{i=0}^{d/2-1} f_i x^i\in \ZZ$ and $f_1(x)=\sum_{i=0}^{d/2-1} f_{d/2+i} x^{i}\in \ZZ$
-\item \pcind[1] $y_0=f_0(z) \bmod p$, $y_1=f_1(z)\bmod p$, $C_0\gets\commit(f_0)$,$C_1\gets\commit(f_1)$
-\item \pcind[1] Prover sends $y_0,y_1,C_0,C_1$ to the Verifier
-\item \pcind[1] Verifier checks that $y_0+z^{d/2} y_1=y\in \FF_p$ and that $C_0C_1^{q^{d/2}}=C$\footnote{Using $\textsf{PoE}(C_1,C/C_0,q^{d/2})$}
-\item \pcind[1] Verifier samples $\alpha \sample \FF_p$ and sends it to the prover
-\item \pcind[1] Prover and Verifier compute $y'\gets\alpha y_0 +y_1 \bmod p$, $C'\gets C_0^{\alpha}C_1 \in \GG$. \\Prover also computs $f'(x)\gets\alpha  \cdot \hat{f}_0(x)+\hat{f}_1(x) \in \ZZ[X]$ 
-\item \pcind[1] Prover and Verifier run $\eval(y',C',d/2,z,y';f'(x))$
-\end{enumerate}
-\end{mdframed}
-\end{minipage}
-\end{small}
+  
 \subsection{Fix coefficients and negative degrees}
 \begin{itemize}
 	\item Several ways to do this.
@@ -419,7 +377,7 @@ We build \emph{supersonic} by instantiating the Sonic SNARK using our trustless 
 	\item Precompute $g^{q^i}$ to use parallelism etc.
 	\item SNARK without falsifiable assumptions
 	\item First polynomial commitment scheme with constant size parameters
-	
+	\item Instead of sending $C_0$ and $C_1$ the prover can simply send $C_0$ and compute $C_1=C/(C_0^{q^{\frac{d}{2}}})$. Using a non-interactive PoE this means that $C_1=C/(Q^{\ell}g^r)$
 \end{enumerate}
   \bibliography{references,cryptobib/abbrev0,cryptobib/crypto}
 
@@ -545,5 +503,4 @@ Protocol:
     \item Prover and Verifier engage in proofs of correct evaluation producing $f_a(z)$ and $f_b(z^{-1})$, matching $c_a$ and $c_b$, respectively.
     \item Verifier checks that $f_a(z) \stackrel{?}{=} z^d f_b(z^{-1})$.
 \end{itemize}
-
 \end{document}
