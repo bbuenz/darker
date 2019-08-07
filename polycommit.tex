@@ -153,11 +153,6 @@ We now define a security games for polynomial commitments
 
 \subsection{Polynomial Commitments}
 
-\alaninline{Before we state the definitions of the security properties, it makes sense to introduce the syntax first. This syntax will probably be a point of ongoing discussion because this syntax has to be a) compatible with our protocol; and b) compatible with our adaptation of Sonic (and esp. its proof).}
-\alaninline{Here's a point we can start with. There are two options for the syntax of opening: \\
-1. The output of $\open$ is a single bit, depending on whether the provided inputs are valid. The opened polynomial should be one of the input arguments. \\
-2. The output of $\open$ is either the opened polynomial itself (if all inputs are valid), or $\bot$ if the inputs are invalid. \\
-While option (2) is less common, makes more sense for our scheme. The reason is because the prover needs to know the correct encoding of $f(x)$ as an integer in addition to $f(x)$ itself. Furthermore, this choice forces us to take explicit care of the integer encoding, which is a) beneficial for implementers, and b) more likely than the alternative to catch errors related to the integer encoding (overflow but also other types of errors).}
 \alaninline{Kate \emph{et al.} define a polynomial commitment scheme as a tuple of 6 algorithms $(\mathsf{Setup},\mathsf{Commit},\mathsf{Open},\mathsf{VerifyPoly},\mathsf{CreateWitness},\mathsf{VerifyEval})$. There is a difference between verifying a commitment and opening it. The proof-of-correct-evaluation is a ``witness''. Proving and verifying are given by non-interactive algorithms.}
 \alaninline{Sonic defines a polynomial commitment scheme as a tuple $(\mathsf{Commit}, \mathsf{Open}, \mathsf{pvC})$. The generation of the public parameters is not part of the polynomial commitment scheme. There is no special decommitment information; the $\mathsf{Commit}$ function takes a polynomial $f(x)$ and $\mathsf{Open}$ takes \emph{the same} polynomial. The algorithm $\mathsf{Open}$ outputs the evaluation $f(z)$ along with a proof; this proof is verified by $\mathsf{pcV}$.}
 
@@ -272,12 +267,13 @@ Note that the encoding has limited homomorphic properties. $\enc(g(x))+\enc(h(x)
 			\item $q\gets 2^k \text{s.t.} q>(d+1) \cdot 2\cdot p^{\log_2(d+1)+1} $
 			\item $\pcreturn \crs=\{\secpar,p,\GG,g,q\}$
 		\end{enumerate}
-		$\commit(\crs,f(x)\in \ZZ[X])$ \pccomment{$f(x)$'s coefficients are less than $p$}
+		$\commit(\crs,f(x)\in \ZZ[X])$ \pccomment{$f(x)$'s coefficients are \textcolor{blue}{in $\{0,\ldots,p-1\}$}} 
 		\begin{enumerate}[nolistsep]
 			\item 	$f(q)\gets \enc(f(x)) \in \ZZ$
-			\item $\pcreturn g^{f(q)},\deg(f)$
+			\item \textcolor{blue}{$C \gets g^{f(q)}$}
+			\item $\pcreturn \textcolor{blue}{C},\deg(f)$ \textcolor{blue}{Alan: why is including the degree necessary?}
 		\end{enumerate}
-		$\open(\crs,f(x)\in \ZZ[X])$
+		$\open(\crs,\textcolor{blue}{C},f(x)\in \ZZ[X])$ \pccomment{\textcolor{blue}{$f(x)$'s coefficients are in $\{0,\ldots,q-1\}$}} 
 		\begin{enumerate}[nolistsep]
 			\item $f(q)\gets \enc(f(x)) \in \ZZ$
 			\item Prover sends $f(q),f(x)$ to verifier.
@@ -294,37 +290,47 @@ Note that the encoding has limited homomorphic properties. $\enc(g(x))+\enc(h(x)
 	\noindent \underline{\textsf{Protocol \eval} (Polynomial evaluation)}\\
 \noindent Params: $\crs=\{\secpar,p,\GG,g,d_{\max},q\}$;\ \
 Inputs: $C\in \GG,z,y\in \FF_p,d \in \NN $\\
-Witness: $f(x) \in \ZZ[X]$ of degree at most d and with coefficients bounded by $p$\footnote{We describe the protocol using an integer polynomial with bounded coefficient. This generalizes the case where the polynomial is in $\FF_p[X]$};\\ 
+Witness: $f(x) \in \ZZ[X]$ of degree at most $d$ and with coefficients bounded by $p$ \textcolor{blue}{Alan: if it is bounded by $p$ then you cannot recurse, because the coefficients grow every step.}\footnote{We describe the protocol using an integer polynomial with bounded coefficient. This generalizes the case where the polynomial is in $\FF_p[X]$};\\ 
 Claim: $C=g^{f(q)},\deg(f)\leq d$ and $y=f(z) \mod p$
 
 \begin{enumerate}[nolistsep]
 \item \pcif $d=0$:
 \item \pcind[1] Prover sends $f(x)$ to the verifier, $f(x)$ is a constant. 
-\item \pcind[1] Verifier checks that $0\leq f(q)< (\log_2(d+1)+1)\cdot p$,  $f(z) \bmod p=y$ and $g^{f(q)}=C$ otherwise rejects
+\item \pcind[1] Verifier checks that $0\leq f(q)< (\log_2(d+1)+1)\cdot p$ \textcolor{blue}{Alan: not in the exponent of $p$?},  $f(z) \bmod p=y$ and $g^{f(q)}=C$, or rejects otherwise
 \item \pcelse: 
 \item \pcind[1] $d'\gets \frac{d+1}{2}-1$
-\item \pcind[1] Prover computes $f_0(x)\gets\sum_{i=0}^{d'} f_i x^i\in \ZZ$ and $f_1(x)\gets\sum_{i=0}^{d'} f_{d'+1+i} x^{i}\in \ZZ$
+\item \pcind[1] Prover computes $f_0(x)\gets\sum_{i=0}^{d'} f_i x^i\in \ZZ\textcolor{blue}{[x]}$ and $f_1(x)\gets\sum_{i=0}^{d'} f_{d'+1+i} x^{i}\in \ZZ\textcolor{blue}{[x]}$
 \item \pcind[1] $y_0\gets f_0(z) \bmod p$, $y_1\gets f_1(z)\bmod p$, $C_0\gets g^{f_0(q)}$,$C_1\gets g^{f_1(q)}$
 \item \pcind[1] Prover sends $y_0,y_1,C_0,C_1$ to the Verifier
 \item \pcind[1] Verifier checks that $y_0+z^{d'+1} y_1=y\in \FF_p$ 
 \item \pcind[1] Prover and Verifier engage in $\textsf{PoE}(C_1,C/C_0,q^{d'+1})$ to show that $C_0C_1^{(q^{d'+1})}=C$
 \item \pcind[1] Verifier samples $\alpha \sample \FF_p$ and sends it to the prover
-\item \pcind[1] Prover and Verifier compute $y'\gets\alpha y_0 +y_1 \bmod p$, $C'\gets C_0^{\alpha}C_1 \in \GG$. \\Prover also computs $f'(x)\gets\alpha  \cdot f_0(x)+f_1(x) \in \ZZ[X]$ 
+\item \pcind[1] Prover and Verifier compute $y'\gets\alpha y_0 +y_1 \bmod p$, $C'\gets C_0^{\alpha}C_1 \in \GG$. 
+\item \pcind[1] Prover also computes $f'(x)\gets\alpha  \cdot f_0(x)+f_1(x) \in \ZZ[x]$ 
 \item \pcind[1] Prover and Verifier run $\eval(C',z,y',d';f'(x))$
 \end{enumerate}
 \end{mdframed}
 \end{minipage}
 \end{small}
+
+\subsection{Discussion and Optimizations}
+\begin{enumerate}
+	\item Precompute $g^{q^i}$ to use parallelism etc.
+	\item SNARK without falsifiable assumptions
+	\item First polynomial commitment scheme with constant size parameters
+	\item Instead of sending $C_0$ and $C_1$ the prover can simply send $C_0$ and compute $C_1=C/(C_0^{q^{\frac{d}{2}}})$. Using a non-interactive PoE this means that $C_1=C/(Q^{\ell}g^r)$
+\end{enumerate}
+
 \subsection{Multivariate Commitment}
   
 \subsection{Fix coefficients and negative degrees}
 \begin{itemize}
 	\item Several ways to do this.
 \end{itemize}
+
 \subsection{Range Proofs}
 
 \section{Security}
-
 
 \begin{lemma}
 	The pseudo root assumption holds in the generic group model.
@@ -369,16 +375,7 @@ For $d>0$ we have $g^{\hat{y}}=C=C_0^{\alpha}C_1$. Rewinding once we get
 	If $q<bla$ there exists an efficient adversary that can break the evaluation binding property of the polynomial commitment.
 \end{corollary}
 \benedikt{Figure out at what q we can attack the scheme. Probably needs to use negative coefficients and such.}
-\section{Supersonic: A SNARK with trustless, constant size CRS}
-We build \emph{supersonic} by instantiating the Sonic SNARK using our trustless setup polynomial commitment scheme.
 
-\section{Discussion and Optimizations}
-\begin{enumerate}
-	\item Precompute $g^{q^i}$ to use parallelism etc.
-	\item SNARK without falsifiable assumptions
-	\item First polynomial commitment scheme with constant size parameters
-	\item Instead of sending $C_0$ and $C_1$ the prover can simply send $C_0$ and compute $C_1=C/(C_0^{q^{\frac{d}{2}}})$. Using a non-interactive PoE this means that $C_1=C/(Q^{\ell}g^r)$
-\end{enumerate}
   \bibliography{references,cryptobib/abbrev0,cryptobib/crypto}
 
 \section{Zero knowledge polynomial commitment} 
@@ -459,7 +456,19 @@ Correctness, soundness, etc. (todo) Special attention for coefficient size.
 
 Note that the Verifier must process all of $z_{\bar{\mathbf{s}}}$ in order to verify the exponentiation, which in particular is linear in $d$. However, it is possible to reduce this complexity and simultaneously hide the value of $z_{\bar{\mathbf{s}}}$. To do this, the prover must have committed to $z_{\bar{\mathbf{s}}}$ by sending $g^{z_{\bar{\mathbf{s}}}}$ (possibly with respect to a different base). At this point, a batched proof of knowledge of exponent establishes that the discrete logarithms of $C^{z_{\bar{\mathbf{s}}}}$ base $C$ and of $g^{z_{\bar{\mathbf{s}}}}$ base $g$ are equal.
 
-\section{QAP-based SARK}
+\subsection{Proof of Correct Flipping}
+
+The following protocol establishes that two commitments, $c_a$ and $c_b$ represent polynomials $f_a, f_b \in \mathbb{F}_p$ (or vectors, for that matter) whose coefficients are flipped. Specifically, that $f_a = \sum_{i=0}^{d}f_i x^i$ for some coefficients $f_i$, and $f_b = \sum_{i=0}^df_ix^{d-i}$ for the same coefficients $f_i$. To see why it works, observe that $f_a(x) = x^df_b(x^{-1})$ and we can test this equation probabilistically by choosing a random $z \in \mathbb{F}_p \backslash \{0\}$ to evaluate $f_a$ and $f_b$ in. If $f_a$ is indeed the flipping of $f_b$ then the polynomial $F = f_a(x) - x^df_b(x^{-1})$ is identically zero; but otherwise it has at most $d$ zeros, and so the inequality will be exposed with overwhelming probability $(p-1-d)/(p-1)$.
+
+Protocol:
+\begin{itemize}
+    \item Common knowledge: $c_a, c_b \in \mathbb{G}$.
+    \item Verifier chooses $z \xleftarrow{\$} \mathbb{F}_p \backslash \{0\}$ and sends it to Prover.
+    \item Prover and Verifier engage in proofs of correct evaluation producing $f_a(z)$ and $f_b(z^{-1})$, matching $c_a$ and $c_b$, respectively.
+    \item Verifier checks that $f_a(z) \stackrel{?}{=} z^d f_b(z^{-1})$.
+\end{itemize}
+
+\section{Illustration: QAP-based SNARK}
 
 The next protocol describes an efficiently verifiable proof system for rank-one constraint satisfaction problems. Specifically, we start from a list of $m$ constraints of the form
 \begin{equation} \label{equation:r1cs}
@@ -492,15 +501,16 @@ The proof establishes that the prover knows a vector $\mathbf{s}$ and a polynomi
 
 Note: we need to pay special attention to the size of the coefficients of $\mathbf{s}$ and of $t(x)$ are not too big. It is possible that the random selection of $z$ makes the prover who cheats by choosing larger coefficients overwhelmingly unlikely to succeed. Alternatively, we can devise a proof of small coefficients or something like that.
 
-\section{Proof of Correct Flipping}
+\section{Applications to Other Proof Systems}
 
-The following protocol establishes that two commitments, $c_a$ and $c_b$ represent polynomials $f_a, f_b \in \mathbb{F}_p$ (or vectors, for that matter) whose coefficients are flipped. Specifically, that $f_a = \sum_{i=0}^{d}f_i x^i$ for some coefficients $f_i$, and $f_b = \sum_{i=0}^df_ix^{d-i}$ for the same coefficients $f_i$. To see why it works, observe that $f_a(x) = x^df_b(x^{-1})$ and we can test this equation probabilistically by choosing a random $z \in \mathbb{F}_p \backslash \{0\}$ to evaluate $f_a$ and $f_b$ in. If $f_a$ is indeed the flipping of $f_b$ then the polynomial $F = f_a(x) - x^df_b(x^{-1})$ is identically zero; but otherwise it has at most $d$ zeros, and so the inequality will be exposed with overwhelming probability $(p-1-d)/(p-1)$.
+\subsection{DARK-Sonic}
 
-Protocol:
-\begin{itemize}
-    \item Common knowledge: $c_a, c_b \in \mathbb{G}$.
-    \item Verifier chooses $z \xleftarrow{\$} \mathbb{F}_p \backslash \{0\}$ and sends it to Prover.
-    \item Prover and Verifier engage in proofs of correct evaluation producing $f_a(z)$ and $f_b(z^{-1})$, matching $c_a$ and $c_b$, respectively.
-    \item Verifier checks that $f_a(z) \stackrel{?}{=} z^d f_b(z^{-1})$.
-\end{itemize}
+\subsection{DARK-Spartan}
+
+\subsection{DARK-Bulletproofs}
+
+\subsection{DARK-STARK}
+
+\subsection{Comparison}
+
 \end{document}
