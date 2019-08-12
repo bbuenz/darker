@@ -83,32 +83,20 @@
     \end{itemize}
 \end{itemize}
 
+\clearpage
+
 \section{Introduction}
 
-interactive proof systems for arbitrary computation
+A polynomial commitment scheme enables a prover to bind himself to a polynomial in much less bandwidth than transmitting all coefficients would require. A skeptical verifier can subsequently test the commitment for certain algebraic relations as though he were in possession of the polynomial's full description, except at a much smaller work cost. Indeed, polynomial commitments lie at the heart of a host of efficiently verifiable interactive proof systems.
 
- - zero-knowledge proofs
- - arithmetization
- - polynomial relations
- 
-circuit model: QAP and Groth16 NILP
+Of particular interest to this paper are proof systems whereby the prover establishes the correct performance of an arbitrary computation (that may or may not involve secret information) in such a way that the communication or verification complexity scales asymptotically better than performing the computation naïvely. Without exception, these proof systems rely on a technique called \emph{arithmetization}: characterizing the computation in question as a collection of arithmetic operations over a finite field. The utility of polynomial commitments stems from their capacity to succinctly capture a canonical representation of such collections while retaining the algebraic properties that make arithmetization work in the first place.
 
- - construction
- - used algebra
- - advantages and disadvantages
- 
-Turing model: STARK
+The literature on proof systems for arbitrary computations focuses on two techniques to achieve polynomial commitments. First: Merkle trees --- here every leaf represents the polynomial's evaluation in a given point, and the Merkle root represents the commitment to the polynomial. The verifier operates by opening selected points, which can be done in logarithmic space and time (as a function of the number of points). Second: groups equipped with bilinear maps --- in this case a structured reference (SRS)\footnote{Previously known as \emph{common reference string}, CRS.} string provides the values of all monomials up to a given degree when evaluated in an unknown point. By computing a weighted sum of these monomial values, the prover obtains the evaluation of his polynomial in the unknown point. The verifier performs the pairing operation to verify that multiplicative relations hold between committed polynomials.
 
- - construction
- - used algebra
- - advantages and disadvantages
+This paper provides a third option for generating polynomial commitment schemes, namely by relying on groups of unknown order --- such as the group of integers with multiplication modulo an RSA modulus of unknown factorization, or the ideal class group of an order of an imaginary quadratic number field. These groups have seen relatively little adoption or even attention from the cryptographic community because the only known constructions thereof have subexponential attack algorithms. As a result, for a practical security level, elements of groups of unknown order typically require several hundreds of bytes to represent, in contrast to the tens of bytes needed for elements of elliptic curves for which no subexponential algorithms exist. 
 
-Groups of unknown order
+Nevertheless, groups of unknown order provide a property that groups of known order, such as elliptic curve groups, cannot match: they enable homomorphic  commitments to an \emph{infinite} domain, namely the integers. Indeed, if the prover were capable of reducing a large integer to a smaller one without sacrificing the homomorphic properties, then he must know the group's order. The power of integer commitments was already noted by Lipmaa~\cite{} who characterizes proof systems arising therefrom as \emph{Diophantine} --- a reference to the family of languages for which such proof systems establish. Specifically, a set $S \subset \mathbb{Z}^n$ is called \emph{Diophantine} if it is the projection onto the first $n \leq m$ coordinates of the set of roots to a polynomial $P(x_1, \ldots, x_m) \in \mathbb{Z}[x_1, \ldots, x_m]$. Much more recently, Wesolowski produced a conceptually simple verifiable delay function (VDF) which builds on a proof of correct exponentiation in groups of unknown order. Boneh \emph{et al.} developed accumulators and vector commitments (with batch openings) from groups of unknown order and a variant of Wesolowski's proof of correct exponentiation~\cite{}.
 
- - history
- - vdfs / accumulators
- - construction: RSA
- - construction class group
 
 Our contribution:
 
