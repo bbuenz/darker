@@ -1,5 +1,5 @@
 \documentclass{article}
-\usepackage[operators,lambda,keys,sets,primitives,adversary,asymptotics]{cryptocode}
+\usepackage[operators,lambda,keys,sets,primitives,adversary,asymptotics,advantage]{cryptocode}
 \usepackage{notations}
 \usepackage{mdframed}
 \usepackage{enumitem}
@@ -139,7 +139,7 @@ The security of the scheme relies on the fractional root assumption which is a g
 \label{assum:fracroot}
 The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\adv$:
 \[        
-                \Pr\left[y^\beta = g^{\alpha} \wedge  \beta \not\vert~ \alpha   : 
+                \Pr\left[y^\beta = g^{\alpha} \wedge  \beta \not\vert~\alpha   : 
                 \begin{array}{l} 
                       \GG \sample \ggen(\lambda) \\ 
                       g \sample \GG \\
@@ -149,11 +149,31 @@ The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\ad
         \right] \leq \negl.
 \]
 \end{assumption}
+\begin{assumption}[Adaptive Root Assumption]
+\label{assum:adaptiveroot}
+We say that the \defn{adaptive root assumption} holds for $\ggen$ if 
+there is no efficient adversary $(\adv_0,\adv_1)$ that succeeds 
+in the following task.
+First, $\adv_0$ outputs an element $w \in \GG$ and some $\state$.
+Then, a random prime $\ell$ in $\primes$ is chosen
+and $\adv_1(\ell,\state)$ outputs $w^{1/\ell} \in \GG$.
+More precisely, for all efficient $(\adv_0,\adv_1)$:
+\[           \advantage{AR}{(\adv_0,\adv_1)}\deq 
+                \Pr\left[u^\ell = w \neq 1 \ : \ 
+                \begin{array}{l}
+                      \GG \sample \ggen(\lambda) \\ 
+                      (w,\state) \sample \adv_0(\GG) \\
+                      \ell \sample \primes \\ 
+                      u \sample \adv_1(\ell, \state)
+                \end{array} 
+        \right] \leq \negl.
+\]
+\end{assumption}
 We now define a security games for polynomial commitments
 
 \subsection{Polynomial Commitments}
 
-\alaninline{Before we state the definitions of the security properties, it makes sense to introduce the syntax first. This syntax will probably be a point of ongoing discussion because this syntax has to be a) compatible with our protocol; and b) compatible with our adaptation of Sonic (and esp. its proof).}
+\alaninline{Before we state the definitions of the security properties, it makes sense to introduce the syntax first. This syntax will probably be a point of ongoing discussion because this syntax has to be a) compatible with our protocol; and b) compatible with our adaptation of Sonic (and esp.\ its proof).}
 \alaninline{Here's a point we can start with. There are two options for the syntax of opening: \\
 1. The output of $\open$ is a single bit, depending on whether the provided inputs are valid. The opened polynomial should be one of the input arguments. \\
 2. The output of $\open$ is either the opened polynomial itself (if all inputs are valid), or $\bot$ if the inputs are invalid. \\
@@ -258,14 +278,14 @@ Boneh et al. \cite{journals/iacr/BonehBF18a} built on top of PoE to also develop
 	The polynomial encoding scheme is uniquely decodable.
 \end{fact}
 
-Note that the encoding has limited homomorphic properties. $\enc(g(x))+\enc(h(x))=\enc(g(x)+h(x))$ if $g(x)+h(x)\in P_q$, i,.e. all its coefficients are less than $q/2$ in absolute value. This is ensured if for example the coefficients of $g$ and $h$ are less than $q/4$. Additionally $\enc(g(x))\cdot \enc(h(x))=\enc(g(x)\cdot h(x))$ if $g(x)\cdot h(x)\in P_q$.
+Note that the encoding has limited homomorphic properties. $\enc(g(x))+\enc(h(x))=\enc(g(x)+h(x))$ if $g(x)+h(x)\in P_q$, i,.e. all its coefficients are less than $q/2$ in absolute value.\ This is ensured if for example the coefficients of $g$ and $h$ are less than $q/4$. Additionally $\enc(g(x))\cdot \enc(h(x))=\enc(g(x)\cdot h(x))$ if $g(x)\cdot h(x)\in P_q$.
 \subsection{Polynomial Commitment}
  For now we assume that the degree $d$ is always a power of two. We describe the commitment scheme for integer polynomials with coefficients bounded in absolute value by $p$. The scheme naturally extends for polynomials in $\FF_p$.
 
 \begin{mdframed}[userdefinedwidth=0.8\textwidth]
 \begin{minipage}{\textwidth}
 	\begin{flushleft}
-	\setup(\secpar,p,d):
+	\setup(\secpar,p,d,n):
 		\begin{enumerate}[nolistsep]
 			\item $ \GG \sample \ggen(\secpar)$
 			\item $ g \sample \GG$
@@ -316,7 +336,42 @@ Claim: $C=g^{f(q)},\deg(f)\leq d$ and $y=f(z) \mod p$
 \end{minipage}
 \end{small}
 \subsection{Multivariate Commitment}
-  
+  We extend the Polynomial Commitment scheme to handle multivariate polynomials. The idea is to simply use higher degrees of $q$ to encode the polynomial. The protocol is linear in the number of variables and logarithmic in the total degree of the polynomial. For simplicity we only present a protocol for $n$-variate polynomials where the degree in each variable is $d$ and $d$ is a power of $2$. The protocol naturally extends to different degrees per variable.
+We first define an encoding for multi-variate integer polynomials with small coefficients:
+ \begin{itemize}
+	\item Domain $P_q \subset \ZZ[X^n]$, Alphabet: $\ZZ$, \\$p(x_0,\dots,x_{n-1})=\sum_{\vec{i} \in [0,d]^n} p_{\vec{i}} \prod_{j=1}^{n} x_j^{i_j}$
+	\item $\enc(p(x_0,\dots,x_{n-1}) \in P_q): p(q,q^{d+1},q^{(d+1)^2},\dots,q^{(d+1)^{n-1}})$
+	\item $\textsf{Q-ary}(\vec{i}):\sum_{j=1}^{n} i_j\cdot (d+1)^{j-1}$
+	\item $\dec(y \in \ZZ): p_{\vec{i}}=\frac{y \bmod q^{\textsf{Q-ary}(\vec{i})+1}-y \bmod q^{\textsf{Q-ary}(\vec{i})}}{q^{\textsf{Q-ary}(\vec{i})}} \forall \vec{i} \in [0,d]^n$
+\end{itemize}
+\begin{small}
+ \begin{minipage}{1.1\textwidth}
+\begin{mdframed}[userdefinedwidth=1\textwidth]  \label{prot:Opening}
+	\noindent \underline{\textsf{Protocol \eval} (Polynomial evaluation)}\\
+\noindent Params: $\crs=\{\secpar,p,\GG,g,d_{\max},q\}$;\ \
+Inputs: $C\in \GG,z,y\in \FF_p,d \in \NN $\\
+Witness: $f(x) \in \ZZ[X]$ of degree at most d and with coefficients bounded by $p$\footnote{We describe the protocol using an integer polynomial with bounded coefficient. This generalizes the case where the polynomial is in $\FF_p[X]$};\\ 
+Claim: $C=g^{f(q)},\deg(f)\leq d$ and $y=f(z) \mod p$
+
+\begin{enumerate}[nolistsep]
+\item \pcif $d=0$:
+\item \pcind[1] Prover sends $f(x)$ to the verifier, $f(x)$ is a constant. 
+\item \pcind[1] Verifier checks that $0\leq f(q)< (\log_2(d+1)+1)\cdot p$,  $f(z) \bmod p=y$ and $g^{f(q)}=C$ otherwise rejects
+\item \pcelse: 
+\item \pcind[1] $d'\gets \frac{d+1}{2}-1$
+\item \pcind[1] Prover computes $f_0(x)\gets\sum_{i=0}^{d'} f_i x^i\in \ZZ$ and $f_1(x)\gets\sum_{i=0}^{d'} f_{d'+1+i} x^{i}\in \ZZ$
+\item \pcind[1] $y_0\gets f_0(z) \bmod p$, $y_1\gets f_1(z)\bmod p$, $C_0\gets g^{f_0(q)}$,$C_1\gets g^{f_1(q)}$
+\item \pcind[1] Prover sends $y_0,y_1,C_0,C_1$ to the Verifier
+\item \pcind[1] Verifier checks that $y_0+z^{d'+1} y_1=y\in \FF_p$ 
+\item \pcind[1] Prover and Verifier engage in $\textsf{PoE}(C_1,C/C_0,q^{d'+1})$ to show that $C_0C_1^{(q^{d'+1})}=C$
+\item \pcind[1] Verifier samples $\alpha \sample \FF_p$ and sends it to the prover
+\item \pcind[1] Prover and Verifier compute $y'\gets\alpha y_0 +y_1 \bmod p$, $C'\gets C_0^{\alpha}C_1 \in \GG$. \\Prover also computs $f'(x)\gets\alpha  \cdot f_0(x)+f_1(x) \in \ZZ[X]$ 
+\item \pcind[1] Prover and Verifier run $\eval(C',z,y',d';f'(x))$
+\end{enumerate}
+\end{mdframed}
+\end{minipage}
+\end{small}
+
 \subsection{Fix coefficients and negative degrees}
 \begin{itemize}
 	\item Several ways to do this.
@@ -333,7 +388,9 @@ Claim: $C=g^{f(q)},\deg(f)\leq d$ and $y=f(z) \mod p$
 	The polynomial commitment scheme satisfies the opening binding property
 \end{lemma}
 \begin{proof}
-	Assume $f(x)$ and $g(x)$ are integer encodings of two distinct polynomials $f(x),p(x) \in \FF_p[X]$. Then $\hat{h}(x)=\hat{f}(x)-\hat{g}(x) \in \ZZ[X]$ is a polynomial of degree at most $d$. Since $g^{\hat{g}(q)}=g^{\hat{f}(q)}=C$ we have that $g^{\hat{h}(q)}=1$\benedikt{Change generator base name}. Note that the coefficients of $g(x)$ and $h(x)$ are all less than $q/2$ in absolute value. By triangle inequality we have that $\hat{h}(x)$ are less than $q$. $\hat{h}$ is by assumption not the zero polynomial. This implies that $\hat{h}(q)\neq 0$ is a multiple of the order of $g\in \GG$. This however can directly be used to break the pseudo root assumption (Assumption \ref{assum:fracroot}) by taking the inverse of an integer mod $h(q)$.
+	Assume $\hat{f}(x)$ and $\hat{f}'(x)$ are integer encodings of two distinct polynomials $f(x),f'(x) \in \FF_p[X]$. Assume that the adversary can open a commitment $C$ to both $f(x)$ and $f'(x)$. We show that we can use this adversary to break the pseudo root assumption (Assumption \ref{assum:fracroot}).
+	
+	 Then $\hat{h}(x)=\hat{f}(x)-\hat{f}'(x) \in \ZZ[X]$ is a polynomial of degree at most $d$. Since $g^{\hat{f}(q)}=g^{\hat{f}'(q)}=C$ we have that $g^{\hat{h}(q)}=1$. Note that the coefficients of $\hat{f}(x)$ and $\hat{f}'(x)$ are all less than $q/2$ in absolute value. By triangle inequality we have that $\hat{h}(x)$'s coefficients are less than $q$. $\hat{h}$ is by assumption not the zero polynomial. This implies that $\hat{h}(q)\neq 0$ is a multiple of the order of $g\in \GG$. This however can directly be used to break the pseudo root assumption (Assumption \ref{assum:fracroot}) by taking the inverse of an integer mod $\hat{h}(q)$.
 \end{proof}
 
 \begin{theorem}
