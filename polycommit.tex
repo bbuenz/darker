@@ -68,7 +68,7 @@
         \item eval (log / const size)
         \item coeff extract (log / const size)
         \item inner product (log/ const size)
-        \item flip
+        \item permutations: flip, rotate, generic
     \end{itemize}
     \item illustration: simple QAP
     \item proof systems
@@ -83,46 +83,30 @@
     \end{itemize}
 \end{itemize}
 
+\clearpage
+
 \section{Introduction}
 
-interactive proof systems for arbitrary computation
+A polynomial commitment scheme enables a prover to bind himself to a polynomial in much less bandwidth than transmitting all coefficients would require. A skeptical verifier can subsequently test the commitment for certain algebraic relations as though he were in possession of the polynomial's full description, except at a much smaller work cost. Indeed, polynomial commitments lie at the heart of a host of efficiently verifiable interactive proof systems.
 
- - zero-knowledge proofs
- - arithmetization
- - polynomial relations
- 
-circuit model: QAP and Groth16 NILP
+Of particular interest to this paper are proof systems whereby the prover establishes the correct performance of an arbitrary computation (that may or may not involve secret information) in such a way that the communication or verification complexity scales asymptotically better than performing the computation naïvely. Without exception, these proof systems rely on a technique called \emph{arithmetization}: characterizing the computation in question as a collection of arithmetic operations over a finite field. The utility of polynomial commitments stems from their capacity to succinctly capture a canonical representation of such collections while retaining the algebraic properties that make arithmetization work in the first place.
 
- - construction
- - used algebra
- - advantages and disadvantages
- 
-Turing model: STARK
+The literature on proof systems for arbitrary computations focuses on two techniques to achieve polynomial commitments. First: Merkle trees --- here every leaf represents the polynomial's evaluation in a given point, and the Merkle root represents the commitment to the polynomial. The verifier operates by opening selected points, which can be done in logarithmic space and time (as a function of the number of points). Second: groups equipped with bilinear maps --- in this case a structured reference string (SRS)\footnote{Previously known as \emph{common reference string}, CRS.} provides the values of all monomials up to a given degree when evaluated in an unknown point. By computing a weighted sum of these monomial values, the prover obtains the evaluation of his polynomial in the unknown point. The verifier performs the pairing operation to verify that multiplicative relations hold between committed polynomials.
 
- - construction
- - used algebra
- - advantages and disadvantages
+This paper provides a third option for generating polynomial commitment schemes, namely by relying on groups of unknown order --- such as the group of integers with multiplication modulo an RSA modulus of unknown factorization, or the ideal class group of an order of an imaginary quadratic number field. These groups have seen relatively little adoption or even attention from the cryptographic community because the only known constructions thereof have subexponential attack algorithms. As a result, for a practical security level, elements of groups of unknown order typically require several hundreds of bytes to represent, in contrast to the tens of bytes needed for elements of elliptic curves for which no subexponential algorithms exist. 
 
-Groups of unknown order
+Nevertheless, groups of unknown order provide a property that groups of known order, such as elliptic curve groups, cannot match: they enable homomorphic  commitments to an \emph{infinite} domain, namely the integers. Indeed, if the prover were capable of reducing a large integer to a smaller one without sacrificing the homomorphic properties, then he must know the group's order. The power of integer commitments was already noted by Lipmaa~\cite{} who characterizes proof systems arising therefrom as \emph{Diophantine} --- a reference to the family of languages for which such proof systems establish. Specifically, a set $S \subset \mathbb{Z}^n$ is called \emph{Diophantine} if it is the projection onto the first $n \leq m$ coordinates of the set of roots to a polynomial $P(x_1, \ldots, x_m) \in \mathbb{Z}[x_1, \ldots, x_m]$. Much more recently, Wesolowski produced a conceptually simple verifiable delay function (VDF) which builds on a proof of correct exponentiation in groups of unknown order. Building on this result, Boneh \emph{et al.} developed accumulators and vector commitments (with batch openings) from groups of unknown order~\cite{}. Both results have been received with great enthusiasm in the cryptocurrency community for their capacity to improve sustainability and scalability of blockchains.
 
- - history
- - vdfs / accumulators
- - construction: RSA
- - construction class group
+\vspace{0.25cm}
+\textsc{Contributions.} The contributions of this paper are divisible into three rubrics:
+\begin{itemize}
+    \item[] \textbf{Hard problem.} The soundness or knowledge-soundness of our proof systems reduces the hardness of a new hard problem called the \emph{fractional root problem} which informally states that a computationally bounded adversary cannot produce two group elements $g, h \in \mathbb{G}$ with non-trivial exponents $a, b \in \mathbb{Z}$ such that $g^a = h^b$. We prove the hardness of this problem in the generic group model and show that it generalizes both the strong RSA problem and the adaptive root problem\alan{TODO: verify}. Given the new-found popularity of groups of unknown order, which provide the context for this hard problem, and given the genericity of this hard problem,  it is important to establish the correct definition and justify the matching hardness assumption as an independent contribution.
+    \item[] \textbf{Tools.} We start with an encoding scheme that represents polynomials over a prime field $\mathbb{F}_p$ as integers, by encoding the polynomial's coefficients into the integer's base-$q$ expansion. Adjoined with a group of unknown order and a designated base element $g \in \mathbb{G}$, this encoding scheme naturally gives rise to a polynomial commitment scheme that inherits its somewhat homomorphic properties. Next, we provide protocols for proving the correct evaluation of a committed polynomial, and showing that two polynomials have the same coefficients but flipped or rotated. We also present a protocol for extracting the $i$th coefficient, thereby promoting the commitment scheme to one that also provides vector commitment functionality. Building on this observation, we provide another protocol for showing that a commitment represents the inner product between two vectors of which at least one is represented by its vector commitment. Another protocol establishes that two vector commitments represent the same vector up to an arbitrary but known permutation of the coefficients.
+    \item[] All the proof systems mentioned so far have logarithmic communication complexity and logarithmic verification time. Moreover, with the exception of the inner product proof and the permutation proof, the prover's complexity is quasi-linear. If one is willing to sacrifice this scalability for the prover, we also provide counterparts to all the above proofs with constant communication and verification complexity.
+    \item[] \textbf{Applications.} To illustrate the usefulness and the versatility of the enumerated tools, we join them straightforwardly to construct a simple succinct non-interactive argument of knowledge (SNARK) based on quadratic arithmetic programs (QAPs). To the best of our knowledge, this is the first SNARK for circuits without trusted setup (when instantiated with the class group) or with an SRS whose size is independent of the circuit (when instantiated with the RSA group).\footnote{This classification takes note of STARK~\cite{} whose verification time is polylogarithmic but as a function of some program's running time and not of any circuit; as well as of Hyrax~\cite{} and Spartan~\cite{}, which do apply to circuits but whose verification times are not polylogarithmic and thus fail to satisfy the definition of SNARKs as set forth in the paper that coined the term~\cite{}.}
+    \item[] We follow up this conceptually simple QAP-based proof system with a survey of popular communication-efficient proof systems for arbitrary computations, in which we replace their constituent components with tools developed earlier in this paper. In this light we analyze Sonic, Spartan, Hyrax, Bulletproofs, and STARK. In all cases we find that using our techniques leads to different trade-offs; improving on some metrics while degrading others.
+\end{itemize}
 
-Our contribution:
-
- - polynomial commitments with groups of unknown order
- - efficiently verifiable evaluation proofs
- - interactive proofs for arbitrary computation based on SONIC
- -- constant-size SRS
- -- no trusted setup (class group)
- -- trusted setup independent of circuit (RSA)
-
-Related work:
-	
-	-Kate et al.
-	-Sonic
 \section{Preliminaries}
 \paragraph{Notation}
 \begin{itemize}
@@ -178,6 +162,7 @@ We now define a security games for polynomial commitments
 1. The output of $\open$ is a single bit, depending on whether the provided inputs are valid. The opened polynomial should be one of the input arguments. \\
 2. The output of $\open$ is either the opened polynomial itself (if all inputs are valid), or $\bot$ if the inputs are invalid. \\
 While option (2) is less common, makes more sense for our scheme. The reason is because the prover needs to know the correct encoding of $f(x)$ as an integer in addition to $f(x)$ itself. Furthermore, this choice forces us to take explicit care of the integer encoding, which is a) beneficial for implementers, and b) more likely than the alternative to catch errors related to the integer encoding (overflow but also other types of errors).}
+
 \alaninline{Kate \emph{et al.} define a polynomial commitment scheme as a tuple of 6 algorithms $(\mathsf{Setup},\mathsf{Commit},\mathsf{Open},\mathsf{VerifyPoly},\mathsf{CreateWitness},\mathsf{VerifyEval})$. There is a difference between verifying a commitment and opening it. The proof-of-correct-evaluation is a ``witness''. Proving and verifying are given by non-interactive algorithms.}
 \alaninline{Sonic defines a polynomial commitment scheme as a tuple $(\mathsf{Commit}, \mathsf{Open}, \mathsf{pvC})$. The generation of the public parameters is not part of the polynomial commitment scheme. There is no special decommitment information; the $\mathsf{Commit}$ function takes a polynomial $f(x)$ and $\mathsf{Open}$ takes \emph{the same} polynomial. The algorithm $\mathsf{Open}$ outputs the evaluation $f(z)$ along with a proof; this proof is verified by $\mathsf{pcV}$.}
 
@@ -266,12 +251,13 @@ Boneh et al. \cite{journals/iacr/BonehBF18a} built on top of PoE to also develop
 
 \subsection{Polynomial Encoding}
 
-	Consider the set $P_q\subset \ZZ[X]$ of integer polynomials with coefficients whose absolute value is less than $q/2$. $p(q) \in \ZZ$ for $p(x)\in P_q$ is a unique encoding of the polynomial:
+	Consider the set $B_{q/2}\subset \ZZ$ of integers with absolute value of less than $q/2$. $B_{q/2}[X]$ is the polynomial ring of that set such that the polynomials have bounded coefficients. $p(q) \in \ZZ$ for $p(x)\in P_q$ is a unique encoding of the polynomial:
 \begin{itemize}
-	\item Domain $P_q \subset \ZZ[X]$, Alphabet: $\ZZ$
-	\item $\enc(p(x) \in X): p(q)$
-	\item $\dec(y \in \ZZ): p_i=\frac{y \mod q^{i+1}-y \mod q^{i}}{q^i} \forall i \in [0,\lfloor\log_q(y)\rfloor]$\\
-	$p(x)=\sum_{i=0}^{\lfloor\log_q(y)\rfloor} p_i x^i$
+	\item Domain $B_{q/2}[X]\subset \ZZ[X]$, Alphabet: $\ZZ$
+	\item 	$f(x):=\sum_{i=0}^{\lfloor\log_q(y)\rfloor} f_i x^i$
+	\item $\enc(f(x) \in X)\rightarrow  f(q) \in \ZZ$
+	\item $\dec(y \in \ZZ): f_i \in [0,q-1]\gets \frac{y \mod q^{i+1}-y \mod q^{i}}{q^i} \forall i \in [0,\lfloor\log_q(y)\rfloor]$
+	\item Fix negative case
 \end{itemize}
 
 \begin{fact}
@@ -292,12 +278,13 @@ Note that the encoding has limited homomorphic properties. $\enc(g(x))+\enc(h(x)
 			\item $q\gets 2^k \text{s.t.} q>(d+1) \cdot 2\cdot p^{\log_2(d+1)+1} $
 			\item $\pcreturn \crs=\{\secpar,p,\GG,g,q\}$
 		\end{enumerate}
-		$\commit(\crs,f(x)\in \ZZ[X])$ \pccomment{$f(x)$'s coefficients are less than $p$}
+		$\commit(\crs,f(x)\in \ZZ[X])$ \pccomment{$f(x)$'s coefficients are \textcolor{blue}{in $[0,p-1]$}} 
 		\begin{enumerate}[nolistsep]
 			\item 	$f(q)\gets \enc(f(x)) \in \ZZ$
-			\item $\pcreturn g^{f(q)},\deg(f)$
+			\item \textcolor{blue}{$C \gets g^{f(q)}$}
+			\item $\pcreturn \textcolor{blue}{C},f(q)$ \textcolor{blue}{Alan: why is including the degree necessary?}\benedikt{Probably commit should have a public and private output. I changed it but we need to think about this.}
 		\end{enumerate}
-		$\open(\crs,f(x)\in \ZZ[X])$
+		$\open(\crs,\textcolor{blue}{C},f(x)\in \ZZ[X])$ \pccomment{\textcolor{blue}{$f(x)$'s coefficients are in $[-q/2,q/2]$}} 
 		\begin{enumerate}[nolistsep]
 			\item $f(q)\gets \enc(f(x)) \in \ZZ$
 			\item Prover sends $f(q),f(x)$ to verifier.
@@ -314,59 +301,78 @@ Note that the encoding has limited homomorphic properties. $\enc(g(x))+\enc(h(x)
 	\noindent \underline{\textsf{Protocol \eval} (Polynomial evaluation)}\\
 \noindent Params: $\crs=\{\secpar,p,\GG,g,d_{\max},q\}$;\ \
 Inputs: $C\in \GG,z,y\in \FF_p,d \in \NN $\\
-Witness: $f(x) \in \ZZ[X]$ of degree at most d and with coefficients bounded by $p$\footnote{We describe the protocol using an integer polynomial with bounded coefficient. This generalizes the case where the polynomial is in $\FF_p[X]$};\\ 
+Witness: $f(x) \in \ZZ[X]$ of degree at most $d$ and with coefficients bounded by $p$ \textcolor{blue}{Alan: if it is bounded by $p$ then you cannot recurse, because the coefficients grow every step.}\footnote{We describe the protocol using an integer polynomial with bounded coefficient. This generalizes the case where the polynomial is in $\FF_p[X]$};\\ 
 Claim: $C=g^{f(q)},\deg(f)\leq d$ and $y=f(z) \mod p$
 
 \begin{enumerate}[nolistsep]
 \item \pcif $d=0$:
 \item \pcind[1] Prover sends $f(x)$ to the verifier, $f(x)$ is a constant. 
-\item \pcind[1] Verifier checks that $0\leq f(q)< (\log_2(d+1)+1)\cdot p$,  $f(z) \bmod p=y$ and $g^{f(q)}=C$ otherwise rejects
+\item \pcind[1] Verifier checks that $0\leq f(q)<  p^{\log_2(d+1)+1}$,  $f(z) \bmod p=y$ and $g^{f(q)}=C$, or rejects otherwise 
+%\textcolor{blue}{Alan: not in the exponent of $p$?}, 
+%right
 \item \pcelse: 
 \item \pcind[1] $d'\gets \frac{d+1}{2}-1$
-\item \pcind[1] Prover computes $f_0(x)\gets\sum_{i=0}^{d'} f_i x^i\in \ZZ$ and $f_1(x)\gets\sum_{i=0}^{d'} f_{d'+1+i} x^{i}\in \ZZ$
+\item \pcind[1] Prover computes $f_0(x)\gets\sum_{i=0}^{d'} f_i x^i\in \ZZ[x]$ and $f_1(x)\gets\sum_{i=0}^{d'} f_{d'+1+i} x^{i}\in \ZZ[x]$
 \item \pcind[1] $y_0\gets f_0(z) \bmod p$, $y_1\gets f_1(z)\bmod p$, $C_0\gets g^{f_0(q)}$,$C_1\gets g^{f_1(q)}$
 \item \pcind[1] Prover sends $y_0,y_1,C_0,C_1$ to the Verifier
 \item \pcind[1] Verifier checks that $y_0+z^{d'+1} y_1=y\in \FF_p$ 
 \item \pcind[1] Prover and Verifier engage in $\textsf{PoE}(C_1,C/C_0,q^{d'+1})$ to show that $C_0C_1^{(q^{d'+1})}=C$
 \item \pcind[1] Verifier samples $\alpha \sample \FF_p$ and sends it to the prover
-\item \pcind[1] Prover and Verifier compute $y'\gets\alpha y_0 +y_1 \bmod p$, $C'\gets C_0^{\alpha}C_1 \in \GG$. \\Prover also computs $f'(x)\gets\alpha  \cdot f_0(x)+f_1(x) \in \ZZ[X]$ 
+\item \pcind[1] Prover and Verifier compute $y'\gets\alpha y_0 +y_1 \bmod p$, $C'\gets C_0^{\alpha}C_1 \in \GG$. 
+\item \pcind[1] Prover also computes $f'(x)\gets\alpha  \cdot f_0(x)+f_1(x) \in \ZZ[x]$ 
 \item \pcind[1] Prover and Verifier run $\eval(C',z,y',d';f'(x))$
 \end{enumerate}
 \end{mdframed}
 \end{minipage}
 \end{small}
+
+\subsection{Discussion and Optimizations}
+\begin{enumerate}
+	\item Precompute $g^{q^i}$ to use parallelism etc.
+	\item SNARK without falsifiable assumptions
+	\item First polynomial commitment scheme with constant size parameters
+	\item Instead of sending $C_0$ and $C_1$ the prover can simply send $C_0$ and compute $C_1=C/(C_0^{q^{\frac{d}{2}}})$. Using a non-interactive PoE this means that $C_1=C/(Q^{\ell}g^r)$
+\end{enumerate}
+
 \subsection{Multivariate Commitment}
   We extend the Polynomial Commitment scheme to handle multivariate polynomials. The idea is to simply use higher degrees of $q$ to encode the polynomial. The protocol is linear in the number of variables and logarithmic in the total degree of the polynomial. For simplicity we only present a protocol for $n$-variate polynomials where the degree in each variable is $d$ and $d$ is a power of $2$. The protocol naturally extends to different degrees per variable.
 We first define an encoding for multi-variate integer polynomials with small coefficients:
  \begin{itemize}
-	\item Domain $P_q \subset \ZZ[X^n]$, Alphabet: $\ZZ$, \\$p(x_0,\dots,x_{n-1})=\sum_{\vec{i} \in [0,d]^n} p_{\vec{i}} \prod_{j=1}^{n} x_j^{i_j}$
-	\item $\enc(p(x_0,\dots,x_{n-1}) \in P_q): p(q,q^{d+1},q^{(d+1)^2},\dots,q^{(d+1)^{n-1}})$
+	\item Domain $B_{q/2}[X^n] \subset \ZZ[X^n]$, Alphabet: $\ZZ$, \\$f(x_0,\dots,x_{n-1})=\sum_{\vec{i} \in [0,d]^n} f_{\vec{i}} \prod_{j=1}^{n} x_j^{i_j}$
+	\item $\enc(f(x_0,\dots,x_{n-1}) \in B_{q/2}[X^n]): f(q,q^{d+1},q^{(d+1)^2},\dots,q^{(d+1)^{n-1}})$
 	\item $\textsf{Q-ary}(\vec{i}):\sum_{j=1}^{n} i_j\cdot (d+1)^{j-1}$
-	\item $\dec(y \in \ZZ): p_{\vec{i}}=\frac{y \bmod q^{\textsf{Q-ary}(\vec{i})+1}-y \bmod q^{\textsf{Q-ary}(\vec{i})}}{q^{\textsf{Q-ary}(\vec{i})}} \forall \vec{i} \in [0,d]^n$
+	\item $\dec(y \in \ZZ): f_{\vec{i}}=\frac{y \bmod q^{\textsf{Q-ary}(\vec{i})+1}-y \bmod q^{\textsf{Q-ary}(\vec{i})}}{q^{\textsf{Q-ary}(\vec{i})}} \forall \vec{i} \in [0,d]^n$
+	\item \benedikt{Negative Coefficients?}
+
 \end{itemize}
 \begin{small}
  \begin{minipage}{1.1\textwidth}
 \begin{mdframed}[userdefinedwidth=1\textwidth]  \label{prot:Opening}
 	\noindent \underline{\textsf{Protocol \eval} (Polynomial evaluation)}\\
-\noindent Params: $\crs=\{\secpar,p,\GG,g,d_{\max},q\}$;\ \
-Inputs: $C\in \GG,z,y\in \FF_p,d \in \NN $\\
-Witness: $f(x) \in \ZZ[X]$ of degree at most d and with coefficients bounded by $p$\footnote{We describe the protocol using an integer polynomial with bounded coefficient. This generalizes the case where the polynomial is in $\FF_p[X]$};\\ 
-Claim: $C=g^{f(q)},\deg(f)\leq d$ and $y=f(z) \mod p$
+\noindent Params: $\crs=\{\secpar,p,\GG,g,d_{\max},n_{\max},q\}$;\ \
+Inputs: $C\in \GG,z_1,\dots,z_n,y\in \FF_p,d \in \NN,n \in \NN $\\
+Witness: $f(x_1,\dots,x_n) \in B_q[X^n]$ of degree at most d and with coefficients bounded by $p$\footnote{We describe the protocol using an integer polynomial with bounded coefficient. This generalizes the case where the polynomial is in $\FF_p[X^n]$};\\ 
+Claim: $C=g^{f(q_1,q_2,\dots,q_n)}$ where $q_i=q^{(d_{\max}+1)^{i-1} },\deg(f)\leq d$ and $y=f(z_1,\dots,z_n) \mod p$
 
 \begin{enumerate}[nolistsep]
-\item \pcif $d=0$:
+\item \pcif $n=0 \wedge d=0$:
 \item \pcind[1] Prover sends $f(x)$ to the verifier, $f(x)$ is a constant. 
-\item \pcind[1] Verifier checks that $0\leq f(q)< (\log_2(d+1)+1)\cdot p$,  $f(z) \bmod p=y$ and $g^{f(q)}=C$ otherwise rejects
+\item \pcind[1] Verifier checks that $0\leq f(q)< p^{n_{\max}\cdot \log_2(d_{\max}+1)+1}$,  $f(z) \bmod p=y$ and $g^{f(q)}=C$ otherwise rejects
 \item \pcelse: 
 \item \pcind[1] $d'\gets \frac{d+1}{2}-1$
-\item \pcind[1] Prover computes $f_0(x)\gets\sum_{i=0}^{d'} f_i x^i\in \ZZ$ and $f_1(x)\gets\sum_{i=0}^{d'} f_{d'+1+i} x^{i}\in \ZZ$
-\item \pcind[1] $y_0\gets f_0(z) \bmod p$, $y_1\gets f_1(z)\bmod p$, $C_0\gets g^{f_0(q)}$,$C_1\gets g^{f_1(q)}$
+\item \pcind[1] Prover computes $f_0(x_1,\dots,x_n)\gets \sum_{\vec{i} \in [0,d_{\max}]^{n-1}}  \prod_{j=1}^{n-1} x_{j}^{i_j} \cdot(\sum_{k=0}^{d'} f_{\vec{i},k} x_{n}^k)\in \ZZ[X^n]$ and
+$f_1(x_1,\dots,x_n)\gets \sum_{\vec{i} \in [0,d_{\max}]^{n-1}} \prod_{j=1}^{n-1} x_{j}^{i_j}(  \sum_{k=0}^{d'} f_{\vec{i},k+d'+1} x_{n}^{k})\in \ZZ[X^n]$
+\item \pcind[1] $y_0\gets f_0(z_1,\dots,z_n) \bmod p$, $y_1\gets f_1(z_1,\dots,z_n)\bmod p$,\\ $C_0\gets g^{f_0(q_1,\dots,q_n)}$,$C_1\gets g^{f_1(q_1,\dots,q_n)}$
 \item \pcind[1] Prover sends $y_0,y_1,C_0,C_1$ to the Verifier
-\item \pcind[1] Verifier checks that $y_0+z^{d'+1} y_1=y\in \FF_p$ 
-\item \pcind[1] Prover and Verifier engage in $\textsf{PoE}(C_1,C/C_0,q^{d'+1})$ to show that $C_0C_1^{(q^{d'+1})}=C$
+\item \pcind[1] Verifier checks that $y_0+z_n^{d'+1} y_1=y\in \FF_p$ 
+\item \pcind[1] Prover and Verifier engage in $\textsf{PoE}(C_1,C/C_0,q_n^{d'+1})$ to show that $C_0C_1^{q_n^{d'+1}}=C$
 \item \pcind[1] Verifier samples $\alpha \sample \FF_p$ and sends it to the prover
-\item \pcind[1] Prover and Verifier compute $y'\gets\alpha y_0 +y_1 \bmod p$, $C'\gets C_0^{\alpha}C_1 \in \GG$. \\Prover also computs $f'(x)\gets\alpha  \cdot f_0(x)+f_1(x) \in \ZZ[X]$ 
-\item \pcind[1] Prover and Verifier run $\eval(C',z,y',d';f'(x))$
+\item \pcind[1] Prover and Verifier compute $y'\gets\alpha y_0 +y_1 \bmod p$, $C'\gets C_0^{\alpha}C_1 \in \GG$. \\Prover also computs $f'(x_1,\dots,x_n)\gets\alpha  \cdot f_0(x_1,\dots,x_n)+f_1(x_1,\dots,x_n) \in \ZZ[X^n]$ 
+\item \pcind[1] \pcif $d=0$ and $n>0$: \pccomment{$f'$ is constant in $x_n$ so we write it as an $n-1$ variate polynomial.}
+\item \pcind[2] $d'\gets d_{\max}$
+\item \pcind[2] $n'\gets n-1$
+\item \pcind[2] $\vec{z}\gets (z_1,\dots,z_{n-1})$
+\item \pcind[1] Prover and Verifier run $\eval(C',\vec{z},y',d',n';f'(x))$
 \end{enumerate}
 \end{mdframed}
 \end{minipage}
@@ -376,10 +382,10 @@ Claim: $C=g^{f(q)},\deg(f)\leq d$ and $y=f(z) \mod p$
 \begin{itemize}
 	\item Several ways to do this.
 \end{itemize}
+
 \subsection{Range Proofs}
 
 \section{Security}
-
 
 \begin{lemma}
 	The pseudo root assumption holds in the generic group model.
@@ -426,16 +432,7 @@ For $d>0$ we have $g^{\hat{y}}=C=C_0^{\alpha}C_1$. Rewinding once we get
 	If $q<bla$ there exists an efficient adversary that can break the evaluation binding property of the polynomial commitment.
 \end{corollary}
 \benedikt{Figure out at what q we can attack the scheme. Probably needs to use negative coefficients and such.}
-\section{Supersonic: A SNARK with trustless, constant size CRS}
-We build \emph{supersonic} by instantiating the Sonic SNARK using our trustless setup polynomial commitment scheme.
 
-\section{Discussion and Optimizations}
-\begin{enumerate}
-	\item Precompute $g^{q^i}$ to use parallelism etc.
-	\item SNARK without falsifiable assumptions
-	\item First polynomial commitment scheme with constant size parameters
-	\item Instead of sending $C_0$ and $C_1$ the prover can simply send $C_0$ and compute $C_1=C/(C_0^{q^{\frac{d}{2}}})$. Using a non-interactive PoE this means that $C_1=C/(Q^{\ell}g^r)$
-\end{enumerate}
   \bibliography{references,cryptobib/abbrev0,cryptobib/crypto}
 
 \section{Zero knowledge polynomial commitment} 
@@ -516,7 +513,50 @@ Correctness, soundness, etc. (todo) Special attention for coefficient size.
 
 Note that the Verifier must process all of $z_{\bar{\mathbf{s}}}$ in order to verify the exponentiation, which in particular is linear in $d$. However, it is possible to reduce this complexity and simultaneously hide the value of $z_{\bar{\mathbf{s}}}$. To do this, the prover must have committed to $z_{\bar{\mathbf{s}}}$ by sending $g^{z_{\bar{\mathbf{s}}}}$ (possibly with respect to a different base). At this point, a batched proof of knowledge of exponent establishes that the discrete logarithms of $C^{z_{\bar{\mathbf{s}}}}$ base $C$ and of $g^{z_{\bar{\mathbf{s}}}}$ base $g$ are equal.
 
-\section{QAP-based SARK}
+\subsection{Protocols for Proving Permutations}
+
+
+\subsubsection{Flip}
+
+The following protocol establishes that two commitments, $c_a$ and $c_b$ represent polynomials $f_a, f_b \in \mathbb{F}_p$ (or vectors, for that matter) whose coefficients are flipped. Specifically, that $f_a = \sum_{i=0}^{d}f_i x^i$ for some coefficients $f_i$, and $f_b = \sum_{i=0}^df_ix^{d-i}$ for the same coefficients $f_i$.
+Protocol:
+\begin{itemize}
+    \item Common knowledge: $c_a, c_b \in \mathbb{G}$.
+    \item Verifier chooses $z \xleftarrow{\$} \mathbb{F}_p \backslash \{0\}$ and sends it to Prover.
+    \item Prover and Verifier engage in proofs of correct evaluation producing $f_a(z)$ and $f_b(z^{-1})$, matching $c_a$ and $c_b$, respectively.
+    \item Verifier checks that $f_a(z) \stackrel{?}{=} z^d f_b(z^{-1})$.
+\end{itemize}
+
+To see why it works, observe that $f_a(x) = x^df_b(x^{-1})$ and we can test this equation probabilistically by choosing a random $z \in \mathbb{F}_p \backslash \{0\}$ to evaluate $f_a$ and $f_b$ in. If $f_a$ is indeed the flipping of $f_b$ then the polynomial $F = f_a(x) - x^df_b(x^{-1})$ is identically zero; but otherwise it has at most $d$ zeros, and so the inequality will be exposed with overwhelming probability $(p-1-d)/(p-1)$.
+
+\subsubsection{Rotation}
+
+A similar observation gives rise to a proof of correct rotation. If $f(x) = \sum_{i=0}^d f_i x^i \in \mathbb{F}_p$ and $p(x) = \sum_{i=0}^d f_{i+r \, \mathsf{mod} \, d+1} x^i \in \mathbb{F}_p$ are polynomials consisting of the same coefficients but rotated by $r$ positions, then $p(x) = x^r f(x) \, \mathsf{mod} \, x^r - 1$ in all points. More explicitly, $p(x) = x^r f(x) + k(x) (x^r - 1)$ for some $k(x) \in \mathbb{F}_p$. The verifier can test this relation probabilistically.
+
+\begin{itemize}
+    \item Common knowledge: $c_f, c_p \in \mathbb{G}$ --- commitments to $f(x)$ and $p(x)$, respectively. Secret knowledge for the prover $f(x), p(x)$.
+    \item Prover computes $k(x) = (p(x) - x^r f(x)) / x^r - 1$ and sends the commitment $c_k = g^{\hat{k}(q)}$ to it to Verifier.
+    \item Verifier chooses a random point $z \xleftarrow{\$} \mathbb{F}_p$ and sends it to Prover.
+    \item Prover and Verifier engage in proofs of correct evaluation for $f(z)$, $p(z)$, and $k(z)$.
+    \item Verifier checks that $z^r f(z) + k(z) (z^r-1) = p(z)$.
+\end{itemize}
+
+\subsubsection{Generic Permutation}
+
+The following protocol establishes that two polynomial commitments have the same coefficients but permuted according to a known permutation $\sigma : \{0,\ldots,d\} \rightarrow \{0,\ldots,d\}$. Specifically, $c_f$ is a commitment to $f(x) = \sum_{i=0}^d f_i x^i$ and $c_p$ is a commitment to $p(x) = \sum_{i=0}^d f_{\sigma(i)} x^i$. The proof makes use of the relation $p(x) = x^{\sigma(0)} f(x^{d+1}) - d(x)$ where $d(x) = \sum_{i=1}^d f_i (x^{i(d+1) + \sigma(0)} - x^{\sigma(i)})$. As $d(x)$ relies on the coefficients of $f(x)$, it is important to establish that $d(x)$ is correctly formed.
+
+\begin{itemize}
+    \item Common knowledge: $c_f, c_p, \sigma$ -- commitment to $f(x)$, commitment to $p(x)$, and permutation of coefficients.
+    \item Secret knowledge for Prover: $f(x), p(x) \in \mathbb{F}_p$.
+    \item Prover computes $n = \hat{f}(q^{d^2})$ and sends $c_n = g^n$ to Verifier.
+    \item Prover and Verifier run an inner product protocol between $c_n$ and $(q^{di})_{i=0}^d$, and again between the result and $(q^i)_{i=0}^d$. This establishes that $n$ has the same coefficients as $c_f$ but spaced differently.
+    \item Prover and Verifier run an inner product protocol between $c_n$ and $(q^{(i(d+1) + \sigma(0)} - q^{\sigma(i)})_{i=0}^d$ to compute $c_d$, the commitment to $d(x)$ that is well-formed wrt. $f(x)$.
+    \item Verifier chooses a random point $z \xleftarrow{\$} \mathbb{F}_p$.
+    \item Prover and Verifier engage in proofs of correct evaluation for $f(z), p(z), d(z)$.
+    \item Verifier checks that $p(z) = z^{\sigma(0)} f(z^{d+1}) - d(z)$.
+\end{itemize}
+
+\section{Illustration: QAP-based SNARK}
 
 The next protocol describes an efficiently verifiable proof system for rank-one constraint satisfaction problems. Specifically, we start from a list of $m$ constraints of the form
 \begin{equation} \label{equation:r1cs}
@@ -549,15 +589,16 @@ The proof establishes that the prover knows a vector $\mathbf{s}$ and a polynomi
 
 Note: we need to pay special attention to the size of the coefficients of $\mathbf{s}$ and of $t(x)$ are not too big. It is possible that the random selection of $z$ makes the prover who cheats by choosing larger coefficients overwhelmingly unlikely to succeed. Alternatively, we can devise a proof of small coefficients or something like that.
 
-\section{Proof of Correct Flipping}
+\section{Applications to Other Proof Systems}
 
-The following protocol establishes that two commitments, $c_a$ and $c_b$ represent polynomials $f_a, f_b \in \mathbb{F}_p$ (or vectors, for that matter) whose coefficients are flipped. Specifically, that $f_a = \sum_{i=0}^{d}f_i x^i$ for some coefficients $f_i$, and $f_b = \sum_{i=0}^df_ix^{d-i}$ for the same coefficients $f_i$. To see why it works, observe that $f_a(x) = x^df_b(x^{-1})$ and we can test this equation probabilistically by choosing a random $z \in \mathbb{F}_p \backslash \{0\}$ to evaluate $f_a$ and $f_b$ in. If $f_a$ is indeed the flipping of $f_b$ then the polynomial $F = f_a(x) - x^df_b(x^{-1})$ is identically zero; but otherwise it has at most $d$ zeros, and so the inequality will be exposed with overwhelming probability $(p-1-d)/(p-1)$.
+\subsection{DARK-Sonic}
 
-Protocol:
-\begin{itemize}
-    \item Common knowledge: $c_a, c_b \in \mathbb{G}$.
-    \item Verifier chooses $z \xleftarrow{\$} \mathbb{F}_p \backslash \{0\}$ and sends it to Prover.
-    \item Prover and Verifier engage in proofs of correct evaluation producing $f_a(z)$ and $f_b(z^{-1})$, matching $c_a$ and $c_b$, respectively.
-    \item Verifier checks that $f_a(z) \stackrel{?}{=} z^d f_b(z^{-1})$.
-\end{itemize}
+\subsection{DARK-Spartan}
+
+\subsection{DARK-Bulletproofs}
+
+\subsection{DARK-STARK}
+
+\subsection{Comparison}
+
 \end{document}
