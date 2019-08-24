@@ -589,6 +589,27 @@ The proof establishes that the prover knows a vector $\mathbf{s}$ and a polynomi
 
 Note: we need to pay special attention to the size of the coefficients of $\mathbf{s}$ and of $t(x)$ are not too big. It is possible that the random selection of $z$ makes the prover who cheats by choosing larger coefficients overwhelmingly unlikely to succeed. Alternatively, we can devise a proof of small coefficients or something like that.
 
+\begin{small}
+\noindent\begin{minipage}{\textwidth}
+\begin{mdframed}[userdefinedwidth=1\textwidth]  \label{prot:QAP}
+\newcommand{\qap}{$\mathsf{QAP}$}
+	\noindent \underline{\textsf{Protocol \qap} (R1CS)}\\
+\noindent Params: $\secpar,p,\GG, \mathsf{g}, d_{\max},q, m, n, ((\mathbf{a}_j, \mathbf{b}_j, \mathbf{c}_j))_{j=0}^{m-1}$; \\
+Common Inputs: $\mathsf{c}_u, \mathsf{c}_v, \mathsf{c}_w \in \mathbb{G}$ which are commitments to $\mathbf{u}(x), \mathbf{v}(x), \mathbf{w}(x), \mathbf{d}(x)$; \\
+Witness: $\mathbf{s} \in \mathbb{F}_p^n$; \\ 
+Claim: Prover knows a witness $\mathbf{s} \in \mathbb{F}_p^n$ such that $s_0 = 1$ and $\forall j \in \{0,\ldots,m-1\} \, . \, \mathbf{a}_j^\mathsf{T} \mathbf{s} \times \mathbf{b}_j^\mathsf{T} \mathbf{s} = \mathbf{c}_j^\mathsf{T} \mathbf{s}$.
+
+\begin{enumerate}[nolistsep]
+\item Prover and Verifier run protocol \\ $\mathsf{BatchInnerProduct}((\mathsf{c}_u, \mathsf{c}_v, \mathsf{c}_w, \mathsf{g}); (\mathbf{u}(x), \mathbf{v}(x), \mathbf{w}(x), \mathbf{d}(x)), \mathbf{s})$:
+\item \pcind[1] Prover computes $z_s \gets \sum_{j=0}^{n-1} q_y^j s_{n-1-j}$
+\item \pcind[1] Prover computes $\mathsf{c}_{us} \gets \mathsf{c}_u^{z_s}$,  $\mathsf{c}_{vs} \gets \mathsf{c}_v^{z_s}$,  $\mathsf{c}_{ws} \gets \mathsf{c}_w^{z_s}$,  $\mathsf{c}_{s} \gets \mathsf{g}^{z_s}$ and sends $(\mathsf{c}_{us}, \mathsf{c}_{vs}, \mathsf{c}_{ws}, \mathsf{c}_{s})$ to Verifier.
+\item[] \pcind[1] \pccomment{Note that $\mathsf{c}_{us} = \left(\mathsf{g}^{\sum_{i=0}^{n-1} q_y^i u_i(q_x)}\right)^{\sum_{j=0}^{n-1}q_y^j s_{n-1-j}} = \mathsf{g}^{\sum_{i=0}^{2d-1} q_y^i \left(\sum_{j=0}^{i+1} u_{n-j+1} s_j \right)}$.}
+\item (work in progress....)
+\end{enumerate}
+\end{mdframed}
+\end{minipage}
+\end{small}
+
 \section{Applications to Other Proof Systems}
 
 \subsection{DARK-Sonic}
