@@ -48,17 +48,17 @@
         {\bf group elements} & (proposal by Alan) \\ \hline
         $\mathsf{g} \in \mathbb{G}$ & designated base element (the term ``generator'' is misleading) \\
         $\mathsf{c}, \mathsf{c}_0, \mathsf{c}_1 \in \mathbb{G}$ & commitments \\
-        $\mathsf{c}_0^a \times \mathsf{c}_1^b, \, a, b \in \mathbb{Z}$ & multiplicative notation \\ \hline
-        {\bf schemes} & (proposal by Alan) {actually, I don't really like this anymore} \\ \hline
-        $\mathbf{Commit}_{\mathbb{A}} : \mathbb{A} \rightarrow \mathbb{G}$ & commit to an element from algebra $\mathbb{A}$. \\
-         & This notation allows stacking algebras, $\emph{e.g.}$, $\mathbf{Commit}_{(\mathbb{F}_p[x]_{\leq d})^n}$ \\
-        $\mathbf{Open}_\mathbb{A} : \{0,1\}^* \times \mathbb{G} \rightarrow \mathbb{A} \cup \{\bot\}$ & open a commitment by providing the decommitment information \\
-         & (in the basic scheme: an integer) and the commitment; if the pro- \\
-         & vided input is invalid, the function outputs $\bot$.\\
+        $\mathsf{c}_0^a \times \mathsf{c}_1^b, \mathsf{c}_0^a\mathsf{c}_1^b \, \textnormal{for} \, a, b \in \mathbb{Z}$ & multiplicative notation \\ \hline
+%        {\bf schemes} & (proposal by Alan) {actually, I don't really like this anymore} \\ \hline
+%        $\mathbf{Commit}_{\mathbb{A}} : \mathbb{A} \rightarrow \mathbb{G}$ & commit to an element from algebra $\mathbb{A}$. \\
+%         & This notation allows stacking algebras, $\emph{e.g.}$, $\mathbf{Commit}_{(\mathbb{F}_p[x]_{\leq d})^n}$ \\
+%        $\mathbf{Open}_\mathbb{A} : \{0,1\}^* \times \mathbb{G} \rightarrow \mathbb{A} \cup \{\bot\}$ & open a commitment by providing the decommitment information \\
+%         & (in the basic scheme: an integer) and the commitment; if the pro- \\
+%         & vided input is invalid, the function outputs $\bot$.\\
     \end{tabular}
 \end{table}
 
-\subsection*{Structure:}
+\subsection*{Structure:} \alan{To be updated based on Benedikt's notes.}
 \begin{itemize}
     \item introduction
     \item tools
@@ -97,10 +97,16 @@ This paper provides a third option for generating polynomial commitment schemes,
 
 Nevertheless, groups of unknown order provide a property that groups of known order, such as elliptic curve groups, cannot match: they enable homomorphic  commitments to an \emph{infinite} domain, namely the integers. Indeed, if the prover were capable of reducing a large integer to a smaller one without sacrificing the homomorphic properties, then he must know the group's order. The power of integer commitments was already noted by Lipmaa~\cite{} who characterizes proof systems arising therefrom as \emph{Diophantine} --- a reference to the family of languages for which such proof systems establish. Specifically, a set $S \subset \mathbb{Z}^n$ is called \emph{Diophantine} if it is the projection onto the first $n \leq m$ coordinates of the set of roots to a polynomial $P(x_1, \ldots, x_m) \in \mathbb{Z}[x_1, \ldots, x_m]$. Much more recently, Wesolowski produced a conceptually simple verifiable delay function (VDF) which builds on a proof of correct exponentiation in groups of unknown order. Building on this result, Boneh \emph{et al.} developed accumulators and vector commitments (with batch openings) from groups of unknown order~\cite{}. Both results have been received with great enthusiasm in the cryptocurrency community for their capacity to improve sustainability and scalability of blockchains.
 
+\alaninline{Todo: \\
+ - applications (trustless snarks etc) \\
+ - implications (no unfalsifiable assumptions) \\
+ - overview of techniques \\
+ - related work}
+
 \vspace{0.25cm}
 \textsc{Contributions.} The contributions of this paper are divisible into three rubrics:
 \begin{itemize}
-    \item[] \textbf{Hard problem.} The soundness or knowledge-soundness of our proof systems reduces the hardness of a new hard problem called the \emph{fractional root problem} which informally states that a computationally bounded adversary cannot produce two group elements $g, h \in \mathbb{G}$ with non-trivial exponents $a, b \in \mathbb{Z}$ such that $g^a = h^b$. We prove the hardness of this problem in the generic group model and show that it generalizes both the strong RSA problem and the adaptive root problem\alan{TODO: verify}. Given the new-found popularity of groups of unknown order, which provide the context for this hard problem, and given the genericity of this hard problem,  it is important to establish the correct definition and justify the matching hardness assumption as an independent contribution.
+    \item[] \textbf{Hard problem.}\alan{This item  is no longer valid.} The soundness or knowledge-soundness of our proof systems reduces the hardness of a new hard problem called the \emph{fractional root problem} which informally states that a computationally bounded adversary cannot produce two group elements $g, h \in \mathbb{G}$ with non-trivial exponents $a, b \in \mathbb{Z}$ such that $g^a = h^b$. We prove the hardness of this problem in the generic group model and show that it generalizes both the strong RSA problem and the adaptive root problem\alan{TODO: verify}. Given the new-found popularity of groups of unknown order, which provide the context for this hard problem, and given the genericity of this hard problem,  it is important to establish the correct definition and justify the matching hardness assumption as an independent contribution.
     \item[] \textbf{Tools.} We start with an encoding scheme that represents polynomials over a prime field $\mathbb{F}_p$ as integers, by encoding the polynomial's coefficients into the integer's base-$q$ expansion. Adjoined with a group of unknown order and a designated base element $g \in \mathbb{G}$, this encoding scheme naturally gives rise to a polynomial commitment scheme that inherits its somewhat homomorphic properties. Next, we provide protocols for proving the correct evaluation of a committed polynomial, and showing that two polynomials have the same coefficients but flipped or rotated. We also present a protocol for extracting the $i$th coefficient, thereby promoting the commitment scheme to one that also provides vector commitment functionality. Building on this observation, we provide another protocol for showing that a commitment represents the inner product between two vectors of which at least one is represented by its vector commitment. Another protocol establishes that two vector commitments represent the same vector up to an arbitrary but known permutation of the coefficients.
     \item[] All the proof systems mentioned so far have logarithmic communication complexity and logarithmic verification time. Moreover, with the exception of the inner product proof and the permutation proof, the prover's complexity is quasi-linear. If one is willing to sacrifice this scalability for the prover, we also provide counterparts to all the above proofs with constant communication and verification complexity.
     \item[] \textbf{Applications.} To illustrate the usefulness and the versatility of the enumerated tools, we join them straightforwardly to construct a simple succinct non-interactive argument of knowledge (SNARK) based on quadratic arithmetic programs (QAPs). To the best of our knowledge, this is the first SNARK for circuits without trusted setup (when instantiated with the class group) or with an SRS whose size is independent of the circuit (when instantiated with the RSA group).\footnote{This classification takes note of STARK~\cite{} whose verification time is polylogarithmic but as a function of some program's running time and not of any circuit; as well as of Hyrax~\cite{} and Spartan~\cite{}, which do apply to circuits but whose verification times are not polylogarithmic and thus fail to satisfy the definition of SNARKs as set forth in the paper that coined the term~\cite{}.}
@@ -118,7 +124,8 @@ Nevertheless, groups of unknown order provide a property that groups of known or
 \end{itemize}
 
 \subsection{Assumptions}
-The security of the scheme relies on the fractional root assumption which is a generalization of the strong RSA assumption. The assumption\alaninline{``this assumption'' is the strong RSA assumption or the fractional root assumption?} states that an adversary cannot compute fractional roots of random group elements. B\"unz, Boneh and Fisch \cite{journals/iacr/BonehBF18a} show that this assumption is satisfied in the generic group model.  
+\alaninline{Fractional/pseudo root assumption is deprecated}
+The security of the scheme relies on the fractional root assumption which is a generalization of the strong RSA assumption. The assumption states that an adversary cannot compute fractional roots of random group elements. B\"unz, Boneh and Fisch \cite{journals/iacr/BonehBF18a} show that this assumption is satisfied in the generic group model.  
 \begin{assumption}[Pseudo root assumption]
 \label{assum:fracroot}
 The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\adv$:
@@ -130,9 +137,23 @@ The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\ad
                       (\alpha, \beta, y) \sample \adv(\GG, g) \\
                       \quad \textnormal{where} \, \alpha, \beta \in \ZZ \, \textnormal{and} \, y \in \GG 
                 \end{array} 
-        \right] \leq \negl.
+        \right] \leq \negl \enspace .
 \]
 \end{assumption}
+\begin{assumption}[Strong RSA Assumption]
+The \defn{strong RSA Assumption} sates that no efficient adversary can compute any root of a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
+\[
+    \Pr\left[u^\ell = g \, \wedge \, \ell > 1
+    :
+    \begin{array}{l}
+         \GG \leftarrow \ggen(\lambda)  \\
+         g \sample \GG \\
+         (u, \ell) \in \mathbb{G} \times \mathbb{N} \leftarrow \adv(\mathbb{G}, g) \\
+    \end{array}\right] \leq \negl \enspace .
+\]
+\end{assumption}
+We note that some definitions of the strong RSA assumption additionally require that $\ell$ be a prime~\cite{EC:BarPfi97,journals/iacr/BonehBF18a}. We follow that of Cramer and Shoup~\cite{CCS:CraSho99}.
+
 \begin{assumption}[Adaptive Root Assumption]
 \label{assum:adaptiveroot}
 We say that the \defn{adaptive root assumption} holds for $\ggen$ if 
@@ -396,7 +417,7 @@ $f_1(x_1,\dots,x_n)\gets \sum_{\vec{i} \in [0,d_{\max}]^{n-1}} \prod_{j=1}^{n-1}
 \begin{proof}
 	Assume $\hat{f}(x)$ and $\hat{f}'(x)$ are integer encodings of two distinct polynomials $f(x),f'(x) \in \FF_p[X]$. Assume that the adversary can open a commitment $C$ to both $f(x)$ and $f'(x)$. We show that we can use this adversary to break the pseudo root assumption (Assumption \ref{assum:fracroot}).
 	
-	 Then $\hat{h}(x)=\hat{f}(x)-\hat{f}'(x) \in \ZZ[X]$ is a polynomial of degree at most $d$. Since $g^{\hat{f}(q)}=g^{\hat{f}'(q)}=C$ we have that $g^{\hat{h}(q)}=1$. Note that the coefficients of $\hat{f}(x)$ and $\hat{f}'(x)$ are all less than $q/2$ in absolute value. By triangle inequality we have that $\hat{h}(x)$'s coefficients are less than $q$. $\hat{h}$ is by assumption not the zero polynomial. This implies that $\hat{h}(q)\neq 0$ is a multiple of the order of $g\in \GG$. This however can directly be used to break the pseudo root assumption (Assumption \ref{assum:fracroot}) by taking the inverse of an integer mod $\hat{h}(q)$.
+	 Then $\hat{h}(x)=\hat{f}(x)-\hat{f}'(x) \in \ZZ[X]$ is a polynomial of degree at most $d$. Since $g^{\hat{f}(q)}=g^{\hat{f}'(q)}=C$ we have that $g^{\hat{h}(q)}=1$. Note that the coefficients of $\hat{f}(x)$ and $\hat{f}'(x)$ are all less than $q/2$ in absolute value. By triangle inequality we have that $\hat{h}(x)$'s coefficients are less than $q$. $\hat{h}$ is by assumption not the zero polynomial. This implies that $\hat{h}(q)\neq 0$ is a multiple of the order of $g\in \GG$. This however can directly be used to break the adaptive root assumption (Assumption \ref{assum:adaptiveroot}) by taking the inverse of $\ell$ modulo $\hat{h}(q)$.
 \end{proof}
 
 \begin{theorem}
