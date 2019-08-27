@@ -295,6 +295,37 @@ Note that the encoding has limited homomorphic properties. $\enc(g(x))+\enc(h(x)
 	
 \end{minipage}
 \end{mdframed}
+
+\begin{small}
+ \begin{minipage}{1.1\textwidth}
+\begin{mdframed}[userdefinedwidth=1\textwidth]  \label{prot:Opening}
+	\noindent \underline{\textsf{Protocol \eval{} Information theoretic} (Polynomial evaluation)}\\
+Inputs: $\enc(f(x)),z,y\in \FF_p,d \in \NN $\\
+Witness: $f(x) \in \ZZ[X]$ of degree at most $d$ and with coefficients bounded by $p$ \textcolor{blue}{Alan: if it is bounded by $p$ then you cannot recurse, because the coefficients grow every step.}\footnote{We describe the protocol using an integer polynomial with bounded coefficient. This generalizes the case where the polynomial is in $\FF_p[X]$};\\ 
+Claim: $f(x)\gets \dec(\enc(f(x))), y=f(z) \mod p$
+
+\begin{enumerate}[nolistsep]
+\item \pcif $d=0$:
+\item \pcind[1] Prover sends $\hat{y}\gets \enc(f(x))$ to the verifier. 
+\item \pcind[1] Verifier runs that $f(x)\gets \dec(\hat{y})$ and checks that  $f(z) \bmod p=y$, or rejects otherwise 
+%\textcolor{blue}{Alan: not in the exponent of $p$?}, 
+%right
+\item \pcelse: 
+\item \pcind[1] $d'\gets \frac{d+1}{2}-1$
+\item \pcind[1] Prover computes $f_0(x)\gets\sum_{i=0}^{d'} f_i x^i\in \ZZ[x]$ and $f_1(x)\gets\sum_{i=0}^{d'} f_{d'+1+i} x^{i}\in \ZZ[x]$
+\item \pcind[1] $y_0\gets f_0(z) \bmod p$, $y_1\gets f_1(z)\bmod p$
+\item \pcind[1] Prover sends $y_0,y_1, \enc(f_0(x)),\enc(f_1(x))$ to the Verifier
+\item \pcind[1] Verifier checks that $y_0+z^{d'+1} y_1=y\in \FF_p$ 
+\item \pcind[1] Verifier checks that $\enc(f_0(x))+x^{d'+1}\cdot \enc(f_1(x))=\enc(f(x))$
+\item \pcind[1] Verifier samples $\alpha \sample \FF_p$ and sends it to the prover
+\item \pcind[1] Prover and Verifier compute $y'\gets\alpha y_0 +y_1 \bmod p$, $\enc(f'(x))\gets \alpha \cdot \enc(f_0(x)) +\enc(f_1(x))$. 
+\item \pcind[1] Prover also computes $f'(x)\gets\alpha  \cdot f_0(x)+f_1(x) \in \ZZ[x]$ 
+\item \pcind[1] Prover and Verifier run $\eval(\enc(f'(x),z,y',d';f'(x))$
+\end{enumerate}
+\end{mdframed}
+\end{minipage}
+\end{small}
+
 \begin{small}
  \begin{minipage}{1.1\textwidth}
 \begin{mdframed}[userdefinedwidth=1\textwidth]  \label{prot:Opening}
