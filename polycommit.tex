@@ -125,7 +125,11 @@ Nevertheless, groups of unknown order provide a property that groups of known or
 
 \subsection{Assumptions}
 \alaninline{Fractional/pseudo root assumption is deprecated}
-The security of the scheme relies on the fractional root assumption which is a generalization of the strong RSA assumption. The assumption states that an adversary cannot compute fractional roots of random group elements. B\"unz, Boneh and Fisch \cite{journals/iacr/BonehBF18a} show that this assumption is satisfied in the generic group model.  
+The cryptographic compilers make extensive use of groups of unknown order, i.e. groups for which the order cannot efficiently be computed.
+Concretely we require groups for which two specific hardness assumptions hold.
+First the strong RSA assumption which roughly states that it is hard to take \emph{arbitrary} roots of \emph{random} elements. Secondly, the much newer adaptive root assumption\cite{EC:Wesolowski19} which is the dual of the strong RSA assumption and states that it is hard to take \emph{random} roots of \emph{arbitrary} group elements. Both of these assumption hold in generic groups of unknown order\cite{C:Bach88}
+In our proof we also rely on two a
+fractional root assumption which is a generalization of the strong RSA assumption. The assumption states that an adversary cannot compute fractional roots of random group elements. B\"unz, Boneh and Fisch \cite{journals/iacr/BonehBF18a} show that this assumption is satisfied in the generic group model.  
 \begin{assumption}[Pseudo root assumption]
 \label{assum:fracroot}
 The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\adv$:
