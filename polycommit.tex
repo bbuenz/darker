@@ -3,7 +3,8 @@
 \usepackage{notations}
 \usepackage{mdframed}
 \usepackage{enumitem}
-\usepackage{amsmath,amsthm}
+\usepackage{amsmath,amsthm,amssymb}
+\usepackage[utf8x]{inputenc}
 \usepackage[colorinlistoftodos]{todonotes}
 
 %Theorems
@@ -106,53 +107,58 @@ Nevertheless, groups of unknown order provide a property that groups of known or
 \vspace{0.25cm}
 \textsc{Contributions.} The contributions of this paper are divisible into three rubrics:
 \begin{itemize}
-    \item[] \textbf{Hard problem.}\alan{This item  is no longer valid.} The soundness or knowledge-soundness of our proof systems reduces the hardness of a new hard problem called the \emph{fractional root problem} which informally states that a computationally bounded adversary cannot produce two group elements $g, h \in \mathbb{G}$ with non-trivial exponents $a, b \in \mathbb{Z}$ such that $g^a = h^b$. We prove the hardness of this problem in the generic group model and show that it generalizes both the strong RSA problem and the adaptive root problem\alan{TODO: verify}. Given the new-found popularity of groups of unknown order, which provide the context for this hard problem, and given the genericity of this hard problem,  it is important to establish the correct definition and justify the matching hardness assumption as an independent contribution.
     \item[] \textbf{Tools.} We start with an encoding scheme that represents polynomials over a prime field $\mathbb{F}_p$ as integers, by encoding the polynomial's coefficients into the integer's base-$q$ expansion. Adjoined with a group of unknown order and a designated base element $g \in \mathbb{G}$, this encoding scheme naturally gives rise to a polynomial commitment scheme that inherits its somewhat homomorphic properties. Next, we provide protocols for proving the correct evaluation of a committed polynomial, and showing that two polynomials have the same coefficients but flipped or rotated. We also present a protocol for extracting the $i$th coefficient, thereby promoting the commitment scheme to one that also provides vector commitment functionality. Building on this observation, we provide another protocol for showing that a commitment represents the inner product between two vectors of which at least one is represented by its vector commitment. Another protocol establishes that two vector commitments represent the same vector up to an arbitrary but known permutation of the coefficients.
     \item[] All the proof systems mentioned so far have logarithmic communication complexity and logarithmic verification time. Moreover, with the exception of the inner product proof and the permutation proof, the prover's complexity is quasi-linear. If one is willing to sacrifice this scalability for the prover, we also provide counterparts to all the above proofs with constant communication and verification complexity.
-    \item[] \textbf{Applications.} To illustrate the usefulness and the versatility of the enumerated tools, we join them straightforwardly to construct a simple succinct non-interactive argument of knowledge (SNARK) based on quadratic arithmetic programs (QAPs). To the best of our knowledge, this is the first SNARK for circuits without trusted setup (when instantiated with the class group) or with an SRS whose size is independent of the circuit (when instantiated with the RSA group).\footnote{This classification takes note of STARK~\cite{} whose verification time is polylogarithmic but as a function of some program's running time and not of any circuit; as well as of Hyrax~\cite{} and Spartan~\cite{}, which do apply to circuits but whose verification times are not polylogarithmic and thus fail to satisfy the definition of SNARKs as set forth in the paper that coined the term~\cite{}.}
+    \item[] \textbf{Applications.} To illustrate the usefulness and the versatility of the enumerated tools, we join them straightforwardly to construct a simple succinct non-interactive argument of knowledge (SNARK) based on quadratic arithmetic programs (QAPs). To the best of our knowledge, this is the first SNARK for circuits without trusted setup (when instantiated with the class group) or with an SRS whose size is independent of the circuit (when instantiated with the RSA group).\footnote{This classification takes note of the STARK proof system~\cite{C:BBHR19} whose verification time is polylogarithmic but as a function of some program's running time and not of any circuit; as well as of Hyrax~\cite{SP:WTTW17} and Spartan~\cite{eprint:Setty19}, which do apply to circuits but whose verification times are not polylogarithmic and thus fail to satisfy the definition of SNARKs as set forth in the paper that coined the term~\cite{JC:BCCGLRT17}.}
     \item[] We follow up this conceptually simple QAP-based proof system with a survey of popular communication-efficient proof systems for arbitrary computations, in which we replace their constituent components with tools developed earlier in this paper. In this light we analyze Sonic, Spartan, Hyrax, Bulletproofs, and STARK. In all cases we find that using our techniques leads to different trade-offs; improving on some metrics while degrading others.
 \end{itemize}
+
+\subsection{Related Work}
+
+Homomorphic integer commitment schemes based on the RSA group were first proposed by Fujisaki and Okamoto~\cite{C:FujOka97}, who also provide a protocol to prove that a list of committed integers satisfy a polynomial equation modulo an arbitrary positive integer as well as one for opening a commitment bit by bit. Damgård and Fujisaki fix an issue with the soundness proof and are the first to suggest using class groups of an imaginary quadratic order as a candidate group of unknown order~\cite{AC:DamFuj02}. Lipmaa draws the link between zero-knowledge proofs constructed from integer commitment schemes and Diophantine complexity~\cite{AC:Lipmaa03b}. Couteau~\emph{et al.} study protocols derived from integer commitments specifically in the RSA group in order to lift their security proofs so as to require weaker assumptions; in the process they develop proofs for polynomial evaluation modulo a prime $\pi$ that is not initially known to the verifier, in addition to a proof showing that an integer $x$ lies in the range $\{a, \ldots, b\}$ by showing that $1+4(x-a)(b-x)$ decomposes as the sum of 3 squares~\cite{EC:CouPetPoi17}.
+
+Pietrzak~\cite{Pietrzak18} adds efficient verifiability to the RSA-based time lock puzzle due to Rivest, Shamir, and Wagner~\cite{RivShaWag96}, thereby obtaining a conceptually simple verifiable delay function (VDF). Wesolowski~\cite{EC:Wesolowski19} proposes a single-round protocol to prove correct exponentiation in groups of unknown order, down from a logarithmic (in the size of the exponent) number for Pietrzak's protocol. Boneh~\emph{et al.} generalize this protocol to arbitrary exponents (not just powers of 2), and adapt it for zero-knowledge and batching, providing the base tools for constructing efficient accumulators and vector commitment schemes~\cite{C:BonBunFis19}.
 
 \section{Preliminaries}
 \paragraph{Notation}
 \begin{itemize}
 \item Let $f(x) \in \mathbb{F}_p[x]$ be a polynomial of degree at most $N-1$ where $N$ is a power of two. The coefficients of $f(x)$ are denoted by $f_i$ such that $f(x) \stackrel{\triangle}{=} \sum_{i=0}^{N-1} f_i x^i$.
-\item $p$ is a prime.
-\item We work in a group $\mathbb{G}$ of unknown order (\emph{e.g.} an ideal class group) with a designated base element $g \in \mathbb{G}$ with unknown order. (It might be tempting refer to this element as the \emph{generator} but that terminology would imply that $\mathbb{G}$ is cyclic, which is not necessarily true.) We use multiplicative notation.
-\item Let $q \in \mathbb{N}$ be an integer with $q \gg p$.
-\item $\textbf{Protocol}_{A,B}(x;w)$ denotes an interactive public coin protocol with common input $x$ and B's private input $w$
+\item Throughout, $p$ is a prime of at least $\lambda$ bits, and $q \in \mathbb{N}$ be an integer with $q \gg p$.
+\item We work in a group $\mathbb{G}$ of unknown order together with one or many designated base elements $\gr{g}, \gr{h} \in \mathbb{G}$ with unknown order. (It might be tempting refer to these elements as \emph{generators} but that terminology would imply that $\mathbb{G}$ is cyclic, which is not necessarily true.) We use multiplicative notation and use \textsf{sans-serif} font to indicate group elements, as opposed to integers, polynomials, or field elements.
+\item All protocols in this paper are between two parties, the prover and the verifier. We write $\boldsymbol{\it Protocol}(x;w) \rightarrow (y;z)$ to describe such a protocol with common input $x$, private input for the prover $w$, public output $y$, and private output for the prover $z$. We write $(y;z) \gets \boldsymbol{\it Protocol}(x;w)$ to denote the protocol's execution. Any of $x,w,y,z$ can consist of tuples of objects. This notation facilitates protocol composition and modular analysis.
 \end{itemize}
 
 \subsection{Assumptions}
-\alaninline{Fractional/pseudo root assumption is deprecated}
-The cryptographic compilers make extensive use of groups of unknown order, i.e. groups for which the order cannot efficiently be computed.
-Concretely we require groups for which two specific hardness assumptions hold.
-First the strong RSA assumption which roughly states that it is hard to take \emph{arbitrary} roots of \emph{random} elements. Secondly, the much newer adaptive root assumption\cite{EC:Wesolowski19} which is the dual of the strong RSA assumption and states that it is hard to take \emph{random} roots of \emph{arbitrary} group elements. Both of these assumption hold in generic groups of unknown order\cite{C:Bach88}
-In our proof we also rely on two a
-fractional root assumption which is a generalization of the strong RSA assumption. The assumption states that an adversary cannot compute fractional roots of random group elements. B\"unz, Boneh and Fisch \cite{journals/iacr/BonehBF18a} show that this assumption is satisfied in the generic group model.  
-\begin{assumption}[Pseudo root assumption]
-\label{assum:fracroot}
-The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\adv$:
-\[        
-                \Pr\left[y^\beta = g^{\alpha} \wedge  \beta \not\vert~\alpha   : 
-                \begin{array}{l} 
-                      \GG \sample \ggen(\lambda) \\ 
-                      g \sample \GG \\
-                      (\alpha, \beta, y) \sample \adv(\GG, g) \\
-                      \quad \textnormal{where} \, \alpha, \beta \in \ZZ \, \textnormal{and} \, y \in \GG 
-                \end{array} 
-        \right] \leq \negl \enspace .
-\]
-\end{assumption}
+%\alaninline{Fractional/pseudo root assumption is deprecated}
+The cryptographic compilers make extensive use of groups of unknown order, \emph{i.e.}, groups for which the order cannot be computed efficiently.
+Concretely, we require groups for which two specific hardness assumptions hold.
+First, the strong RSA assumption which roughly states that it is hard to take \emph{arbitrary} roots of \emph{random} elements. Second, the much newer adaptive root assumption\cite{EC:Wesolowski19} which is the dual of the strong RSA assumption and states that it is hard to take \emph{random} roots of \emph{arbitrary} group elements. Both of these assumption hold in generic groups of unknown order\cite{C:Bach88}.
+%In our proof we also rely on two a
+%fractional root assumption which is a generalization of the strong RSA assumption. The assumption states that an adversary cannot compute fractional roots of random group elements. B\"unz, Boneh and Fisch \cite{journals/iacr/BonehBF18a} show that this assumption is satisfied in the generic group model.  
+%\begin{assumption}[Pseudo root assumption]
+%\label{assum:fracroot}
+%The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\adv$:
+%\[        
+%                \Pr\left[y^\beta = g^{\alpha} \wedge  \beta \not\vert~\alpha   : 
+%                \begin{array}{l} 
+%                      \GG \sample \ggen(\lambda) \\ 
+%                      g \sample \GG \\
+%                      (\alpha, \beta, y) \sample \adv(\GG, g) \\
+%                      \quad \textnormal{where} \, \alpha, \beta \in \ZZ \, \textnormal{and} \, y \in \GG 
+%                \end{array} 
+%        \right] \leq \negl \enspace .
+%\]
+%\end{assumption}
 \begin{assumption}[Strong RSA Assumption]
 The \defn{strong RSA Assumption} sates that no efficient adversary can compute any root of a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
 \[
-    \Pr\left[u^\ell = g \, \wedge \, \ell > 1
+    \advantage{SRA}{\adv}\deq 
+    \Pr\left[\gr{u}^\ell = \gr{g} \, \wedge \, \ell > 1
     :
     \begin{array}{l}
          \GG \leftarrow \ggen(\lambda)  \\
-         g \sample \GG \\
-         (u, \ell) \in \mathbb{G} \times \mathbb{N} \leftarrow \adv(\mathbb{G}, g) \\
+         \gr{g} \sample \GG \\
+         (\gr{u}, \ell) \in \mathbb{G} \times \mathbb{N} \leftarrow \adv(\mathbb{G}, \gr{g}) \\
     \end{array}\right] \leq \negl \enspace .
 \]
 \end{assumption}
@@ -163,24 +169,65 @@ We note that some definitions of the strong RSA assumption additionally require 
 We say that the \defn{adaptive root assumption} holds for $\ggen$ if 
 there is no efficient adversary $(\adv_0,\adv_1)$ that succeeds 
 in the following task.
-First, $\adv_0$ outputs an element $w \in \GG$ and some $\state$.
+First, $\adv_0$ outputs an element $\gr{w} \in \GG$ and some $\state$.
 Then, a random prime $\ell$ in $\primes$ is chosen
-and $\adv_1(\ell,\state)$ outputs $w^{1/\ell} \in \GG$.
+and $\adv_1(\ell,\state)$ outputs $\gr{w}^{1/\ell} \in \GG$.
 More precisely, for all efficient $(\adv_0,\adv_1)$:
 \[           \advantage{AR}{(\adv_0,\adv_1)}\deq 
-                \Pr\left[u^\ell = w \neq 1 \ : \ 
+                \Pr\left[\gr{u}^\ell = \gr{w} \neq 1 \ : \ 
                 \begin{array}{l}
-                      \GG \sample \ggen(\lambda) \\ 
-                      (w,\state) \sample \adv_0(\GG) \\
+                      \GG \gets \ggen(\lambda) \\ 
+                      (\gr{w},\state) \sample \adv_0(\GG) \\
                       \ell \sample \primes \\ 
-                      u \sample \adv_1(\ell, \state)
+                      \gr{u} \gets \adv_1(\ell, \state)
                 \end{array} 
         \right] \leq \negl.
 \]
 \end{assumption}
-We now define a security games for polynomial commitments
 
-\subsection{Polynomial Commitments}
+\subsection{Commitment Schemes}
+
+We adapt the definition of a commitment schemes to our protocol notation.
+
+\begin{definition}[commitment scheme]
+A \defn{commitment scheme} $\Gamma$ is a tuple $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open})$ of protocols where
+\begin{itemize}
+    \item $\pro{Setup}(1^\lambda; \varnothing) \rightarrow (\params; \varnothing)$ generates public parameters $\params$;
+    \item $\pro{Commit}(\varnothing; x) \rightarrow (c; d)$ commits to a message $x$ and outputs a commitment $c$ and decommitment information $d$;
+    \item $\pro{Open}(c;d) \rightarrow (y; \varnothing)$ decommits $c$ with secret decommitment information $d$ to produce $y = x$ if the verifier's check was successful, or $y = \bot$ if not.
+\end{itemize}
+We say a commitment scheme $\Gamma$ is \defn{binding} if for all probabilistic polynomial time adversaries $\adv$,
+\[
+    \advantage{bnd}{\adv, \Gamma} \deq 
+    \Pr\left[
+        \bot \neq x_0 \neq x_1 \ : \
+        \begin{array}{l}
+             (\params; \varnothing) \gets \pro{Setup}(1^\lambda; \varnothing ) \\
+             (c, d_0, d_1) \gets \adv(\params) \\
+             (x_0; \varnothing) \gets \pro{Open}(c; d_0) \\
+             (x_1; \varnothing) \gets \pro{Open}(c; d_1) \\
+        \end{array}
+    \right] \leq \negl \enspace .
+\]
+We say a commitment scheme $\Gamma$ is \defn{hiding} if for all probabilistic polynomial time adversaries $\adv=(\adv_0,\adv_1)$,
+\[
+    \advantage{dist}{(\adv_0, \adv_1), \Gamma} \deq
+    \left|
+        1 - 2\Pr\left[
+            \hat{b} = b \ : \
+        \begin{array}{l}
+             (\params; \varnothing) \gets \pro{Setup}(1^\lambda; \varnothing ) \\
+             (\state, x_0, x_1) \gets \adv_0(\params) \\
+             b \sample \{0,1\} \\
+             (c; \varnothing) \gets \pro{Commit}(\varnothing; x_b) \\
+             \hat{b} \gets \adv_1(\state, c)
+        \end{array}
+        \right]
+    \right| \leq \negl \enspace .
+\]
+\end{definition}
+
+We now define a security games for polynomial commitments
 
 \alaninline{Before we state the definitions of the security properties, it makes sense to introduce the syntax first. This syntax will probably be a point of ongoing discussion because this syntax has to be a) compatible with our protocol; and b) compatible with our adaptation of Sonic (and esp.\ its proof).}
 \alaninline{Here's a point we can start with. There are two options for the syntax of opening: \\
