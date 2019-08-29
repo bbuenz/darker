@@ -140,7 +140,7 @@ It is an open research problem to show whether one of these assumption implies t
 \begin{assumption}[Strong RSA Assumption]
 The \defn{strong RSA Assumption} sates that no efficient adversary can compute any root of a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
 \[
-    \Pr\left[u^\ell = g \, \wedge \, \ell > 2:
+    \Pr\left[\gr{u}^\ell = \gr{g} \, \wedge \, \ell > 2:
     \begin{array}{l}
          \GG \leftarrow \ggen(\lambda)  \\
          \gr{g} \sample \GG \\
@@ -202,13 +202,13 @@ We additionally define the pseudo root assumption which is a generalization of t
 \label{assum:fracroot}
 The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\adv$:
 \[        
-                \Pr\left[y^\beta = g^{\alpha} \wedge \vert\frac{\beta}{\gcd(\alpha,\beta)}|>2   : 
+                \Pr\left[\gr{u}^\beta = \gr{g}^{\alpha} \wedge \vert\frac{\beta}{\gcd(\alpha,\beta)}|>2   : 
                 \begin{array}{l} 
                       \GG \sample \ggen(\lambda) \\ 
-                      g \sample \GG \\
-                      (\alpha, \beta, y) \sample \adv(\GG, g) \\
+                      \gr{g} \sample \GG \\
+                      (\alpha, \beta, y) \sample \adv(\GG, \gr{g}) \\
                       \quad \textnormal{where} \, |\alpha|<2^{\poly}, |\beta|<2^{\poly} \in \ZZ \\
-                      \quad \textnormal{and} \, y \in \GG 
+                      \quad \textnormal{and} \, \gr{u} \in \GG 
                 \end{array} 
         \right] \leq \negl \enspace .
 \]
@@ -218,9 +218,9 @@ The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\ad
 \end{lemma}
 \begin{proof}
 	Given an adversary $\adv_{\textsf{PseudoRoot}}$ we will with overwhelming probability construct either an adversary $\adv_{RSA}$ for the strong RSA assumption or an adversary $\adv_{\textsf{Order}}$ that breaks the order assumption. As shown in Lemma \ref{lem:ordertoadaptive} the order assumption reduces to the adaptive root assumption with overwhelming probability. 
-	First we run $\adv_{RSA}$ to generate $g\sample \GG$.
-	We run the $\adv_{\textsf{PseudoRoot}}$ on input $\GG$ and $g$ to generate a tuple $(\alpha,\beta,y)$ such that $y^{\beta}$ and $g^{\alpha}$. Let $\gamma=\gcd(\alpha,\beta)$ and $\alpha'=\frac{\alpha}{\gamma}\in \ZZ$ and  $\beta'=\frac{\beta}{\gamma}$. Now either $g^{\alpha'}=y^{\beta'}$ or $g^{\alpha'}/y^{\beta'}$ is a non trivial element of order $\gamma$ which would break the root assumption.
-	By construction $\gcd(\alpha',\beta')=1$ and we can efficiently compute integers $a,b$ such that $a \alpha'+b \beta'=1$. By assumption $\beta'$ is not $1$. Now let $w\gets y^{a}g^{-b}$. Note that $w^{\alpha'\beta'}=g^{\alpha'}$. So either $w^{\beta'}=g$ or $w^{\beta'}/g$ is a non-trivial element of order $\alpha'$. The first case breaks the strong RSA assumption and the second breaks the order assumption.
+	First we run $\adv_{RSA}$ to generate $\gr{g}\sample \GG$.
+	We run the $\adv_{\textsf{PseudoRoot}}$ on input $\GG$ and $\gr{g}$ to generate a tuple $(\alpha,\beta,\gr{u})$ such that $\gr{u}^{\beta}$ and $\gr{g}^{\alpha}$. Let $\gamma=\gcd(\alpha,\beta)$ and $\alpha'=\frac{\alpha}{\gamma}\in \ZZ$ and  $\beta'=\frac{\beta}{\gamma}$. Now either $\gr{g}^{\alpha'}=\gr{u}^{\beta'}$ or $\gr{g}^{\alpha'}/\gr{u}^{\beta'}$ is a non trivial element of order $\gamma$ which would break the root assumption.
+	By construction $\gcd(\alpha',\beta')=1$ and we can efficiently compute integers $a,b$ such that $a \alpha'+b \beta'=1$. By assumption $\beta'$ is not $1$. Now let $\gr{w}\gets \gr{u}^{a}\gr{g}^{-b}$. Note that $\gr{w}^{\alpha'\beta'}=\gr{g}^{\alpha'}$. So either $\gr{w}^{\beta'}=\gr{g}$ or $\gr{w}^{\beta'}/\gr{g}$ is a non-trivial element of order $\alpha'$. The first case breaks the strong RSA assumption and the second breaks the order assumption.
 \end{proof}
 
 
