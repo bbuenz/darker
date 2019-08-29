@@ -117,7 +117,7 @@ Nevertheless, groups of unknown order provide a property that groups of known or
 \paragraph{Notation}
 \begin{itemize}
 \item Let $f(x) \in \mathbb{F}_p[x]$ be a polynomial of degree at most $N-1$ where $N$ is a power of two. The coefficients of $f(x)$ are denoted by $f_i$ such that $f(x) \stackrel{\triangle}{=} \sum_{i=0}^{N-1} f_i x^i$.
-\item $p$ is a prime.
+\item $p$ is a prime. $\primes$ denotes the set of primes less than $2^{\lambda \log(\lambda)}$. There are at least $2^\lambda$ primes in that set.
 \item We work in a group $\mathbb{G}$ of unknown order (\emph{e.g.} an ideal class group) with a designated base element $g \in \mathbb{G}$ with unknown order. (It might be tempting refer to this element as the \emph{generator} but that terminology would imply that $\mathbb{G}$ is cyclic, which is not necessarily true.) We use multiplicative notation.
 \item Let $q \in \mathbb{N}$ be an integer with $q \gg p$.
 \item $\textbf{Protocol}_{A,B}(x;w)$ denotes an interactive public coin protocol with common input $x$ and B's private input $w$
@@ -127,27 +127,15 @@ Nevertheless, groups of unknown order provide a property that groups of known or
 \alaninline{Fractional/pseudo root assumption is deprecated}
 The cryptographic compilers make extensive use of groups of unknown order, i.e. groups for which the order cannot efficiently be computed.
 Concretely we require groups for which two specific hardness assumptions hold.
-First the strong RSA assumption which roughly states that it is hard to take \emph{arbitrary} roots of \emph{random} elements. Secondly, the much newer adaptive root assumption\cite{EC:Wesolowski19} which is the dual of the strong RSA assumption and states that it is hard to take \emph{random} roots of \emph{arbitrary} group elements. Both of these assumption hold in generic groups of unknown order\cite{C:Bach88}
-In our proof we also rely on two a
-fractional root assumption which is a generalization of the strong RSA assumption. The assumption states that an adversary cannot compute fractional roots of random group elements. B\"unz, Boneh and Fisch \cite{journals/iacr/BonehBF18a} show that this assumption is satisfied in the generic group model.  
-\begin{assumption}[Pseudo root assumption]
-\label{assum:fracroot}
-The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\adv$:
-\[        
-                \Pr\left[y^\beta = g^{\alpha} \wedge  \beta \not\vert~\alpha   : 
-                \begin{array}{l} 
-                      \GG \sample \ggen(\lambda) \\ 
-                      g \sample \GG \\
-                      (\alpha, \beta, y) \sample \adv(\GG, g) \\
-                      \quad \textnormal{where} \, \alpha, \beta \in \ZZ \, \textnormal{and} \, y \in \GG 
-                \end{array} 
-        \right] \leq \negl \enspace .
-\]
-\end{assumption}
+First the strong RSA assumption\cite{CCS:CraSho99} which roughly states that it is hard to take \emph{arbitrary} roots of \emph{random} elements. Secondly, the much newer adaptive root assumption\cite{EC:Wesolowski19} which is the dual of the strong RSA assumption and states that it is hard to take \emph{random} roots of \emph{arbitrary} group elements. 
+Both of these assumption hold in generic groups of unknown order\cite{genericunknown,C:BonBunFis19}, i.e. there are no efficient algorithms that only have blackbox access to the group but are able to break these assumptions. 
+It is an open research problem to show whether one of these assumption implies the other.
+
+
 \begin{assumption}[Strong RSA Assumption]
 The \defn{strong RSA Assumption} sates that no efficient adversary can compute any root of a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
 \[
-    \Pr\left[u^\ell = g \, \wedge \, \ell > 1
+    \Pr\left[u^\ell = g \, \wedge \, \ell > 2
     :
     \begin{array}{l}
          \GG \leftarrow \ggen(\lambda)  \\
@@ -178,7 +166,62 @@ More precisely, for all efficient $(\adv_0,\adv_1)$:
         \right] \leq \negl.
 \]
 \end{assumption}
+
+We additionally use two more assumptions, however both of them reduce to the Strong RSA and the Adaptive Root assumption.
+
+The first assumption states that computing the order for \emph{any} element is hard. It reduces to the adaptive root assumption. Interestingly, it doesn't necessarily hold for all candidate groups of unknown order. In $\ZZ_n$ for composite $n$, the element $-1\in \ZZ_n$ has known order $2$. For other candidate groups such as class groups with fundamental discriminants or $\ZZ_n/\{-1,1\}$ we have no efficient algorithms for computing elements of known order. We note that if $n=p\cdot q$ for strong primes $p$ and $q$ and we operate in the group of quadratic residues of $\ZZ_n$ then the order assumption reduces to the strong RSA assumption.\benedikt{Suitable citation}
+\begin{assumption}[Order assumption]
+\label{assum:order}
+	The order assumption holds for $\ggen$ if for any efficient adversary $\adv$:
+\[        
+                \Pr\left[w\neq 1 \wedge w^{\alpha}=1  : 
+                \begin{array}{l} 
+                      \GG \sample \ggen(\lambda) \\ 
+                      (w,\alpha) \sample \adv(\GG) \\
+                      \text{where } |\alpha|<2^{\poly{}}\in \ZZ\\
+                      \text{and } w\in \GG
+                \end{array} 
+        \right] \leq \negl \enspace .
+\]
+\end{assumption}
+\begin{lemma}
+\label{lem:ordertoadaptive}
+	The adaptive root assumption implies the order assumption.
+\end{lemma}
+\begin{proof}
+	We show that given an adversary $\adv_{\textsf{Order}}$ that breaks the order assumption we can construct with overwhelming probability $\adv_{\textsf{Adaptive Root}}$ that breaks the adaptive root assumption. We run $\adv_{\textsf{Order}}$ to get a $v\neq 1\in \GG$ and $\alpha \in \ZZ$ such that $v^{\alpha}=1$. To construct $\adv_{\textsf{Adaptive Root}}$, $\adv_{\textsf{Adaptive Root},0}$ outputs $(v,\alpha)$. The challenger generates a random challenge $\ell$. If $\gcd(\ell,\alpha)=1$ then $\adv_{\textsf{Adaptive Root},1}$ can compute $\beta\gets \ell^{-1} \bmod \alpha$ and output $w^{\beta}$. The probability that $\gcd(\ell,\alpha)=1$ is overwhelming because $\gcd(\ell,\alpha)\neq 1 \implies \ell \not\vert \alpha$. This happens with negligible probability as $\ell$ is picked from a set of $2^\lambda$ primes and at most $\poly$ distinct primes can divide $\alpha$.
+	\end{proof}
+	
+	
+We additionally define the pseudo root assumption which is a generalization of the Strong RSA assumption. It reduces to the order assumption (and therefore to the adaptive root assumption) and the strong RSA assumption. Shoup\benedikt{Cite shoup strong rsa paper} showed that for the unknown order group of quadratic residues in $\ZZ_n$, where $n$ is the composite of two strong primes, that the pseudo root assumption reduces to just the strong RSA assumption.
+\begin{assumption}[Pseudo root assumption]
+\label{assum:fracroot}
+The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\adv$:
+\[        
+                \Pr\left[y^\beta = g^{\alpha} \wedge \vert\frac{\beta}{\gcd(\alpha,\beta)}|>2   : 
+                \begin{array}{l} 
+                      \GG \sample \ggen(\lambda) \\ 
+                      g \sample \GG \\
+                      (\alpha, \beta, y) \sample \adv(\GG, g) \\
+                      \quad \textnormal{where} \, |\alpha|<2^{\poly}, |\beta|<2^{\poly} \in \ZZ \\
+                      \quad \textnormal{and} \, y \in \GG 
+                \end{array} 
+        \right] \leq \negl \enspace .
+\]
+\end{assumption}
+\begin{lemma}
+	The adaptive root assumption and the strong RSA assumption imply the pseudo root assumption.
+\end{lemma}
+\begin{proof}
+	Given an adversary $\adv_{\textsf{PseudoRoot}}$ we will with overwhelming probability construct either an adversary $\adv_{RSA}$ for the strong RSA assumption or an adversary $\adv_{\textsf{Order}}$ that breaks the order assumption. As shown in Lemma \ref{lem:ordertoadaptive} the order assumption reduces to the adaptive root assumption with overwhelming probability. 
+	First we run $\adv_{RSA}$ to generate $g\sample \GG$.
+	We run the $\adv_{\textsf{PseudoRoot}}$ on input $\GG$ and $g$ to generate a tuple $(\alpha,\beta,y)$ such that $y^{\beta}$ and $g^{\alpha}$. Let $\gamma=\gcd(\alpha,\beta)$ and $\alpha'=\frac{\alpha}{\gamma}\in \ZZ$ and  $\beta'=\frac{\beta}{\gamma}$. Now either $g^{\alpha'}=y^{\beta'}$ or $g^{\alpha'}/y^{\beta'}$ is a non trivial element of order $\gamma$ which would break the root assumption.
+	By construction $\gcd(\alpha',\beta')=1$ and we can efficiently compute integers $a,b$ such that $a \alpha'+b \beta'=1$. By assumption $\beta'$ is not $1$. Now let $w\gets y^{a}g^{-b}$. Note that $w^{\alpha'\beta'}=g^{\alpha'}$. So either $w^{\beta'}=g$ or $w^{\beta'}/g$ is a non-trivial element of order $\alpha'$. The first case breaks the strong RSA assumption and the second breaks the order assumption.
+\end{proof}
 We now define a security games for polynomial commitments
+
+
+\benedikt{Talk about specific groups of unknown order}
 
 \subsection{Polynomial Commitments}
 
