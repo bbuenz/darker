@@ -6,8 +6,11 @@
 \usepackage{amsmath,amsthm,amssymb}
 \usepackage[utf8x]{inputenc}
 \usepackage[colorinlistoftodos]{todonotes}
+\usepackage{xspace}
+\usepackage{comment}
 
 %Theorems
+\theoremstyle{definition}
 \newtheorem{definition}{Definition}
 \newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
@@ -21,17 +24,26 @@
 
 \ifcomments
 	\newcommand{\benedikt}[1]{{\textcolor{red}{[Benedikt: #1]}}}
+	\newcommand{\ben}[1]{{\textcolor{green}{[Ben: #1]}}}
 	\newcommand{\alan}[1]{{\todo[color=blue!40!white]{Alan: #1}}}
 	\newcommand{\alaninline}[1]{{\todo[color=blue!20!white, inline]{Alan: #1}}}
 	\else
 	\newcommand{\benedikt}[1]{}
+	\newcommand{\ben}[1]{}
 	\newcommand{\alan}[1]{}
 	\newcommand{\alaninline}[1]{}
 	\fi
 
 \begin{document}
-\title{DARK Proof Systems}
+\title{Transparent SNARKs from DARK Arguments}
 \maketitle
+
+\begin{abstract} 
+We construct a new polynomial commitment scheme for multivariate polynomials over a finite field, with public-coin evaluation proofs that have logarithmic communication in the degree of the polynomial. The techniques are reminiscent of \emph{Diophantine Arguments of Knowledge} (Lipmaa, Asiacrypt'03), leveraging integer representations of polynomials and groups of unknown order. Security is shown from falsifiable assumptions that hold in generic groups. Moreover, the scheme does not require a trusted setup if instantiated with class groups. We apply this new cryptographic compiler to algebraic linear IOPs in order to obtain doubly-efficient public-coin IPs with succinct communication and witness-extended emulation for any NP relation. Allowing for linear preprocessing, the online verifier's work is logarithmic in the circuit complexity of the relation.
+
+Concretely, compiling a QAP-based IOP results in quadratic prover time, but we obtain quasi-linear prover time when compiling instead the IOP employed in Sonic (Maller et. al., CCS 2019) based on bivariate Laurent polynomials. Applying the Fiat-Shamir transform in the random oracle model results in a transparent preprocessing zk-SNARK system with quasi-linear prover time, logarithmic proof size, and logarithmic verification time for arbitrary circuits, which we call \textsf{\textbf{Supersonic}}.
+
+\end{abstract} 
 
 \section*{Notes for Writing}
 \begin{table}
@@ -41,50 +53,15 @@
     \begin{tabular}{l|l}
         symbol & meaning   \\ \hline \hline
         {\bf polynomials} & \\ \hline
-        $f \in \mathbb{F}_p[x]$ & polynomial modulo $p$ \\
-        $f_{(0)}, f_{(1)} \in \mathbb{F}_p[x]$ & first and second half of $f(x)$ \\
-        $f_0, f_1, f_i \in \mathbb{F}_p$ & coefficients \emph{s.t.} $f(x) = \sum_{i=0}^d f_ix^i$ \\
-        $\hat{f}(x) \in \mathbb{Z}[x]$ & polynomial with integer coefficients, typically in $\{0,\ldots,p-1\}$ \\ 
-        $\hat{f}(q) \in \mathbb{Z}$ & integer encoding of a polynomial \\ \hline
-        {\bf group elements} & (proposal by Alan) \\ \hline
+        $f \in \mathbb{F}_p[x]$ or $f \in \mathbb{Z}[x]$ & polynomial modulo $p$ or without modulo, depending on context \\
+        $f_L, f_R \in \mathbb{F}_p[x]$ & first and second half of $f(x)$ \\
+        $f_0, f_1, f_i \in \mathbb{F}_p$ & coefficients \emph{s.t.} $f(x) = \sum_{i=0}^d f_ix^i$ \\ \hline
+        {\bf group elements} &  \\ \hline
         $\mathsf{g} \in \mathbb{G}$ & designated base element (the term ``generator'' is misleading) \\
         $\mathsf{c}, \mathsf{c}_0, \mathsf{c}_1 \in \mathbb{G}$ & commitments \\
-        $\mathsf{c}_0^a \times \mathsf{c}_1^b, \mathsf{c}_0^a\mathsf{c}_1^b \, \textnormal{for} \, a, b \in \mathbb{Z}$ & multiplicative notation \\ \hline
-%        {\bf schemes} & (proposal by Alan) {actually, I don't really like this anymore} \\ \hline
-%        $\mathbf{Commit}_{\mathbb{A}} : \mathbb{A} \rightarrow \mathbb{G}$ & commit to an element from algebra $\mathbb{A}$. \\
-%         & This notation allows stacking algebras, $\emph{e.g.}$, $\mathbf{Commit}_{(\mathbb{F}_p[x]_{\leq d})^n}$ \\
-%        $\mathbf{Open}_\mathbb{A} : \{0,1\}^* \times \mathbb{G} \rightarrow \mathbb{A} \cup \{\bot\}$ & open a commitment by providing the decommitment information \\
-%         & (in the basic scheme: an integer) and the commitment; if the pro- \\
-%         & vided input is invalid, the function outputs $\bot$.\\
+        $\mathsf{c}_0^a \times \mathsf{c}_1^b, \mathsf{c}_0^a\mathsf{c}_1^b \, \textnormal{for} \, a, b \in \mathbb{Z}$ & multiplicative notation \\ 
     \end{tabular}
 \end{table}
-
-\subsection*{Structure:} \alan{To be updated based on Benedikt's notes.}
-\begin{itemize}
-    \item introduction
-    \item tools
-    \begin{itemize}
-        \item syntax of poly/vector commitment
-        \item construction: poly/vector commitment
-        \item eval (log / const size)
-        \item coeff extract (log / const size)
-        \item inner product (log/ const size)
-        \item permutations: flip, rotate, generic
-    \end{itemize}
-    \item illustration: simple QAP
-    \item proof systems
-    \begin{itemize}
-        \item short paragraph for each of:
-        \item sonic
-        \item spartan
-        \item bulletproof
-        \item stark
-        \item other?
-        \item[+] comparison
-    \end{itemize}
-\end{itemize}
-
-\clearpage
 
 \section{Introduction}
 
@@ -92,7 +69,7 @@ A polynomial commitment scheme enables a prover to bind himself to a polynomial 
 
 Of particular interest to this paper are proof systems whereby the prover establishes the correct performance of an arbitrary computation (that may or may not involve secret information) in such a way that the communication or verification complexity scales asymptotically better than performing the computation naïvely. Without exception, these proof systems rely on a technique called \emph{arithmetization}: characterizing the computation in question as a collection of arithmetic operations over a finite field. The utility of polynomial commitments stems from their capacity to succinctly capture a canonical representation of such collections while retaining the algebraic properties that make arithmetization work in the first place.
 
-The literature on proof systems for arbitrary computations focuses on two techniques to achieve polynomial commitments. First: Merkle trees --- here every leaf represents the polynomial's evaluation in a given point, and the Merkle root represents the commitment to the polynomial. The verifier operates by opening selected points, which can be done in logarithmic space and time (as a function of the number of points). Second: groups equipped with bilinear maps --- in this case a structured reference string (SRS)\footnote{Previously known as \emph{common reference string}, CRS.} provides the values of all monomials up to a given degree when evaluated in an unknown point. By computing a weighted sum of these monomial values, the prover obtains the evaluation of his polynomial in the unknown point. The verifier performs the pairing operation to verify that multiplicative relations hold between committed polynomials.
+The literature on proof systems for arbitrary computations focuses on two techniques to achieve polynomial commitments. First: Merkle trees --- here every leaf represents the polynomial's evaluation in a given point, and the Merkle root represents the commitment to the polynomial. The verifier needs to verify the authentication paths of selected points, which can be done in logarithmic space and time (as a function of the number of points). Second: groups equipped with bilinear maps --- in this case a structured reference string (SRS)\footnote{Previously known as \emph{common reference string}, CRS.} provides the values of all monomials up to a given degree when evaluated in an unknown point. By computing a weighted sum of these monomial values, the prover obtains the evaluation of his polynomial in the unknown point. The verifier performs the pairing operation to verify that multiplicative relations hold between committed polynomials.
 
 This paper provides a third option for generating polynomial commitment schemes, namely by relying on groups of unknown order --- such as the group of integers with multiplication modulo an RSA modulus of unknown factorization, or the ideal class group of an order of an imaginary quadratic number field. These groups have seen relatively little adoption or even attention from the cryptographic community because the only known constructions thereof have subexponential attack algorithms. As a result, for a practical security level, elements of groups of unknown order typically require several hundreds of bytes to represent, in contrast to the tens of bytes needed for elements of elliptic curves for which no subexponential algorithms exist. 
 
@@ -109,31 +86,31 @@ Nevertheless, groups of unknown order provide a property that groups of known or
 \begin{itemize}
     \item[] \textbf{Tools.} We start with an encoding scheme that represents polynomials over a prime field $\mathbb{F}_p$ as integers, by encoding the polynomial's coefficients into the integer's base-$q$ expansion. Adjoined with a group of unknown order and a designated base element $g \in \mathbb{G}$, this encoding scheme naturally gives rise to a polynomial commitment scheme that inherits its somewhat homomorphic properties. Next, we provide protocols for proving the correct evaluation of a committed polynomial, and showing that two polynomials have the same coefficients but flipped or rotated. We also present a protocol for extracting the $i$th coefficient, thereby promoting the commitment scheme to one that also provides vector commitment functionality. Building on this observation, we provide another protocol for showing that a commitment represents the inner product between two vectors of which at least one is represented by its vector commitment. Another protocol establishes that two vector commitments represent the same vector up to an arbitrary but known permutation of the coefficients.
     \item[] All the proof systems mentioned so far have logarithmic communication complexity and logarithmic verification time. Moreover, with the exception of the inner product proof and the permutation proof, the prover's complexity is quasi-linear. If one is willing to sacrifice this scalability for the prover, we also provide counterparts to all the above proofs with constant communication and verification complexity.
-    \item[] \textbf{Applications.} To illustrate the usefulness and the versatility of the enumerated tools, we join them straightforwardly to construct a simple succinct non-interactive argument of knowledge (SNARK) based on quadratic arithmetic programs (QAPs). To the best of our knowledge, this is the first SNARK for circuits without trusted setup (when instantiated with the class group) or with an SRS whose size is independent of the circuit (when instantiated with the RSA group).\footnote{This classification takes note of the STARK proof system~\cite{C:BBHR19} whose verification time is polylogarithmic but as a function of some program's running time and not of any circuit; as well as of Hyrax~\cite{SP:WTTW17} and Spartan~\cite{eprint:Setty19}, which do apply to circuits but whose verification times are not polylogarithmic and thus fail to satisfy the definition of SNARKs as set forth in the paper that coined the term~\cite{JC:BCCGLRT17}.}
-    \item[] We follow up this conceptually simple QAP-based proof system with a survey of popular communication-efficient proof systems for arbitrary computations, in which we replace their constituent components with tools developed earlier in this paper. In this light we analyze Sonic, Spartan, Hyrax, Bulletproofs, and STARK. In all cases we find that using our techniques leads to different trade-offs; improving on some metrics while degrading others.
+    \item[] \textbf{Applications.} To illustrate the usefulness and the versatility of the enumerated tools, we join them straightforwardly to construct a simple succinct non-interactive argument of knowledge (SNARK) based on quadratic arithmetic programs (QAPs). To the best of our knowledge, this is the first SNARK for circuits without trusted setup (when instantiated with the class group) or with an SRS whose size is independent of the circuit (when instantiated with the RSA group).\footnote{This classification takes note of the STARK proof system of Ben Sasson \emph{et al.}~\cite{C:BBHR19} whose verification time is polylogarithmic but as a function of the \emph{running time} of some program and not of any circuit; as well as of Hyrax~\cite{SP:WTTW17} and Spartan~\cite{eprint:Setty19}, which do apply to circuits but whose verification times are not polylogarithmic and thus fail to satisfy the definition of SNARKs as set forth in the paper that coined the term~\cite{JC:BCCGLRT17}.}
+    \item[] \alan{deprecated} We follow up this conceptually simple QAP-based proof system with a survey of popular communication-efficient proof systems for arbitrary computations, in which we replace their constituent components with tools developed earlier in this paper. In this light we analyze Sonic, Spartan, Hyrax, Bulletproofs, and STARK. In all cases we find that using our techniques leads to different trade-offs; improving on some metrics while degrading others.
 \end{itemize}
 
 \subsection{Related Work}
 
-Homomorphic integer commitment schemes based on the RSA group were first proposed by Fujisaki and Okamoto~\cite{C:FujOka97}, who also provide a protocol to prove that a list of committed integers satisfy a polynomial equation modulo an arbitrary positive integer as well as one for opening a commitment bit by bit. Damgård and Fujisaki fix an issue with the soundness proof and are the first to suggest using class groups of an imaginary quadratic order as a candidate group of unknown order~\cite{AC:DamFuj02}. Lipmaa draws the link between zero-knowledge proofs constructed from integer commitment schemes and Diophantine complexity~\cite{AC:Lipmaa03b}. Couteau~\emph{et al.} study protocols derived from integer commitments specifically in the RSA group in order to lift their security proofs so as to require weaker assumptions; in the process they develop proofs for polynomial evaluation modulo a prime $\pi$ that is not initially known to the verifier, in addition to a proof showing that an integer $x$ lies in the range $\{a, \ldots, b\}$ by showing that $1+4(x-a)(b-x)$ decomposes as the sum of 3 squares~\cite{EC:CouPetPoi17}.
+Homomorphic integer commitment schemes based on the RSA group were first proposed by Fujisaki and Okamoto~\cite{C:FujOka97}, who also provide a protocol to prove that a list of committed integers satisfy a polynomial equation modulo an arbitrary positive integer as well as one for opening a commitment bit by bit. Damgård and Fujisaki~\cite{AC:DamFuj02} fix an issue with the soundness proof of that protocol and are the first to suggest using class groups of an imaginary quadratic order as a candidate group of unknown order. Around the same time, Lipmaa draws the link between zero-knowledge proofs constructed from integer commitment schemes and Diophantine complexity~\cite{AC:Lipmaa03b}. Much later, Couteau~\emph{et al.} study protocols derived from integer commitments specifically in the RSA group in order to lift their security proofs so as to require weaker assumptions; in the process they develop proofs for polynomial evaluation modulo a prime $\pi$ that is not initially known to the verifier, in addition to a proof showing that an integer $x$ lies in the range $\{a, \ldots, b\}$ by showing that $1+4(x-a)(b-x)$ decomposes as the sum of 3 squares~\cite{EC:CouPetPoi17}.
 
-Pietrzak~\cite{Pietrzak18} adds efficient verifiability to the RSA-based time lock puzzle due to Rivest, Shamir, and Wagner~\cite{RivShaWag96}, thereby obtaining a conceptually simple verifiable delay function (VDF). Wesolowski~\cite{EC:Wesolowski19} proposes a single-round protocol to prove correct exponentiation in groups of unknown order, down from a logarithmic (in the size of the exponent) number for Pietrzak's protocol. Boneh~\emph{et al.} generalize this protocol to arbitrary exponents (not just powers of 2), and adapt it for zero-knowledge and batching, providing the base tools for constructing efficient accumulators and vector commitment schemes~\cite{C:BonBunFis19}.
+Spurred by the recent demand for cryptographic tools from the blockchain industry, Pietrzak~\cite{Pietrzak18} adds efficient verifiability to the RSA-based time lock puzzle due to Rivest, Shamir, and Wagner~\cite{RivShaWag96}, thereby obtaining a conceptually simple verifiable delay function (VDF). Wesolowski~\cite{EC:Wesolowski19} improves on this result by proposing a single-round protocol to prove correct exponentiation in groups of unknown order, down from a logarithmic (in the size of the exponent) number for Pietrzak's protocol. Boneh~\emph{et al.} generalize this protocol to arbitrary exponents (not just powers of 2), and adapt it for zero-knowledge and batching, providing the base tools for constructing efficient accumulators and vector commitment schemes~\cite{C:BonBunFis19}.
 
 \section{Preliminaries}
 \paragraph{Notation}
 \begin{itemize}
 \item Let $f(x) \in \mathbb{F}_p[x]$ be a polynomial of degree at most $N-1$ where $N$ is a power of two. The coefficients of $f(x)$ are denoted by $f_i$ such that $f(x) \stackrel{\triangle}{=} \sum_{i=0}^{N-1} f_i x^i$.
 \item Throughout, $p$ is a prime of at least $\lambda$ bits, and $q \in \mathbb{N}$ be an integer with $q \gg p$.  $\primes$ denotes the set of primes less than $2^{\lambda \log(\lambda)}$. There are at least $2^\lambda$ primes in that set.
-\item We work in a group $\mathbb{G}$ of unknown order together with one or many designated base elements $\gr{g}, \gr{h} \in \mathbb{G}$ with unknown order. (It might be tempting refer to these elements as \emph{generators} but that terminology would imply that $\mathbb{G}$ is cyclic, which is not necessarily true.) We use multiplicative notation and use \textsf{sans-serif} font to indicate group elements, as opposed to integers, polynomials, or field elements.
-\item All protocols in this paper are between two parties, the prover and the verifier. We write $\boldsymbol{\it Protocol}(x;w) \rightarrow (y;z)$ to describe such a protocol with common input $x$, private input for the prover $w$, public output $y$, and private output for the prover $z$. We write $(y;z) \gets \boldsymbol{\it Protocol}(x;w)$ to denote the protocol's execution. Any of $x,w,y,z$ can consist of tuples of objects. This notation facilitates protocol composition and modular analysis.
+\item We work in a group $\mathbb{G}$ of unknown order together with one or many designated base elements $\gr{g}, \gr{h} \in \mathbb{G}$ with unknown order. (It might be tempting refer to these elements as \emph{generators} but that terminology would imply that $\mathbb{G}$ is cyclic, which is not necessarily true. \ben{Every element is a generator of a cyclic subgroup; why make this comment at all?}\textcolor{blue}{Alan: true; moot point.}) We use multiplicative notation and use \textsf{sans-serif} font to indicate group elements, as opposed to integers, polynomials, or field elements.
+\item Some protocols in this paper are between two parties, the prover and the verifier. We write $\boldsymbol{\it Protocol}(x;w) \rightarrow (y;z)$ to describe such a protocol with common input $x$, private input for the prover $w$, public output $y$, and private output for the prover $z$. We write $(y;z) \gets \boldsymbol{\it Protocol}(x;w)$ to denote the protocol's execution. Any of $x,w,y,z$ can consist of tuples of objects. This notation facilitates protocol composition and modular analysis.
 \end{itemize}
 
 \subsection{Assumptions}
-\alaninline{Fractional/pseudo root assumption is deprecated}
-The cryptographic compilers make extensive use of groups of unknown order, i.e. groups for which the order cannot efficiently be computed.
-Concretely we require groups for which two specific hardness assumptions hold.
+
+The cryptographic compilers make extensive use of groups of unknown order, \emph{i.e.}, groups for which the order cannot be computed efficiently.
+Concretely, we require groups for which two specific hardness assumptions hold.
 First the strong RSA assumption\cite{CCS:CraSho99} which roughly states that it is hard to take \emph{arbitrary} roots of \emph{random} elements. Secondly, the much newer adaptive root assumption\cite{EC:Wesolowski19} which is the dual of the strong RSA assumption and states that it is hard to take \emph{random} roots of \emph{arbitrary} group elements. 
-Both of these assumption hold in generic groups of unknown order\cite{genericunknown,C:BonBunFis19}, i.e. there are no efficient algorithms that only have blackbox access to the group but are able to break these assumptions. 
+Both of these assumption hold in generic groups of unknown order\cite{genericunknown,C:BonBunFis19}, i.e. there are no efficient algorithms that only have black-box access to the group but are able to break these assumptions. 
 It is an open research problem to show whether one of these assumption implies the other.
 
 
@@ -226,56 +203,82 @@ The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\ad
 
 \benedikt{Talk about specific groups of unknown order}
 
-
+\subsection{Interactive Arguments of Knowledge}
+Interactive arguments are \emph{interactive proofs}~\cite{GolMicRac89} in which security holds only against a computationally bounded prover. In an interactive argument for a relation $\mathcal{R}$, the prover convinces the verifier that it ``knows" a witness $w$ for a statement $x$ such that $(x, w) \in \mathcal{R}$. The standard definition of \emph{proofs of knowledge}~\cite{C:BelGol92} is based on the existence of an extractor machine $E$ that has oracle access to a malicious prover $P^*$, and if $P^*$ would cause the verifier to accept on input $x$ with high probability then $E$ outputs $w$ such that $(x, w) \in \mathcal{R}$ (with overwhelming probability). $E$ runs in expected polynomial time. This definition quantifies the success of $E$ over all inputs $x$, which unfortunately is problematic in the case of interactive  \emph{arguments}. In particular, if the interactive argument relies on a \emph{common reference string} setup with trapdoor information (e.g. the factorization of an RSA modulus) then one of the inputs $x^*$ could leak the trapdoor to the prover. Any extractor should clearly fail on input $x^*$ while $P^*$ may succeed, hence the definition cannot be satisfied. This is rememedied 
 \subsection{Commitment Schemes}
 
-We adapt the definition of a commitment schemes to our protocol notation.
+In defining the syntax of the various types of commitment schemes, we use the following convention with respect to public values (known to both the prover and the verifier) and secret ones (known only to the prover). In any list of arguments or returned tuple $(a, b, c; d, e)$ those variables listed before the semicolon are public, and those variables listed after it are secret. When there is no secret information, the semicolon is omitted.
 
 \begin{definition}[commitment scheme]
 A \defn{commitment scheme} $\Gamma$ is a tuple $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open})$ of protocols where
 \begin{itemize}
-    \item $\pro{Setup}(1^\lambda; \varnothing) \rightarrow (\params; \varnothing)$ generates public parameters $\params$;
-    \item $\pro{Commit}(\varnothing; x) \rightarrow (c; d)$ commits to a message $x$ and outputs a commitment $c$ and decommitment information $d$;
-    \item $\pro{Open}(c;d) \rightarrow (y; \varnothing)$ decommits $c$ with secret decommitment information $d$ to produce $y = x$ if the verifier's check was successful, or $y = \bot$ if not.
+    \item $\pro{Setup}(1^\lambda) \rightarrow \params$ generates public parameters $\params$;
+    \item $\pro{Commit}(\params; x[, r]) \rightarrow (c; d)$ takes a secret message $x$ (and, optionally, secret randomness $r$) and outputs a public commitment $c$ and secret decommitment information $d$;
+    \item $\pro{Open}(\params, c, x; d) \rightarrow b \in \{\bot, \top\}$ opens the commitment $c$ to the message $x$ using secret decommitment information $d$.
 \end{itemize}
-We say a commitment scheme $\Gamma$ is \defn{binding} if for all probabilistic polynomial time adversaries $\adv$,
+A commitment scheme $\Gamma$ is \defn{binding} if for all probabilistic polynomial time adversaries $\adv$,
 \[
-    \advantage{bnd}{\adv, \Gamma} \deq 
     \Pr\left[
-        \bot \neq x_0 \neq x_1 \ : \
+        b_0 = b_1 \neq \bot \, \wedge \, x_0 \neq x_1 \ : \
         \begin{array}{l}
-             (\params; \varnothing) \gets \pro{Setup}(1^\lambda; \varnothing ) \\
-             (c, d_0, d_1) \gets \adv(\params) \\
-             (x_0; \varnothing) \gets \pro{Open}(c; d_0) \\
-             (x_1; \varnothing) \gets \pro{Open}(c; d_1) \\
+             \params \gets \pro{Setup}(1^\lambda) \\
+             (c, x_0, x_1, d_0, d_1) \gets \adv(\params) \\
+             b_0 \gets \pro{Open}(\params, c, x_0; d_0) \\
+             b_1 \gets \pro{Open}(\params, c, x_1; d_1) \\
         \end{array}
     \right] \leq \negl \enspace .
 \]
-We say a commitment scheme $\Gamma$ is \defn{hiding} if for all probabilistic polynomial time adversaries $\adv=(\adv_0,\adv_1)$,
+A commitment scheme $\Gamma$ is \defn{hiding} if for all probabilistic polynomial time adversaries $\adv=(\adv_0,\adv_1)$,
 \[
-    \advantage{dist}{(\adv_0, \adv_1), \Gamma} \deq
     \left|
         1 - 2\Pr\left[
             \hat{b} = b \ : \
         \begin{array}{l}
-             (\params; \varnothing) \gets \pro{Setup}(1^\lambda; \varnothing ) \\
+             \params \gets \pro{Setup}(1^\lambda) \\
              (\state, x_0, x_1) \gets \adv_0(\params) \\
              b \sample \{0,1\} \\
-             (c; \varnothing) \gets \pro{Commit}(\varnothing; x_b) \\
-             \hat{b} \gets \adv_1(\state, c)
+             (\gr{c}; *) \gets \pro{Commit}(\params; x_b) \\
+             \hat{b} \gets \adv_1(\state, \gr{c})
         \end{array}
         \right]
     \right| \leq \negl \enspace .
 \]
 \end{definition}
 
-We now define a security games for polynomial commitments
+We now extend the syntax to polynomial commitment schemes. The following definition generalizes that of Kate~\emph{et al.}~\cite{AC:KatZavGol10} to allow interactive evaluation proofs. It also stipulates that the polynomial's degree be an argument to the protocol, contrary to Kate~\emph{et al.} where the degree is known and fixed.
 
-\alaninline{Before we state the definitions of the security properties, it makes sense to introduce the syntax first. This syntax will probably be a point of ongoing discussion because this syntax has to be a) compatible with our protocol; and b) compatible with our adaptation of Sonic (and esp.\ its proof).}
-\alaninline{Here's a point we can start with. There are two options for the syntax of opening: \\
-1. The output of $\open$ is a single bit, depending on whether the provided inputs are valid. The opened polynomial should be one of the input arguments. \\
-2. The output of $\open$ is either the opened polynomial itself (if all inputs are valid), or $\bot$ if the inputs are invalid. \\
-While option (2) is less common, makes more sense for our scheme. The reason is because the prover needs to know the correct encoding of $f(x)$ as an integer in addition to $f(x)$ itself. Furthermore, this choice forces us to take explicit care of the integer encoding, which is a) beneficial for implementers, and b) more likely than the alternative to catch errors related to the integer encoding (overflow but also other types of errors).}
+\begin{definition}
+A \defn{polynomial commitment scheme} is a tuple of protocols $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ where $(\pro{Setup},$ $\pro{Commit}, \pro{Open})$ is a binding commmitment scheme for a message space $R[x]$ of polynomials over some ring $R$, and where
+\begin{itemize}
+    \item $\pro{Eval}(\params, c, z, y, d; f(x)) \rightarrow b \in \{\top, \bot\}$ is a protocol that takes a public commitment $c$, point $z \in R$, and a value $y$, degree $d$, along with a secret polynomial $f(x) \in R[x]$ with $\deg(f(x)) \leq d$ to which $c$ is a commitment, and shows that the evaluation of the secret committed polynomial $f(x)$ at $z$ is indeed $y$.
+\end{itemize}
+A polynomial commitment scheme is \defn{correct} if an honest committer can successfully convince the verifier of any evaluation. Specifically, if the prover is honest then for all polynomials $f(x) \in R[x]$ and all points $z \in R$,
+\[
+    \Pr\left[b = 1 \ : \ \begin{array}{l}
+        \params \gets \setup(1^\lambda) \\
+        (c; s) \gets \pro{Commit}(\params, f(x)) \\
+        y \gets f(z) \\
+        d \gets \deg(f(x))
+        b \gets \pro{Eval}(\params, c, z, y, d; s) \\
+    \end{array} \right] = 1 \enspace .
+\]
+A polynomial commitment scheme is \defn{evaluation binding} if no efficient adversary can convince the verifier that the committed polynomial $f(x)$ evaluates to different values $y_0 \neq y_1 \in R$ in the same point $z \in R$. Let $b \gets \pro{Eval}_{\langle \adv_1 \leftrightarrow \mathsf{V}\rangle}(c, z, y, d; s)$ denote an execution of this protocol with a malicious prover $\adv_1$ where $c, z, y, d$ is public and $s$ is a secret known only to the malicious prover. Then evaluation binding requires that for all probabilistic polynomial-time adversaries $\adv = (\adv_0, \adv_1)$,
+\[
+    \Pr\left[
+         b_0 = b_1 \neq \bot \, \wedge \, y_0 \neq y_1 \ : \ \begin{array}{l}
+            \params \gets \pro{Setup}(1^\lambda) \\
+            (c, z, y_0, y_1, d_0, d_1, s_0, s_1) \gets \adv_0(\params) \\
+            b_0 \gets \pro{Eval}_{\langle \adv_1 \leftrightarrow \mathsf{V}} \rangle(\params, c, z, y_0, d_0; s_0) \\
+            b_1 \gets \pro{Eval}_{\langle \adv_1 \leftrightarrow \mathsf{V}} \rangle(\params, c, z, y_1, d_1; s_1) \\
+        \end{array}
+    \right] \leq \negl \enspace .
+\]
+\end{definition}
+
+The syntax generalizes naturally to multivariate polynomial commitment schemes. Specifically, one obtains the syntax for an $m$-variate polynomial commitment scheme by replacing all occurrences of $x$ and $z$ by their $m$-dimensional vectorial counterparts, $\mathbf{x}$ and $\mathbf{z}$.
+
+\begin{comment}
+We now define a security games for polynomial commitments
 
 \alaninline{Kate \emph{et al.} define a polynomial commitment scheme as a tuple of 6 algorithms $(\mathsf{Setup},\mathsf{Commit},\mathsf{Open},\mathsf{VerifyPoly},\mathsf{CreateWitness},\mathsf{VerifyEval})$. There is a difference between verifying a commitment and opening it. The proof-of-correct-evaluation is a ``witness''. Proving and verifying are given by non-interactive algorithms.}
 \alaninline{Sonic defines a polynomial commitment scheme as a tuple $(\mathsf{Commit}, \mathsf{Open}, \mathsf{pvC})$. The generation of the public parameters is not part of the polynomial commitment scheme. There is no special decommitment information; the $\mathsf{Commit}$ function takes a polynomial $f(x)$ and $\mathsf{Open}$ takes \emph{the same} polynomial. The algorithm $\mathsf{Open}$ outputs the evaluation $f(z)$ along with a proof; this proof is verified by $\mathsf{pcV}$.}
@@ -327,9 +330,12 @@ We say a polynomial commitment scheme, consisting of algorithms $(\setup,\commit
         \right] \leq \negl.
 \]
 \end{definition}
-Note that technically a complete $\eval$ protocol suffices as one can always open a polynomial by evaluating it at $\deg(f(x))+1$ points.
+\end{comment}
 
-We additionally require a stronger extraction property that had in different variations been defined by \cite{SP:ZGKPP17} and \cite{EPRINT:MBKM19}.
+In order to provide a strong soundness guarantee, we would like to require that any successful prover must display \emph{knowledge} of a polynomial $f(x)$ that $c$ is a commitment to, and that evaluates to $y$ in $z$. This is already implied if the verifier can choose $z$, since opening the polynomial in $\deg(f(x))+1$ points determines it completely. However, we want an even stronger soundness notion, one that applies even when $z$ is not chosen by the verifier. This motivates the following definition of extractability.
+
+\begin{comment}
+We additionally require a stronger extraction property that had in different variations been defined by Zhang~\emph{et al.}~\cite{SP:ZGKPP17} and Sonic~\cite{EPRINT:MBKM19}.
 \begin{definition}[PolyCommit extraction]
 We say a polynomial commitment scheme, consisting of algorithms $(\setup,\commit)$ and the interactive protocol $\eval$, is extractable if there exists a rewinding \benedikt{Define more properly}extractor $\extractor$ such that for all polynomial degrees $d=\poly\in \NN$ and for any efficient adversary $\adv$:
 	\[        
@@ -348,11 +354,44 @@ We say a polynomial commitment scheme, consisting of algorithms $(\setup,\commit
         \right] \leq \negl.
 \]
 \end{definition}
-\begin{lemma}[Extraction soundness]
-	A polynomial commitment scheme that satisfies opening binding as well as extraction also satisfies evaluation binding.
+\end{comment}
+
+\begin{definition}[extractability]
+Let let $\Gamma$ be a polynomial commitment scheme, let $\adv = (\adv_0, \adv_1)$ be any probabilistic polynomial-time adversary attacking the scheme where in particular $\adv_0$ decides on a statement and $\adv_1$ tries to convince the verifier of it, and let $\extractor$ be a probabilistic polynomial-time black-box extractor algorithm that satisfies the following description.
+\begin{itemize}
+    \itemsep0em 
+    \item $\extractor$ interacts with $\adv_1$ in accordance with the $\eval$ protocol syntax, where $\extractor$ assumes the role of the verifier and $\adv_1$ the role of the prover.
+    \item $\extractor$ can rewind $\adv_1$ to any previous point in time, at which point the protocol will resume from that point onward. $\ext$ remembers the observed messages from previous execution branches.
+    \item We write $f(x) \gets \pro{Eval}_{\langle \adv_1 \leftrightarrow \extractor\rangle}(c,z,y,d;\st)$ to denote an execution of this extraction procedure whereby $\extractor$ finally outputs $f(x)$.
+\end{itemize}
+We say the polynomial commitment scheme $\Gamma$ is \defn{extractable} if there is an extractor $\extractor$ for all adversaries $\adv = (\adv_0, \adv_1)$ that convince the honest verifier with noticeable probability\alan{Actually, I am not convinced that with this order of quantifiers, the text definition is equivalent as the formula definition.}, $\extractor$ outputs a polynomial $f(x) \in R[x]$ of degree at most $d$ that matches the commitment with overwhelming probability. Specifically, this means that
+\[
+    \Pr \left[
+        b \neq \bot \, \wedge \, c' \neq c \ : \ 
+        \begin{array}{l}
+             \params \gets \pro{Setup}(1^\lambda) \\
+             (c, z, y, d; \state) \gets \adv_0(\params) \\
+             b \gets \pro{Eval}_{\langle \adv_1 \leftrightarrow \verifier\rangle}(c, z, y, d; \state) \\
+             f(x) \gets \pro{Eval}_{\langle \adv_1 \leftrightarrow \extractor\rangle}(c, z, y, d; \state) \\
+             (c'; *) \gets \pro{Commit}(\params; f(x))
+        \end{array}
+    \right] \leq \negl \enspace .
+\]
+\end{definition}
+
+\begin{lemma}[binding $\wedge$ extractability $\Rightarrow$ evaluation binding]
+	A binding polynomial commitment scheme that satisfies extractability also satisfies evaluation binding.
 \end{lemma}
 \begin{proof}
-	(SKETCH) Assume an adversary $\adv_{\eval}$ can break the evaluation binding property with non negligible probability $\gamma$. Using the extractor $\extractor$ we will construct an adversary $\adv_\open$ that will break the opening binding property with non-negligible probability. Run $\adv_\eval$ to get $(C,z,y_1,y_2)$. Now using $\ext$ we extract polynomials $f(x)$ and $g(x)$ of degree $d$ with all but negligible probability. Note that $f(z)=y_1$ and $g(z)=y_2$. This means $f(x)\neq g(x)$ but since $C=\commit(f(x))=\commit(g(x))$ we have a break of the opening binding property.
+Proof by contradiction. We assume that there exists an adversary $\adv_{\rm eval} = (\adv_{{\rm eval},0}, \adv_{{\rm eval},1})$ capable of breaking the evaluation-binding property with non-negligible probability. With this algorithm we construct another algorithm that breaks the binding or the extractability properties. The description of this constructed adversary follows.
+
+Run $\adv_{{\rm eval}, 0}(\params)$ to obtain $(c, z, y_0, y_1, d_0, d_1, s_0, s_1)$. Then run the extractor to obtain the polynomials $f_0(x) \gets \eval_{\langle \adv_{{\rm eval}, 1} \leftrightarrow \extractor \rangle}(c, z, y_0, d_0; s_0)$ and $f_1(x) \gets \eval_{\langle \adv_{{\rm eval}, 1} \leftrightarrow \extractor \rangle}(c, z, y_1, d_1; s_1)$. The algorithm's final step depends on the property under consideration.
+
+Let $(c_0; *) \gets \pro{Commit}(\params, f_0(x))$ and $(c_1; *) \gets \pro{Commit}(\params, f_1(x))$. Since $y_0 \neq y_1 \Rightarrow f_0(x) \neq f_1(x)$, the probability $\Pr[c_0 = c_1]$ is negligible due to the binding property. Specifically, the final step here consists of outputting $(c, f_0(x), f_1(x), f_0(x), f_1(x))$ and this would break the binding property.
+
+The probability $\Pr[c_0 \neq c \, \vee \, c_1 \neq c]$ is also negligible, because either clause breaks the extractability property. Specifically, the final step would consist of outputting either $(c,z,y_0, \deg(f_0(x), \state)$ where $\state = f_0(x)$ or $(c, z, y_1, \deg(f_1(x)), \state)$ where $\state = f_1(x)$; the second half of the extractability adversary is identical to that of the evaluation binding adversary, in which case the extractor proceeds to extract $f_0(x)$ or $f_1(x)$, respectively.
+
+The remaining option is that $\Pr[b \neq \bot]$ is non-negligible, but this would imply, contrary to our assumption, that the adversary $\adv_{\rm eval} = (\adv_{{\rm eval},0}, \adv_{{\rm eval},1})$ is not capable of breaking the evaluation binding property.
 \end{proof}
 
 
@@ -375,12 +414,147 @@ Boneh et al. \cite{journals/iacr/BonehBF18a} built on top of PoE to also develop
 \end{itemize}
 
 \begin{fact}
-	The polynomial encoding scheme is uniquely decodable.
+	Under certain conditions\todo{todo: elaborate me}, polynomial encoding scheme is uniquely decodable.
 \end{fact}
 
 Note that the encoding has limited homomorphic properties. $\enc(g(x))+\enc(h(x))=\enc(g(x)+h(x))$ if $g(x)+h(x)\in P_q$, i,.e. all its coefficients are less than $q/2$ in absolute value.\ This is ensured if for example the coefficients of $g$ and $h$ are less than $q/4$. Additionally $\enc(g(x))\cdot \enc(h(x))=\enc(g(x)\cdot h(x))$ if $g(x)\cdot h(x)\in P_q$.
+
 \subsection{Polynomial Commitment}
- For now we assume that the degree $d$ is always a power of two. We describe the commitment scheme for integer polynomials with coefficients bounded in absolute value by $p$. The scheme naturally extends for polynomials in $\FF_p$.
+
+We now present our main result: a polynomial commitment scheme with an efficient evaluation protocol based on groups of unknown order. We use lower-case \textsf{sans-serif} font to denote group elements. To save space, we denote the prover by $\prover$ and the verifier by $\verifier$. The scheme is parameterized by three values that are independent of the setup: the prime $p$ that defines the field over which the polynomial is defined; the degree $d_{\it max}$ that provides an upper bound on the degree of the polynomials for which the scheme works; and the integer $q$ which is ``large enough'' power of two, where what ``large enough'' means depends on the context.
+
+The commitment and opening protocols are straightforward. They simply raise the designated group element $\gr{g}$ to the integer encoding of the polynomial as described in the previous section. The evaluation protocol uses the limited homomorphic properties of this encoding scheme to reduce the statement to smaller versions of itself.
+
+In every iteration of the evaluation protocol, the working polynomial $f(x)$ is split in half, the left part $f_L(x)$ and the right part $f_R(x)$ such that $f(x) = f_L(x) + f_R(x) \cdot x^{d'}$ where $d' = \left\lceil \frac{d+1}{2}\right\rceil - 1$ and $d = \mathrm{deg}(f(x))$. The evaluation $y = f(z) \mod p$ is also split into two halves, $y_L = f_L(z) \mod p$ and $y_R = f_R(z) \mod p$ such that $y = y_L + y_R \cdot z^{d'}$, and so is the commitment with $\gr{c}_L = \gr{g}^{f_L(q)}$, $\gr{c}_R = \gr{g}^{f_R(q)}$. The verifier infers $y_L$ from $y$ and $y_R$, and infers $\gr{c}_L$ from $\gr{c}$ and $\gr{c}_R^{q^{d'}}$ --- but to save verification work, the prover sends both $\gr{c}_R$ and $\gr{c}_R^{q^{d'}}$ and the two engage in a $\pro{PoE}$ to establish that the one commitment really is the correct power of the other. At this point, the verifier samples a randomizer $\alpha \sample \mathbb{F}_p$ and the protocol recurses to prove a folded version of the statement, namely that $\gr{c}' = \gr{c}_L^\alpha \times \gr{c}_R$ is a commitment to $f'(x)$ that evaluates to $y' = \alpha y_L + y_R$ in $z$ modulo $p$. In the last recursion step, the degree of the polynomial is zero, \emph{i.e.}, $f(x)$ is a constant; in this case the prover simply sends this constant $f(x) = f_0$ and the verifier checks that $f_0 = y \mod p$ along with $\gr{g}^{f_0} = \gr{c}$ and $0 \leq f_0 < q$. If all checks succeed, the verifier accepts.
+
+This intuitive description omits special care afforded to the case where the degree of the polynomial is not one less than a power of two. To take care of this, the left polynomial is guaranteed to have odd degree (unless in the last step when it is zero), and the right half polynomial $f_R(x)$ is shifted to the right by one digit whenever its degree is even. The evaluation $y_R$ and commitment $\gr{c}_R$ are adapted accordingly.
+
+\begin{figure}
+\renewcommand{\figurename}{Scheme}
+\caption{polynomial commitment scheme} \label{scheme:polynomial_commitment}
+\noindent\begin{mdframed}[userdefinedwidth=\textwidth]
+\begin{minipage}{\textwidth}
+	\begin{flushleft}
+	$\pro{Setup}(1^\secpar):$
+		\begin{enumerate}[nolistsep]
+			\item $ \GG \gets \ggen(\secpar)$
+			\item $ \gr{g} \sample \GG$
+			%\item $q \gets 2^k$ such that $q > (d+1) \cdot 2\cdot p^{\log_2(d+1)+1} $
+			\item $\pcreturn \params = (\secpar,\GG,\gr{g})$
+		\end{enumerate}
+	$\pro{Commit}(\crs;f(x)):$ \pccomment{$f(x) \in \mathbb{Z}[x]$ with coefficients in $[0;p-1]$}
+		\begin{enumerate}[nolistsep]
+			\item $\gr{c} \gets g^{f(q)}$
+			\item $\pcreturn (\gr{c};f(x))$
+		\end{enumerate}
+	$\pro{Open}(\crs,\gr{c},\bar{f}(x);f(x)):$ \pccomment{$f(x) \in \mathbb{Z}[x]$ but $\bar{f}(x) \in \mathbb{F}_p[x]$}
+		\begin{enumerate}[nolistsep]
+		    \item \prover sends $f(x)$ to \verifier.
+			\item \verifier checks that $\gr{g}^{f(q)} = \gr{c}$
+			\item \verifier checks that for all $i \in \{0, \ldots, d\}$, $0 \leq f_i < p^{d_{\it max}}$
+			\item \verifier checks that $f(x) \equiv \bar{f}(x) \mod p$
+			\item \pcif all checks pass \textbf{then} \pcreturn $\top$ \textbf{else} \pcreturn $\bot$
+		\end{enumerate}
+	$\pro{Eval}(\params, \gr{c}, z, y, d; f(x)) :$ \pccomment{$f(x) = \sum_{i=0}^d f_i x^i \in \mathbb{Z}[x]$}
+	    \begin{enumerate}[nolistsep]
+        \item \pcif $d=0$:
+        \item \pcind[1] $\pcreturn \pro{Open}(\params, \gr{c}, y; f(x))$ \pccomment{$f(x) = f_0 \in \mathbb{Z}$}
+        \item \pcelse: \pccomment{$d \geq 1$}
+        \item \pcind[1] \prover and \verifier compute $d' \gets \lceil\frac{d+1}{2}\rceil - 1$
+        \item \pcind[1] \prover computes $f_L(x) \gets \sum\limits_{i=0}^{d'} f_i x^i$ and $f_R(x)\gets\sum\limits_{i=0}^{d-d'-1} f_{d'+1+i} x^{i}$
+        \item \pcind[1] \prover computes $y_L\gets f_L(z) \bmod p$ and $y_R\gets f_R(z)\bmod p$
+        \item \pcind[1] \prover computes $\gr{c}_L \gets \gr{g}^{f_L(q)}$ and $\gr{c}_R \gets \gr{g}^{f_R(q)}$ and $\gr{c}_R^\star \gets \gr{c}_R^{q^{d'+1}}$
+        \item \pcind[1] \prover sends $y_R, \gr{c}_R, \gr{c}_R^\star$ to \verifier
+        \item \pcind[1] \verifier computes $y_L \gets y - y_R \cdot z^{d'+1}$ and $\gr{c}_L \gets \gr{c} \times \gr{c}_R^{\star \, -1}$
+        \item \pcind[1] \prover and \verifier run $\pro{PoE}(\gr{c}_R, \gr{c}_R^\star, q^{d'+1})$
+        \item \pcind[1] \verifier samples $\alpha \sample \FF_p$ and sends it to \prover
+        \item \pcind[1] \pcif $d$ is odd $:$ \pccomment{degree of $f_R$ is odd}
+        \item \pcind[1] \pcind[1] \prover and \verifier compute $y'\gets\alpha y_L +y_R \bmod p$ and $\gr{c}' \gets \gr{c}_L^\alpha \times \gr{c}_R$. 
+        \item \pcind[1] \pcind[1] \prover computes $f'(x) \gets \alpha \cdot f_L(x) + f_R(x) \in \ZZ[x]$ 
+        \item \pcind[1] \pcind[1] \prover and \verifier run $\pro{Eval}(\params, \gr{c}', z, y', d'; f'(x))$
+        \item \pcind[1] \pcelse $:$ \pccomment{degree of $f_R$ is even}
+        \item \pcind[1] \pcind[1] \prover and \verifier compute $y'\gets\alpha y_L + y_R \cdot z \bmod p$, $\gr{c}' \gets \gr{c}_L^\alpha \times \gr{c}_R^q$. 
+        \item \pcind[1] \pcind[1] \prover computes $f'(x) \gets \alpha \cdot f_L(x) + f_R(x) \cdot x \in \ZZ[x]$ 
+        \item \pcind[1] \pcind[1] \prover and \verifier run $\pro{Eval}(\params, \gr{c}', z, y', d'; f'(x))$
+        \end{enumerate}
+	\end{flushleft}
+\end{minipage}
+\end{mdframed}
+\end{figure}
+
+\alaninline{Todo: correctness.}
+
+\begin{lemma}
+	The polynomial commitment scheme (\ref{scheme:polynomial_commitment}) is binding if the adaptive root assumption holds.
+\end{lemma}
+\begin{proof}
+    Assume that there is an adversary that breaks the binding property of the scheme. Specifically, assume that some probabilistic polynomial time algorithm $\adv$ takes $(\params)$ and outputs $\gr{c}, f(x), f'(x), \hat{f}(x), \hat{f'}(x)$ such that with high probability $\pro{Open}(\params, \gr{c}, f(x); \hat{f}(x)) = \pro{Open}(\params, \gr{c}, f'(x), \hat{f'}(x)) = \top$ and $f(x) \neq f'(x)$. We proceed to show that this implies a violation of the adaptive root assumption~\ref{assum:adaptiveroot}.
+    
+	Let $\hat{h}(x)=\hat{f}(x)-\hat{f'}(x) \in \ZZ[X]$; this is a polynomial of degree at most $\max(f(x), f'(x))$. Since $\gr{g}^{\hat{f}(q)}=\gr{g}^{\hat{f'}(q)}=\gr{c}$ we have that $\gr{g}^{\hat{h}(q)}=1$. Note that the coefficients of $\hat{f}(x)$ and $\hat{f'}(x)$ are all less than $q/2$ in absolute value. By triangle inequality we have that the coefficients of $\hat{h}(x)$ are less than $q$. We have $\hat{f}(x) \neq \hat{f'}(x)$ because this inequality still holds modulo $p$, otherwise the adversary fails to open the commitment to two \emph{different} values. So $\hat{h}$ is not the zero polynomial. This implies that $\hat{h}(q) \neq 0$ and is a multiple of the order of $\gr{g} \in \GG$. Construct an adversary that breaks the adaptive root assumption (Assumption \ref{assum:adaptiveroot}) by outputting $\gr{g}$ in the first round, and by using $\hat{h}(q)$ to compute the inverse of $\ell$ modulo $\hat{h}(q)$.
+\end{proof}
+
+\begin{theorem}
+	The polynomial commitment scheme (\ref{scheme:polynomial_commitment}) has extractability if the Fractional Root Assumption holds.
+\end{theorem}\alan{Is it true that we don't need the order assumption?}
+\begin{proof}
+Suppose there is an adversary $\adv$ that breaks extractability with non-negligible probability $\gamma$. Assuming $\adv$ convinces the verifier with non-negligible probability, we proceed to build an algorithm violating the Fractional Root Assumption.
+
+The proof works by induction on the sequence $d \mapsto d' = \left\lceil \frac{d+1}{2} \right\rceil - 1 \mapsto d'' = \left\lceil \frac{d'+1}{2} \right\rceil - 1 \mapsto \cdots \mapsto 0$ in reverse order. Specifically, at every step we unravel the innermost nesting of the recursion. We show that the following invariants hold at every iteration.
+\begin{itemize}
+    \itemsep0pt
+    \item The coefficients of $f(x), f_L(x), f_R(x) \in \mathbb{Z}[x]$ lie in the interval $[-2^ip^{d_{\it max}}, 2^ip^{d_{\it max}}]$ in the $i$th induction step (starting at $i=0$).
+    \item The polynomials $f_L(x)$ and $f_R(x)$ satisfy $f(x) = f_L(x) + f_R(x) \cdot x^{d'+1}$ and $\deg(f_L(x)) \leq d'$ and $\deg(f_R(x)) \leq d - d' - 1$.
+    \item The commitment $\gr{c}$ satisfies $\gr{c} = \gr{g}^{f(q)}$.
+    \item The commitments $\gr{c}, \gr{c}_L$, $\gr{c}_R$ and $\gr{c}_R^\star$ satisfy $\gr{c} = \gr{c}_L \times \gr{c}_R^\star$ and $\gr{c}_R^{q^{d'+1}} = \gr{c}_R^\star$ where $d' = \left\lceil \frac{d+1}{2} \right\rceil - 1$.
+    \item The evaluation $y$ satisfies $f(z) = y \mod p$.
+    \item The evaluations $y, y_R$ and $y_L$ satisfy $y = y_L + y_R \cdot z^{d'+1}$.
+\end{itemize}
+
+After the last step of the induction argument, the extractor is in possession of a degree-$d$ polynomial $f(x) \in \mathbb{Z}[x]$ such that $\gr{c} = \gr{g}^{f(q)}$ and $f(z) = y \mod p$. This situation contradicts the assumption that $\adv$ breaks extractability, so the extractor constructed here must fail at one of the identified points of possible failure --- any one of which leads to a violated assumption.
+
+\underline{$d = 0$.} The extractor receives $\gr{c}$, $y = f(z) \mod p$ and $f_0 = f(x) \in \mathbb{Z}$. The checks performed in the $\pro{Open}$ protocol guarantee that the invariants are satisfied.
+
+\underline{Induction step.} We denote by primes (\emph{e.g.}, $f'(x)$) the values of the previous iteration; variables without primes are those of the present one. The task is to show that if the invariants for $(f'(x), f_L'(x), f_R'(x), y', y_L', y_R', \gr{c}', \gr{c}_L', \gr{c}_R', {\gr{c}_R^{\star}}')$ are satisfied, then so are they satisfied for $(f(x), f_L(x), f_R(x), y, y_L, y_R, \gr{c}, \gr{c}_L, \gr{c}_R, \gr{c}_R^{\star})$. The extractor runs steps 11-19 with a different $\alpha''$, thereby obtaining the tuple $(f''(x), f_L''(x), f_R''(x), y'', y_L'', y_R'', \gr{c}'', \gr{c}_L'', \gr{c}_R'', {\gr{c}_R^{\star}}'')$. Let $b \in \{0,1\}$ indicate whether $d$ is odd, by assuming the value 1 when this is so.
+
+Due to the way $\gr{c}', \gr{c}'', y', y''$ are constructed, we know that $\gr{c}'\gr{c}''^{-1} = \gr{c}_L^{\alpha' - \alpha''}$ as well as $y'-y'' = (\alpha' - \alpha'')y_L$, regardless of the value of $b$. The extractor uses $f'(x)-f''(x) = (\alpha' - \alpha'')f_L(x)$ to obtain $f_L(x)$. We distinguish three cases.
+\begin{itemize}
+    \itemsep0pt
+    \item[1.] $(\alpha' - \alpha'')$ divides $f'(x) - f''(x)$. Then $f_L(x) = (f'(x) - f''(x)) / (\alpha' - \alpha'')$ is well defined and has coefficients bounded in absolute value by $p^{d_{\it max}}$. From here, the extractor computes $f_R(x) \leftarrow f'(x) - \alpha' \cdot f_L(x)$ coefficients bounded by $2p^{d_{\it max}}$ and $\gr{c}_R = \gr{g}^{f_R(q)}$ because $\gr{c}' = \gr{g}^{f'(q)} = \gr{g}^{\alpha' \cdot f_L(q) + f_R(q)} = \gr{c}_L^{\alpha'} \cdot \gr{c}_R$. This suffices establish that all the invariants are satisfied. \alan{Todo: don't forget to unshift $f_R(x)$ if $b=1$.}
+    \item[2.] $(\alpha' - \alpha'')$ does not divide $f'(x) - f''(x)$ but does divide $f'(q) - f''(q)$. The coefficients of $f'(x) - f''(x)$ are bounded. This implies that $f'(q) - f''(q)$ denotes an integer distinct from zero.
+    \item[] Let $f_{L,q} = (f'(q) - f''(q))/(\alpha' - \alpha'')$ and let $\{\tilde{f}_i\}_{i=0}^{d'}$ be its base-$q$ expansion, \emph{i.e.}, $f_{L,q} = \sum_{i=0}^{d'} \tilde{f}_i q^i$ with all $\tilde{f}_i \in \{0,\ldots,q-1\}$. Also, note that $\gr{g}^{f_{L,q}} = \gr{c}_L$. The extractor obtains a polynomial with coefficients bounded by $p^{d_{\it max}}$ by starting from $f_L(x) = \sum_{i=0}^{d'} \tilde{f}_i x^i$ and iterating over all powers $j$ from 0 to $d'-1$, and subtracting that unique multiple of $x^{j}(x-q)$ that sends the coefficient of $x^j$ to the interval $[-p^{d_{\it max}};p^{d_{\it max}}]$. There are two possible causes for failure.
+    \begin{itemize}
+        \item[2.1.] No polynomial $f_L(x) \in \mathbb{Z}[x]$ with bounded coefficients and satisfying $f_L(q) = f_{L,q}$ exists. Then at least one coefficient lies outside the interval $[-p^{d_{\it max}};p^{d_{\it max}}]$. As a result, with overwhelming probability, at least one coefficient of $\alpha \cdot f_L(x) + f_R(x)$ lies outside the magical interval for random $\alpha$. With overwhelming probability, the non-membership percolates to the terminal case where the coefficient $f_0$ is tested and this non-membership is observed, causing the verifier to reject the opening. As a result, if $f_L(x)$ does not exist, then the prover cannot have more than a negligible chance of success, in contradiction to the requirement for breaking the evaluation binding property.
+        \item[2.2.] The polynomial $f_L(x)$ does exist and it does have bounded coefficients, but $f(z) \neq y_L \mod p$. Then with overwhelming probability $\alpha \cdot f_L(z) + f_R(z) \neq \alpha \cdot y_L + y_R$. With overwhelming probability this inequality percolates to the terminal case where $f_0 \neq y \mod p$ and the prover fails to convince the verifier. As a result, if $f_L(z) \neq y \mod p$ then the prover cannot have more than a negligible chance of success, in contradiction to the requirement for breaking the evaluation binding property.
+    \end{itemize}
+    \item[] We may therefore assume that $f_L(x) \in \mathbb{Z}[x]$ with bounded coefficients exists, and satisfies both $f_L(q) = f_{L,q}$ and $f_L(z) = y \mod p$. The extractor then computes $f_R(x) \leftarrow f'(x) - \alpha' \cdot f_L(x)$ which also has bounded coefficients. It follows that the induction invariants are satisfied.
+    \item[3.] $(\alpha' - \alpha'')$ divides neither $f'(x) - f''(x)$ nor $f'(q) - f''(q)$. Then $\gr{c}_L$ is a $(\alpha' - \alpha'')$th root of $\gr{g}^{f'(q) - f''(q)} = \gr{c}'{\gr{c}''}^{-1}$ and outputting $(f'(q) - f''(q), \alpha'-\alpha'', \gr{c}_L)$ breaks the fractional root assumption. \alan{Todo: don't forget to unshift $f_R(x)$ if $b=1$.}
+\end{itemize}
+This completes the inductive argument, which in turn completes the proof.
+\end{proof}
+
+\begin{proof}
+(SKETCH)
+We prove the statement by showing that we can recursively either extract the encoding of an integer polynomial $f(x) \in \ZZ[X]$ of degree $d$ with bounded coefficients or a break of the pseudo root assumption for element $g$ or a non trivial element of known (random) order in $\GG$. We recurse over degree $\hat{d}$ up to the final degree $d$.
+In each round the extracted witness is an integer $\hat{y}$ such that $\hat{y}=\enc(f(x))$ where the coefficients of $f(x)$ are less than $B$ in absolute value and the degree is at most $\hat{d}$ and such that $g^{\hat{y}}=C$. Also $f(z) \equiv y \mod p$.
+If $\hat{d}=0$ then we can directly extract $f(x)=\hat{y}$ such that $\vert \hat{y} \vert < p^{\log_2(d+1)+1}$, $y=\hat{y}\mod p$, $f(x)=y\in \FF_p[X]$ and $g^{\hat{y}}=C$ as the witness. We proceed with $d=1$.
+For $d>0$ we have $g^{\hat{y}}=C=C_0^{\alpha}C_1$. Rewinding once we get 
+ $C=C_0^{\alpha}C_1=g^{\hat{y}}$ and $C'=C_0^{\alpha'}C_1=g^{\hat{y}'}$ for distinct $\alpha$ and $\alpha'$. 
+ This gives us $C_0^{\alpha-\alpha'}=g^{\hat{y}-\hat{y}'}$. 
+ Either $\alpha-\alpha' \not|~ \hat{y}-\hat{y}' $ which would directly break the pseudo root assumption or we can compute $D=g^{\frac{\hat{y}-\hat{y}'}{\alpha-\alpha'}}$. Either $D=C_0$ or $(D/C_0)^{\alpha-\alpha'}=1$, i.e. $D/C_0$ is an element of known order. In either of the cases the extraction succeeds and is completed. (Invoke order assumption).
+ 
+ If $D=C_0$ then we have $\hat{y}_0=\frac{\hat{y}-\hat{y}'}{\alpha-\alpha'}$ and
+ $g^{\hat{y}_0}=C_0$. In that case $C_1=g^{\hat{y}_1}=g^{\hat{y}-\alpha\hat{y}_0}$. The extractor has now successfully obtained $\hat{y}_0$ and $\hat{y}_1$
+ 
+ If $|y|=|y'|<B$ then $|y_0|<  2 \cdot B$ and $|y_1|<|\hat{y}-\hat{y}+\alpha\hat{y}'|=|\alpha \hat{y}'|<\lambda \cdot B$. 
+ We define $f(x)=\dec(y_0+x^{d} \cdot y_1)$ and with coefficients less than $2B$ in absolute value. 
+ Note that $y_0=\hat{y}_0 \mod p=\dec(y_0)(z)$ and $y_1=\hat{y}_1 \mod p=\dec(y_1)(z)$. Since $y=\dec(\hat{y})(z)=\alpha \cdot \dec(\hat{y}_0)(z)+\dec(\hat{y}_1)(z)$ and $f(x)=\dec(y_0+x^{\hat{d}} \cdot y_1)$ we have that $y=y_0 +z^{\hat{d}/2}y_1 \mod p=f(z) \mod p$.
+ Additionally $C=C_0^{\alpha}C_1=\commit(f(x))$ or we get a break of the adaptive root assumption.\benedikt{So this is technically a bit difficult because it's not actually a witeness}.
+ 
+ The extractor recuses with the encoding of $f(x)$ and degree $\hat{d}'=\hat{d}\cdot 2$.
+ 
+ Repeating this $\log_2(d+1)$ times we get a polynomial $f(x)$ of degree $d$ that has coefficients that are bounded by $(d+1) \cdot p^{\log_2(d+1)+1} <q/2$. 
+
+\end{proof}
 
 \begin{mdframed}[userdefinedwidth=0.8\textwidth]
 \begin{minipage}{\textwidth}
@@ -476,8 +650,12 @@ Claim: $C=g^{f(q)},\deg(f)\leq d$ and $y=f(z) \mod p$
 	\item Precompute $g^{q^i}$ to use parallelism etc.
 	\item SNARK without falsifiable assumptions
 	\item First polynomial commitment scheme with constant size parameters
-	\item Instead of sending $C_0$ and $C_1$ the prover can simply send $C_0$ and compute $C_1=C/(C_0^{q^{\frac{d}{2}}})$. Using a non-interactive PoE this means that $C_1=C/(Q^{\ell}g^r)$
+	\item join PoEs
+	\item ZK
+	\item early termination
 \end{enumerate}
+
+\subsection{Zero-Knowledge}
 
 \subsection{Multivariate Commitment}
   We extend the Polynomial Commitment scheme to handle multivariate polynomials. The idea is to simply use higher degrees of $q$ to encode the polynomial. The protocol is linear in the number of variables and logarithmic in the total degree of the polynomial. For simplicity we only present a protocol for $n$-variate polynomials where the degree in each variable is $d$ and $d$ is a power of $2$. The protocol naturally extends to different degrees per variable.
@@ -530,6 +708,10 @@ $f_1(x_1,\dots,x_n)\gets \sum_{\vec{i} \in [0,d_{\max}]^{n-1}} \prod_{j=1}^{n-1}
 
 \subsection{Range Proofs}
 
+\subsection{Vector Commitments}
+
+\subsection{Inner Product Argument}
+
 \section{Security}
 
 \begin{lemma}
@@ -577,8 +759,6 @@ For $d>0$ we have $g^{\hat{y}}=C=C_0^{\alpha}C_1$. Rewinding once we get
 	If $q<bla$ there exists an efficient adversary that can break the evaluation binding property of the polynomial commitment.
 \end{corollary}
 \benedikt{Figure out at what q we can attack the scheme. Probably needs to use negative coefficients and such.}
-
-  \bibliography{references,cryptobib/abbrev0,cryptobib/crypto}
 
 \section{Zero knowledge polynomial commitment} 
 This section sketches how to make the polynomial commitment scheme zero knowledge. 
@@ -658,49 +838,6 @@ Correctness, soundness, etc. (todo) Special attention for coefficient size.
 
 Note that the Verifier must process all of $z_{\bar{\mathbf{s}}}$ in order to verify the exponentiation, which in particular is linear in $d$. However, it is possible to reduce this complexity and simultaneously hide the value of $z_{\bar{\mathbf{s}}}$. To do this, the prover must have committed to $z_{\bar{\mathbf{s}}}$ by sending $g^{z_{\bar{\mathbf{s}}}}$ (possibly with respect to a different base). At this point, a batched proof of knowledge of exponent establishes that the discrete logarithms of $C^{z_{\bar{\mathbf{s}}}}$ base $C$ and of $g^{z_{\bar{\mathbf{s}}}}$ base $g$ are equal.
 
-\subsection{Protocols for Proving Permutations}
-
-
-\subsubsection{Flip}
-
-The following protocol establishes that two commitments, $c_a$ and $c_b$ represent polynomials $f_a, f_b \in \mathbb{F}_p$ (or vectors, for that matter) whose coefficients are flipped. Specifically, that $f_a = \sum_{i=0}^{d}f_i x^i$ for some coefficients $f_i$, and $f_b = \sum_{i=0}^df_ix^{d-i}$ for the same coefficients $f_i$.
-Protocol:
-\begin{itemize}
-    \item Common knowledge: $c_a, c_b \in \mathbb{G}$.
-    \item Verifier chooses $z \xleftarrow{\$} \mathbb{F}_p \backslash \{0\}$ and sends it to Prover.
-    \item Prover and Verifier engage in proofs of correct evaluation producing $f_a(z)$ and $f_b(z^{-1})$, matching $c_a$ and $c_b$, respectively.
-    \item Verifier checks that $f_a(z) \stackrel{?}{=} z^d f_b(z^{-1})$.
-\end{itemize}
-
-To see why it works, observe that $f_a(x) = x^df_b(x^{-1})$ and we can test this equation probabilistically by choosing a random $z \in \mathbb{F}_p \backslash \{0\}$ to evaluate $f_a$ and $f_b$ in. If $f_a$ is indeed the flipping of $f_b$ then the polynomial $F = f_a(x) - x^df_b(x^{-1})$ is identically zero; but otherwise it has at most $d$ zeros, and so the inequality will be exposed with overwhelming probability $(p-1-d)/(p-1)$.
-
-\subsubsection{Rotation}
-
-A similar observation gives rise to a proof of correct rotation. If $f(x) = \sum_{i=0}^d f_i x^i \in \mathbb{F}_p$ and $p(x) = \sum_{i=0}^d f_{i+r \, \mathsf{mod} \, d+1} x^i \in \mathbb{F}_p$ are polynomials consisting of the same coefficients but rotated by $r$ positions, then $p(x) = x^r f(x) \, \mathsf{mod} \, x^r - 1$ in all points. More explicitly, $p(x) = x^r f(x) + k(x) (x^r - 1)$ for some $k(x) \in \mathbb{F}_p$. The verifier can test this relation probabilistically.
-
-\begin{itemize}
-    \item Common knowledge: $c_f, c_p \in \mathbb{G}$ --- commitments to $f(x)$ and $p(x)$, respectively. Secret knowledge for the prover $f(x), p(x)$.
-    \item Prover computes $k(x) = (p(x) - x^r f(x)) / x^r - 1$ and sends the commitment $c_k = g^{\hat{k}(q)}$ to it to Verifier.
-    \item Verifier chooses a random point $z \xleftarrow{\$} \mathbb{F}_p$ and sends it to Prover.
-    \item Prover and Verifier engage in proofs of correct evaluation for $f(z)$, $p(z)$, and $k(z)$.
-    \item Verifier checks that $z^r f(z) + k(z) (z^r-1) = p(z)$.
-\end{itemize}
-
-\subsubsection{Generic Permutation}
-
-The following protocol establishes that two polynomial commitments have the same coefficients but permuted according to a known permutation $\sigma : \{0,\ldots,d\} \rightarrow \{0,\ldots,d\}$. Specifically, $c_f$ is a commitment to $f(x) = \sum_{i=0}^d f_i x^i$ and $c_p$ is a commitment to $p(x) = \sum_{i=0}^d f_{\sigma(i)} x^i$. The proof makes use of the relation $p(x) = x^{\sigma(0)} f(x^{d+1}) - d(x)$ where $d(x) = \sum_{i=1}^d f_i (x^{i(d+1) + \sigma(0)} - x^{\sigma(i)})$. As $d(x)$ relies on the coefficients of $f(x)$, it is important to establish that $d(x)$ is correctly formed.
-
-\begin{itemize}
-    \item Common knowledge: $c_f, c_p, \sigma$ -- commitment to $f(x)$, commitment to $p(x)$, and permutation of coefficients.
-    \item Secret knowledge for Prover: $f(x), p(x) \in \mathbb{F}_p$.
-    \item Prover computes $n = \hat{f}(q^{d^2})$ and sends $c_n = g^n$ to Verifier.
-    \item Prover and Verifier run an inner product protocol between $c_n$ and $(q^{di})_{i=0}^d$, and again between the result and $(q^i)_{i=0}^d$. This establishes that $n$ has the same coefficients as $c_f$ but spaced differently.
-    \item Prover and Verifier run an inner product protocol between $c_n$ and $(q^{(i(d+1) + \sigma(0)} - q^{\sigma(i)})_{i=0}^d$ to compute $c_d$, the commitment to $d(x)$ that is well-formed wrt. $f(x)$.
-    \item Verifier chooses a random point $z \xleftarrow{\$} \mathbb{F}_p$.
-    \item Prover and Verifier engage in proofs of correct evaluation for $f(z), p(z), d(z)$.
-    \item Verifier checks that $p(z) = z^{\sigma(0)} f(z^{d+1}) - d(z)$.
-\end{itemize}
-
 \section{Illustration: QAP-based SNARK}
 
 The next protocol describes an efficiently verifiable proof system for rank-one constraint satisfaction problems. Specifically, we start from a list of $m$ constraints of the form
@@ -734,26 +871,8 @@ The proof establishes that the prover knows a vector $\mathbf{s}$ and a polynomi
 
 Note: we need to pay special attention to the size of the coefficients of $\mathbf{s}$ and of $t(x)$ are not too big. It is possible that the random selection of $z$ makes the prover who cheats by choosing larger coefficients overwhelmingly unlikely to succeed. Alternatively, we can devise a proof of small coefficients or something like that.
 
-\begin{small}
-\noindent\begin{minipage}{\textwidth}
-\begin{mdframed}[userdefinedwidth=1\textwidth]  \label{prot:QAP}
-\newcommand{\qap}{$\mathsf{QAP}$}
-	\noindent \underline{\textsf{Protocol \qap} (R1CS)}\\
-\noindent Params: $\secpar,p,\GG, \mathsf{g}, d_{\max},q, m, n, ((\mathbf{a}_j, \mathbf{b}_j, \mathbf{c}_j))_{j=0}^{m-1}$; \\
-Common Inputs: $\mathsf{c}_u, \mathsf{c}_v, \mathsf{c}_w \in \mathbb{G}$ which are commitments to $\mathbf{u}(x), \mathbf{v}(x), \mathbf{w}(x), \mathbf{d}(x)$; \\
-Witness: $\mathbf{s} \in \mathbb{F}_p^n$; \\ 
-Claim: Prover knows a witness $\mathbf{s} \in \mathbb{F}_p^n$ such that $s_0 = 1$ and $\forall j \in \{0,\ldots,m-1\} \, . \, \mathbf{a}_j^\mathsf{T} \mathbf{s} \times \mathbf{b}_j^\mathsf{T} \mathbf{s} = \mathbf{c}_j^\mathsf{T} \mathbf{s}$.
-
-\begin{enumerate}[nolistsep]
-\item Prover and Verifier run protocol \\ $\mathsf{BatchInnerProduct}((\mathsf{c}_u, \mathsf{c}_v, \mathsf{c}_w, \mathsf{g}); (\mathbf{u}(x), \mathbf{v}(x), \mathbf{w}(x), \mathbf{d}(x)), \mathbf{s})$:
-\item \pcind[1] Prover computes $z_s \gets \sum_{j=0}^{n-1} q_y^j s_{n-1-j}$
-\item \pcind[1] Prover computes $\mathsf{c}_{us} \gets \mathsf{c}_u^{z_s}$,  $\mathsf{c}_{vs} \gets \mathsf{c}_v^{z_s}$,  $\mathsf{c}_{ws} \gets \mathsf{c}_w^{z_s}$,  $\mathsf{c}_{s} \gets \mathsf{g}^{z_s}$ and sends $(\mathsf{c}_{us}, \mathsf{c}_{vs}, \mathsf{c}_{ws}, \mathsf{c}_{s})$ to Verifier.
-\item[] \pcind[1] \pccomment{Note that $\mathsf{c}_{us} = \left(\mathsf{g}^{\sum_{i=0}^{n-1} q_y^i u_i(q_x)}\right)^{\sum_{j=0}^{n-1}q_y^j s_{n-1-j}} = \mathsf{g}^{\sum_{i=0}^{2d-1} q_y^i \left(\sum_{j=0}^{i+1} u_{n-j+1} s_j \right)}$.}
-\item (work in progress....)
-\end{enumerate}
-\end{mdframed}
-\end{minipage}
-\end{small}
+\section{Transparent Preprocessing SNARKs via Linear IOPs} 
+\input{lineariop}
 
 \section{Applications to Other Proof Systems}
 
@@ -766,5 +885,56 @@ Claim: Prover knows a witness $\mathbf{s} \in \mathbb{F}_p^n$ such that $s_0 = 1
 \subsection{DARK-STARK}
 
 \subsection{Comparison}
+
+%\bibliography{cryptobib/references}
+\bibliographystyle{alpha}
+  \bibliography{cryptobib/crypto}
+
+\appendix
+
+
+\section{Protocols for Proving Permutations}
+
+
+\subsection{Flip}
+
+The following protocol establishes that two commitments, $c_a$ and $c_b$ represent polynomials $f_a, f_b \in \mathbb{F}_p$ (or vectors, for that matter) whose coefficients are flipped. Specifically, that $f_a = \sum_{i=0}^{d}f_i x^i$ for some coefficients $f_i$, and $f_b = \sum_{i=0}^df_ix^{d-i}$ for the same coefficients $f_i$.
+Protocol:
+\begin{itemize}
+    \item Common knowledge: $c_a, c_b \in \mathbb{G}$.
+    \item Verifier chooses $z \xleftarrow{\$} \mathbb{F}_p \backslash \{0\}$ and sends it to Prover.
+    \item Prover and Verifier engage in proofs of correct evaluation producing $f_a(z)$ and $f_b(z^{-1})$, matching $c_a$ and $c_b$, respectively.
+    \item Verifier checks that $f_a(z) \stackrel{?}{=} z^d f_b(z^{-1})$.
+\end{itemize}
+
+To see why it works, observe that $f_a(x) = x^df_b(x^{-1})$ and we can test this equation probabilistically by choosing a random $z \in \mathbb{F}_p \backslash \{0\}$ to evaluate $f_a$ and $f_b$ in. If $f_a$ is indeed the flipping of $f_b$ then the polynomial $F = f_a(x) - x^df_b(x^{-1})$ is identically zero; but otherwise it has at most $d$ zeros, and so the inequality will be exposed with overwhelming probability $(p-1-d)/(p-1)$.
+
+\subsection{Rotation}
+
+A similar observation gives rise to a proof of correct rotation. If $f(x) = \sum_{i=0}^d f_i x^i \in \mathbb{F}_p$ and $p(x) = \sum_{i=0}^d f_{i+r \, \mathsf{mod} \, d+1} x^i \in \mathbb{F}_p$ are polynomials consisting of the same coefficients but rotated by $r$ positions, then $p(x) = x^r f(x) \, \mathsf{mod} \, x^r - 1$ in all points. More explicitly, $p(x) = x^r f(x) + k(x) (x^r - 1)$ for some $k(x) \in \mathbb{F}_p$. The verifier can test this relation probabilistically.
+
+\begin{itemize}
+    \item Common knowledge: $c_f, c_p \in \mathbb{G}$ --- commitments to $f(x)$ and $p(x)$, respectively. Secret knowledge for the prover $f(x), p(x)$.
+    \item Prover computes $k(x) = (p(x) - x^r f(x)) / x^r - 1$ and sends the commitment $c_k = g^{\hat{k}(q)}$ to it to Verifier.
+    \item Verifier chooses a random point $z \xleftarrow{\$} \mathbb{F}_p$ and sends it to Prover.
+    \item Prover and Verifier engage in proofs of correct evaluation for $f(z)$, $p(z)$, and $k(z)$.
+    \item Verifier checks that $z^r f(z) + k(z) (z^r-1) = p(z)$.
+\end{itemize}
+
+\subsection{Generic Permutation}
+
+The following protocol establishes that two polynomial commitments have the same coefficients but permuted according to a known permutation $\sigma : \{0,\ldots,d\} \rightarrow \{0,\ldots,d\}$. Specifically, $c_f$ is a commitment to $f(x) = \sum_{i=0}^d f_i x^i$ and $c_p$ is a commitment to $p(x) = \sum_{i=0}^d f_{\sigma(i)} x^i$. The proof makes use of the relation $p(x) = x^{\sigma(0)} f(x^{d+1}) - d(x)$ where $d(x) = \sum_{i=1}^d f_i (x^{i(d+1) + \sigma(0)} - x^{\sigma(i)})$. As $d(x)$ relies on the coefficients of $f(x)$, it is important to establish that $d(x)$ is correctly formed.
+
+\begin{itemize}
+    \item Common knowledge: $c_f, c_p, \sigma$ -- commitment to $f(x)$, commitment to $p(x)$, and permutation of coefficients.
+    \item Secret knowledge for Prover: $f(x), p(x) \in \mathbb{F}_p$.
+    \item Prover computes $n = \hat{f}(q^{d^2})$ and sends $c_n = g^n$ to Verifier.
+    \item Prover and Verifier run an inner product protocol between $c_n$ and $(q^{di})_{i=0}^d$, and again between the result and $(q^i)_{i=0}^d$. This establishes that $n$ has the same coefficients as $c_f$ but spaced differently.
+    \item Prover and Verifier run an inner product protocol between $c_n$ and $(q^{(i(d+1) + \sigma(0)} - q^{\sigma(i)})_{i=0}^d$ to compute $c_d$, the commitment to $d(x)$ that is well-formed wrt. $f(x)$.
+    \item Verifier chooses a random point $z \xleftarrow{\$} \mathbb{F}_p$.
+    \item Prover and Verifier engage in proofs of correct evaluation for $f(z), p(z), d(z)$.
+    \item Verifier checks that $p(z) = z^{\sigma(0)} f(z^{d+1}) - d(z)$.
+\end{itemize}
+
 
 \end{document}
