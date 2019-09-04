@@ -101,7 +101,9 @@ Spurred by the recent demand for cryptographic tools from the blockchain industr
 \begin{itemize}
 \item Let $f(x) \in \mathbb{F}_p[x]$ be a polynomial of degree at most $N-1$ where $N$ is a power of two. The coefficients of $f(x)$ are denoted by $f_i$ such that $f(x) \stackrel{\triangle}{=} \sum_{i=0}^{N-1} f_i x^i$.
 \item Throughout, $p$ is a prime of at least $\lambda$ bits, and $q \in \mathbb{N}$ be an integer with $q \gg p$.  $\primes$ denotes the set of primes less than $2^{\lambda \log(\lambda)}$. There are at least $2^\lambda$ primes in that set.
-\item We work in a group $\mathbb{G}$ of unknown order together with one or many designated base elements $\gr{g}, \gr{h} \in \mathbb{G}$ with unknown order. (It might be tempting refer to these elements as \emph{generators} but that terminology would imply that $\mathbb{G}$ is cyclic, which is not necessarily true. \ben{Every element is a generator of a cyclic subgroup; why make this comment at all?}\textcolor{blue}{Alan: true; moot point.}) We use multiplicative notation and use \textsf{sans-serif} font to indicate group elements, as opposed to integers, polynomials, or field elements.
+\item We work in a group $\mathbb{G}$ of unknown order together with one or many designated base elements $\gr{g}, \gr{h} \in \mathbb{G}$ with unknown order. 
+%(It might be tempting refer to these elements as \emph{generators} but that terminology would imply that $\mathbb{G}$ is cyclic, which is not necessarily true. \ben{Every element is a generator of a cyclic subgroup; why make this comment at all?}\textcolor{blue}{Alan: true; moot point.})
+We use multiplicative notation and use \textsf{sans-serif} font to indicate group elements, as opposed to integers, polynomials, or field elements.
 \item Some protocols in this paper are between two parties, the prover and the verifier. We write $\boldsymbol{\it Protocol}(x;w) \rightarrow (y;z)$ to describe such a protocol with common input $x$, private input for the prover $w$, public output $y$, and private output for the prover $z$. We write $(y;z) \gets \boldsymbol{\it Protocol}(x;w)$ to denote the protocol's execution. Any of $x,w,y,z$ can consist of tuples of objects. This notation facilitates protocol composition and modular analysis.
 \end{itemize}
 
@@ -139,7 +141,7 @@ More precisely, for all efficient $(\adv_0,\adv_1)$:
 \[           \advantage{AR}{(\adv_0,\adv_1)}\deq 
                 \Pr\left[\gr{u}^\ell = \gr{w} \neq 1 \ : \ 
                 \begin{array}{l}
-                      \GG \gets \ggen(\lambda) \\ 
+                      \GG \sample \ggen(\lambda) \\ 
                       (\gr{w},\state) \sample \adv_0(\GG) \\
                       \ell \sample \primes \\ 
                       \gr{u} \gets \adv_1(\ell, \state)
@@ -194,10 +196,13 @@ The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\ad
 	The adaptive root assumption and the strong RSA assumption imply the pseudo root assumption.
 \end{lemma}
 \begin{proof}
-	Given an adversary $\adv_{\textsf{PseudoRoot}}$ we will with overwhelming probability construct either an adversary $\adv_{RSA}$ for the strong RSA assumption or an adversary $\adv_{\textsf{Order}}$ that breaks the order assumption. As shown in Lemma \ref{lem:ordertoadaptive} the order assumption reduces to the adaptive root assumption with overwhelming probability. 
-	First we run $\adv_{RSA}$ to generate $\gr{g}\sample \GG$.
-	We run the $\adv_{\textsf{PseudoRoot}}$ on input $\GG$ and $\gr{g}$ to generate a tuple $(\alpha,\beta,\gr{u})$ such that $\gr{u}^{\beta}$ and $\gr{g}^{\alpha}$. Let $\gamma=\gcd(\alpha,\beta)$ and $\alpha'=\frac{\alpha}{\gamma}\in \ZZ$ and  $\beta'=\frac{\beta}{\gamma}$. Now either $\gr{g}^{\alpha'}=\gr{u}^{\beta'}$ or $\gr{g}^{\alpha'}/\gr{u}^{\beta'}$ is a non trivial element of order $\gamma$ which would break the root assumption.
-	By construction $\gcd(\alpha',\beta')=1$ and we can efficiently compute integers $a,b$ such that $a \alpha'+b \beta'=1$. By assumption $\beta'$ is not $1$. Now let $\gr{w}\gets \gr{u}^{a}\gr{g}^{-b}$. Note that $\gr{w}^{\alpha'\beta'}=\gr{g}^{\alpha'}$. So either $\gr{w}^{\beta'}=\gr{g}$ or $\gr{w}^{\beta'}/\gr{g}$ is a non-trivial element of order $\alpha'$. The first case breaks the strong RSA assumption and the second breaks the order assumption.
+	Given an adversary $\adv_{\textsf{PseudoRoot}}$ that succeeds for $\ggen$ we can construct either an adversary $\adv_{RSA}$ for the strong RSA assumption or an adversary $\adv_{\textsf{Order}}$ that breaks the order assumption for $\ggen$. As shown in Lemma \ref{lem:ordertoadaptive} the order assumption reduces to the adaptive root assumption with overwhelming probability. 
+	We first generate a group of unknown order $\GG \sample \ggen(\lambda)$.
+	Then we generate $\gr{g}\sample \GG$ as done in the \textsf{RSA} security definition.
+	
+	We now run the $\adv_{\textsf{PseudoRoot}}$ on input $\GG$ and $\gr{g}$ to generate a tuple $(\alpha,\beta,\gr{u})$ such that $\gr{u}^{\beta}=\gr{g}^{\alpha}$. Let $\gamma=\gcd(\alpha,\beta)$ and $\alpha'=\frac{\alpha}{\gamma}\in \ZZ$ and  $\beta'=\frac{\beta}{\gamma}$. Now either $\gr{g}^{\alpha'}=\gr{u}^{\beta'}$ or $\gr{g}^{\alpha'}/\gr{u}^{\beta'}$ is a non trivial element of order $\gamma$ which would directly break the order assumption. In that case we constructed $\adv_{\textsf{Order}}$ that outputs $(\gr{g}^{\alpha'}/\gr{u}^{\beta'},\gamma)$.
+	
+	Now assume otherwise, i.e. $\gr{g}^{\alpha'}=\gr{u}^{\beta'}$. By construction $\gcd(\alpha',\beta')=1$ and we can efficiently compute integers $a,b$ such that $a \alpha'+b \beta'=1$. By assumption on $\adv_{\textsf{PseudoRoot}}$ $\beta'$ is not $1$. Now let $\gr{w}\gets \gr{u}^{a}\gr{g}^{b}$. Note that $\gr{w}^{\alpha'\beta'}=\gr{g}^{\alpha'}$. So either $\gr{w}^{\beta'}=\gr{g}$ or $\gr{w}^{\beta'}/\gr{g}$ is a non-trivial element of order $\alpha'$. The first case breaks the strong RSA assumption, as we can construct $\adv_{\textsf{RSA}}$ that outputs $(\gr{w},\beta)$, and the second breaks the order assumption.
 \end{proof}
 
 
@@ -248,7 +253,7 @@ A commitment scheme $\Gamma$ is \defn{hiding} if for all probabilistic polynomia
 We now extend the syntax to polynomial commitment schemes. The following definition generalizes that of Kate~\emph{et al.}~\cite{AC:KatZavGol10} to allow interactive evaluation proofs. It also stipulates that the polynomial's degree be an argument to the protocol, contrary to Kate~\emph{et al.} where the degree is known and fixed.
 
 \begin{definition}
-A \defn{polynomial commitment scheme} is a tuple of protocols $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ where $(\pro{Setup},$ $\pro{Commit}, \pro{Open})$ is a binding commmitment scheme for a message space $R[x]$ of polynomials over some ring $R$, and where
+A \defn{polynomial commitment scheme} is a tuple of protocols $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ where $(\pro{Setup},$ $\pro{Commit}, \pro{Open})$ is a binding commitment scheme for a message space $R[x]$ of polynomials over some ring $R$, and where
 \begin{itemize}
     \item $\pro{Eval}(\params, c, z, y, d; f(x)) \rightarrow b \in \{\top, \bot\}$ is a protocol that takes a public commitment $c$, point $z \in R$, and a value $y$, degree $d$, along with a secret polynomial $f(x) \in R[x]$ with $\deg(f(x)) \leq d$ to which $c$ is a commitment, and shows that the evaluation of the secret committed polynomial $f(x)$ at $z$ is indeed $y$.
 \end{itemize}
