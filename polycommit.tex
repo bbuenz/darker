@@ -103,6 +103,8 @@ Spurred by the recent demand for cryptographic tools from the blockchain industr
 \item Throughout, $p$ is a prime of at least $\lambda$ bits, and $q \in \mathbb{N}$ be an integer with $q \gg p$.  $\primes$ denotes the set of primes less than $2^{\lambda \log(\lambda)}$. There are at least $2^\lambda$ primes in that set.
 \item We work in a group $\mathbb{G}$ of unknown order together with one or many designated base elements $\gr{g}, \gr{h} \in \mathbb{G}$ with unknown order. (It might be tempting refer to these elements as \emph{generators} but that terminology would imply that $\mathbb{G}$ is cyclic, which is not necessarily true. \ben{Every element is a generator of a cyclic subgroup; why make this comment at all?}\textcolor{blue}{Alan: true; moot point.}) We use multiplicative notation and use \textsf{sans-serif} font to indicate group elements, as opposed to integers, polynomials, or field elements.
 \item Some protocols in this paper are between two parties, the prover and the verifier. We write $\boldsymbol{\it Protocol}(x;w) \rightarrow (y;z)$ to describe such a protocol with common input $x$, private input for the prover $w$, public output $y$, and private output for the prover $z$. We write $(y;z) \gets \boldsymbol{\it Protocol}(x;w)$ to denote the protocol's execution. Any of $x,w,y,z$ can consist of tuples of objects. This notation facilitates protocol composition and modular analysis.
+
+\item We use the notation $\negl$ to denote negligible function $\textsf{negl}: \mathbb{N} \rightarrow [0,1]$ applied to the security parameter $\lambda$. 
 \end{itemize}
 
 \subsection{Assumptions}
@@ -206,32 +208,106 @@ The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\ad
 \subsection{Interactive Arguments of Knowledge}
 Interactive arguments are \emph{interactive proofs}~\cite{GolMicRac89} in which security holds only against a computationally bounded prover. In an interactive argument for a relation $\mathcal{R}$, the prover convinces the verifier that it ``knows" a witness $w$ for a statement $x$ such that $(x, w) \in \mathcal{R}$. The standard definition of \emph{proofs of knowledge} (PoK) by Bellare and Goldreich~\cite{C:BelGol92} is based on the existence of an extractor machine $E$ that has oracle access to a malicious prover $P^*$, and if $P^*$ would cause the verifier to accept on input $x$ with high probability then $E$ outputs $w$ such that $(x, w) \in \mathcal{R}$ (with overwhelming probability). $E$ runs in expected polynomial time. This definition quantifies the success of $E$ over all inputs $x$, which unfortunately is problematic in the case of interactive  \emph{arguments},.
 
-To illustrate one issue in particular, if the interactive argument relies on a \emph{common reference string} setup with trapdoor information (e.g. the factorization of an RSA modulus) then one of the inputs $x^*$ could leak the trapdoor to the prover. Any extractor should clearly fail on input $x^*$ while $P^*$ may succeed, hence the definition cannot be satisfied. This particular problem is fixed by requiring the adversary $P^*$ to generate the input $x$. If the trapdoor is exponentially hard to compute then the the polynomial time adversary will not be able to embed the trapdoor in $x$ except with negligible probability. (See Damg\r{a}rd and Fujisaki~\cite{AC:DamFuj02} for a broader discussion of the issues with applying the standard PoK definition to interactive arguments).
+To illustrate one issue, if the interactive argument relies on a \emph{common reference string} (CRS) setup with secret trapdoor information (e.g. the factorization of an RSA modulus) then one of the inputs $x^*$ could leak the trapdoor to the prover. Any extractor should clearly fail on input $x^*$ while $P^*$ may succeed, hence the definition cannot be satisfied. This particular problem is fixed by requiring the adversary $P^*$ to generate the input $x$. If the trapdoor is exponentially hard to compute the polynomial time adversary will not be able to embed the trapdoor in $x$ except with negligible probability. (See Damg\r{a}rd and Fujisaki~\cite{AC:DamFuj02} for a broader discussion of the issues that arise when applying the standard PoK definition to interactive arguments).
 
-Groth and Ishai~\cite{EC:GroIsh08} define arguments of knowledge (AoK) through a notion they call \emph{witness-extended emulation}. Other variants have been formulated, particularly in the case of non-interactive arguments. This has been adopted as a standard definition and we rely on this definition in the present work. ~ 
+\emph{Witness-extended emulation}~\cite{EC:Lindell03} strengthens the PoK notion so that the extractor outputs not only a witness but also a simulated transcript of the messages between the prover and verifier. This property is helpful for security analysis when a PoK is used as a subprotocol within a larger protocol (e.g. a PoK of a commitment opening within a NIZK for arbitrary circuits), in particularly in order to construct a simulator that needs to both obtain the adverssary's witness as well as simulate its view in the sub-protocol. Groth and Ishai~\cite{EC:GroIsh08} adapt Lindell's definition for interactive arguments of knowledge (AoK) in the CRS model. This is the AoK definition we will use in the present work.
+
+\begin{definition} [Interactive Argument]
+Let $(P, V)$ denote a pair of PPT interactive algorithms and $\textsf{Setup}$ denote a non-interactive setup algorithm that outputs public parameters $\params$ given a security parameter. Both $P$ and $V$ have access to $\params$. Let $\langle P(pp, x, w), V(pp, x) \rangle$ denote the output of $V$ on input $x$ after its interaction with $P$, who has witness $w$. The triple $(\textsf{Setup}, P, V)$ is called an argument for relation $\mathcal{R}$ if for all non-uniform PPT adversaries $\mathcal{A}$ the following properties hold: 
+
+\begin{itemize}
+\item \underline{Completeness}. 
+\[
+\Pr \left[
+\begin{array}{c}
+        (x, w) \not \in  \mathcal{R} \ \text{or} \\
+         \ \langle P(\params, x, w), V(\params, x) \rangle = 1 \\
+\end{array}
+:
+\begin{array}{c}
+             \params \leftarrow \textsf{Setup}(1^\lambda) \\
+             (x, w) \leftarrow \mathcal{A}(\params) \\
+\end{array} 
+\right]  \geq 1 - \negl 
+ \]
+
+\item \underline{Computational soundness}. 
+\[
+\Pr \left[
+\begin{array}{c}
+        \forall w \ (x, w) \not\in  \mathcal{R} \ \text{and} \\ 
+         \langle \mathcal{A}(\params, x, \bot), V(\params, x) \rangle = 1 
+\end{array}
+:
+\begin{array}{c}
+             \params \leftarrow \textsf{Setup}(1^\lambda) \\
+             x \leftarrow \mathcal{A}(\params) \\
+\end{array}
+        \right] \leq \negl
+\]
+\end{itemize} 
+\end{definition} 
+
+The interactive argument is called \textbf{public-coin} if the all the verifier's messages are uniformly random values, independent of all prior messages and the setup parameters $\params$. 
+We next recall the definition of witness-extended emulation for interactive arguments, which is a form of knowledge extraction.  
+
+\begin{definition}[Witness-extended emulation~\cite{EC:GroIsh08}]
+Given a public-coin interactive argument tuple $(\textsf{Setup}, P, V)$ and arbitrary prover algorithm $P^*$, let $\textsf{Record}(P^*, \params, x, w)$ denote the message transcript between $P^*$ and $V$ on shared input $x$, witness $w$, and $\params$ generated by $\textsf{Setup}$. Furthermore, let $E^{\textsf{Record}(P^*, \params, x, w)}$ denote an machine $E$ with a transcript oracle for this interaction that can be rewound to any round and run again on fresh verifier randomness. The tuple $(\textsf{Setup}, P, V)$ has witness-extended emulation if for every deterministic polynomial time $P^*$ there exists an expected polynomial time emulator $E$ such that for all non-uniform polynomial time adversaries $\mathcal{A}$ the following condition holds: 
+\[
+\Pr \left[
+\mathcal{A}(\textsf{tr}) = 1
+:
+\begin{array}{c}
+             \params \leftarrow \textsf{Setup}(1^\lambda) \\
+             (x, w) \leftarrow \mathcal{A}(\params) \\
+             \textsf{tr} \leftarrow \textsf{Record}(P^*, \params, x, w)
+\end{array} 
+\right] \approx
+\]
+\[
+\Pr \left[
+\begin{array}{c} 
+\mathcal{A}(\textsf{tr}) = 1 \ \text{and} \\ 
+\text{\textsf{tr} accepting} \Rightarrow \ (x, w) \in \mathcal{R}
+\end{array} 
+:
+\begin{array}{c}
+             \params \leftarrow \textsf{Setup}(1^\lambda) \\
+             x \leftarrow \mathcal{A}(\params) \\
+(\textsf{tr}, w^*) \leftarrow E^{\textsf{Record}(P^*, \params, x, w)}(\params, x)
+\end{array}
+\right]
+\]
+
+
+
+\end{definition}
+
 \subsection{Commitment Schemes}
 
 In defining the syntax of the various types of commitment schemes, we use the following convention with respect to public values (known to both the prover and the verifier) and secret ones (known only to the prover). In any list of arguments or returned tuple $(a, b, c; d, e)$ those variables listed before the semicolon are public, and those variables listed after it are secret. When there is no secret information, the semicolon is omitted.
 
-\begin{definition}[commitment scheme]
-A \defn{commitment scheme} $\Gamma$ is a tuple $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open})$ of protocols where
+\begin{definition}[Commitment scheme]
+A commitment scheme $\Gamma$ is a tuple $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open})$ of protocols where
 \begin{itemize}
     \item $\pro{Setup}(1^\lambda) \rightarrow \params$ generates public parameters $\params$;
-    \item $\pro{Commit}(\params; x[, r]) \rightarrow (c; d)$ takes a secret message $x$ (and, optionally, secret randomness $r$) and outputs a public commitment $c$ and secret decommitment information $d$;
-    \item $\pro{Open}(\params, c, x; d) \rightarrow b \in \{\bot, \top\}$ opens the commitment $c$ to the message $x$ using secret decommitment information $d$.
+    \item $\pro{Commit}(\params; x, r) \rightarrow (c; d)$ takes a secret message $x$ (and, optionally, secret randomness $r$) and outputs a public commitment $c$ and secret opening hint $d$.
+    \item $\pro{Open}(\params, c, x; d) \rightarrow b \in \{0, 1\}$ verifies the opening of commitment $c$ to the message $x$ provided with the opening hint $d$.
 \end{itemize}
-A commitment scheme $\Gamma$ is \defn{binding} if for all probabilistic polynomial time adversaries $\adv$,
+A commitment scheme $\Gamma$ is \defn{binding} if for all probabilistic polynomial time adversaries $\adv$:
 \[
     \Pr\left[
-        b_0 = b_1 \neq \bot \, \wedge \, x_0 \neq x_1 \ : \
+        b_0 = b_1 \neq 0 \, \wedge \, x_0 \neq x_1 \ : \
         \begin{array}{l}
              \params \gets \pro{Setup}(1^\lambda) \\
              (c, x_0, x_1, d_0, d_1) \gets \adv(\params) \\
              b_0 \gets \pro{Open}(\params, c, x_0; d_0) \\
              b_1 \gets \pro{Open}(\params, c, x_1; d_1) \\
         \end{array}
-    \right] \leq \negl \enspace .
+    \right] \leq \negl \enspace 
 \]
+
+\ben{We don't use the hiding property so why present?} \alan{For the ZK Eval protocol, maybe. Not sure yet.}
 A commitment scheme $\Gamma$ is \defn{hiding} if for all probabilistic polynomial time adversaries $\adv=(\adv_0,\adv_1)$,
 \[
     \left|
@@ -251,10 +327,10 @@ A commitment scheme $\Gamma$ is \defn{hiding} if for all probabilistic polynomia
 
 We now extend the syntax to polynomial commitment schemes. The following definition generalizes that of Kate~\emph{et al.}~\cite{AC:KatZavGol10} to allow interactive evaluation proofs. It also stipulates that the polynomial's degree be an argument to the protocol, contrary to Kate~\emph{et al.} where the degree is known and fixed.
 
-\begin{definition}
-A \defn{polynomial commitment scheme} is a tuple of protocols $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ where $(\pro{Setup},$ $\pro{Commit}, \pro{Open})$ is a binding commmitment scheme for a message space $R[x]$ of polynomials over some ring $R$, and where
+\begin{definition}[Polynomial commitment scheme]
+A polynomial commitment scheme is a tuple of protocols $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ where $(\pro{Setup},$ $\pro{Commit}, \pro{Open})$ is a binding commmitment scheme for a message space $R[x]$ of polynomials over some ring $R$, and where
 \begin{itemize}
-    \item $\pro{Eval}(\params, c, z, y, d; f(x)) \rightarrow b \in \{\top, \bot\}$ is a protocol that takes a public commitment $c$, point $z \in R$, and a value $y$, degree $d$, along with a secret polynomial $f(x) \in R[x]$ with $\deg(f(x)) \leq d$ to which $c$ is a commitment, and shows that the evaluation of the secret committed polynomial $f(x)$ at $z$ is indeed $y$.
+    \item $\pro{Eval}(\params, c, z, y, d; f(x)) \rightarrow b \in \{0, 1\}$ is a protocol that takes a public commitment $c$, point $z \in R$, and a value $y$, degree $d$, along with a secret polynomial $f(x) \in R[x]$ with $\deg(f(x)) \leq d$ to which $c$ is a commitment, and shows that the evaluation of the secret committed polynomial $f(x)$ at $z$ is indeed $y$.
 \end{itemize}
 A polynomial commitment scheme is \defn{correct} if an honest committer can successfully convince the verifier of any evaluation. Specifically, if the prover is honest then for all polynomials $f(x) \in R[x]$ and all points $z \in R$,
 \[
