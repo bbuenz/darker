@@ -9,7 +9,6 @@
 \usepackage{xspace}
 \usepackage[normalem]{ulem}
 \usepackage{comment}
-
 %Theorems
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
@@ -52,7 +51,10 @@ Concretely, compiling a QAP-based IOP results in quadratic prover time, but we o
     \label{tab:notation}
     \centering
     \begin{tabular}{l|l}
-        symbol & meaning   \\ \hline \hline
+        Symbol & Meaning   \\ \hline \hline
+        {\bf Sets} & \\ \hline
+        $\ZZ_{< q}$ & Integers less than $q$ in absolute value\\
+        \hline
         {\bf polynomials} & \\ \hline
         $f \in \mathbb{F}_p[x]$ or $f \in \mathbb{Z}[x]$ & polynomial modulo $p$ or without modulo, depending on context \\
         $f_L, f_R \in \mathbb{F}_p[x]$ & first and second half of $f(x)$ \\
@@ -98,6 +100,7 @@ Homomorphic integer commitment schemes based on the RSA group were first propose
 Spurred by the recent demand for cryptographic tools from the blockchain industry, Pietrzak~\cite{Pietrzak18} adds efficient verifiability to the RSA-based time lock puzzle due to Rivest, Shamir, and Wagner~\cite{RivShaWag96}, thereby obtaining a conceptually simple verifiable delay function (VDF). Wesolowski~\cite{EC:Wesolowski19} improves on this result by proposing a single-round protocol to prove correct exponentiation in groups of unknown order, down from a logarithmic (in the size of the exponent) number for Pietrzak's protocol. Boneh~\emph{et al.} generalize this protocol to arbitrary exponents (not just powers of 2), and adapt it for zero-knowledge and batching, providing the base tools for constructing efficient accumulators and vector commitment schemes~\cite{C:BonBunFis19}.
 
 \section{Preliminaries}
+\benedikt{Merge with table}
 \paragraph{Notation}
 \begin{itemize}
 \item Let $f(x) \in \mathbb{F}_p[x]$ be a polynomial of degree at most $N-1$ where $N$ is a power of two. The coefficients of $f(x)$ are denoted by $f_i$ such that $f(x) \stackrel{\triangle}{=} \sum_{i=0}^{N-1} f_i x^i$.
@@ -323,8 +326,8 @@ A commitment scheme $\Gamma$ is \defn{hiding} if for all probabilistic polynomia
              \params \gets \pro{Setup}(1^\lambda) \\
              (\state, x_0, x_1) \gets \adv_0(\params) \\
              b \sample \{0,1\} \\
-             (\gr{c}; *) \gets \pro{Commit}(\params; x_b) \\
-             \hat{b} \gets \adv_1(\state, \gr{c})
+             (\gr{C}; *) \gets \pro{Commit}(\params; x_b) \\
+             \hat{b} \gets \adv_1(\state, \gr{C})
         \end{array}
         \right]
     \right| \leq \negl \enspace .
@@ -453,7 +456,7 @@ Let let $\Gamma$ be a polynomial commitment scheme, let $\adv = (\adv_0, \adv_1)
 We say the polynomial commitment scheme $\Gamma$ is \defn{extractable} if there is an extractor $\extractor$ for all adversaries $\adv = (\adv_0, \adv_1)$ that convince the honest verifier with noticeable probability\alan{Actually, I am not convinced that with this order of quantifiers, the text definition is equivalent as the formula definition.}, $\extractor$ outputs a polynomial $f(x) \in R[x]$ of degree at most $d$ that matches the commitment with overwhelming probability. Specifically, this means that
 \[
     \Pr \left[
-        b \neq \bot \, \wedge \, c' \neq c \ : \ 
+        b \neq 0 \, \wedge \, c' \neq c \ : \ 
         \begin{array}{l}
              \params \gets \pro{Setup}(1^\lambda) \\
              (c, z, y, d; \state) \gets \adv_0(\params) \\
@@ -492,13 +495,17 @@ Boneh et al. \cite{journals/iacr/BonehBF18a} built on top of PoE to also develop
 
 \subsection{Polynomial Encoding}
 
-	Consider the set $B_{q/2}\subset \ZZ$ of integers with absolute value of less than $q/2$. $B_{q/2}[X]$ is the polynomial ring of that set such that the polynomials have bounded coefficients. $p(q) \in \ZZ$ for $p(x)\in P_q$ is a unique encoding of the polynomial:
+	Consider the set $B_{q/2} \subset \ZZ$ of integers with absolute value of less than $q/2$. In a slight abuse of notation we write $B_{q/2}[X]\subset \mathbb{Z}[X]$ as the set of integer polynomials with bounded coefficients. $p(q) \in \ZZ$ for $p(x)\in B_{q/2}[X]$ is a unique encoding of the polynomial:
 \begin{itemize}
 	\item Domain $B_{q/2}[X]\subset \ZZ[X]$, Alphabet: $\ZZ$
-	\item 	$f(x):=\sum_{i=0}^{\lfloor\log_q(y)\rfloor} f_i x^i$
-	\item $\enc(f(x) \in X)\rightarrow  f(q) \in \ZZ$
-	\item $\dec(y \in \ZZ): f_i \in [0,q-1]\gets \frac{y \mod q^{i+1}-y \mod q^{i}}{q^i} \forall i \in [0,\lfloor\log_q(y)\rfloor]$
-	\item Fix negative case
+	\item 	$f(x):=\sum_{i=0}^{d} f_i x^i$
+	\item $\enc(f(x) \in B_{q/2}[X])\rightarrow  f(q) \in \ZZ$
+	\item $\dec(y \in \ZZ):$
+	\item \begin{enumerate}
+		\item  $y_i\gets \frac{y \mod q^{i+1}-y \mod q^{i}}{q^i} \forall i \in [0,\lfloor\log_q(y)\rfloor]$
+		\item $f_i=y_i$ if $y_i<\frac{q}{2}$ else $f_i=y_i-q$
+		\item \benedikt{Ben fill in the decoding algorithm}
+	\end{enumerate} 
 \end{itemize}
 
 \begin{fact}
@@ -509,16 +516,17 @@ Note that the encoding has limited homomorphic properties. $\enc(g(x))+\enc(h(x)
 
 \subsection{Polynomial Commitment}
 
-We now present our main result: a polynomial commitment scheme with an efficient evaluation protocol based on groups of unknown order. We use lower-case \textsf{sans-serif} font to denote group elements. To save space, we denote the prover by $\prover$ and the verifier by $\verifier$. The scheme is parameterized by three values that are independent of the setup: the prime $p$ that defines the field over which the polynomial is defined; the degree $d_{\it max}$ that provides an upper bound on the degree of the polynomials for which the scheme works; and the integer $q$ which is ``large enough'' power of two, where what ``large enough'' means depends on the context.
+We now present our main result: 
+A polynomial commitment scheme with an efficient evaluation protocol based on groups of unknown order. We use lower-case \textsf{sans-serif} font to denote group elements. We denote the prover by $\prover$ and the verifier by $\verifier$. The scheme is parameterized by three values: The prime $p$ that defines the field over which the polynomial is defined; The degree $d_{\max}$ that provides an upper bound on the degree of the polynomials for which the scheme works; and the integer $q$ which is ``large enough'' power of two, where what ``large enough'' means depends on the context.
 
 The commitment and opening protocols are straightforward. They simply raise the designated group element $\gr{g}$ to the integer encoding of the polynomial as described in the previous section. The evaluation protocol uses the limited homomorphic properties of this encoding scheme to reduce the statement to smaller versions of itself.
 
-In every iteration of the evaluation protocol, the working polynomial $f(x)$ is split in half, the left part $f_L(x)$ and the right part $f_R(x)$ such that $f(x) = f_L(x) + f_R(x) \cdot x^{d'}$ where $d' = \left\lceil \frac{d+1}{2}\right\rceil - 1$ and $d = \mathrm{deg}(f(x))$. The evaluation $y = f(z) \mod p$ is also split into two halves, $y_L = f_L(z) \mod p$ and $y_R = f_R(z) \mod p$ such that $y = y_L + y_R \cdot z^{d'}$, and so is the commitment with $\gr{c}_L = \gr{g}^{f_L(q)}$, $\gr{c}_R = \gr{g}^{f_R(q)}$. The verifier infers $y_L$ from $y$ and $y_R$, and infers $\gr{c}_L$ from $\gr{c}$ and $\gr{c}_R^{q^{d'}}$ --- but to save verification work, the prover sends both $\gr{c}_R$ and $\gr{c}_R^{q^{d'}}$ and the two engage in a $\pro{PoE}$ to establish that the one commitment really is the correct power of the other. At this point, the verifier samples a randomizer $\alpha \sample \mathbb{F}_p$ and the protocol recurses to prove a folded version of the statement, namely that $\gr{c}' = \gr{c}_L^\alpha \times \gr{c}_R$ is a commitment to $f'(x)$ that evaluates to $y' = \alpha y_L + y_R$ in $z$ modulo $p$. In the last recursion step, the degree of the polynomial is zero, \emph{i.e.}, $f(x)$ is a constant; in this case the prover simply sends this constant $f(x) = f_0$ and the verifier checks that $f_0 = y \mod p$ along with $\gr{g}^{f_0} = \gr{c}$ and $0 \leq f_0 < q$. If all checks succeed, the verifier accepts.
+In every iteration of the evaluation protocol, the working polynomial $f(x)$ is split in half, the left part $f_L(x)$ and the right part $f_R(x)$ such that $f(x) = f_L(x) + f_R(x) \cdot x^{d'}$ where $d' = \left\lceil \frac{d+1}{2}\right\rceil - 1$ and $d = \mathrm{deg}(f(x))$. The evaluation $y = f(z) \mod p$ is also split into two halves, $y_L = f_L(z) \mod p$ and $y_R = f_R(z) \mod p$ such that $y = y_L + y_R \cdot z^{d'}$, and so is the commitment with $\gr{C}_L = \gr{g}^{f_L(q)}$, $\gr{C}_R = \gr{g}^{f_R(q)}$. The verifier infers $y_L$ from $y$ and $y_R$, and infers $\gr{C}_L$ from $\gr{C}$ and $\gr{C}_R^{q^{d'}}$ --- but to save verification work, the prover sends both $\gr{C}_R$ and $\gr{C}_R^{q^{d'}}$ and the two engage in a $\pro{PoE}$ to establish that the one commitment really is the correct power of the other. At this point, the verifier samples a randomizer $\alpha \sample \mathbb{F}_p$ and the protocol recurses to prove a folded version of the statement, namely that $\gr{C}' = \gr{C}_L^\alpha \times \gr{C}_R$ is a commitment to $f'(x)$ that evaluates to $y' = \alpha y_L + y_R$ in $z$ modulo $p$. In the last recursion step, the degree of the polynomial is zero, \emph{i.e.}, $f(x)$ is a constant; in this case the prover simply sends this constant $f(x) = f_0$ and the verifier checks that $f_0 = y \mod p$ along with $\gr{g}^{f_0} = \gr{C}$ and $0 \leq f_0 < q$. If all checks succeed, the verifier accepts.
 
-This intuitive description omits special care afforded to the case where the degree of the polynomial is not one less than a power of two. To take care of this, the left polynomial is guaranteed to have odd degree (unless in the last step when it is zero), and the right half polynomial $f_R(x)$ is shifted to the right by one digit whenever its degree is even. The evaluation $y_R$ and commitment $\gr{c}_R$ are adapted accordingly.
+This intuitive description omits special care afforded to the case where the degree of the polynomial is not one less than a power of two. To take care of this, the left polynomial is guaranteed to have odd degree (unless in the last step when it is zero), and the right half polynomial $f_R(x)$ is shifted to the right by one digit whenever its degree is even. The evaluation $y_R$ and commitment $\gr{C}_R$ are adapted accordingly.
 
 \begin{figure}
-\renewcommand{\figurename}{Scheme}
+\renewcommand{\figurename}{Protocol}
 \caption{polynomial commitment scheme} \label{scheme:polynomial_commitment}
 \noindent\begin{mdframed}[userdefinedwidth=\textwidth]
 \begin{minipage}{\textwidth}
@@ -532,53 +540,58 @@ This intuitive description omits special care afforded to the case where the deg
 		\end{enumerate}
 	$\pro{Commit}(\crs;f(x)):$ \pccomment{$f(x) \in \mathbb{Z}[x]$ with coefficients in $[0;p-1]$}
 		\begin{enumerate}[nolistsep]
-			\item $\gr{c} \gets g^{f(q)}$
-			\item $\pcreturn (\gr{c};f(x))$
+			\item $\gr{C} \gets \gr{g}^{f(q)}$
+			\item $\pcreturn (\gr{C};f(x))$
 		\end{enumerate}
-	$\pro{Open}(\crs,\gr{c},\bar{f}(x);f(x)):$ \pccomment{$f(x) \in \mathbb{Z}[x]$ but $\bar{f}(x) \in \mathbb{F}_p[x]$}
+	$\pro{Open}(\crs,\gr{C},\bar{f}(x);f(x)):$ \pccomment{$f(x) \in B_{q/2}[X]\subset\mathbb{Z}[x]$ but $\bar{f}(x) \in \mathbb{F}_p[x]$}
 		\begin{enumerate}[nolistsep]
 		    \item \prover sends $f(x)$ to \verifier.
-			\item \verifier checks that $\gr{g}^{f(q)} = \gr{c}$
-			\item \verifier checks that for all $i \in \{0, \ldots, d\}$, $0 \leq f_i < p^{d_{\it max}}$
+		    \item \verifier checks that $f(x)\in B_{q/2}[X]$
+			\item \verifier checks that $\gr{g}^{f(q)} = \gr{C}$
 			\item \verifier checks that $f(x) \equiv \bar{f}(x) \mod p$
 			\item \pcif all checks pass \textbf{then} \pcreturn $\top$ \textbf{else} \pcreturn $\bot$
 		\end{enumerate}
-	$\pro{Eval}(\params, \gr{c}, z, y, d; f(x)) :$ \pccomment{$f(x) = \sum_{i=0}^d f_i x^i \in \mathbb{Z}[x]$}
-	    \begin{enumerate}[nolistsep]
-        \item \pcif $d=0$:
-        \item \pcind[1] $\pcreturn \pro{Open}(\params, \gr{c}, y; f(x))$ \pccomment{$f(x) = f_0 \in \mathbb{Z}$}
-        \item \pcelse: \pccomment{$d \geq 1$}
-        \item \pcind[1] \prover and \verifier compute $d' \gets \lceil\frac{d+1}{2}\rceil - 1$
-        \item \pcind[1] \prover computes $f_L(x) \gets \sum\limits_{i=0}^{d'} f_i x^i$ and $f_R(x)\gets\sum\limits_{i=0}^{d-d'-1} f_{d'+1+i} x^{i}$
-        \item \pcind[1] \prover computes $y_L\gets f_L(z) \bmod p$ and $y_R\gets f_R(z)\bmod p$
-        \item \pcind[1] \prover computes $\gr{c}_L \gets \gr{g}^{f_L(q)}$ and $\gr{c}_R \gets \gr{g}^{f_R(q)}$ and $\gr{c}_R^\star \gets \gr{c}_R^{q^{d'+1}}$
-        \item \pcind[1] \prover sends $y_R, \gr{c}_R, \gr{c}_R^\star$ to \verifier
-        \item \pcind[1] \verifier computes $y_L \gets y - y_R \cdot z^{d'+1}$ and $\gr{c}_L \gets \gr{c} \times \gr{c}_R^{\star \, -1}$
-        \item \pcind[1] \prover and \verifier run $\pro{PoE}(\gr{c}_R, \gr{c}_R^\star, q^{d'+1})$
-        \item \pcind[1] \verifier samples $\alpha \sample \FF_p$ and sends it to \prover
-        \item \pcind[1] \pcif $d$ is odd $:$ \pccomment{degree of $f_R$ is odd}
-        \item \pcind[1] \pcind[1] \prover and \verifier compute $y'\gets\alpha y_L +y_R \bmod p$ and $\gr{c}' \gets \gr{c}_L^\alpha \times \gr{c}_R$. 
-        \item \pcind[1] \pcind[1] \prover computes $f'(x) \gets \alpha \cdot f_L(x) + f_R(x) \in \ZZ[x]$ 
-        \item \pcind[1] \pcind[1] \prover and \verifier run $\pro{Eval}(\params, \gr{c}', z, y', d'; f'(x))$
-        \item \pcind[1] \pcelse $:$ \pccomment{degree of $f_R$ is even}
-        \item \pcind[1] \pcind[1] \prover and \verifier compute $y'\gets\alpha y_L + y_R \cdot z \bmod p$, $\gr{c}' \gets \gr{c}_L^\alpha \times \gr{c}_R^q$. 
-        \item \pcind[1] \pcind[1] \prover computes $f'(x) \gets \alpha \cdot f_L(x) + f_R(x) \cdot x \in \ZZ[x]$ 
-        \item \pcind[1] \pcind[1] \prover and \verifier run $\pro{Eval}(\params, \gr{c}', z, y', d'; f'(x))$
-        \end{enumerate}
-	\end{flushleft}
+		\end{flushleft}
 \end{minipage}
 \end{mdframed}
 \end{figure}
 
+\begin{mdframed}
+\begin{minipage}{\textwidth}
+			$\pro{Eval}(\params, \gr{C}, z, y, d; f(x)) :$ \pccomment{$f(x) = \sum_{i=0}^d f_i x^i \in \mathbb{Z}[x]$}
+	    \begin{enumerate}[nolistsep]
+        \item \pcif $d=0$:
+        \item \pcind[1] $\pcreturn \pro{Open}(\params, \gr{C}, y; f(x))$ \pccomment{$f(x) = f_0 \in \mathbb{Z}$}
+        \item \pcelse: \pccomment{$d \geq 1$}
+        \item \pcind[1] \prover and \verifier compute $d' \gets \lceil\frac{d+1}{2}\rceil - 1$
+        \item \pcind[1] \prover computes $f_L(x) \gets \sum\limits_{i=0}^{d'} f_i x^i$ and $f_R(x)\gets\sum\limits_{i=0}^{d-d'-1} f_{d'+1+i} x^{i}$
+        \item \pcind[1] \prover computes $y_L\gets f_L(z) \bmod p$ and $y_R\gets f_R(z)\bmod p$
+        \item \pcind[1] \prover computes $\gr{C}_L \gets \gr{g}^{f_L(q)}$ and $\gr{C}_R \gets \gr{g}^{f_R(q)}$ and $\gr{C}_R^\star \gets \gr{C}_R^{q^{d'+1}}$
+        \item \pcind[1] \prover sends $y_R, \gr{C}_R, \gr{C}_R^\star$ to \verifier
+        \item \pcind[1] \verifier computes $y_L \gets y - y_R \cdot z^{d'+1}$ and $\gr{C}_L \gets \gr{C} \times \gr{C}_R^{\star \, -1}$
+        \item \pcind[1] \prover and \verifier run $\pro{PoE}(\gr{C}_R, \gr{C}_R^\star, q^{d'+1})$
+        \item \pcind[1] \verifier samples $\alpha \sample \FF_p$ and sends it to \prover
+        \item \pcind[1] \pcif $d$ is odd $:$ \pccomment{degree of $f_R$ is odd}
+        \item \pcind[1] \pcind[1] \prover and \verifier compute $y'\gets\alpha y_L +y_R \bmod p$ and $\gr{C}' \gets \gr{C}_L^\alpha \times \gr{C}_R$. 
+        \item \pcind[1] \pcind[1] \prover computes $f'(x) \gets \alpha \cdot f_L(x) + f_R(x) \in \ZZ[x]$ 
+        \item \pcind[1] \pcind[1] \prover and \verifier run $\pro{Eval}(\params, \gr{C}', z, y', d'; f'(x))$
+        \item \pcind[1] \pcelse $:$ \pccomment{degree of $f_R$ is even}
+        \item \pcind[1] \pcind[1] \prover and \verifier compute $y'\gets\alpha y_L + y_R \cdot z \bmod p$, $\gr{C}' \gets \gr{C}_L^\alpha \times \gr{C}_R^q$. 
+        \item \pcind[1] \pcind[1] \prover computes $f'(x) \gets \alpha \cdot f_L(x) + f_R(x) \cdot x \in \ZZ[x]$ 
+        \item \pcind[1] \pcind[1] \prover and \verifier run $\pro{Eval}(\params, \gr{C}', z, y', d'; f'(x))$
+        \end{enumerate}
+      \end{minipage}
+\end{mdframed}
+
 \alaninline{Todo: correctness.}
 
 \begin{lemma}
-	The polynomial commitment scheme (\ref{scheme:polynomial_commitment}) is binding if the adaptive root assumption holds.
+	The polynomial commitment scheme (Protocol \ref{scheme:polynomial_commitment}) is binding if the order assumption holds.
 \end{lemma}
 \begin{proof}
-    Assume that there is an adversary that breaks the binding property of the scheme. Specifically, assume that some probabilistic polynomial time algorithm $\adv$ takes $(\params)$ and outputs $\gr{c}, f(x), f'(x), \hat{f}(x), \hat{f'}(x)$ such that with high probability $\pro{Open}(\params, \gr{c}, f(x); \hat{f}(x)) = \pro{Open}(\params, \gr{c}, f'(x), \hat{f'}(x)) = \top$ and $f(x) \neq f'(x)$. We proceed to show that this implies a violation of the adaptive root assumption~\ref{assum:adaptiveroot}.
+    Assume that there is an adversary that breaks the binding property of the scheme. Specifically, assume that some probabilistic polynomial time algorithm $\adv$ takes $(\params)$ and outputs $\gr{C}, f(x), f'(x), \hat{f}(x), \hat{f'}(x)$ such that with high probability $\pro{Open}(\params, \gr{C}, f(x); \hat{f}(x)) = \pro{Open}(\params, \gr{C}, f'(x), \hat{f'}(x)) = \top$ and $f(x) \neq f'(x)$. We proceed to show that this implies a violation of the adaptive root assumption~\ref{assum:adaptiveroot}.
     
-	Let $\hat{h}(x)=\hat{f}(x)-\hat{f'}(x) \in \ZZ[X]$; this is a polynomial of degree at most $\max(f(x), f'(x))$. Since $\gr{g}^{\hat{f}(q)}=\gr{g}^{\hat{f'}(q)}=\gr{c}$ we have that $\gr{g}^{\hat{h}(q)}=1$. Note that the coefficients of $\hat{f}(x)$ and $\hat{f'}(x)$ are all less than $q/2$ in absolute value. By triangle inequality we have that the coefficients of $\hat{h}(x)$ are less than $q$. We have $\hat{f}(x) \neq \hat{f'}(x)$ because this inequality still holds modulo $p$, otherwise the adversary fails to open the commitment to two \emph{different} values. So $\hat{h}$ is not the zero polynomial. This implies that $\hat{h}(q) \neq 0$ and is a multiple of the order of $\gr{g} \in \GG$. Construct an adversary that breaks the adaptive root assumption (Assumption \ref{assum:adaptiveroot}) by outputting $\gr{g}$ in the first round, and by using $\hat{h}(q)$ to compute the inverse of $\ell$ modulo $\hat{h}(q)$.
+	Let $\hat{h}(x)=\hat{f}(x)-\hat{f'}(x) \in \ZZ[X]$; this is a polynomial of degree at most $\max(f(x), f'(x))$. Since $\gr{g}^{\hat{f}(q)}=\gr{g}^{\hat{f'}(q)}=\gr{C}$ we have that $\gr{g}^{\hat{h}(q)}=1$. Note that the coefficients of $\hat{f}(x)$ and $\hat{f'}(x)$ are all less than $q/2$ in absolute value. By triangle inequality we have that the coefficients of $\hat{h}(x)$ are less than $q$. We have $\hat{f}(x) \neq \hat{f'}(x)$ because this inequality still holds modulo $p$, otherwise the adversary fails to open the commitment to two \emph{different} values. So $\hat{h}$ is not the zero polynomial. This implies that $\hat{h}(q) \neq 0$ and is a multiple of the order of $\gr{g} \in \GG$. This directly breaks the order assumption (Assumption~\ref{assum:order}).
 \end{proof}
 
 \begin{theorem}
@@ -593,30 +606,30 @@ The proof works by induction on the sequence $d \mapsto d' = \left\lceil \frac{d
     \itemsep0pt
     \item The coefficients of $f(x), f_L(x), f_R(x) \in \mathbb{Z}[x]$ lie in the interval $[-2^ip^{\lceil \log_2(d_{\it max} + 1) \rceil+i}; 2^ip^{\lceil \log_2(d_{\it max} + 1) \rceil+i}]$ in the $i$th induction step (starting at $i=0$).
     \item The polynomials $f_L(x)$ and $f_R(x)$ satisfy $f(x) = f_L(x) + f_R(x) \cdot x^{d'+1}$ and $\deg(f_L(x)) \leq d'$ and $\deg(f_R(x)) \leq d - d' - 1$.
-    \item The commitment $\gr{c}$ satisfies $\gr{c} = \gr{g}^{f(q)}$.
-    \item The commitments $\gr{c}, \gr{c}_L$, $\gr{c}_R$ and $\gr{c}_R^\star$ satisfy $\gr{c} = \gr{c}_L \times \gr{c}_R^\star$ and $\gr{c}_R^{q^{d'+1}} = \gr{c}_R^\star$ where $d' = \left\lceil \frac{d+1}{2} \right\rceil - 1$.
+    \item The commitment $\gr{C}$ satisfies $\gr{C} = \gr{g}^{f(q)}$.
+    \item The commitments $\gr{C}, \gr{C}_L$, $\gr{C}_R$ and $\gr{C}_R^\star$ satisfy $\gr{C} = \gr{C}_L \times \gr{C}_R^\star$ and $\gr{C}_R^{q^{d'+1}} = \gr{C}_R^\star$ where $d' = \left\lceil \frac{d+1}{2} \right\rceil - 1$.
     \item The evaluation $y$ satisfies $f(z) = y \mod p$.
     \item The evaluations $y, y_R$ and $y_L$ satisfy $y = y_L + y_R \cdot z^{d'+1}$.
 \end{itemize}
 
-After the last step of the induction argument, the extractor is in possession of a degree-$d$ polynomial $f(x) \in \mathbb{Z}[x]$ such that $\gr{c} = \gr{g}^{f(q)}$ and $f(z) = y \mod p$. This situation contradicts the assumption that $\adv$ breaks extractability, so the extractor constructed here must fail at one of the identified points of possible failure --- any one of which leads to a violated assumption.
+After the last step of the induction argument, the extractor is in possession of a degree-$d$ polynomial $f(x) \in \mathbb{Z}[x]$ such that $\gr{C} = \gr{g}^{f(q)}$ and $f(z) = y \mod p$. This situation contradicts the assumption that $\adv$ breaks extractability, so the extractor constructed here must fail at one of the identified points of possible failure --- any one of which leads to a violated assumption.
 
-\underline{$d = 0$.} The extractor receives $\gr{c}$, $y = f(z) \mod p$ and $f_0 = f(x) \in \mathbb{Z}$. The checks performed in the $\pro{Open}$ protocol guarantee that the invariants are satisfied.
+\underline{$d = 0$.} The extractor receives $\gr{C}$, $y = f(z) \mod p$ and $f_0 = f(x) \in \mathbb{Z}$. The checks performed in the $\pro{Open}$ protocol guarantee that the invariants are satisfied.
 
-\underline{Induction step.} We denote by primes (\emph{e.g.}, $f'(x)$) the values of the previous iteration; variables without primes are those of the present one. The task is to show that if the invariants for $(f'(x), f_L'(x), f_R'(x), y', y_L', y_R', \gr{c}', \gr{c}_L', \gr{c}_R', {\gr{c}_R^{\star}}')$ are satisfied, then so are they satisfied for $(f(x), f_L(x), f_R(x), y, y_L, y_R, \gr{c}, \gr{c}_L, \gr{c}_R, \gr{c}_R^{\star})$. The extractor runs steps 11-19 with a different $\alpha''$, thereby obtaining the tuple $(f''(x), f_L''(x), f_R''(x), y'', y_L'', y_R'', \gr{c}'', \gr{c}_L'', \gr{c}_R'', {\gr{c}_R^{\star}}'')$. Let $b \in \{0,1\}$ indicate whether $d$ is odd, by assuming the value 1 when this is so.
+\underline{Induction step.} We denote by primes (\emph{e.g.}, $f'(x)$) the values of the previous iteration; variables without primes are those of the present one. The task is to show that if the invariants for $(f'(x), f_L'(x), f_R'(x), y', y_L', y_R', \gr{C}', \gr{C}_L', \gr{C}_R', {\gr{C}_R^{\star}}')$ are satisfied, then so are they satisfied for $(f(x), f_L(x), f_R(x), y, y_L, y_R, \gr{C}, \gr{C}_L, \gr{C}_R, \gr{C}_R^{\star})$. The extractor runs steps 11-19 with a different $\alpha''$, thereby obtaining the tuple $(f''(x), f_L''(x), f_R''(x), y'', y_L'', y_R'', \gr{C}'', \gr{C}_L'', \gr{C}_R'', {\gr{C}_R^{\star}}'')$. Let $b \in \{0,1\}$ indicate whether $d$ is odd, by assuming the value 1 when this is so.
 
-Due to the way $\gr{c}', \gr{c}'', y', y''$ are constructed, we know that $\gr{c}'\gr{c}''^{-1} = \gr{c}_L^{\alpha' - \alpha''}$ as well as $y'-y'' = (\alpha' - \alpha'')y_L$, regardless of the value of $b$. The extractor uses $f'(x)-f''(x) = (\alpha' - \alpha'')f_L(x)$ to obtain $f_L(x)$. We distinguish three cases.
+Due to the way $\gr{C}', \gr{C}'', y', y''$ are constructed, we know that $\gr{C}'\gr{C}''^{-1} = \gr{C}_L^{\alpha' - \alpha''}$ as well as $y'-y'' = (\alpha' - \alpha'')y_L$, regardless of the value of $b$. The extractor uses $f'(x)-f''(x) = (\alpha' - \alpha'')f_L(x)$ to obtain $f_L(x)$. We distinguish three cases.
 \begin{itemize}
     \itemsep0pt
-    \item[1.] $(\alpha' - \alpha'')$ divides $f'(x) - f''(x)$. Then $f_L(x) = (f'(x) - f''(x)) / (\alpha' - \alpha'')$ is well defined and has coefficients bounded in absolute value by $2^ip^{\lceil \log_2(d_{\it max} + 1) \rceil+i}$. From here, the extractor computes $f_R(x) \leftarrow x^{-b}( f'(x) - \alpha' \cdot f_L(x) )$ with coefficients bounded by $2^{i+1}p^{\lceil \log_2(d_{\it max} + 1) \rceil+i+1}$ and $\gr{c}_R = \gr{g}^{f_R(q)}$ holds because $\gr{c}' = \gr{g}^{f'(q)} = \gr{g}^{\alpha' \cdot f_L(q) + q^b \cdot f_R(q)} = \gr{c}_L^{\alpha'} \cdot \gr{c}_R^{q^b}$. This suffices to establish that all the invariants are satisfied.
+    \item[1.] $(\alpha' - \alpha'')$ divides $f'(x) - f''(x)$. Then $f_L(x) = (f'(x) - f''(x)) / (\alpha' - \alpha'')$ is well defined and has coefficients bounded in absolute value by $2^ip^{\lceil \log_2(d_{\it max} + 1) \rceil+i}$. From here, the extractor computes $f_R(x) \leftarrow x^{-b}( f'(x) - \alpha' \cdot f_L(x) )$ with coefficients bounded by $2^{i+1}p^{\lceil \log_2(d_{\it max} + 1) \rceil+i+1}$ and $\gr{C}_R = \gr{g}^{f_R(q)}$ holds because $\gr{C}' = \gr{g}^{f'(q)} = \gr{g}^{\alpha' \cdot f_L(q) + q^b \cdot f_R(q)} = \gr{C}_L^{\alpha'} \cdot \gr{C}_R^{q^b}$. This suffices to establish that all the invariants are satisfied.
     \item[2.] $(\alpha' - \alpha'')$ does not divide $f'(x) - f''(x)$ but does divide $f'(q) - f''(q)$. The coefficients of $f'(x) - f''(x)$ are bounded. This implies that $f'(q) - f''(q)$ denotes an integer distinct from zero.
-    \item[] Let $f_{L,q} = (f'(q) - f''(q))/(\alpha' - \alpha'')$ and let $\{\tilde{f}_i\}_{i=0}^{d'}$ be its base-$q$ expansion, \emph{i.e.}, $f_{L,q} = \sum_{i=0}^{d'} \tilde{f}_i q^i$ with all $\tilde{f}_i \in \{0,\ldots,q-1\}$. Also, note that $\gr{g}^{f_{L,q}} = \gr{c}_L$. The extractor obtains a polynomial with coefficients bounded by $p^{\lceil \log_2(d_{\it max} + 1) \rceil}$ by starting from $f_L(x) = \sum_{i=0}^{d'} \tilde{f}_i x^i$ and iterating over all powers $j$ from 0 to $d'-1$, and subtracting that unique multiple of $x^{j}(x-q)$ that sends the coefficient of $x^j$ to the interval $[-2^ip^{\lceil \log_2(d_{\it max} + 1) \rceil+i};2^ip^{\lceil \log_2(d_{\it max} + 1) \rceil+i}]$. There are two possible causes for failure.
+    \item[] Let $f_{L,q} = (f'(q) - f''(q))/(\alpha' - \alpha'')$ and let $\{\tilde{f}_i\}_{i=0}^{d'}$ be its base-$q$ expansion, \emph{i.e.}, $f_{L,q} = \sum_{i=0}^{d'} \tilde{f}_i q^i$ with all $\tilde{f}_i \in \{0,\ldots,q-1\}$. Also, note that $\gr{g}^{f_{L,q}} = \gr{C}_L$. The extractor obtains a polynomial with coefficients bounded by $p^{\lceil \log_2(d_{\it max} + 1) \rceil}$ by starting from $f_L(x) = \sum_{i=0}^{d'} \tilde{f}_i x^i$ and iterating over all powers $j$ from 0 to $d'-1$, and subtracting that unique multiple of $x^{j}(x-q)$ that sends the coefficient of $x^j$ to the interval $[-2^ip^{\lceil \log_2(d_{\it max} + 1) \rceil+i};2^ip^{\lceil \log_2(d_{\it max} + 1) \rceil+i}]$. There are two possible causes for failure.
     \begin{itemize}
         \item[2.1.] No polynomial $f_L(x) \in \mathbb{Z}[x]$ with bounded coefficients and satisfying $f_L(q) = f_{L,q}$ exists. Then at least one coefficient lies outside the interval $[-2^ip^{\lceil \log_2(d_{\it max} + 1) \rceil+i};2^ip^{\lceil \log_2(d_{\it max} + 1) \rceil+i}]$. As a result, with overwhelming probability, at least one coefficient of $\alpha \cdot f_L(x) + f_R(x)$ lies outside that interval for random $\alpha$. With overwhelming probability, the non-membership percolates to the terminal case where the coefficient $f_0$ is tested and this non-membership is observed, causing the verifier to reject the opening. (This coefficient shrinks only when $\alpha=0$ or $\alpha=1$, and either event occurs with negligible probability.) As a result, if such an $f_L(x)$ does not exist, then the prover cannot have more than a negligible chance of success, in contradiction to the requirement for breaking the evaluation binding property.
         \item[2.2.] The polynomial $f_L(x)$ does exist and it does have bounded coefficients, but $f(z) \neq y_L \mod p$. Then with overwhelming probability $\alpha \cdot f_L(z) + f_R(z) \neq \alpha \cdot y_L + y_R$. With overwhelming probability this inequality percolates to the terminal case where $f_0 \neq y \mod p$ and the prover fails to convince the verifier. As a result, if $f_L(z) \neq y_L \mod p$ then the prover cannot have more than a negligible chance of success, in contradiction to the requirement for breaking the evaluation binding property.
     \end{itemize}
     \item[] We may therefore assume that $f_L(x) \in \mathbb{Z}[x]$ with bounded coefficients exists, and satisfies both $f_L(q) = f_{L,q}$ and $f_L(z) = y \mod p$. The extractor then computes $f_R(x) \leftarrow x^{-b}(f'(x) - \alpha' \cdot f_L(x))$ which also has bounded coefficients. It follows that the induction invariants are satisfied.
-    \item[3.] $(\alpha' - \alpha'')$ divides neither $f'(x) - f''(x)$ nor $f'(q) - f''(q)$. Then $\gr{c}_L$ is a $(\alpha' - \alpha'')$th root of $\gr{g}^{f'(q) - f''(q)} = \gr{c}'{\gr{c}''}^{-1}$ and outputting $(f'(q) - f''(q), \alpha'-\alpha'', \gr{c}_L)$ breaks the fractional root assumption.
+    \item[3.] $(\alpha' - \alpha'')$ divides neither $f'(x) - f''(x)$ nor $f'(q) - f''(q)$. Then $\gr{C}_L$ is a $(\alpha' - \alpha'')$th root of $\gr{g}^{f'(q) - f''(q)} = \gr{C}'{\gr{C}''}^{-1}$ and outputting $(f'(q) - f''(q), \alpha'-\alpha'', \gr{C}_L)$ breaks the fractional root assumption.
 \end{itemize}
 This completes the inductive argument, which in turn completes the proof.
 \end{proof}
