@@ -292,9 +292,12 @@ Given a public-coin interactive argument tuple $(\textsf{Setup}, P, V)$ and arbi
 
 %\alaninline{About the above definition: after reading [GI08] I think the adversary outputs a claim $x$ and a \emph{state} $\st$ (which may or may not be a witness). Otherwise you aren't considering adversaries that try to prove a claim without knowing a witness. I marked my proposed changes in blue because I'm not sure.}
 
-\paragraph{Forking lemma} The following lemma was proven by Bootle et. al.~\cite{EC:BCCGP16} as a helpful tool for proving that an interactive argument has witness-extended emulation. It reduces the analysis to a generalized version of special soundness. 
+\paragraph{Generalized special soundness} The following lemma was proven by Bootle et. al.~\cite{EC:BCCGP16} as a helpful tool for showing that an interactive argument has witness-extended emulation. It reduces the analysis to a generalized version of special soundness. 
 
-\begin{lemma}
+Consider a public-coin interactive argument with $r$ rounds and verifier challenges sampled from an exponentially large message space. An \textbf{$\mathbf{(n_1,...,n_r)}$-tree of accepting transcripts} for the interactive argument on input $x$ is defined as follows. The root of the tree is labelled with the statement $x$. The tree has $r$ depth. Each node at depth $i < r$ has $n_i$ children, and each child is labelled with a distinct value for the $i$th challenge. An edge from a parent node to a child node is labelled with a message from prover to verifier. Every path from the root to a leaf corresponds to an accepting transcript, hence there are $\prod_{i=1}^r n_i$ distinct accepting transcripts overall. 
+
+\begin{lemma}[Forking lemma~\cite{EC:BCCGP16}] 
+Let $(\textsf{Setup}, P, V)$ be an $r$-round public-coin interactive protocol for $\mathcal{R}$. Let $\mathcal{X}$ be a PPT algorithm that given any $(n_1,...,n_r)$-tree of accepting transcripts for the statement $x$ outputs $w$ such that $(x, w) \in \mathcal{R}$ in expected polynomial time. Assuming $\prod_{i=1}^r n_i \leq \poly$, the interactive argument $(\textsf{Setup}, P, V)$ has witness-extended emulation. 
 \end{lemma}
 
 \subsection{Commitment Schemes}

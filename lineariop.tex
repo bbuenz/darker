@@ -31,7 +31,7 @@ This determines a query matrix $\mathbf{Q}_i \leftarrow Q(\textsf{st}^V_{i-1}, \
 
 \item \underline{Soundness}. If $(x, w) \notin \mathcal{R}$ for every $w$, then for every prover algorithm $P^*$ that outputs a linear function oracle $\boldsymbol{\pi}^*_i: \mathbb{F}^{m_i} \rightarrow \mathbb{F}$ in the $i$th round of the protocol initialized on $x$, the probability $V(\textsf{st}^V_t)$ returns $\textsf{Accept}$ is less than $\epsilon$. 
 
-\item \underline{Knowledge}. There exists a knowledge extractor $\mathcal{E}$ such that for any prover algorithm $P^*$, if $V(\textsf{st}^V_t)$ outputs \textsf{Accept} with probability greater than $\delta$ over the random choices of $\mathbf{r}_i$ then $\mathcal{E}(x, \pi_1^*,...,\pi_t^*)$ outputs $w$ such that $(x, w) \in \mathcal{R}$.
+\item \underline{Knowledge}. There exists a knowledge extractor $\mathcal{E}$ such that for any prover algorithm $P^*$, if $V(\textsf{st}^V_t)$ outputs \textsf{Accept} with probability greater than $\delta$ over the random choices of $\mathbf{r}_i$ then $\mathcal{E}(x, \st_t^P, \pi_1^*,...,\pi_t^*)$ outputs $w$ such that $(x, w) \in \mathcal{R}$.
 
 \end{itemize}
 
@@ -45,6 +45,17 @@ Finally, \textbf{polynomial IOPs} are a subclass of algebraic linear IOPs: in a 
 \begin{definition}[HVZK for public-coin IOPs]
 Let $\textsf{View}_{\langle P(x, w), Q(x) \rangle}(V)$ denote the view of the verifier in the $t$-round $k$-query interactive protocol described in Definition~\ref{def:linearIOP} on inputs $(x,w)$ with prover algorithm $P$ and query algorithm $Q$, consisting of all public-coin challenges and oracle outputs (i.e. equivalent to the final state $\textsf{st}^V_t$). The interactive protocol has $\delta$-statistical honest verifier zero-knowledge if there exists a probabilistic polynomial time algorithm $S$ such that for every $(x, w) \in \mathcal{R}$, the distribution $S(x)$ is $\delta$-close to $\textsf{View}_{\langle P(x, w), Q(x) \rangle}(V)$ (as distributions over the randomness of $P$ and random public-coin challenges).
 \end{definition}
+
+\subsection{Compiling linear IOPs} 
+We are now ready to present our main theorems. We formulate two separate theorems: the first pertains only to compiling polynomial IOPs, and the second deals with more general stateless input-oblivious algebraic IOPs. The first result is more practical because it yields interactive arguments with quasi-linear prover time. In fact, there is a concrete instantiation of the polynomial IOP (used in Sonic~\cite{Sonic}) that results in an interactive argument with both quasi-linear prover time and logarithmic communication/verification. The second result is less practical because it only guarantees polynomial prover time, but includes a much broader spectrum of concrete instantiations, including QAP-based IOPs. The prover time in a QAP-based instantiation is quadratic. These instantiations are discussied in more detail in the next section. 
+
+We begin with a lemma on using polynomial commitments (that has witness-extended emulation) to compile a public-coin polynomial IOP with negligible knowledge error into a public-coin interactive argument with witness-extended emulation. 
+
+\begin{lemma}
+
+\end{lemma}
+
+
 
 
 
