@@ -292,6 +292,11 @@ Given a public-coin interactive argument tuple $(\textsf{Setup}, P, V)$ and arbi
 
 %\alaninline{About the above definition: after reading [GI08] I think the adversary outputs a claim $x$ and a \emph{state} $\st$ (which may or may not be a witness). Otherwise you aren't considering adversaries that try to prove a claim without knowing a witness. I marked my proposed changes in blue because I'm not sure.}
 
+\paragraph{Forking lemma} The following lemma was proven by Bootle et. al.~\cite{EC:BCCGP16} as a helpful tool for proving that an interactive argument has witness-extended emulation. It reduces the analysis to a generalized version of special soundness. 
+
+\begin{lemma}
+\end{lemma}
+
 \subsection{Commitment Schemes}
 
 In defining the syntax of the various types of commitment schemes, we use the following convention with respect to public values (known to both the prover and the verifier) and secret ones (known only to the prover). In any list of arguments or returned tuple $(a, b, c; d, e)$ those variables listed before the semicolon are public, and those variables listed after it are secret. When there is no secret information, the semicolon is omitted.
