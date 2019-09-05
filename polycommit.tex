@@ -61,8 +61,8 @@ Concretely, compiling a QAP-based IOP results in quadratic prover time, but we o
         $f_0, f_1, f_i \in \mathbb{F}_p$ & coefficients \emph{s.t.} $f(x) = \sum_{i=0}^d f_ix^i$ \\ \hline
         {\bf group elements} &  \\ \hline
         $\mathsf{g} \in \mathbb{G}$ & designated base element (the term ``generator'' is misleading) \\
-        $\mathsf{c}, \mathsf{c}_0, \mathsf{c}_1 \in \mathbb{G}$ & commitments \\
-        $\mathsf{c}_0^a \times \mathsf{c}_1^b, \mathsf{c}_0^a\mathsf{c}_1^b \, \textnormal{for} \, a, b \in \mathbb{Z}$ & multiplicative notation \\ 
+        $\mathsf{C}, \mathsf{C}_0, \mathsf{C}_1 \in \mathbb{G}$ & commitments \\
+        $\mathsf{e}_0^a \times \mathsf{e}_1^b, \mathsf{e}_0^a\mathsf{e}_1^b \, \textnormal{for} \, a, b \in \mathbb{Z}$ & multiplicative notation \\ 
     \end{tabular}
 \end{table}
 
@@ -366,7 +366,7 @@ A polynomial commitment scheme is \defn{correct} if an honest committer can succ
 A polynomial commitment scheme is \defn{evaluation binding} if no efficient adversary can convince the verifier that the committed polynomial $f(X)$ evaluates to different values $y_0 \neq y_1 \in R$ in the same point $z \in R$. Let $b \gets \pro{Eval}_{\langle \adv_1 \leftrightarrow \mathsf{V}\rangle}(c, z, y, d, \st)$ denote the verifier's output in an execution of this protocol with adversarial prover $\adv_1$ on public inputs $c, z, y, d$ and private adversary state $\st$. (The adversary may or may not know a witness polynomial $f(X)$). Evaluation binding requires that for all probabilistic polynomial-time adversaries $\adv = (\adv_0, \adv_1)$,
 \[
     \Pr\left[
-         b_0 = b_1 \neq \bot \, \wedge \, y_0 \neq y_1 \ 
+         b_0 = b_1 \neq 0 \, \wedge \, y_0 \neq y_1 \ 
          : \
        \begin{array}{l}
             \params \gets \pro{Setup}(1^\lambda) \\
