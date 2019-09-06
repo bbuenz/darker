@@ -719,7 +719,7 @@ We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pr
         \item \pcind[1] \prover sends $y_L,y_R, \gr{C}_L, \gr{C}_R$ to \verifier. \pccomment{See Section \ref{sec:optimiztion} for an optimization}
         \item \pcind[1] \verifier checks that $y=y_L+z^{d'+1}\cdot y_R \bmod p$, outputs $0$ if check fails.
         \item \pcind[1] \prover and \verifier run $\pro{PoE}(\gr{C}_R, \gr{C}/\gr{C}_L, q^{d'+1})$\pccomment{Showing that $\gr{C}_L\gr{C}_R^{(q^{d'+1})}=\gr{C}$}
-        \item \pcind[1] \verifier samples $\alpha \sample \ZZ_p$ and sends it to \prover
+        \item \pcind[1] \verifier samples $\alpha \sample [1,p-1]$ and sends it to \prover
         \item \pcind[1] \prover and \verifier compute $y'\gets\alpha \cdot y_L +y_R \bmod p$, $\gr{C}' \gets \gr{C}_L^\alpha  \gr{C}_R$ and $b'\gets b\cdot p$. 
         \item \pcind[1] \prover computes $f'(X) \gets \alpha \cdot f_L(X) + f_R(X) \in \ZZ[X]$ \pccomment{$\deg(f'(X))=d'$}
         \item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\params, \gr{C}', z, y', d',b' ; f'(X))$
@@ -742,10 +742,12 @@ We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pr
     
 	Let $h(X)=f(X)-f'(X) \in \ZZ[X]$; this is a polynomial of degree at most $\max(f(X), f'(X))$. Since $\gr{g}^{f(q)}=\gr{g}^{f'(q)}=\gr{C}$ we have that $\gr{g}^{h(q)}=1$. Note that the coefficients of $f(X)$ and $f'(X)$ are all less than $q/2$ in absolute value. By triangle inequality we have that the coefficients of $h(X)$ are less than $q$. This means that $h(q)=0 \implies h(X)=0$. However by assumption $h(X)\neq 0$ so $h(q)\neq 0$ is a multiple of the order of $\gr{g}$. This directly breaks the order assumption and we can also create an adversary $\adv_{RSA}$ that breaks the strong RSA assumption. To do so the $\adv_{RSA}$ pics an odd prime $\ell$ that is co-prime with $h(q)$ and computes $\gr{u}\gets \gr{g}^{\ell^{-1} \bmod h(q)}$ as the $\ell$th root of $\gr{g}$.
 	\end{proof}
-
-\begin{lemma}
+We now proof the main theorem that the polynomial commitment scheme is extractable. Consider the information theoretic version of the eval protocol, where the prover sends the integer polynomials $f_L(X)$ and $f_R(X)$ in each round but the verifier does not read them. 
+In the final round the verifier receives $f_0$ such that $f_0\in[0,b]$. We now construct an extractor by recursively computing $f_L(X)$ and $f_R(X)$ from $f'(X)$.
+In each round the extractor has $f'(X)=f_L(X)+\alpha f_R(X)$. Using rewinding the extractor can also compute $f''(X)=f_L(X)+\alpha' f_R(X)$. From $f'(X)$, $f''(X)$, $\alpha$ and $\alpha'$ it is easy to compute $f_L(X)$ and $f_R(X)$. A careful analysis shows that if the coefficients of $f'(X)$ are bounded by $b$ then $f_L(X)$ and $f_R(X)$ must have coefficients bounded by $b \cdot p$ in absolute value. Using a similar analysis we can show that $f(z)\bmod p=y$ for the extracted polynomial $f(X)$. Our full proof takes into account the cryptographic compilation of the protocol using the integer encoding and exponentiation in groups of unknown order. 
+\begin{theorem}
 	The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ instantiated using $\ggen$ is extractable if the adaptive root assumption and the strong RSA assumption hold for $\ggen$ if $q>2 \cdot p^{2 \lceil \log_2(d) \rceil+1}$
-\end{lemma}
+\end{theorem}
 %\alan{Is it true that we don't need the order assumption?}
 \begin{proof}
 Suppose there is an adversary $\adv$ that breaks extractability with non-negligible probability $\gamma$. Assuming $\adv$ convinces the verifier with non-negligible probability, we proceed to build an algorithm violating the Fractional Root Assumption.
