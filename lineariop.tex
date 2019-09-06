@@ -20,12 +20,12 @@ Interactive Oracle Proofs (IOPs) \cite{BCS16, RRR16} combine IPs and PCPs: in ea
 
 \begin{definition} [Public-coin linear IOP]
 \label{def:linearIOP}
-Let $\mathcal{R}$ be a binary relation and $\mathbb{F}$ a finite field. A $t$-round $k$-query public-coin linear IOP for $\mathcal{R}$ over $\mathbb{F}$ with soundness error $\epsilon$ and knowledge error $\delta$ and query length $\mathbf{m} = (m_1,...,m_t)$ satisfies the following requirements: 
+Let $\mathcal{R}$ be a binary relation and $\mathbb{F}$ a finite field. A $t$-round $\ell$-query public-coin linear IOP for $\mathcal{R}$ over $\mathbb{F}$ with soundness error $\epsilon$ and knowledge error $\delta$ and query length $\mathbf{m} = (m_1,...,m_t)$ satisfies the following requirements: 
 
 \begin{itemize} 
 \item \underline{Protocol syntax}. There is a prover algorithm $P$, a query algorithm $Q$, and a verification algorithm $V$. For each $i$th round there is a prover state $\textsf{st}^P_i$ and a verifier state $\textsf{st}^V_i$. For any common input $x$ and $\mathcal{R}$ witness $w$, at round 0 the states are $\textsf{st}^P_0 = (x, w)$ and $\textsf{st}^V_0 = x$. 
 In the $i$th round (starting at $i = 1$) the prover outputs $\proofO_i \leftarrow P(\textsf{st}^P_{i-1})$ in $\mathbb{F}^{m_i}$ and the verifier outputs a uniformly sampled $\mathbf{r}_i \leftarrow_R \mathbb{F}^{\mu_i}$. 
-This determines a query matrix $\mathbf{Q}_i \leftarrow Q(\textsf{st}^V_{i-1}, \mathbf{r}_i)$ consisting of $k$ column vectors in $\mathbb{F}^{m_i}$, and the verifier obtains the linear oracle response $\mathbf{a}_i \leftarrow \proofO_i^\top \mathbf{Q}_i$. The updated prover state is $\textsf{st}^P_i \leftarrow (\textsf{st}^P_{i-1}, \mathbf{r}_i)$ and verifier state is $\textsf{st}^V_i \leftarrow (\textsf{st}^P_{i-1}, \mathbf{r}_i, \mathbf{a}_i)$. Finally, $V(\textsf{st}^V_t)$ returns $\textsf{Accept}$ or $\textsf{Reject}$.
+This determines a query matrix $\mathbf{Q}_i \leftarrow Q(\textsf{st}^V_{i-1}, \mathbf{r}_i)$ consisting of $\ell$ column vectors in $\mathbb{F}^{m_i}$, and the verifier obtains the linear oracle response $\mathbf{a}_i \leftarrow \proofO_i^\top \mathbf{Q}_i$. The updated prover state is $\textsf{st}^P_i \leftarrow (\textsf{st}^P_{i-1}, \mathbf{r}_i)$ and verifier state is $\textsf{st}^V_i \leftarrow (\textsf{st}^P_{i-1}, \mathbf{r}_i, \mathbf{a}_i)$. Finally, $V(\textsf{st}^V_t)$ returns $\textsf{Accept}$ or $\textsf{Reject}$.
 
 \item \underline{Completeness}. For every $(x, w) \in \mathcal{R}$, following the protocol syntax above $V(\textsf{st}^V_t)$ returns $\textsf{Accept}$ with probability 1. 
 
@@ -35,27 +35,34 @@ This determines a query matrix $\mathbf{Q}_i \leftarrow Q(\textsf{st}^V_{i-1}, \
 
 \end{itemize}
 
-Furthermore, the linear IOP has \textbf{degree} $d$ if for each $i \in [t]$ and $\textsf{st}^V_{i-1}$ there are $k$ $\mu_i$-variate degree-$d$ polynomial functions $p_1,...,p_k: \mathbb{F}^{\mu_i} \rightarrow \mathbb{F}^{m_i}$ such that $Q(\textsf{st}^V_{i-1}, \mathbf{r}_i) = p_i(\mathbf{r}_i)$. The IOP is \textbf{algebraic} for a parameter $\lambda$ if $d = poly(\lambda)$. 
+Furthermore, the linear IOP has \textbf{degree} $d$ if for each $i \in [t]$ and $\textsf{st}^V_{i-1}$ there are $\ell$ $\mu_i$-variate degree-$d$ polynomial functions $p_1,...,p_\ell: \mathbb{F}^{\mu_i} \rightarrow \mathbb{F}^{m_i}$ such that $Q(\textsf{st}^V_{i-1}, \mathbf{r}_i) = p_i(\mathbf{r}_i)$. The IOP is \textbf{algebraic} for a parameter $\lambda$ if $d = poly(\lambda)$. 
 It is \textbf{input-oblivious} if $x$ is not included in the state passed to $Q$, and is \textbf{stateless} if the only input to $Q$ in each round is the round index $i$ and $\mathbf{r}_i$.
-Finally, \textbf{polynomial IOPs} are a subclass of algebraic linear IOPs: in a $(\mu, d)$ polynomial IOP each proof oracle is a $\mu$-variate degree-$d$ polynomial and queries are evaluations of the polynomial at points in $\mathbb{F}^\mu$. 
+Finally, \textbf{polynomial IOPs} are a subclass of algebraic linear IOPs: in a $(\mu, d)$ polynomial IOP each proof oracle is a $\mu$-variate degree-$d$ polynomial and queries are evaluations of the polynomial at points in $\mathbb{F}^\mu$. In a polynomial IOP we also allow index queries to each PCP oracle, viewed as a vector of coefficients (i.e. equivalent to traditional unstructured PCP queries). Index queries are the most basic kind of linear query: an inner product with a standard basis vector. 
+
 \end{definition} 
 
 \emph{Remark:} Connection between polynomial IOPs and point IOPs, RS encoding, STARKs etc. 
 
 \begin{definition}[HVZK for public-coin IOPs]
-Let $\textsf{View}_{\langle P(x, w), Q(x) \rangle}(V)$ denote the view of the verifier in the $t$-round $k$-query interactive protocol described in Definition~\ref{def:linearIOP} on inputs $(x,w)$ with prover algorithm $P$ and query algorithm $Q$, consisting of all public-coin challenges and oracle outputs (i.e. equivalent to the final state $\textsf{st}^V_t$). The interactive protocol has $\delta$-statistical honest verifier zero-knowledge if there exists a probabilistic polynomial time algorithm $S$ such that for every $(x, w) \in \mathcal{R}$, the distribution $S(x)$ is $\delta$-close to $\textsf{View}_{\langle P(x, w), Q(x) \rangle}(V)$ (as distributions over the randomness of $P$ and random public-coin challenges).
+Let $\textsf{View}_{\langle P(x, w), Q(x) \rangle}(V)$ denote the view of the verifier in the $t$-round $ell$-query interactive protocol described in Definition~\ref{def:linearIOP} on inputs $(x,w)$ with prover algorithm $P$ and query algorithm $Q$, consisting of all public-coin challenges and oracle outputs (i.e. equivalent to the final state $\textsf{st}^V_t$). The interactive protocol has $\delta$-statistical honest verifier zero-knowledge if there exists a probabilistic polynomial time algorithm $S$ such that for every $(x, w) \in \mathcal{R}$, the distribution $S(x)$ is $\delta$-close to $\textsf{View}_{\langle P(x, w), Q(x) \rangle}(V)$ (as distributions over the randomness of $P$ and random public-coin challenges).
 \end{definition}
 
 \subsection{Compiling linear IOPs} 
-We are now ready to present our main theorems. We formulate two separate theorems: the first pertains only to compiling polynomial IOPs, and the second deals with more general stateless input-oblivious algebraic IOPs. The first result is more practical because it yields interactive arguments with quasi-linear prover time. In fact, there is a concrete instantiation of the polynomial IOP (used in Sonic~\cite{Sonic}) that results in an interactive argument with both quasi-linear prover time and logarithmic communication/verification. The second result is less practical because it only guarantees polynomial prover time, but includes a much broader spectrum of concrete instantiations, including QAP-based IOPs. The prover time in a QAP-based instantiation is quadratic. These instantiations are discussied in more detail in the next section. 
+We are now ready to present our main theorems. We formulate two separate theorems: the first pertains only to compiling polynomial IOPs, and the second deals with more general stateless input-oblivious algebraic IOPs. The first result is more practical because it yields interactive arguments with quasi-linear prover time. In fact, there is a concrete instantiation of the polynomial IOP (used in Sonic~\cite{Sonic}) that results in an interactive argument with both quasi-linear prover time and logarithmic communication/verification. The second result is less practical because it only guarantees polynomial prover time, but includes a much broader spectrum of concrete instantiations, including QAP-based IOPs. The prover time in a QAP-based instantiation is quadratic. These instantiations are discussed in more detail in Section~\ref{sec:instantiations}. \\
 
-\paragraph{Compilation I: Polynomial IOPs} 
-Let $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ be a $\mu$-variate polynomial commitment scheme. Given any $t$-round $(\mu, d)$-polynomial IOP for $\mathcal{R}$, construct an interactive protocol as follows: 
+\noindent \emph{Remark on $(\mu, d)$}: For simplicity, in our general theorems statements we consider $(\mu, d)$ polynomial IOPs where every polynomial PCP oracle is a $\mu$-variate degree $d$ polynomial. This is without loss of generality because $(\mu, d)$ can be viewed as an upper bound on the variables and degree. Of course, when a polynomial IOP involves a combination of oracles with different $\mu$ and $d$, the cryptographic compiler may indeed gain efficiency by taking advantage of this. We could formulate a more fine-grained theorem for $\{\mu_i, d_i\}$ polynomial IOPs where the $i$th round PCP is a $\mu_i$-variate degree $d_i$ polynomial. 
+We similarly use a fixed $(\mu, d)$ upper bound on the variables/degree of the query generation polynomials in our theorem concerned with compiling algebraic linear 
+IOPs. In Section~\ref{sec:instantiations} we discuss optimizations for concrete instantiations. 
+
+\subsubsection*{Compilation I: Polynomial IOPs} 
+Let $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ be a $\mu$-variate polynomial commitment scheme. Given any $t$-round $(\mu, d)$-polynomial IOP for $\mathcal{R}$ over $\mathbb{F}$, construct an interactive protocol as follows: 
 \begin{itemize}
 \item Run $\params \leftarrow \pro{Setup}(1^\lambda)$
 \item Replace each $(\mu, d)$ polynomial proof oracle $\proofO: \mathbb{F}^\mu \rightarrow \mathbb{F}$ with a commitment $c_{\proofO} \leftarrow \pro{Commit}(\params, \proofO, \mu)$
-\item Replace each verifier query $\mathbf{r}$ to proof oracle $\proofO$ with a interactive execution of $\pro{Eval}(\params, c_\pi, \mathbf{z}, y, \mu, d; \proofO)$, where $\proofO(\mathbf{z}) = y$. 
+\item Replace each verifier \emph{evaluation} query $\mathbf{r}$ to proof oracle $\proofO$ with a interactive execution of $\pro{Eval}(\params, c_\pi, \mathbf{z}, y, \mu, d; \proofO)$, where $\proofO(\mathbf{z}) = y$. Replace each index query to the $i$th $\mathbb{F}$-vector component of $\proofO$ with an execution of $\pro{OpenIndex}(\params, c_\pi, i, \pi_i, \mu, d; \proofO)$ where the $i$th coefficient of $\proofO$ is $\pi_i$. 
 \end{itemize}
+
+If the verifier does not abort in any of these subprotocols, then it receives a simulated IOP transcript of oracle query outputs. It runs the IOP verifier $V$ on this transcript and outputs the result. 
 
 %We begin with a lemma on using polynomial commitments (that has witness-extended emulation) to compile a public-coin polynomial IOP with negligible knowledge error into a public-coin interactive argument with witness-extended emulation. 
 
@@ -63,18 +70,36 @@ Let $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ be a $\mu$-va
 If the polynomial commitment scheme $\Gamma$ has witness-extended emulation and the $t$-round polynomial IOP for $\mathcal{R}$ has negligible knowledge error, then \emph{Compilation I} generates a public-coin interactive argument for $\mathcal{R}$ that has witness-extended emulation. 
 \end{lemma}
 
-\paragraph{Compilation II: Algebraic Linear IOPs} 
-Let $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ be a $\mu+1$-variate polynomial commitment scheme [that has an inner product argument? need to define syntax...]. Given any $t$-round stateless input-oblivious $\mu$-variate degree-$d$ algebraic linear IOP for $\mathcal{R}$, construct an interactive protocol as follows: 
-\begin{itemize}
-\item \underline{Setup}: Run $\params \leftarrow \pro{Setup}(1^\lambda)$
-\item \underline{Preprocessing}: For each $i$th round query generation function $P_i: \mathbb{F}^\mu \rightarrow \mathbb{F}^{m_i}$, where the $j$th component of $P_i(\mathbf{r})$ is $p_j(\mathbf{r})$ (for $\mu$-variate degree $d$ polynomial $p_j$), the preprocessor uses $\Gamma$ to generate a commitment $c_{P_i}$ to $(p_1,..., p_{m_i})$ as follows: 
-    \begin{itemize}
-    \item Encode $(p_1,...,p_{m_i})$ as a polynomial in $\mu + 1$ variables. Let $\mathbf{X} = (X_1,...,X_\mu)$ and $Z$ denote the $(\mu+1)$'st indeterminate, then define $\tilde{P}_i(\mathbf{X}, Z) := \sum_{j=1}^{m_i} p_j(\mathbf{X}) Z^j$.
-    \item Compute the commitment $c_{P_i} \leftarrow \pro{Commit}(\params, \tilde{P}_i, \mu + 1)$
-    \end{itemize}
-\item Replace each $i$th round proof oracle $\proofO_i$ with $\pro{Commit}(\proofO_i^{(r)})$ where $\proofO_i^{(r)}$ is the reversed vector $\proofO_i$. \ben{Depends on more general syntax for polynomial commitments with the inner product argument} 
+\subsubsection*{Compilation II: Algebraic Linear IOPs} 
 
-\item Replace each $i$th round verifier query $Q(\st^V_{i-1}, \mathbf{r}_i)$ with ... prover sends polynomial commitment $c_{Q_i}$ to query vector as coefficients of degree $m_i$ polynomial, and then sample random $\beta \in \mathbb{F}$, and Eval both $c_{P_i}$ at point $(\mathbf{r}_i, \beta)$ and $c_{Q_i}$ at $\beta$ to show that $Q_i(\beta) = \tilde{P}_i(\beta)$. Apply inner product argument to $c_{Q_i}$ and $c_{\proofO_i}$. (When dealing with multiple queries in a round do this for each column of the query matrix). \ben{Generalize notation} 
+Let $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval}, \pro{InnerProd})$ be a $\mu+1$-variate polynomial commitment scheme with an inner product argument.\footnote{Note, the commitment scheme might have a ``left" and ``right" commitment mode in order to support $\pro{InnerProd}$, where the inner product argument can only be applied to a left commitment paired with a right commitment.} Given any $t$-round $\ell$-query stateless input-oblivious $\mu$-variate degree-$d$ algebraic linear IOP for $\mathcal{R}$ with query length $\mathbf{m} = (m_1,...,m_t)$, construct an interactive protocol as follows: 
+
+\begin{itemize}
+
+\item \underline{Setup}: Run $\params \leftarrow \pro{Setup}(1^\lambda)$
+
+\item \underline{Preprocessing}: For each $i$th round there are $\ell$ query generation functions $P_1,...,P_\ell: \mathbb{F}^\mu \rightarrow \mathbb{F}^{m_i}$, where the $j$th component of $P_k(\mathbf{r}_i)$ is a $\mu$-variate degree $d$ polynomial function $p_{k,j}(\mathbf{r}_i)$, the preprocessor uses $\Gamma$ to generate a commitment $c_{P_k}$ to $(p_{k,1},..., p_{k,m_i})$ as follows:
+ 
+    \begin{itemize}
+    \item Encode $(p_{k,1},...,p_{k, m_i})$ as a polynomial in $\mu + 1$ variables. Let $\mathbf{X} = (X_1,...,X_\mu)$ and $Z$ denote the $(\mu+1)$'st indeterminate, then define $\tilde{P}_k(\mathbf{X}, Z) := \sum_{j=1}^{m_i} p_{k,j}(\mathbf{X}) Z^j$.
+    
+    \item For each $k \in [\ell]$, compute the commitment $c_{P_k} \leftarrow \pro{Commit}(\params, \tilde{P}_k, \mu + 1)$. (If $\Gamma$ has left/right modes to support inner product then compute this as a ``right" mode commitment). 
+    \end{itemize}
+    
+\item Replace each $i$th round proof oracle $\proofO_i$ with $c_{\proofO_i} \leftarrow \pro{Commit}(\params, \proofO_i)$ where the vector $\proofO_i$ is interpreted as the coefficient vector of a univariate polynomial. (If $\Gamma$ has left/right modes, commit to the proof oracle in ``left" mode). 
+
+\item Replace each $i$th round verifier query matrix $\mathbf{Q}_i \in \mathbb{F}^{m_i \times \ell}$ consisting of column query vectors $(\mathbf{q}_1,...,\mathbf{q}_\ell)$ with the following interactive subprotocol for each $k \in [\ell]$: 
+
+\begin{itemize}
+ \item Prover sends a univariate polynomial commitment $c_{\mathbf{q}_k}$ to $\mathbf{q}_k$, interpreted as coefficient vector of a univariate polynomial. (In $\Gamma$ with modes it commits in ``right" mode). 
+ \item Verifier samples uniform random $\beta \leftarrow_R\mathbb{F}$. 
+ \item Prover evaluates $y_1 \leftarrow \mathbf{q}_k(\beta)$ and $y_2 \leftarrow \tilde{P}_k(\mathbf{r}_i, \beta)$ and sends these to the verifier. The verifier aborts if $y_1 \neq y_2$ and returns 0. 
+ \item Assume at this point $y = y_1 = y_2$. The prover and verifier run $\eval(\params, c_{\mathbf{q}_k}, \beta, y, m_i; \mathbf{q}_k)$ and $\eval(\params, c_{P_k}, (\mathbf{r}, \beta), y, d; \tilde{P}_k)$. If the verifier returns 0 in either subprotocol, the verifier aborts and outputs 0. 
+ \item The prover computes $a_{i,k} = \langle \proofO_i, \mathbf{q}_k \rangle$ and sends $a_{i,k}$ to the verifier. The prover and verifier run $\pro{InnerProduct}(c_{\proofO_i}, c_{\mathbf{q}_k}, a_{i,k}, m_i; \proofO_i, \mathbf{q}_k)$. If the verifier returns 0 in this subprotocol it aborts and outputs 0.
+ \end{itemize} 
+ 
+If all substeps succeed the the verifier obtains the vector $\mathbf{a}_i = (a_{i,1},....,a_{i, \ell})$ for each $i$th IOP round. If this succeeds for each round, then the verifier runs the IOP verification algorithm $V$ on this transcript and outputs the result.
+
 \end{itemize}
 
 
