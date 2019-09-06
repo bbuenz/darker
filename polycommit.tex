@@ -682,7 +682,7 @@ In the final step the prover simply sends the constant polynomial $f_0$ and the 
 
 Using the integer encoding (with a sufficiently large $q>p^{\log_2(d+1)}$) and exponentiation in groups of unknown order as the cryptographic compilers we can derive an efficient $\eval$ protocol with logarithmic communication. To achieve verifier efficiency we need to build an efficient check that $f(X)=f_L(X)+X^{d'+1} f_R(X)$ given committed $f(X), f_L(X)$ and $f_R(X)$. Concretley the verifier checks that $\gr{C}=\gr{C}_L\gr{C}_R^{q^{d'+1}}$ for $\gr{C}=\gr{g}^{f(q)}$, $\gr{C}_L=\gr{g}^{f_L(q)}$ and $\gr{C}_R=\gr{g}^{f_R(q)}$. Luckily Wesolowski \cite{EC:Wesolowski19} and Pietrzak\cite{EPRINT:Pietrzak18b} presented efficient proofs of exponentiations \textsf{PoE} in the context of verifiable delay functions\cite{C:BBBF18}. A \textsf{PoE} can be used here to outsource the verification check to the prover. Wesolowski's \textsf{PoE} has constant communication and verification time and is thus particularly well suited here.
 
-We now present the full $\eval$ protocol. 
+We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pro{EvalBounded} which additionally allows the specification of a bound on the size of the coefficients (other than $p$).  This can be particularly useful if commitments where homomorphically combined prior to the execution of $\pro{EvalBounded}$. Recall that any homomorphic operation increases the size of the coefficients.
 %We use lower-case \textsf{sans-serif} font to denote group elements. We denote the prover by $\prover$ and the verifier by $\verifier$. The scheme is parameterized by three values: The prime $p$ that defines the field over which the polynomial is defined; The degree $d_{\max}$ that provides an upper bound on the degree of the polynomials for which the scheme works; and the integer $q$ which is ``large enough'' power of two, where what ``large enough'' means depends on the context.
 
 %The commitment and opening protocols are straightforward. They simply raise the designated group element $\gr{g}$ to the integer encoding of the polynomial as described in the previous section. The evaluation protocol uses the limited homomorphic properties of this encoding scheme to reduce the statement to smaller versions of itself.
@@ -743,7 +743,7 @@ We now present the full $\eval$ protocol.
 	\end{proof}
 
 \begin{lemma}
-	The polynomial commitment scheme instantiated using $\ggen$ is extractable if the adaptive root assumption and the strong RSA assumption hold for $\ggen$.
+	The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ instantiated using $\ggen$ is extractable if the adaptive root assumption and the strong RSA assumption hold for $\ggen$ if $q>2 \cdot p^{2 \lceil \log_2(d) \rceil+1}$
 \end{lemma}
 %\alan{Is it true that we don't need the order assumption?}
 \begin{proof}
