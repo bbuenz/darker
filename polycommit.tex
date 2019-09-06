@@ -305,7 +305,7 @@ Let $(\textsf{Setup}, P, V)$ be an $r$-round public-coin interactive protocol fo
 In defining the syntax of the various types of commitment schemes, we use the following convention with respect to public values (known to both the prover and the verifier) and secret ones (known only to the prover). In any list of arguments or returned tuple $(a, b, c; d, e)$ those variables listed before the semicolon are public, and those variables listed after it are secret. When there is no secret information, the semicolon is omitted.
 
 \begin{definition}[Commitment scheme]
-A (non-interactive) commitment scheme $\Gamma$ is a tuple $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open})$ of PPT algorithms where:
+A commitment scheme $\Gamma$ is a tuple $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open})$ of PPT algorithms where:
 \begin{itemize}
     \item $\pro{Setup}(1^\lambda) \rightarrow \params$ generates public parameters $\params$;
     \item $\pro{Commit}(\params; x) \rightarrow (c; r)$ takes a secret message $x$ and outputs a public commitment $c$ and (optionally) a secret opening hint $r$ (e.g. the randomness used in the computation).
@@ -404,7 +404,32 @@ The correctness definition above implies that if $\Gamma = (\pro{Setup}, \pro{Co
 
 It is easy to see that witness-extended emulation implies evaluation binding when $(\pro{Setup}, \pro{Commit}, \pro{Open})$ is a binding commitment scheme. If the adversary succeeds in $\eval$ on both $(c, z, y_0, d_0)$ and $(c, z, y_1, d_1)$ for $y_0 \neq y_1$ or $d_0 \neq d_1$ then the emulator obtains two distinct witnesses $f(X) \neq f'(X)$ and such that $c$ is a valid commitment to both. This would contradict the binding property of the commitment scheme. 
 
+\paragraph{Opening individual coefficients} The coefficients of a committed polynomial can be revealed and checked all at once using $\pro{Open}$, however, in some cases it is useful to reveal an individual coefficient more efficiently (e.g. with sublinear communication). There is a generic protocol for this that uses $\pro{Eval}$ as a black-box, and inherits the efficiency properties of $\pro{Eval}$. The following is an interactive protocol for the statement that the $i$th coefficient of the degree $d$ committed polynomial in $c$ is $a$:\\
 
+$\pro{OpenIndex}(\params, c, a, i, d; f(X)) \rightarrow b \in \{0,1\}$
+\begin{itemize}
+
+\item \emph{Prover}: Split $f(X)$ about the term $X^i$ into a lower part $f_L(X)$ of degree $i -1$ and an upper part $f_R(X)$ of degree $d - i - 1$ such that $f(X) - a X^i = X^{i+1} f_R(X) + f_L(X)$. Compute commitments $c_R \leftarrow \pro{Commit}(\params, f_R(X))$ and $c_L \leftarrow \pro{Commit}(\params, f_L(X))$. Send $c_R$ and $c_L$ to the verifier. 
+
+\item \emph{Verifier}: Sample uniform random  $\beta \leftarrow_R \mathbb{F}_p$ and send $\beta$ to the prover.
+
+\item \emph{Prover}: Evaluate $y_R \leftarrow f_R(\beta)$, $y_L \leftarrow f_L(\beta)$, and $y \leftarrow f(\beta)$. Send $y_R, y_L, y$ to the verifier. 
+
+\item Verifier checks that $y = y_L + \beta^{i+1} y_R - a \beta^i \bmod p$ and returns $0$ (aborts) if not.
+
+\item Prover and verifier run: 
+\begin {itemize} 
+\item  $\pro{Eval}(\params, c_R, \alpha, y_R, d - i -1; f_R(X))$ 
+\item $\pro{Eval}(\params, c_L, \alpha, y_L, i -1; f_L(X))$. 
+\end{itemize} 
+Verifier aborts and outputs $0$ if either subprotocol returns $0$. Otherwise it outputs $1$. 
+
+\end{itemize}
+
+
+ 
+
+\paragraph{Inner product argument} A 
 %that evaluates to $y$ in $z$. This is already implied if the verifier can choose $z$, since opening the polynomial in $\deg(f(X))+1$ points determines it completely. However, we want an even stronger soundness notion, one that applies even when $z$ is not chosen by the verifier. This motivates the following definition of extractability.
 
 %%OLD 
