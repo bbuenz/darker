@@ -961,7 +961,26 @@ Follows from security proof of Eval.
 
 \subsection{Vector Commitments}
 
-Ben's description from the preliminaries should go here. (But with $\mathbf{f}$ rather than $f(X)$ notation.)
+A commitment to a polynomial is a commitment to a list of coefficients, and the ability to extract any indicated coefficient from a polynomial commitment effectively upgrades the scheme to a vector commitment scheme.\footnote{For this classification we allow logarithmic-size proofs to qualify, in contrast to the original definition of Catalano and Fiore~\cite{PKC:CatFio13} which requires them to be constant size.} While it is possible to extract an indicated coefficient using only a polynomial commitment scheme (see Section~\ref{subsection:openindex_from_polycom} for a demonstration of this fact), it is possible to achieve this task much more efficiently by exploiting the homomorphic properties of our commitment scheme. For the following description we will identify polynomials $f(X)$ with their coefficient vectors $\mathbf{f}$ and vice versa.
+
+We achieve this task in two modular steps. Protocol $\pro{ExtractCoefficient}(\params, \gr{C}, i; f(X)) \rightarrow (\gr{C}_a; a)$ generates a commitment to coefficient $i$ along with decommitment information from a vector commitment $\gr{C} \in \mathbb{G}$, an index $i \in \mathbb{N}$, and secret decommitment information $f(X) \in \mathbb{Z}[X]$ for $\gr{C}$. Protocol $\pro{OpenIndex}$ uses this as a subprotocol to realize the syntax defined in the preliminaries (Section~\ref{subsection:openindex}). 
+
+\begin{figure}[!htp]
+\renewcommand{\figurename}{Protocol}
+\caption{Coefficient extraction} \label{scheme:coefficient_extraction}
+\noindent\begin{mdframed}[userdefinedwidth=\textwidth]
+\begin{minipage}{\textwidth}
+	\begin{flushleft}
+	$\pro{InnerProduct}(\params, \gr{C}_\mathbf{f}, \gr{C}_a; \mathbf{f}, \mathbf{s}, \hat{\mathbf{f}}):$ \pccomment{$\mathbf{f}, \mathbf{s} \in \ZZ_p^{d+1}$ but $\hat{f}(X) \in \mathbb{Z}[X]$}
+		\begin{enumerate}[nolistsep]
+		    \item \prover computes $\gr{C}' \gets \gr{C}_\mathbf{f}^{\sum_{i=0}^{d} s_{d-i} q^i}$ and sends it to \verifier
+		    \item \prover computes $h(X) \gets \left(\sum_{i=0}^d f_i X^i\right) \left(\sum_{i=0}^d g_{d-i} X^i\right)$
+		    \item \prover and \verifier run $\pro{ExtractCoefficient}(\params, \gr{C}', \gr{C}_a, d, 2d-1; h(X))$
+		\end{enumerate}
+	\end{flushleft}
+\end{minipage}
+\end{mdframed}
+\end{figure}
 
 \subsection{Inner Products}
 
