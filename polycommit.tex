@@ -614,7 +614,7 @@ Boneh et al. \cite{journals/iacr/BonehBF18a} built on top of PoE to also develop
 \subsection{Polynomial Encoding}
 At the heart of our protocol is an integer encoding of polynomials with bounded coefficients. The encoding can be viewed as the integer concatenation of the coefficients. This encoding has useful homomorphic properties which we can take advantage of. Additionally, we can represent polynomials in prime fields as integer polynomials with bounded coefficients.
 
-	Consider the set $B_{q/2} \subset \ZZ$ of integers with absolute value of less than $q/2$. In a slight abuse of notation we write $B_{q/2}[X]\subset \mathbb{Z}[X]$ as the set of integer polynomials with bounded coefficients. $p(q) \in \ZZ$ for $p(X)\in B_{q/2}[X]$ is a unique encoding of the polynomial:
+	Consider the set $B_{q/2}:=\{x | x \in \ZZ \wedge \vert x\vert  <q/2\} \subset \ZZ$ of integers with absolute value of less than $q/2$. In a slight abuse of notation we write $B_{q/2}[X]\subset \mathbb{Z}[X]$ as the set of integer polynomials with bounded coefficients. $p(q) \in \ZZ$ for $p(X)\in B_{q/2}[X]$ is a unique encoding of the polynomial:
 \begin{itemize}
 	\item Domain $B_{q/2}[X]\subset \ZZ[X]$, Alphabet: $\ZZ$
 	\item 	$f(X):=\sum_{i=0}^{d} f_i X^i$
@@ -642,7 +642,7 @@ We now present our main result:
 A polynomial commitment scheme with an efficient evaluation protocol based on groups of unknown order $\GG$. For polynomials of degree $d$ the protocol uses $\log_2(d+1)$ rounds and $O(\log(d))$ communication and verifier work.
 
 Exponentiation in groups of unknown order is a succinct and homomorphic cryptographic commitments to integers.
-Using the integer encoding of polynomials presented above we can simply commit to an integer polynomial with bounded coefficients $f(X)\in B_{q/2}[X]$ by computing $\gr{g}^{f(q)} \in \GG$. We describe the commitment and opening algorithms below:
+Using the integer encoding of polynomials presented above we can simply commit to an integer polynomial with bounded coefficients $f(X)\in B_{q/2}[X]$ by computing $\gr{g}^{f(q)} \in \GG$. Note that our commitment scheme supports integer polynomials with bounded coefficient. Every polynomial in $\ZZ_p[X]$ naturally maps to an integer polynomial with coefficients in $B_{p}$. The commitment scheme, therefore, supports committing to polynomials in $\ZZ_p[X]$ for $p<q/2$. Interestingly neither $p$ nor the degree $d$ need to be specified in the setup. As long as $q$ is ``big enough'' they can be freely chosen. We will discuss the relationship between $p$, $d$ and $q$ later but first we describe the setup, commitment and opening algorithms:
 
 
 \begin{mdframed}[userdefinedwidth=\textwidth]
@@ -655,7 +655,7 @@ Using the integer encoding of polynomials presented above we can simply commit t
 			%\item $q \gets 2^k$ such that $q > (d+1) \cdot 2\cdot p^{\log_2(d+1)+1} $
 			\item $\pcreturn \params = (\secpar,\GG,\gr{g})$
 		\end{enumerate}
-	$\pro{Commit}(\crs;f(X)):$ \pccomment{$f(X) \in \ZZ_p[X]$ with coefficients in $[0;p-1]$}
+	$\pro{Commit}(\crs;f(X) \in B_p[X]):$ \pccomment{$f(X)\equiv \bar{f}(X) \mod p$ for  $\bar{f}(X)\ZZ_p[X]$}
 		\begin{enumerate}[nolistsep]
 			\item $\gr{C} \gets \gr{g}^{f(q)}$
 			\item $\pcreturn (\gr{C};f(X))$
@@ -663,16 +663,16 @@ Using the integer encoding of polynomials presented above we can simply commit t
 	$\pro{Open}(\crs,\gr{C},\bar{f}(X);f(X)):$ \pccomment{$f(X) \in B_{q/2}[X]\subset\mathbb{Z}[X]$ but $\bar{f}(X) \in \ZZ_p[X]$}
 		\begin{enumerate}[nolistsep]
 		    \item \prover sends $f(X)$ to \verifier.
+		    				\item \verifier computes $\bar{f}(X) \gets f(X) \mod p$
 		    \item \verifier checks that $f(X)\in B_{q/2}[X]$
-				\item \verifier checks that $f(X) \equiv \bar{f}(X) \mod p$
-			\item \verifier checks that $\gr{g}^{f(q)} = \gr{C}$
+			\item \verifier checks that $\gr{g}^{f(q)} = \gr{C}$ \pccomment{Can be outsourced using $\textsf{PoE}(\gr{g},C,f(q))$}
 			\item \pcif all checks pass \textbf{then} \pcreturn $1$ \textbf{else} \pcreturn $0$
 		\end{enumerate}
 		\end{flushleft}
 \end{minipage}
 \end{mdframed}
 %Opening the commitment can be simply done by rerunning the commitment algorithm. Additionally a proof of exponentiation (PoE) can be used to increase verifier efficiency.
-The commitment inherits the homomorphic properties of the integer encoding. Assume that we are committing to polynomials in $\ZZ_p[X]$, i.e. polynomials with coefficients bounded by $p$. Then commitment scheme supports up to $\frac{q}{2 \cdot p}$ homomorphic additions. We use this to build an efficient $\eval$ protocol. 
+The commitment inherits the homomorphic properties of the integer encoding. Assume that we are committing to representations of polynomials in $\ZZ_p[X]$, i.e. polynomials with coefficients bounded by $p$. Then commitment scheme supports up to $\frac{q}{2 \cdot p}$ homomorphic additions. We use this to build an efficient $\eval$ protocol. 
 
 The core idea of the $\eval$ protocol is to reduce the statement from a statement about a polynomial $f(X)$ of degree $d$ to one about a polynomial of degree $d'=\frac{d+1}{2}-1$. For simplicity assume that $d+1$ is a power of $2$.
 The prover does this by splitting $f(X)$ into $f_L(X)$ and $f_R(X)$ such that $f_L(X)+X^{d'+1} f_R(X)$ and such that both polynomials have degree at most $d'$. Then she proves that $f'(X)=f_L(X)+\alpha \cdot f_R(X)$ has degree $d'$ for a random challenge $\alpha\in [0,p-1]$. 
@@ -707,8 +707,8 @@ We now present the full $\eval$ protocol.
                 \item \pcind[1] \verifier checks that $g^{f_0}=C$
 \item \pcind[1] \verifier outputs $1$ \pcif all checks pass, $0$ otherwise.
           \item \pcif{$d+1$ is odd}
-         \item \pcind[1]  $d'\gets d+1$,$ C'\gets C^q$, $y'\gets y\cdot z \bmod p$ and $f'(X)\gets X \cdot f(X)$.
-         \item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\crs,C',z,y',d+1,b;f'(X))$
+         \item \pcind[1]  $d'\gets d+1, C'\gets C^q$, $y'\gets y\cdot z \bmod p$ and $f'(X)\gets X \cdot f(X)$.
+         \item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\crs,C',z,y',d',bd;f'(X))$
         \item \pcelse: \pccomment{$d \geq 1$ and $d+1$ is even}
        
         \item \pcind[1] \prover and \verifier compute $d' \gets \frac{d+1}{2} - 1$
@@ -726,20 +726,25 @@ We now present the full $\eval$ protocol.
       \end{minipage}
 \end{mdframed}
 
-\alaninline{Todo: correctness.}
-
 \begin{lemma}
-	The polynomial commitment scheme (Protocol \ref{scheme:polynomial_commitment}) is binding if the order assumption holds.
+	The polynomial commitment scheme is correct for polynomials in $\ZZ_p$ of degree at most $d$ if $q> p^{\lceil \log_2(d+1)\rceil+1}$.
 \end{lemma}
 \begin{proof}
-    Assume that there is an adversary that breaks the binding property of the scheme. Specifically, assume that some probabilistic polynomial time algorithm $\adv$ takes as input $\params$ and outputs $\gr{C} \in \GG, f(X) \in \ZZ[X], f'(X)\in \ZZ[X], \bar{f}(X)\in \ZZ_p[X], \bar{f'}(X) \in \ZZ_p[X]$ such that with high probability $\pro{Open}(\params, \gr{C}, f(X); \hat{f}(X)) = \pro{Open}(\params, \gr{C}, f'(X), \hat{f'}(X)) = 1$ and $f(X) \neq f'(X)$. We proceed to show that this implies a violation of the Order Assumption~(\ref{assum:order}).
+	We need to ensure that $q$ remains larger than the bound $b$ and the opened polynomial. In each round the coefficients grow by a factor of at most $p$, e.g. $f'_0=f_0+\alpha f_1$ for $\alpha \in [0,p-1]$ and $f_0,f_1 \in [0,b-1]$. The recursion has $\lceil \log_2(d+1)\rceil$ rounds which gives us a bound $b$ of $p^{\lceil \log_2(d+1)\rceil+1}$. If $f(z)=y \bmod p$ then $f'(z)=y' \bmod p$. $\textsf{PoE}$ itself is a perfectly complete argument. The rest of the protocol's correctness is immediate.
+\end{proof} 
+ 
+\begin{lemma}
+	The polynomial commitment scheme is binding if either the order assumption or the strong RSA assumption hold.
+\end{lemma}
+\begin{proof}
+    Assume that there is an adversary that breaks the binding property of the scheme. Specifically, assume that some probabilistic polynomial time algorithm $\adv$ takes as input $\params$ and outputs $\gr{C} \in \GG, f(X) \in B_{q/2}[X], f'(X)\in B_{q/2}[X]$ such that with non-negligble probability $\pro{Open}(\params, \gr{C}, f(X)) = \pro{Open}(\params, \gr{C}, f'(X)) = 1$ and $f(X) \neq f'(X)$. We proceed to show that this implies a violation of the Order Assumption~(\ref{assum:order}).
     
-	Let $\hat{h}(X)=\hat{f}(X)-\hat{f'}(X) \in \ZZ[X]$; this is a polynomial of degree at most $\max(f(X), f'(X))$. Since $\gr{g}^{\hat{f}(q)}=\gr{g}^{\hat{f'}(q)}=\gr{C}$ we have that $\gr{g}^{\hat{h}(q)}=1$. Note that the coefficients of $\hat{f}(X)$ and $\hat{f'}(X)$ are all less than $q/2$ in absolute value. By triangle inequality we have that the coefficients of $\hat{h}(X)$ are less than $q$. We have $\hat{f}(X) \neq \hat{f'}(X)$ because this inequality still holds modulo $p$, otherwise the adversary fails to open the commitment to two \emph{different} values. So $\hat{h}$ is not the zero polynomial. This implies that $\hat{h}(q) \neq 0$ and is a multiple of the order of $\gr{g} \in \GG$. This directly breaks the Order Assumption.
-\end{proof}
+	Let $h(X)=f(X)-f'(X) \in \ZZ[X]$; this is a polynomial of degree at most $\max(f(X), f'(X))$. Since $\gr{g}^{f(q)}=\gr{g}^{f'(q)}=\gr{C}$ we have that $\gr{g}^{h(q)}=1$. Note that the coefficients of $f(X)$ and $f'(X)$ are all less than $q/2$ in absolute value. By triangle inequality we have that the coefficients of $h(X)$ are less than $q$. This means that $h(q)=0 \implies h(X)=0$. However by assumption $h(X)\neq 0$ so $h(q)\neq 0$ is a multiple of the order of $\gr{g}$. This directly breaks the order assumption and we can also create an adversary $\adv_{RSA}$ that breaks the strong RSA assumption. To do so the $\adv_{RSA}$ pics an odd prime $\ell$ that is co-prime with $h(q)$ and computes $\gr{u}\gets \gr{g}^{\ell^{-1} \bmod h(q)}$ as the $\ell$th root of $\gr{g}$.
+	\end{proof}
 
-\begin{theorem}
-	The polynomial commitment scheme (Scheme \ref{scheme:polynomial_commitment}) instantiated using $\ggen$ is extractable if the adaptive root assumption and the strong RSA assumption hold for $\ggen$.
-\end{theorem}
+\begin{lemma}
+	The polynomial commitment scheme instantiated using $\ggen$ is extractable if the adaptive root assumption and the strong RSA assumption hold for $\ggen$.
+\end{lemma}
 %\alan{Is it true that we don't need the order assumption?}
 \begin{proof}
 Suppose there is an adversary $\adv$ that breaks extractability with non-negligible probability $\gamma$. Assuming $\adv$ convinces the verifier with non-negligible probability, we proceed to build an algorithm violating the Fractional Root Assumption.
