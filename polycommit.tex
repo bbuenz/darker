@@ -704,11 +704,12 @@ We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pr
         \item \pcind[1] \verifier checks that $b< q$ \benedikt{Make sure this is in line with proof.}
         \item \pcind[1] \verifier checks that $f_0 \in [0,b]$
           \item \pcind[1] \verifier checks that $f_0\equiv y \bmod p$
-                \item \pcind[1] \verifier checks that $g^{f_0}=C$
+                \item \pcind[1] \verifier checks that $\gr{g}^{f_0}=\gr{C}$
 \item \pcind[1] \verifier outputs $1$ \pcif all checks pass, $0$ otherwise.
           \item \pcif{$d+1$ is odd}
-         \item \pcind[1]  $d'\gets d+1, C'\gets C^q$, $y'\gets y\cdot z \bmod p$ and $f'(X)\gets X \cdot f(X)$.
-         \item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\crs,C',z,y',d',bd;f'(X))$
+         \item \pcind[1]  $d'\gets d+1, \gr{C}'\gets \gr{C}^q$, $y'\gets y\cdot z \bmod p$ and $f'(X)\gets X \cdot f(X)$.
+         \item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\crs,\gr{C}',z,y',d',bd;f'(X))$
+
         \item \pcelse: \pccomment{$d \geq 1$ and $d+1$ is even}
        
         \item \pcind[1] \prover and \verifier compute $d' \gets \frac{d+1}{2} - 1$
@@ -966,7 +967,55 @@ Follows from security proof of Eval.
 
 \subsection{Vector Commitments}
 
-Ben's description from the preliminaries should go here. (But with $\mathbf{f}$ rather than $f(X)$ notation.)
+A commitment to a polynomial is a commitment to a list of coefficients, and the ability to extract any indicated coefficient from a polynomial commitment effectively upgrades the scheme to a vector commitment scheme.\footnote{For this classification we allow logarithmic-size proofs to qualify, in contrast to the original definition of Catalano and Fiore~\cite{PKC:CatFio13} which requires them to be constant size.} While it is possible to extract an indicated coefficient using only a polynomial commitment scheme (see Section~\ref{subsection:openindex_from_polycom} for a demonstration of this fact), it is possible to achieve this task much more efficiently by exploiting the homomorphic properties of our commitment scheme. For the following description we will identify polynomials $f(X)$ with their coefficient vectors $\mathbf{f}$ and vice versa.
+
+We achieve this task in two modular steps. Protocol $\pro{ExtractCoefficient}(\params, \gr{C}, i; f(X)) \rightarrow (\gr{C}_a; a)$ generates a commitment to coefficient $i$ along with decommitment information from a vector commitment $\gr{C} \in \mathbb{G}$, an index $i \in \mathbb{N}$, and secret decommitment information $f(X) \in \mathbb{Z}[X]$ for $\gr{C}$. Protocol $\pro{OpenIndex}$ uses this as a subprotocol to realize the syntax defined in the preliminaries (Section~\ref{subsection:openindex}). 
+
+\begin{figure}[!htp]
+\renewcommand{\figurename}{Protocol}
+\caption{Coefficient extraction} \label{scheme:coefficient_extraction}
+\noindent\begin{mdframed}[userdefinedwidth=\textwidth]
+\begin{minipage}{\textwidth}
+	\begin{flushleft}
+	$\pro{ExtractCoefficient}(\params, \gr{C}, i; f(X)):$ \pccomment{$f(X) \in \ZZ[X]$}
+		\begin{enumerate}[nolistsep]
+		    \item \prover computes $f_L(X) \gets \sum_{j=0}^{i-1} f_j X^j$ and $f_R \gets \sum_{j=i+1}^d f_j X^{j-i-1}$
+		    \item \prover computes $\gr{C}_L \gets \gr{g}^{f_L(q)}$, $\gr{C}_a \gets \gr{g}^{f_i}$, and $\gr{C}_R \gets \gr{g}^{f_R(q)}$
+		    \item \prover computes $\gr{C}_a' \gets \gr{C}_a^{q^i}$ and $\gr{C}_R' \gets \gr{C}_R^{q^{i+1}}$
+		    \item \prover sends $\gr{C}_L, \gr{C}_a, \gr{C}_a', \gr{C}_R$ to \verifier
+		    \item \verifier computes $\gr{C}_R' \gets \gr{C} \gr{C}_L^{-1} {\gr{C}_a'}^{-1}$
+		    \item \prover and \verifier run $\pro{PoE}(\gr{C}_a, \gr{C}_a', q^i)$ and $\pro{PoE}(\gr{C}_R, \gr{C}_R', q^{i+1})$
+		    \item \prover and \verifier run $\pro{EvalBounded}(\params, \gr{C}_L, z, f_L(z), i-1, b; f_L(X))$ for an arbitrary $z$ and any $b$ such that $\max_j f_j \leq b \ll q$
+		    \item \pcreturn $(\gr{C}_a; f_i)$
+		\end{enumerate}
+	\end{flushleft}
+\end{minipage}
+\end{mdframed}
+\end{figure}
+
+\begin{lemma}[security of Protocol~\ref{scheme:coefficient_extraction}]
+    relation and witness-extended emulation of Protocol~\ref{scheme:coefficient_extraction}. Much wow.
+\end{lemma}
+
+\begin{figure}[!htp]
+\renewcommand{\figurename}{Protocol}
+\caption{OpenIndex} \label{scheme:homomorphic_openindex}
+\noindent\begin{mdframed}[userdefinedwidth=\textwidth]
+\begin{minipage}{\textwidth}
+	\begin{flushleft}
+	$\pro{OpenIndex}(\params, \gr{C}, a, i; f(X)):$ \pccomment{$f(X) \in \ZZ_p[X]$}
+		\begin{enumerate}[nolistsep]
+		    \item \prover and \verifier run $(\gr{C}_a; f_i) \gets \pro{ExtractCoefficient}(\params, \gr{C}, i; f(X))$
+		    \item \textbf{return} $\pro{Open}(\params, \gr{C}_a, a; f_i)$
+		\end{enumerate}
+	\end{flushleft}
+\end{minipage}
+\end{mdframed}
+\end{figure}
+
+\begin{lemma}[security of Protocol~\ref{scheme:homomorphic_openindex}]
+    wee
+\end{lemma}
 
 \subsection{Inner Products}
 
