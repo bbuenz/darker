@@ -642,9 +642,37 @@ We now present our main result:
 A polynomial commitment scheme with an efficient evaluation protocol based on groups of unknown order $\GG$. For polynomials of degree $d$ the protocol uses $\log_2(d+1)$ rounds and $O(\log(d))$ communication and verifier work.
 
 Exponentiation in groups of unknown order is a succinct and homomorphic cryptographic commitments to integers.
-Using the integer encoding of polynomials presented above we can simply commit to an integer polynomial with bounded coefficients $f(X)\in B_{q/2}[X]$ by computing $\gr{g}^{f(q)} \in \GG$. 
+Using the integer encoding of polynomials presented above we can simply commit to an integer polynomial with bounded coefficients $f(X)\in B_{q/2}[X]$ by computing $\gr{g}^{f(q)} \in \GG$. We describe the commitment and opening algorithms below:
+
+
+\begin{mdframed}[userdefinedwidth=\textwidth]
+\begin{minipage}{\textwidth}
+	\begin{flushleft}
+	$\pro{Setup}(1^\secpar):$
+		\begin{enumerate}[nolistsep]
+			\item $ \GG \sample \ggen(\secpar)$
+			\item $ \gr{g} \sample \GG$
+			%\item $q \gets 2^k$ such that $q > (d+1) \cdot 2\cdot p^{\log_2(d+1)+1} $
+			\item $\pcreturn \params = (\secpar,\GG,\gr{g})$
+		\end{enumerate}
+	$\pro{Commit}(\crs;f(X)):$ \pccomment{$f(X) \in \ZZ_p[X]$ with coefficients in $[0;p-1]$}
+		\begin{enumerate}[nolistsep]
+			\item $\gr{C} \gets \gr{g}^{f(q)}$
+			\item $\pcreturn (\gr{C};f(X))$
+		\end{enumerate}
+	$\pro{Open}(\crs,\gr{C},\bar{f}(X);f(X)):$ \pccomment{$f(X) \in B_{q/2}[X]\subset\mathbb{Z}[X]$ but $\bar{f}(X) \in \ZZ_p[X]$}
+		\begin{enumerate}[nolistsep]
+		    \item \prover sends $f(X)$ to \verifier.
+		    \item \verifier checks that $f(X)\in B_{q/2}[X]$
+				\item \verifier checks that $f(X) \equiv \bar{f}(X) \mod p$
+			\item \verifier checks that $\gr{g}^{f(q)} = \gr{C}$
+			\item \pcif all checks pass \textbf{then} \pcreturn $1$ \textbf{else} \pcreturn $0$
+		\end{enumerate}
+		\end{flushleft}
+\end{minipage}
+\end{mdframed}
 %Opening the commitment can be simply done by rerunning the commitment algorithm. Additionally a proof of exponentiation (PoE) can be used to increase verifier efficiency.
-The commitment inherits the homomorphic properties of the integer encoding. Assume that we are committing to polynomials in $\FF_p[X]$, i.e. polynomials with coefficients bounded by $p$. Then commitment scheme supports up to $\frac{q}{2 \cdot p}$ homomorphic additions. We use this to build an efficient $\eval$ protocol. 
+The commitment inherits the homomorphic properties of the integer encoding. Assume that we are committing to polynomials in $\ZZ_p[X]$, i.e. polynomials with coefficients bounded by $p$. Then commitment scheme supports up to $\frac{q}{2 \cdot p}$ homomorphic additions. We use this to build an efficient $\eval$ protocol. 
 
 The core idea of the $\eval$ protocol is to reduce the statement from a statement about a polynomial $f(X)$ of degree $d$ to one about a polynomial of degree $d'=\frac{d+1}{2}-1$. For simplicity assume that $d+1$ is a power of $2$.
 The prover does this by splitting $f(X)$ into $f_L(X)$ and $f_R(X)$ such that $f_L(X)+X^{d'+1} f_R(X)$ and such that both polynomials have degree at most $d'$. Then she proves that $f'(X)=f_L(X)+\alpha \cdot f_R(X)$ has degree $d'$ for a random challenge $\alpha\in [0,p-1]$. 
@@ -663,42 +691,13 @@ We now present the full $\eval$ protocol.
 
 %This intuitive description omits special care afforded to the case where the degree of the polynomial is not one less than a power of two. To take care of this, the left polynomial is guaranteed to have odd degree (unless in the last step when it is zero), and the right half polynomial $f_R(X)$ is shifted to the right by one digit whenever its degree is even. The evaluation $y_R$ and commitment $\gr{C}_R$ are adapted accordingly.
 
-\begin{figure}
-\renewcommand{\figurename}{Protocol}
-\caption{polynomial commitment scheme} \label{scheme:polynomial_commitment}
-\noindent\begin{mdframed}[userdefinedwidth=\textwidth]
-\begin{minipage}{\textwidth}
-	\begin{flushleft}
-	$\pro{Setup}(1^\secpar):$
-		\begin{enumerate}[nolistsep]
-			\item $ \GG \sample \ggen(\secpar)$
-			\item $ \gr{g} \sample \GG$
-			%\item $q \gets 2^k$ such that $q > (d+1) \cdot 2\cdot p^{\log_2(d+1)+1} $
-			\item $\pcreturn \params = (\secpar,\GG,\gr{g})$
-		\end{enumerate}
-	$\pro{Commit}(\crs;f(X)):$ \pccomment{$f(X) \in \mathbb{Z}[X]$ with coefficients in $[0;p-1]$}
-		\begin{enumerate}[nolistsep]
-			\item $\gr{C} \gets \gr{g}^{f(q)}$
-			\item $\pcreturn (\gr{C};f(X))$
-		\end{enumerate}
-	$\pro{Open}(\crs,\gr{C},\bar{f}(X);f(X)):$ \pccomment{$f(X) \in B_{q/2}[X]\subset\mathbb{Z}[X]$ but $\bar{f}(X) \in \mathbb{F}_p[X]$}
-		\begin{enumerate}[nolistsep]
-		    \item \prover sends $f(X)$ to \verifier.
-		    \item \verifier checks that $f(X)\in B_{q/2}[X]$
-				\item \verifier checks that $f(X) \equiv \bar{f}(X) \mod p$
-			\item \verifier checks that $\gr{g}^{f(q)} = \gr{C}$
-			\item \pcif all checks pass \textbf{then} \pcreturn $1$ \textbf{else} \pcreturn $0$
-		\end{enumerate}
-		\end{flushleft}
-\end{minipage}
-\end{mdframed}
-\end{figure}
+
 
 \begin{mdframed}
 \begin{minipage}{\textwidth}
-			$\pro{Eval}(\crs, \gr{C}\in \GG, z\in \FF_p, y\in \FF_p, d \in \NN; f(X)) :$ \pccomment{$f(X) = \sum_{i=0}^d f_i X^i \in \FF_p[X]$}\\
+			$\pro{Eval}(\crs, \gr{C}\in \GG, z\in \ZZ_p, y\in \ZZ_p, d \in \NN; f(X)) :$ \pccomment{$f(X) = \sum_{i=0}^d f_i X^i \in \ZZ_p[X]$}\\
 			 \prover and \verifier run $\pro{EvalBounded}(\crs,z,y,d,p-1;f(X))$\\
-		$\pro{EvalBounded}(\crs,\gr{C}\in \GG,z\in \FF_p,y\in \FF_p,d\in \NN,b\in \ZZ;f(X)\in B_{b}[X])$
+		$\pro{EvalBounded}(\crs,\gr{C}\in \GG,z\in \ZZ_p,y\in \ZZ_p,d\in \NN,b\in \ZZ;f(X)\in B_{b}[X])$
 	    \begin{enumerate}[nolistsep]
         \item \pcif $d=0$:
         \item \pcind[1] \prover sends $f_0=f(X)$ to the verifier. \pccomment{$f(X)$ is a constant}
@@ -719,7 +718,7 @@ We now present the full $\eval$ protocol.
         \item \pcind[1] \prover sends $y_L,y_R, \gr{C}_L, \gr{C}_R$ to \verifier. \pccomment{See Section \ref{sec:optimiztion} for an optimization}
         \item \pcind[1] \verifier checks that $y=y_L+z^{d'+1}\cdot y_R \bmod p$, outputs $0$ if check fails.
         \item \pcind[1] \prover and \verifier run $\pro{PoE}(\gr{C}_R, \gr{C}/\gr{C}_L, q^{d'+1})$\pccomment{Showing that $\gr{C}_L\gr{C}_R^{(q^{d'+1})}=\gr{C}$}
-        \item \pcind[1] \verifier samples $\alpha \sample \FF_p$ and sends it to \prover
+        \item \pcind[1] \verifier samples $\alpha \sample \ZZ_p$ and sends it to \prover
         \item \pcind[1] \prover and \verifier compute $y'\gets\alpha \cdot y_L +y_R \bmod p$, $\gr{C}' \gets \gr{C}_L^\alpha  \gr{C}_R$ and $b'\gets b\cdot p$. 
         \item \pcind[1] \prover computes $f'(X) \gets \alpha \cdot f_L(X) + f_R(X) \in \ZZ[X]$ \pccomment{$\deg(f'(X))=d'$}
         \item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\params, \gr{C}', z, y', d',b' ; f'(X))$
@@ -733,7 +732,7 @@ We now present the full $\eval$ protocol.
 	The polynomial commitment scheme (Protocol \ref{scheme:polynomial_commitment}) is binding if the order assumption holds.
 \end{lemma}
 \begin{proof}
-    Assume that there is an adversary that breaks the binding property of the scheme. Specifically, assume that some probabilistic polynomial time algorithm $\adv$ takes as input $\params$ and outputs $\gr{C} \in \GG, f(X) \in \ZZ[X], f'(X)\in \ZZ[X], \bar{f}(X)\in \FF_p[X], \bar{f'}(X) \in \FF_p[X]$ such that with high probability $\pro{Open}(\params, \gr{C}, f(X); \hat{f}(X)) = \pro{Open}(\params, \gr{C}, f'(X), \hat{f'}(X)) = 1$ and $f(X) \neq f'(X)$. We proceed to show that this implies a violation of the Order Assumption~(\ref{assum:order}).
+    Assume that there is an adversary that breaks the binding property of the scheme. Specifically, assume that some probabilistic polynomial time algorithm $\adv$ takes as input $\params$ and outputs $\gr{C} \in \GG, f(X) \in \ZZ[X], f'(X)\in \ZZ[X], \bar{f}(X)\in \ZZ_p[X], \bar{f'}(X) \in \ZZ_p[X]$ such that with high probability $\pro{Open}(\params, \gr{C}, f(X); \hat{f}(X)) = \pro{Open}(\params, \gr{C}, f'(X), \hat{f'}(X)) = 1$ and $f(X) \neq f'(X)$. We proceed to show that this implies a violation of the Order Assumption~(\ref{assum:order}).
     
 	Let $\hat{h}(X)=\hat{f}(X)-\hat{f'}(X) \in \ZZ[X]$; this is a polynomial of degree at most $\max(f(X), f'(X))$. Since $\gr{g}^{\hat{f}(q)}=\gr{g}^{\hat{f'}(q)}=\gr{C}$ we have that $\gr{g}^{\hat{h}(q)}=1$. Note that the coefficients of $\hat{f}(X)$ and $\hat{f'}(X)$ are all less than $q/2$ in absolute value. By triangle inequality we have that the coefficients of $\hat{h}(X)$ are less than $q$. We have $\hat{f}(X) \neq \hat{f'}(X)$ because this inequality still holds modulo $p$, otherwise the adversary fails to open the commitment to two \emph{different} values. So $\hat{h}$ is not the zero polynomial. This implies that $\hat{h}(q) \neq 0$ and is a multiple of the order of $\gr{g} \in \GG$. This directly breaks the Order Assumption.
 \end{proof}
@@ -786,7 +785,7 @@ This completes the inductive argument, which in turn completes the proof.
 (SKETCH)
 We prove the statement by showing that we can recursively either extract the encoding of an integer polynomial $f(X) \in \ZZ[X]$ of degree $d$ with bounded coefficients or a break of the pseudo root assumption for element $g$ or a non trivial element of known (random) order in $\GG$. We recurse over degree $\hat{d}$ up to the final degree $d$.
 In each round the extracted witness is an integer $\hat{y}$ such that $\hat{y}=\enc(f(X))$ where the coefficients of $f(X)$ are less than $B$ in absolute value and the degree is at most $\hat{d}$ and such that $g^{\hat{y}}=C$. Also $f(z) \equiv y \mod p$.
-If $\hat{d}=0$ then we can directly extract $f(X)=\hat{y}$ such that $\vert \hat{y} \vert < p^{\log_2(d+1)+1}$, $y=\hat{y}\mod p$, $f(X)=y\in \FF_p[X]$ and $g^{\hat{y}}=C$ as the witness. We proceed with $d=1$.
+If $\hat{d}=0$ then we can directly extract $f(X)=\hat{y}$ such that $\vert \hat{y} \vert < p^{\log_2(d+1)+1}$, $y=\hat{y}\mod p$, $f(X)=y\in \ZZ_p[X]$ and $g^{\hat{y}}=C$ as the witness. We proceed with $d=1$.
 For $d>0$ we have $g^{\hat{y}}=C=C_0^{\alpha}C_1$. Rewinding once we get 
  $C=C_0^{\alpha}C_1=g^{\hat{y}}$ and $C'=C_0^{\alpha'}C_1=g^{\hat{y}'}$ for distinct $\alpha$ and $\alpha'$. 
  This gives us $C_0^{\alpha-\alpha'}=g^{\hat{y}-\hat{y}'}$. 
@@ -838,8 +837,8 @@ For $d>0$ we have $g^{\hat{y}}=C=C_0^{\alpha}C_1$. Rewinding once we get
  \begin{minipage}{1.1\textwidth}
 \begin{mdframed}[userdefinedwidth=1\textwidth]  \label{prot:Opening}
 	\noindent \underline{\textsf{Protocol \eval{} Information theoretic} (Polynomial evaluation)}\\
-Inputs: $\enc(f(X)),z,y\in \FF_p,d \in \NN $\\
-Witness: $f(X) \in \ZZ[X]$ of degree at most $d$ and with coefficients bounded by $p$ \textcolor{blue}{Alan: if it is bounded by $p$ then you cannot recurse, because the coefficients grow every step.}\footnote{We describe the protocol using an integer polynomial with bounded coefficient. This generalizes the case where the polynomial is in $\FF_p[X]$};\\ 
+Inputs: $\enc(f(X)),z,y\in \ZZ_p,d \in \NN $\\
+Witness: $f(X) \in \ZZ[X]$ of degree at most $d$ and with coefficients bounded by $p$ \textcolor{blue}{Alan: if it is bounded by $p$ then you cannot recurse, because the coefficients grow every step.}\footnote{We describe the protocol using an integer polynomial with bounded coefficient. This generalizes the case where the polynomial is in $\ZZ_p[X]$};\\ 
 Claim: $f(X)\gets \dec(\enc(f(X))), y=f(z) \mod p$
 
 \begin{enumerate}[nolistsep]
@@ -966,7 +965,7 @@ Ben's description from the preliminaries should go here. (But with $\mathbf{f}$ 
 
 \subsection{Inner Products}
 
-The polynomial commitment scheme has a multiplicative homomorphism. Specifically, let $f(X), g(X) \in \mathbb{F}_p[X]$ and let $\gr{C}$ be a commitment to $f(X)$. Then, provided that $q$ is large enough to prevent overflow, $\gr{C}^{g(q)}$ is a commitment to $f(X) \times g(X)$. This feature is particularly useful in the context of vector commitments where the goal is to extract not an indicated coefficient but a linear combination of all coefficients. To see how this might work, consider the coefficient vectors $\mathbf{f} = (f_0, \ldots, f_{d})$ and $\mathbf{g} = (g_0, \ldots, g_d)$. Then $\gr{C}$ is simultaneously a vector commitment to $\mathbf{f}$, and raising this commitment to the integer encoding of the reciprocal of $g(X)$ gives a commitment to a new vector whose middle coefficient contains the inner product $\langle \mathbf{f}, \mathbf{g} \rangle$. To see this, consider the logarithm of $\gr{C}^{\sum\limits_{i=0}^{d} g_{d-i} q^i}$ base $\gr{g}$:
+The polynomial commitment scheme has a multiplicative homomorphism. Specifically, let $f(X), g(X) \in \ZZ_p[X]$ and let $\gr{C}$ be a commitment to $f(X)$. Then, provided that $q$ is large enough to prevent overflow, $\gr{C}^{g(q)}$ is a commitment to $f(X) \times g(X)$. This feature is particularly useful in the context of vector commitments where the goal is to extract not an indicated coefficient but a linear combination of all coefficients. To see how this might work, consider the coefficient vectors $\mathbf{f} = (f_0, \ldots, f_{d})$ and $\mathbf{g} = (g_0, \ldots, g_d)$. Then $\gr{C}$ is simultaneously a vector commitment to $\mathbf{f}$, and raising this commitment to the integer encoding of the reciprocal of $g(X)$ gives a commitment to a new vector whose middle coefficient contains the inner product $\langle \mathbf{f}, \mathbf{g} \rangle$. To see this, consider the logarithm of $\gr{C}^{\sum\limits_{i=0}^{d} g_{d-i} q^i}$ base $\gr{g}$:
 \begin{flalign*}
 \left( \sum\limits_{i=0}^d f_i q^i \right) \left( \sum\limits_{i=0}^d g_{d-i} q^i \right) = \sum\limits_{i=0}^d f_i q^i \sum\limits_{j=0}^d g_j q^{d-j} = q^d \sum_{i=0}^d f_i g_i \ + o(q^{d+1}) + \omega(q^{d-1}) \enspace .
 \end{flalign*}
@@ -979,7 +978,7 @@ We use this property to realize protocols for extracting inner products.
 \noindent\begin{mdframed}[userdefinedwidth=\textwidth]
 \begin{minipage}{\textwidth}
 	\begin{flushleft}
-	$\pro{InnerProduct}(\params, \gr{C}_\mathbf{f}, \gr{C}_a; \mathbf{f}, \mathbf{s}, \hat{\mathbf{f}}):$ \pccomment{$\mathbf{f}, \mathbf{s} \in \mathbb{F}_p^{d+1}$ but $\hat{f}(X) \in \mathbb{Z}[X]$}
+	$\pro{InnerProduct}(\params, \gr{C}_\mathbf{f}, \gr{C}_a; \mathbf{f}, \mathbf{s}, \hat{\mathbf{f}}):$ \pccomment{$\mathbf{f}, \mathbf{s} \in \ZZ_p^{d+1}$ but $\hat{f}(X) \in \mathbb{Z}[X]$}
 		\begin{enumerate}[nolistsep]
 		    \item \prover computes $\gr{C}' \gets \gr{C}_\mathbf{f}^{\sum_{i=0}^{d} s_{d-i} q^i}$ and sends it to \verifier
 		    \item \prover computes $h(X) \gets \left(\sum_{i=0}^d f_i X^i\right) \left(\sum_{i=0}^d g_{d-i} X^i\right)$
@@ -1078,10 +1077,10 @@ The protocol then proceeds on modified commitments $C_0' = C_0 C_\alpha$ and $C_
 
 \subsection{Commitment Scheme}
 
-In the following we denote by $(a_i)_{i=0}^{d-1} \in \mathbb{F}_p^{d}$ a vector of prime field elements. The vector commitment scheme is given by the following algorithms.
+In the following we denote by $(a_i)_{i=0}^{d-1} \in \ZZ_p^{d}$ a vector of prime field elements. The vector commitment scheme is given by the following algorithms.
 \begin{itemize}
-\item $\mathsf{vcom} : \mathbb{F}_p^d \rightarrow \mathbb{G} \, , \quad (a_i)_{i=0}^{d-1} \mapsto g^{\sum_{i=0}^{d-1} a_iq^i} \enspace .$
-\item $\mathsf{vopen} : \mathbb{G} \times \mathbb{Z} \rightarrow \mathbb{F}_p^d \cup \{\bot\} \, , $
+\item $\mathsf{vcom} : \ZZ_p^d \rightarrow \mathbb{G} \, , \quad (a_i)_{i=0}^{d-1} \mapsto g^{\sum_{i=0}^{d-1} a_iq^i} \enspace .$
+\item $\mathsf{vopen} : \mathbb{G} \times \mathbb{Z} \rightarrow \ZZ_p^d \cup \{\bot\} \, , $
 \item[] $\phantom{\mathsf{vopen} :} (C, z = \sum_{i=0}^{d-1} z_iq^i) \mapsto \left\lbrace \begin{array}{ll}
 (z_i \, \mathsf{mod} \, p)_{i=0}^{d-1} & \textnormal{\bf if } g^z = C \\
 \quad \textnormal{where all } z_i \in \{0,\ldots,q-1\} & \\
@@ -1110,7 +1109,7 @@ Correctness, soundness, etc. (todo)
 \subsection{Inner Product}
 \label{section:inner_product}
 
-The following protocol enables the prover to extract a commitment to the inner product $\mathbf{a}^\mathsf{T} \mathbf{s}$, where $\mathbf{a} = (a_i)_{i=0}^{d-1}$ is the vector to which $C$ is a commitment. The vector $\mathbf{s} \in \mathbb{F}_p^d$ is known to the verifier in the basic protocol, but later on we show how to hide this vector and simultaneously reduce the verifier's running time.
+The following protocol enables the prover to extract a commitment to the inner product $\mathbf{a}^\mathsf{T} \mathbf{s}$, where $\mathbf{a} = (a_i)_{i=0}^{d-1}$ is the vector to which $C$ is a commitment. The vector $\mathbf{s} \in \ZZ_p^d$ is known to the verifier in the basic protocol, but later on we show how to hide this vector and simultaneously reduce the verifier's running time.
 \begin{itemize}
 \item Prover and Verifier flip $\mathbf{s}$ to obtain $\bar{\mathbf{s}} = (s_{d-1-i})_{i=0}^{d-1}$ and the matching integer encoding $z_{\bar{\mathbf{s}}} = \sum_{i=0}^{d-1} s_{d-1-i} q^i$.
 \item Prover computes $C^{z_{\bar{\mathbf{s}}}}$ and sends this value to the verifier.
@@ -1128,9 +1127,9 @@ The next protocol describes an efficiently verifiable proof system for rank-one 
 \begin{equation} \label{equation:r1cs}
     \mathbf{a_i}^\mathsf{T} \mathbf{s} \times \mathbf{b}_i^\mathsf{T} \mathbf{s} = \mathbf{c_i}^\mathsf{T} \mathbf{s} \enspace ,
 \end{equation}
-where $\mathbf{s} \in \mathbb{F}_p^n$ is the secret witness and the $m$ triples $(\mathbf{a_i}, \mathbf{b_i}, \mathbf{c_i})_{i=0}^{m-1} \in \mathbb{F}_p^{3 \times m \times n}$ are the known parameters that define the constraints. Furthermore, $s_0 = 1$.
+where $\mathbf{s} \in \ZZ_p^n$ is the secret witness and the $m$ triples $(\mathbf{a_i}, \mathbf{b_i}, \mathbf{c_i})_{i=0}^{m-1} \in \ZZ_p^{3 \times m \times n}$ are the known parameters that define the constraints. Furthermore, $s_0 = 1$.
 
-Translate this to a quadratic arithmetic program (QAP) by selecting $m$ arbitrary but different elements $\{e_0, \ldots, e_{m-1}\} \subset \mathbb{F}_p$ and defining $\mathbf{a}(X) \in \mathbb{F}^n[X]$ such that $\mathbf{a}(e_i) = \mathbf{a_i}$, and similarly for $\mathbf{b}(X)$ and $\mathbf{c}(X)$. Furthermore, set $h(X) = \prod_{i=0}^{m-1} (X-e_i)$. Then Equation~\ref{equation:r1cs} becomes
+Translate this to a quadratic arithmetic program (QAP) by selecting $m$ arbitrary but different elements $\{e_0, \ldots, e_{m-1}\} \subset \ZZ_p$ and defining $\mathbf{a}(X) \in \ZZ^n[X]$ such that $\mathbf{a}(e_i) = \mathbf{a_i}$, and similarly for $\mathbf{b}(X)$ and $\mathbf{c}(X)$. Furthermore, set $h(X) = \prod_{i=0}^{m-1} (X-e_i)$. Then Equation~\ref{equation:r1cs} becomes
 \begin{equation} \label{equation:qap_modular}
     \mathbf{a}(X)^\mathsf{T}\mathbf{s} \times \mathbf{b}(X)^\mathsf{T}\mathbf{s} \equiv \mathbf{c}(X)^\mathsf{T}\mathbf{s} \,\, \mathsf{mod} \,\, h(X) \enspace .
 \end{equation}
@@ -1148,7 +1147,7 @@ The proof establishes that the prover knows a vector $\mathbf{s}$ and a polynomi
     \item Prover and Verifier run a proof of knowledge of exponent.
     \item Prover multiplies $\mathbf{b}(X)^\mathsf{T} \mathbf{s}$ into $A_\mathbf{s}$, thereby obtaining $A_{\mathbf{s}B\mathbf{s}} = \mathsf{com}(\mathbf{a}(X)^\mathsf{T} \mathbf{s} \times \mathbf{b}(X)^\mathsf{T} \mathbf{s})$.
     \item Prover and Verifier run a proof of equal discrete logarithms showing that $A_{\mathbf{s}B\mathbf{s}}$ is to $A_\mathbf{s}$ as $B$ is to $g$.
-    \item Verifier selects a random point, $z \xleftarrow{\$} \mathbb{F}_p$ and sends it to the prover.
+    \item Verifier selects a random point, $z \xleftarrow{\$} \ZZ_p$ and sends it to the prover.
     \item Prover and Verifier compute the weighted commitment $K = A_{\mathbf{s}B\mathbf{s}} \times C^{-1} \times H_T^{-1} = \mathsf{com}(\mathbf{a}(X)^\mathsf{T} \mathsf{s} \times \mathbf{b}(X)^\mathsf{T} \mathbf{s} - \mathbf{c}(X)^\mathsf{T} \mathbf{s} - h(X) \times t(X)) = \mathsf{com}(k(X))$
     \item Prover and Verifier run an evaluation proof establishing that $k(z) = 0$.
 \end{itemize}
@@ -1182,11 +1181,11 @@ Note: we need to pay special attention to the size of the coefficients of $\math
 
 \subsection{Flip}
 
-The following protocol establishes that two commitments, $c_a$ and $c_b$ represent polynomials $f_a, f_b \in \mathbb{F}_p$ (or vectors, for that matter) whose coefficients are flipped. Specifically, that $f_a = \sum_{i=0}^{d}f_i X^i$ for some coefficients $f_i$, and $f_b = \sum_{i=0}^df_ix^{d-i}$ for the same coefficients $f_i$.
+The following protocol establishes that two commitments, $c_a$ and $c_b$ represent polynomials $f_a, f_b \in \ZZ_p$ (or vectors, for that matter) whose coefficients are flipped. Specifically, that $f_a = \sum_{i=0}^{d}f_i X^i$ for some coefficients $f_i$, and $f_b = \sum_{i=0}^df_ix^{d-i}$ for the same coefficients $f_i$.
 Protocol:
 \begin{itemize}
     \item Common knowledge: $c_a, c_b \in \mathbb{G}$.
-    \item Verifier chooses $z \xleftarrow{\$} \mathbb{F}_p \backslash \{0\}$ and sends it to Prover.
+    \item Verifier chooses $z \xleftarrow{\$} \ZZ_p \backslash \{0\}$ and sends it to Prover.
     \item Prover and Verifier engage in proofs of correct evaluation producing $f_a(z)$ and $f_b(z^{-1})$, matching $c_a$ and $c_b$, respectively.
     \item Verifier checks that $f_a(z) \stackrel{?}{=} z^d f_b(z^{-1})$.
 \end{itemize}
