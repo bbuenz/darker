@@ -111,6 +111,7 @@ We use multiplicative notation and use \textsf{sans-serif} font to indicate grou
 \item Some protocols in this paper are between two parties, the prover and the verifier. We write $\boldsymbol{\it Protocol}(x;w) \rightarrow (y;z)$ to describe such a protocol with common input $x$, private input for the prover $w$, public output $y$, and private output for the prover $z$. We write $(y;z) \gets \boldsymbol{\it Protocol}(x;w)$ to denote the protocol's execution. Any of $x,w,y,z$ can consist of tuples of objects. This notation facilitates protocol composition and modular analysis.
 
 \item We use the notation $\negl$ to denote negligible function $\textsf{negl}: \mathbb{N} \rightarrow [0,1]$ applied to the security parameter $\lambda$. 
+
 \end{itemize}
 
 \subsection{Assumptions}
@@ -269,7 +270,7 @@ Given a public-coin interactive argument tuple $(\textsf{Setup}, P, V)$ and arbi
 \begin{array}{c}
              \params \leftarrow \textsf{Setup}(1^\lambda) \\
              (x, \st) \leftarrow \mathcal{A}(\params) \\
-             \textsf{tr} \leftarrow \textsf{Record}(P^*, \params, x, \st)
+             \tr \leftarrow \textsf{Record}(P^*, \params, x, \st)
 \end{array} 
 \right] \approx
 \]
@@ -277,7 +278,7 @@ Given a public-coin interactive argument tuple $(\textsf{Setup}, P, V)$ and arbi
 \Pr \left[
 \begin{array}{c} 
 \mathcal{A}(\textsf{tr}) = 1 \ \text{and} \\ 
-\text{\textsf{tr} accepting} \Rightarrow \ (x, w) \in \mathcal{R}
+\text{\tr accepting} \Rightarrow \ (x, w) \in \mathcal{R}
 \end{array} 
 :
 \begin{array}{c}
@@ -390,7 +391,7 @@ The syntax generalizes naturally to multivariate polynomial commitment schemes. 
 
 Define the following NP relation given $\params \leftarrow \pro{Setup}(1^\lambda)$: 
 \[ 
-\mathcal{R_\textsf{PolyCom}}(\params) = \left\{
+\mathcal{R_\textsf{Eval}}(\params) = \left\{
 \langle (c, z, y, d), (f(X), r) \rangle
 : 
 \begin{array}{l} 
@@ -400,11 +401,13 @@ f \in R[X] \ \text{is degree} \ d \ \text{and} \ f(z) = y \\
 \right\}
 \] 
 
-The correctness definition above implies that if $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ is \emph{correct} then $\eval$ is a correct interactive argument for $\mathcal{R_\textsf{PolyCom}}(\params)$, with overwhelming probability over the randomness of $\pro{Setup}$. We say that $\Gamma$ has \textbf{witness-extended emulation} if $\eval$ has witness-extended emulation as an interactive argument for $\mathcal{R_\textsf{PolyCom}}(\params)$. 
+The correctness definition above implies that if $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ is \emph{correct} then $\eval$ is a correct interactive argument for $\mathcal{R_\textsf{Eval}}(\params)$, with overwhelming probability over the randomness of $\pro{Setup}$. We say that $\Gamma$ has \textbf{witness-extended emulation} if $\eval$ has witness-extended emulation as an interactive argument for $\mathcal{R_\textsf{Eval}}(\params)$. 
 
 It is easy to see that witness-extended emulation implies evaluation binding when $(\pro{Setup}, \pro{Commit}, \pro{Open})$ is a binding commitment scheme. If the adversary succeeds in $\eval$ on both $(c, z, y_0, d_0)$ and $(c, z, y_1, d_1)$ for $y_0 \neq y_1$ or $d_0 \neq d_1$ then the emulator obtains two distinct witnesses $f(X) \neq f'(X)$ and such that $c$ is a valid commitment to both. This would contradict the binding property of the commitment scheme. 
 
-\paragraph{Opening individual coefficients} The coefficients of a committed polynomial can be revealed and checked all at once using $\pro{Open}$, however, in some cases it is useful to reveal an individual coefficient more efficiently (e.g. with sublinear communication). There is a generic protocol for this that uses $\pro{Eval}$ as a black-box, and inherits the efficiency properties of $\pro{Eval}$. The following is an interactive protocol for the statement that the $i$th coefficient of the degree $d$ committed polynomial in $c$ is $a$:\\
+\paragraph{Opening individual coefficients} The coefficients of a committed polynomial can be revealed and checked all at once using $\pro{Open}$, however, in some cases it is useful to reveal an individual coefficient more efficiently (e.g. with sublinear communication). 
+There is a generic protocol for this that uses $\pro{Eval}$ as a black-box, and inherits the efficiency properties of $\pro{Eval}$. 
+For a polynomial $f \in R[X]$ let $f_i$ denote the $i$th coefficient. The following is an interactive protocol for the statement that $c$ is a commitment to a degree $d$ polynomial $f$ such that $f_i = a$. \\
 
 $\pro{OpenIndex}(\params, c, a, i, d; f(X)) \rightarrow b \in \{0,1\}$
 \begin{itemize}
@@ -419,13 +422,61 @@ $\pro{OpenIndex}(\params, c, a, i, d; f(X)) \rightarrow b \in \{0,1\}$
 
 \item Prover and verifier run: 
 \begin {itemize} 
-\item  $\pro{Eval}(\params, c_R, \alpha, y_R, d - i -1; f_R(X))$ 
-\item $\pro{Eval}(\params, c_L, \alpha, y_L, i -1; f_L(X))$. 
+\item  $\pro{Eval}(\params, c_R, \beta, y_R, d - i -1; f_R(X))$ 
+\item $\pro{Eval}(\params, c_L, \beta, y_L, i -1; f_L(X))$ 
+\item $\pro{Eval}(\params, c, \beta, y, d; f(X))$
 \end{itemize} 
 Verifier aborts and outputs $0$ if either subprotocol returns $0$. Otherwise it outputs $1$. 
 
 \end{itemize}
 
+We can show that if $\pro{Eval}$ has witness-extended emulation, then so does $\pro{OpenIndex}$ as an interactive argument for the relation: 
+
+\[ 
+\mathcal{R_\textsf{Index}}(\params) = \left\{
+\langle (c, a, i, d), (f(X), r) \rangle
+: 
+\begin{array}{l} 
+f \in R[X] \ \text{is degree} \ d \ \text{with} \ f_i = a \\ 
+ \text{and} \ \pro{Open}(\params, c, f(X), r) = 1 \\
+\end{array}
+\right\}
+\] 
+
+
+\begin{lemma} 
+If $\pro{Eval}$ is an interactive argument for $\mathcal{R_\textsf{Eval}}(\params)$ with witness-extended emulation then $\pro{OpenIndex}$ is an interactive argument for $\mathcal{R_\textsf{Index}}(\params)$ with witness-extended emulation. 
+\end{lemma}
+
+\begin{proof}[Proof sketch]
+Let $E_{\eval}$ be an emulator for $\pro{Eval}$. We construct an emulator $E$ for $\pro{OpenIndex}$ that makes calls to $E_{\eval}$. At a high level, $E$ will invoke $E_{\eval}$ in order to extract witness polynomials $f_R(X)$, $f_L(X)$, $f(X)$ of appropriate degrees from the respective successful executions of $\pro{Eval}$ and also piece together a consistent emulation transcript. We then argue that if $f(X) - a X^i \neq X^{i+1} f_R(X) + f_L(X)$, then the evaluation binding of the polynomial commitment $\eval$ is broken. $E$ could rewind the protocol to the second step after receiving commitments $c, c_R, c_L$ and rerun on a fresh challenge $\beta' \leftarrow_R \mathbb{F}$, doing this until it gets another accepting transcript (in expected polynomial time) with succesful openings of $f(\beta') = y'$, $f_L(\beta') = y'_L$, and $f_R(\beta') = y'_R$ such that $y' = y_L' + \beta'^{i+1} y'_R - a \beta^i \bmod p$. Yet, $f(\beta') - a X^i \neq X^{i+1} f_R(\beta') + f_L(\beta')$ except with probability $\poly / |\mathbb{F}|$ (union bound over the $\poly$ rewindings), which implies that one of the claimed evaluations was incorrect. The full proof is in the appendix. 
+
+\ben{TODO move to appendix}
+
+Given adversarial prover $P^*$ and transcript oracle $\pro{Record}(P^*, \params, (c, a, i, d), \st)$, $E$ does the following: 
+
+\begin{itemize} 
+\item Run $\pro{Record}$ from the start until the first $\pro{Eval}$. $E$ obtains a transcript containing $c, c_R, c_L, y, y_R, y_L$ and $\beta$. 
+
+\item Invoke $E_{\eval}$ by simulating its transcript oracle $\pro{Record}(P^*, \params, c, \beta, y, d, \st)$. ($E$ simulates this transcript oracle for $E_{\eval}$ by consulting its own transcript oracle, which is running $\eval$ as a subprotocol). $E_{\eval}$ returns an output $(\tr_1, f^*)$, and w.l.o.g. interpret $f^*$ as giving a canonical encoding of an integer polynomial $f^*(X)$. Do the same for the subprotocol $\eval$ executions on $(c_R, \beta, y_R, d - i - 1)$ and $(c_L, \beta, y_L, i-1)$ respectively, which returns $(\tr_2, f_L^*)$ and $(\tr_3, f_R^*)$. 
+
+\item Piece together the transcript obtained from running $\pro{Record}$ in the first step (i.e. up until the first $\eval$ together with the transcripts $\tr_1, \tr_2, \tr_3$ into a complete transcript $\tr^*$. This $\tr$ is an ``accepting transcript" if and only if the verifier in the last step would output $1$. 
+
+\item Output $(\tr^*, f^*)$.  
+\end{itemize}
+
+We now argue that for any PPT $\mathcal{A}$ and $\params \leftarrow \pro{Setup}(1^\lambda)$, if the experiment sampling $(x, \st) \leftarrow \mathcal{A}(\params)$ and $\tr \leftarrow \pro{Record}(P^*, \params, x, \st)$, where $x$ is a tuple of the form $(c, a, i, d)$, produces an ``accepting transcript" $\tr$ with probability $\delta$, then the modified experiment that samples $(\tr^*, f^*) \leftarrow E^{\textsf{Record}(P^*, \params, x, \st)}(\params, x)$ returns an $f^*$ such that $((c, a, i, d), f^*) \in \mathcal{R_\textsf{Index}}(\params)$ with probability $\delta - \negl$. 
+
+If $\delta$ is negligible the claim holds trivially. For now on assume that $\delta$ is non-negligible. 
+The fact that $\tr$ is an accepting transcript with probability $\delta$ implies that each $\eval$ subprotocol generates accepting transcripts with probability at least $\delta$. Therefore, by the hypothesis that $\eval$ has witness-extended emulation, if each of the subprotocol transcripts $\tr_1$, $\tr_2$, $\tr_3$ are accepting then with probability $\delta - \negl$: subprotocol witnesses $f^*, f_L^*$ and $f_R^*$ are all valid $\mathcal{R_\textsf{Eval}}(\params)$ witnesses for $(c, \beta, y, d)$, $(c_L, \beta, y_L, i-1)$, and $(c_R, \beta, y_R, d - i - 1)$ respectively. 
+
+We have already shown that the extracted polynomial $f^*(X)$ is valid for $c$ with probability $\delta - \negl$. As a final step, suppose towards contradiction that $f_L^*(X) + X^i f_R^*(X) \neq f^*(X) - a X^i$. Since $\delta$ is non-negligible, $E$ can rewind the transcript oracle to Step 2 (i.e. after receiving the commitments $c, c_L, c_R$), restarting the protocol from this point on a fresh verifier challenge $\beta' \leftarrow_R \mathbb{F}$. It does this until (in expected polynomial time) it finds a $\beta'$ that produces an accepting transcript, which includes $y', y_L', y_R'$ such that $y' = y_L' + \beta'^{i+1} y'_R - a \beta'^i \bmod p$.
+
+The probability that $f_L^*(\beta') + \beta'^i f_R^*(\beta') = f^*(\beta') - a \beta'^i$ is less than $\poly / |\mathbb{F}|$ (the $\poly$ numerator comes from union bound over number of rewindings). In this case, either $y' \neq f^*(\beta')$ or $y_L' \neq f^*_L(\beta')$ or $y_R' \neq f^*_R(\beta')$. Yet, $\eval$ passes on all three, which contradicts the evaluation binding property of $\eval$. Hence, we conclude that except with $\negl$ probability $f_L^*(X) + X^i f_R^*(X) \neq f^*(X) - a X^i$, and thus $f^*_i = a$. 
+
+\end{proof}
+
+%First  Extractor obtains $f_R(X)$, $f_L(X)$, $f(X)$ of appropriate degrees from the respective succesful executions of $\pro{Eval}$. Follows that $c_R$ is commitment 
 
  
 
