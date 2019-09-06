@@ -9,6 +9,8 @@
 \usepackage{xspace}
 \usepackage[normalem]{ulem}
 \usepackage{comment}
+\usepackage{hyperref}
+
 %Theorems
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
@@ -33,6 +35,8 @@
 	\newcommand{\alan}[1]{}
 	\newcommand{\alaninline}[1]{}
 	\fi
+
+\date{}
 
 \begin{document}
 \title{Transparent SNARKs from DARK Arguments}
@@ -565,6 +569,41 @@ The remaining option is that $\Pr[b \neq \bot]$ is non-negligible, but this woul
 
 \fi 
 
+\noindent\rule{\textwidth}{0.4pt}
+
+\paragraph{Inner Products.} Another helpful tool for vector commitments is the ability not to extract any single coefficient but a linear combination of all of them. We distinguish three variants: one where the second multiplicand is secret, one where it is secret but committed to, and one where it is known. This syntax omits the secret decommitment information associated with every commitment.
+\begin{itemize}
+    \item $\pro{InnerProductSecret}(c_\mathbf{f}; \mathbf{f}, \mathbf{s}) \rightarrow c_{a}$ takes a commitment $c_\mathbf{f}$ to a secret vector $\mathbf{f} \in R^n$, and another secret vector $\mathbf{s} \in R^n$, and outputs a commitment $c_{a}$ to the inner product $a = \langle \mathbf{f}, \mathbf{s} \rangle$.
+    \item $\pro{InnerProductCommitted}(c_\mathbf{f}, c_\mathbf{s}; \mathbf{f}, \mathbf{s}) \rightarrow c_{a}$ takes commitments $c_\mathbf{f}, c_{\mathbf{s}}$ to secret vectors $\mathbf{f}, \mathbf{s} \in R^n$, and outputs a commitment $c_{a}$ to the inner product $a = \langle \mathbf{f}, \mathbf{s} \rangle$.
+    \item $\pro{InnerProductKnown}(c_\mathbf{f}, \mathbf{s}; \mathbf{f}) \rightarrow c_{\mathbf{f}\cdot{}\mathbf{s}}$ takes a commitment $c_\mathbf{f}$ to a secret vector $\mathbf{f} \in R^n$, and a known vector $\mathbf{s} \in R^n$, and outputs a commitment $c_{a}$ to the inner product $\langle \mathbf{f}, \mathbf{s} \rangle$.
+\end{itemize}
+The relations proved by $\pro{InnerProductSecret}$ and $\pro{InnerProductKnown}$ are identical. In this relation, $\mathcal{R}_\mathsf{IP}$, the variable $\mathbf{s}$ is free and thus subject to whatever constraints are layered on top in a composite protocol. The protocol $\pro{InnerProductKnown}$ can be used in a stand-alone manner and the absence of free variables in its relation, $\mathcal{R}_\mathsf{IPC}$, reflects this. The decommitment information is explicit here.
+\[ 
+\mathcal{R_\textsf{IP}}(\params) = \left\{
+\langle (c_\mathbf{f}, c_{a}), (\mathbf{f}, \mathbf{s}, r_\mathbf{f}, r_{a}) \rangle
+: 
+\begin{array}{l} 
+\mathbf{f}, \mathbf{s} \in R^n \ \\
+\langle \mathbf{f}, \mathbf{s} \rangle = a \\ 
+ \text{and} \ \pro{Open}(\params, c_\mathbf{f}, \mathbf{f}, r_\mathbf{f}) = 1 \\
+ \text{and} \ \pro{Open}(\params, c_{a}, a, r_{a}) = 1
+\end{array}
+\right\}
+\] 
+\[ 
+\mathcal{R_\textsf{IPC}}(\params) = \left\{
+\langle (c_\mathbf{f}, c_\mathbf{s}, c_{a}), (\mathbf{f}, \mathbf{s}, r_\mathbf{f}, r_\mathbf{s}, r_{a}) \rangle
+: 
+\begin{array}{l} 
+\mathbf{f}, \mathbf{s} \in R^n \ \\
+\langle \mathbf{f}, \mathbf{s} \rangle = a \\ 
+ \text{and} \ \pro{Open}(\params, c_\mathbf{f}, \mathbf{f}, r_\mathbf{f}) = 1 \\
+ \text{and} \ \pro{Open}(\params, c_\mathbf{s}, \mathbf{s}, r_\mathbf{s}) = 1 \\
+ \text{and} \ \pro{Open}(\params, c_{a}, a, r_{a}) = 1
+\end{array}
+\right\}
+\] 
+
 \subsection{Proofs of Exponentiation}
 Wesolowski \cite{EC:Wesolowski19} in his work on efficient verifiable delay functions introduced a simple yet powerful proof of exponentiation in groups of unknown order. A prover can efficiently convince a verifier that a large exponentiation in a group of unknown order was done correctly. The verifier needs to do little more than read the exponent. If the exponent is smooth then the protocol takes constant space/time in the security parameter.
 \benedikt{Describe PoE protocol}
@@ -658,8 +697,8 @@ We now present the full $\eval$ protocol.
 \begin{mdframed}
 \begin{minipage}{\textwidth}
 			$\pro{Eval}(\crs, \gr{C}\in \GG, z\in \FF_p, y\in \FF_p, d \in \NN; f(X)) :$ \pccomment{$f(X) = \sum_{i=0}^d f_i X^i \in \FF_p[X]$}\\
-			 \prover and \verifier run $\pro{EvalB}(\crs,z,y,d,p-1;f(X))$\\
-		$\pro{EvalB}(\crs,\gr{C}\in \GG,z\in \FF_p,y\in \FF_p,d\in \NN,b\in \ZZ;f(X)\in B_{b}[X])$
+			 \prover and \verifier run $\pro{EvalBounded}(\crs,z,y,d,p-1;f(X))$\\
+		$\pro{EvalBounded}(\crs,\gr{C}\in \GG,z\in \FF_p,y\in \FF_p,d\in \NN,b\in \ZZ;f(X)\in B_{b}[X])$
 	    \begin{enumerate}[nolistsep]
         \item \pcif $d=0$:
         \item \pcind[1] \prover sends $f_0=f(X)$ to the verifier. \pccomment{$f(X)$ is a constant}
@@ -670,7 +709,7 @@ We now present the full $\eval$ protocol.
 \item \pcind[1] \verifier outputs $1$ \pcif all checks pass, $0$ otherwise.
           \item \pcif{$d+1$ is odd}
          \item \pcind[1]  $d'\gets d+1$,$ C'\gets C^q$, $y'\gets y\cdot z \bmod p$ and $f'(X)\gets X \cdot f(X)$.
-         \item \pcind[1] \prover and \verifier run $\pro{EvalB}(\crs,C',z,y',d+1,b;f'(X))$
+         \item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\crs,C',z,y',d+1,b;f'(X))$
         \item \pcelse: \pccomment{$d \geq 1$ and $d+1$ is even}
        
         \item \pcind[1] \prover and \verifier compute $d' \gets \frac{d+1}{2} - 1$
@@ -683,7 +722,7 @@ We now present the full $\eval$ protocol.
         \item \pcind[1] \verifier samples $\alpha \sample \FF_p$ and sends it to \prover
         \item \pcind[1] \prover and \verifier compute $y'\gets\alpha \cdot y_L +y_R \bmod p$, $\gr{C}' \gets \gr{C}_L^\alpha  \gr{C}_R$ and $b'\gets b\cdot p$. 
         \item \pcind[1] \prover computes $f'(X) \gets \alpha \cdot f_L(X) + f_R(X) \in \ZZ[X]$ \pccomment{$\deg(f'(X))=d'$}
-        \item \pcind[1] \prover and \verifier run $\pro{EvalB}(\params, \gr{C}', z, y', d',b' ; f'(X))$
+        \item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\params, \gr{C}', z, y', d',b' ; f'(X))$
                \end{enumerate}
       \end{minipage}
 \end{mdframed}
@@ -694,9 +733,9 @@ We now present the full $\eval$ protocol.
 	The polynomial commitment scheme (Protocol \ref{scheme:polynomial_commitment}) is binding if the order assumption holds.
 \end{lemma}
 \begin{proof}
-    Assume that there is an adversary that breaks the binding property of the scheme. Specifically, assume that some probabilistic polynomial time algorithm $\adv$ takes as input $\params$ and outputs $\gr{C} \in \GG, f(X) \in \ZZ[X], f'(X)\in \ZZ[X], \bar{f}(X)\in \FF_p[X], \bar{f'}(X) \in \FF_p[X]$ such that with high probability $\pro{Open}(\params, \gr{C}, f(X); \hat{f}(X)) = \pro{Open}(\params, \gr{C}, f'(X), \hat{f'}(X)) = \top$ and $f(X) \neq f'(X)$. We proceed to show that this implies a violation of the order assumption~\ref{assum:order}.
+    Assume that there is an adversary that breaks the binding property of the scheme. Specifically, assume that some probabilistic polynomial time algorithm $\adv$ takes as input $\params$ and outputs $\gr{C} \in \GG, f(X) \in \ZZ[X], f'(X)\in \ZZ[X], \bar{f}(X)\in \FF_p[X], \bar{f'}(X) \in \FF_p[X]$ such that with high probability $\pro{Open}(\params, \gr{C}, f(X); \hat{f}(X)) = \pro{Open}(\params, \gr{C}, f'(X), \hat{f'}(X)) = 1$ and $f(X) \neq f'(X)$. We proceed to show that this implies a violation of the Order Assumption~(\ref{assum:order}).
     
-	Let $\hat{h}(X)=\hat{f}(X)-\hat{f'}(X) \in \ZZ[X]$; this is a polynomial of degree at most $\max(f(X), f'(X))$. Since $\gr{g}^{\hat{f}(q)}=\gr{g}^{\hat{f'}(q)}=\gr{C}$ we have that $\gr{g}^{\hat{h}(q)}=1$. Note that the coefficients of $\hat{f}(X)$ and $\hat{f'}(X)$ are all less than $q/2$ in absolute value. By triangle inequality we have that the coefficients of $\hat{h}(X)$ are less than $q$. We have $\hat{f}(X) \neq \hat{f'}(X)$ because this inequality still holds modulo $p$, otherwise the adversary fails to open the commitment to two \emph{different} values. So $\hat{h}$ is not the zero polynomial. This implies that $\hat{h}(q) \neq 0$ and is a multiple of the order of $\gr{g} \in \GG$. This directly breaks the order assumption (Assumption~\ref{assum:order}).
+	Let $\hat{h}(X)=\hat{f}(X)-\hat{f'}(X) \in \ZZ[X]$; this is a polynomial of degree at most $\max(f(X), f'(X))$. Since $\gr{g}^{\hat{f}(q)}=\gr{g}^{\hat{f'}(q)}=\gr{C}$ we have that $\gr{g}^{\hat{h}(q)}=1$. Note that the coefficients of $\hat{f}(X)$ and $\hat{f'}(X)$ are all less than $q/2$ in absolute value. By triangle inequality we have that the coefficients of $\hat{h}(X)$ are less than $q$. We have $\hat{f}(X) \neq \hat{f'}(X)$ because this inequality still holds modulo $p$, otherwise the adversary fails to open the commitment to two \emph{different} values. So $\hat{h}$ is not the zero polynomial. This implies that $\hat{h}(q) \neq 0$ and is a multiple of the order of $\gr{g} \in \GG$. This directly breaks the Order Assumption.
 \end{proof}
 
 \begin{theorem}
@@ -919,10 +958,40 @@ $f_1(X_1,\dots,X_n)\gets \sum_{\vec{i} \in [0,d_{\max}]^{n-1}} \prod_{j=1}^{n-1}
 
 \subsection{Range Proofs}
 
+Follows from security proof of Eval.
+
 \subsection{Vector Commitments}
 
-\subsection{Inner Product Argument}
+Ben's description from the preliminaries should go here. (But with $\mathbf{f}$ rather than $f(X)$ notation.)
 
+\subsection{Inner Products}
+
+The polynomial commitment scheme has a multiplicative homomorphism. Specifically, let $f(X), g(X) \in \mathbb{F}_p[X]$ and let $\gr{C}$ be a commitment to $f(X)$. Then, provided that $q$ is large enough to prevent overflow, $\gr{C}^{g(q)}$ is a commitment to $f(X) \times g(X)$. This feature is particularly useful in the context of vector commitments where the goal is to extract not an indicated coefficient but a linear combination of all coefficients. To see how this might work, consider the coefficient vectors $\mathbf{f} = (f_0, \ldots, f_{d})$ and $\mathbf{g} = (g_0, \ldots, g_d)$. Then $\gr{C}$ is simultaneously a vector commitment to $\mathbf{f}$, and raising this commitment to the integer encoding of the reciprocal of $g(X)$ gives a commitment to a new vector whose middle coefficient contains the inner product $\langle \mathbf{f}, \mathbf{g} \rangle$. To see this, consider the logarithm of $\gr{C}^{\sum\limits_{i=0}^{d} g_{d-i} q^i}$ base $\gr{g}$:
+\begin{flalign*}
+\left( \sum\limits_{i=0}^d f_i q^i \right) \left( \sum\limits_{i=0}^d g_{d-i} q^i \right) = \sum\limits_{i=0}^d f_i q^i \sum\limits_{j=0}^d g_j q^{d-j} = q^d \sum_{i=0}^d f_i g_i \ + o(q^{d+1}) + \omega(q^{d-1}) \enspace .
+\end{flalign*}
+
+We use this property to realize protocols for extracting inner products.
+
+\begin{figure}[!htp]
+\renewcommand{\figurename}{Protocol}
+\caption{Inner product protocols} \label{scheme:inner product}
+\noindent\begin{mdframed}[userdefinedwidth=\textwidth]
+\begin{minipage}{\textwidth}
+	\begin{flushleft}
+	$\pro{InnerProduct}(\params, \gr{C}_\mathbf{f}, \gr{C}_a; \mathbf{f}, \mathbf{s}, \hat{\mathbf{f}}):$ \pccomment{$\mathbf{f}, \mathbf{s} \in \mathbb{F}_p^{d+1}$ but $\hat{f}(X) \in \mathbb{Z}[X]$}
+		\begin{enumerate}[nolistsep]
+		    \item \prover computes $\gr{C}' \gets \gr{C}_\mathbf{f}^{\sum_{i=0}^{d} s_{d-i} q^i}$ and sends it to \verifier
+		    \item \prover computes $h(X) \gets \left(\sum_{i=0}^d f_i X^i\right) \left(\sum_{i=0}^d g_{d-i} X^i\right)$
+		    \item \prover and \verifier run $\pro{ExtractCoefficient}(\params, \gr{C}', \gr{C}_a, d, 2d-1; h(X))$
+		\end{enumerate}
+	\end{flushleft}
+\end{minipage}
+\end{mdframed}
+\end{figure}
+
+
+\begin{comment}
 \section{Security}
 
 \begin{lemma}
@@ -970,6 +1039,10 @@ For $d>0$ we have $g^{\hat{y}}=C=C_0^{\alpha}C_1$. Rewinding once we get
 	If $q<bla$ there exists an efficient adversary that can break the evaluation binding property of the polynomial commitment.
 \end{corollary}
 \benedikt{Figure out at what q we can attack the scheme. Probably needs to use negative coefficients and such.}
+\end{comment}
+
+
+
 
 \section{Zero knowledge polynomial commitment} 
 This section sketches how to make the polynomial commitment scheme zero knowledge. 
@@ -1075,7 +1148,7 @@ The proof establishes that the prover knows a vector $\mathbf{s}$ and a polynomi
     \item Prover and Verifier run a proof of knowledge of exponent.
     \item Prover multiplies $\mathbf{b}(X)^\mathsf{T} \mathbf{s}$ into $A_\mathbf{s}$, thereby obtaining $A_{\mathbf{s}B\mathbf{s}} = \mathsf{com}(\mathbf{a}(X)^\mathsf{T} \mathbf{s} \times \mathbf{b}(X)^\mathsf{T} \mathbf{s})$.
     \item Prover and Verifier run a proof of equal discrete logarithms showing that $A_{\mathbf{s}B\mathbf{s}}$ is to $A_\mathbf{s}$ as $B$ is to $g$.
-    \item Verifier selects a random point, $z \Xleftarrow{\$} \mathbb{F}_p$ and sends it to the prover.
+    \item Verifier selects a random point, $z \xleftarrow{\$} \mathbb{F}_p$ and sends it to the prover.
     \item Prover and Verifier compute the weighted commitment $K = A_{\mathbf{s}B\mathbf{s}} \times C^{-1} \times H_T^{-1} = \mathsf{com}(\mathbf{a}(X)^\mathsf{T} \mathsf{s} \times \mathbf{b}(X)^\mathsf{T} \mathbf{s} - \mathbf{c}(X)^\mathsf{T} \mathbf{s} - h(X) \times t(X)) = \mathsf{com}(k(X))$
     \item Prover and Verifier run an evaluation proof establishing that $k(z) = 0$.
 \end{itemize}
@@ -1113,7 +1186,7 @@ The following protocol establishes that two commitments, $c_a$ and $c_b$ represe
 Protocol:
 \begin{itemize}
     \item Common knowledge: $c_a, c_b \in \mathbb{G}$.
-    \item Verifier chooses $z \Xleftarrow{\$} \mathbb{F}_p \backslash \{0\}$ and sends it to Prover.
+    \item Verifier chooses $z \xleftarrow{\$} \mathbb{F}_p \backslash \{0\}$ and sends it to Prover.
     \item Prover and Verifier engage in proofs of correct evaluation producing $f_a(z)$ and $f_b(z^{-1})$, matching $c_a$ and $c_b$, respectively.
     \item Verifier checks that $f_a(z) \stackrel{?}{=} z^d f_b(z^{-1})$.
 \end{itemize}
@@ -1127,7 +1200,7 @@ A similar observation gives rise to a proof of correct rotation. If $f(X) = \sum
 \begin{itemize}
     \item Common knowledge: $c_f, c_p \in \mathbb{G}$ --- commitments to $f(X)$ and $p(X)$, respectively. Secret knowledge for the prover $f(X), p(X)$.
     \item Prover computes $k(X) = (p(X) - X^r f(X)) / X^r - 1$ and sends the commitment $c_k = g^{\hat{k}(q)}$ to it to Verifier.
-    \item Verifier chooses a random point $z \Xleftarrow{\$} \mathbb{F}_p$ and sends it to Prover.
+    \item Verifier chooses a random point $z \xleftarrow{\$} \mathbb{F}_p$ and sends it to Prover.
     \item Prover and Verifier engage in proofs of correct evaluation for $f(z)$, $p(z)$, and $k(z)$.
     \item Verifier checks that $z^r f(z) + k(z) (z^r-1) = p(z)$.
 \end{itemize}
@@ -1142,7 +1215,7 @@ The following protocol establishes that two polynomial commitments have the same
     \item Prover computes $n = \hat{f}(q^{d^2})$ and sends $c_n = g^n$ to Verifier.
     \item Prover and Verifier run an inner product protocol between $c_n$ and $(q^{di})_{i=0}^d$, and again between the result and $(q^i)_{i=0}^d$. This establishes that $n$ has the same coefficients as $c_f$ but spaced differently.
     \item Prover and Verifier run an inner product protocol between $c_n$ and $(q^{(i(d+1) + \sigma(0)} - q^{\sigma(i)})_{i=0}^d$ to compute $c_d$, the commitment to $d(X)$ that is well-formed wrt. $f(X)$.
-    \item Verifier chooses a random point $z \Xleftarrow{\$} \mathbb{F}_p$.
+    \item Verifier chooses a random point $z \xleftarrow{\$} \mathbb{F}_p$.
     \item Prover and Verifier engage in proofs of correct evaluation for $f(z), p(z), d(z)$.
     \item Verifier checks that $p(z) = z^{\sigma(0)} f(z^{d+1}) - d(z)$.
 \end{itemize}
