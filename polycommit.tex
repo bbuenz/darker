@@ -480,7 +480,23 @@ The probability that $f_L^*(\beta') + \beta'^i f_R^*(\beta') = f^*(\beta') - a \
 
  
 
-\paragraph{Inner product argument} A 
+\paragraph{Inner product argument} Another helpful feature for polynomial commitment schemes is an inner product argument that shows for commitments $(c_1, c_2)$ to degree $d$ polynomials $(f_1, f_2)$ the inner product of their coefficient vectors $a = \langle f_1, f_2 \rangle$. More formally, this is an interactive argument for the relation: 
+
+\[ 
+\mathcal{R_\textsf{Prod}}(\params) = \left\{
+\langle (c_1, c_2, a, d), (f_1, f_2, r_1, r_2) \rangle
+: 
+\begin{array}{l} 
+f_1, f_2 \in R[X] \ \text{is degree} \ d \ \\
+\langle f_1, f_2 \rangle = a \\ 
+ \text{and} \ \pro{Open}(\params, c_1, f_1, r_1) = 1 \\
+ \text{and} \ \pro{Open}(\params, c_2, f_2, r_2) = 1
+\end{array}
+\right\}
+\] 
+
+Unlike the opening of individual coefficients, we do not know a generic protocol for the inner product argument based solely on $\eval$. However, we do construct a simple inner-product argument in Section~\ref{section:inner_product} for our particular construction of polynomial commitments in generic groups of unknown order.  
+
 %that evaluates to $y$ in $z$. This is already implied if the verifier can choose $z$, since opening the polynomial in $\deg(f(X))+1$ points determines it completely. However, we want an even stronger soundness notion, one that applies even when $z$ is not chosen by the verifier. This motivates the following definition of extractability.
 
 %%OLD 
