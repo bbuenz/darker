@@ -971,7 +971,7 @@ We achieve this task in two modular steps. Protocol $\pro{ExtractCoefficient}(\p
 \noindent\begin{mdframed}[userdefinedwidth=\textwidth]
 \begin{minipage}{\textwidth}
 	\begin{flushleft}
-	$\pro{InnerProduct}(\params, \gr{C}_\mathbf{f}, \gr{C}_a; \mathbf{f}, \mathbf{s}, \hat{\mathbf{f}}):$ \pccomment{$\mathbf{f}, \mathbf{s} \in \ZZ_p^{d+1}$ but $\hat{f}(X) \in \mathbb{Z}[X]$}
+	$\pro{ExtractCoefficient}(\params, \gr{C}_\mathbf{f}; \mathbf{f}):$ \pccomment{$\mathbf{f} \in \ZZ_p^{d+1}$}
 		\begin{enumerate}[nolistsep]
 		    \item \prover computes $\gr{C}' \gets \gr{C}_\mathbf{f}^{\sum_{i=0}^{d} s_{d-i} q^i}$ and sends it to \verifier
 		    \item \prover computes $h(X) \gets \left(\sum_{i=0}^d f_i X^i\right) \left(\sum_{i=0}^d g_{d-i} X^i\right)$
