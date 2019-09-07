@@ -973,7 +973,7 @@ Follows from security proof of Eval.
 
 A commitment to a polynomial is a commitment to a list of coefficients, and the ability to extract any indicated coefficient from a polynomial commitment effectively upgrades the scheme to a vector commitment scheme.\footnote{For this classification we allow logarithmic-size proofs to qualify, in contrast to the original definition of Catalano and Fiore~\cite{PKC:CatFio13} which requires them to be constant size.} While it is possible to extract an indicated coefficient using only a polynomial commitment scheme (see Section~\ref{subsection:openindex_from_polycom} for a demonstration of this fact), it is possible to achieve this task much more efficiently by exploiting the homomorphic properties of our commitment scheme. For the following description we will identify polynomials $f(X)$ with their coefficient vectors $\mathbf{f}$ and vice versa.
 
-We achieve this task in two modular steps. Protocol $\pro{ExtractCoefficient}(\params, \gr{C}, i; f(X)) \rightarrow (\gr{C}_a; a)$ generates a commitment to coefficient $i$ along with decommitment information from a vector commitment $\gr{C} \in \mathbb{G}$, an index $i \in \mathbb{N}$, and secret decommitment information $f(X) \in \mathbb{Z}[X]$ for $\gr{C}$. Protocol $\pro{OpenIndex}$ uses this as a subprotocol to realize the syntax defined in the preliminaries (Section~\ref{subsection:openindex}). 
+We achieve this task in two steps. Protocol $\pro{ExtractCoefficient}(\params, \gr{C}, i, \gr{C}_a; f(X)) \rightarrow b \in \{0,1\}$ validates that a given commitment really is a commitment to an indicated coefficient of a vector commitment. Next, Protocol $\pro{OpenIndex}$ uses this as a subprotocol to realize the syntax defined in the preliminaries (Section~\ref{subsection:openindex}). 
 
 \begin{figure}[!htp]
 \renewcommand{\figurename}{Protocol}
@@ -981,21 +981,23 @@ We achieve this task in two modular steps. Protocol $\pro{ExtractCoefficient}(\p
 \noindent\begin{mdframed}[userdefinedwidth=\textwidth]
 \begin{minipage}{\textwidth}
 	\begin{flushleft}
-	$\pro{ExtractCoefficient}(\params, \gr{C}, i; f(X)):$ \pccomment{$f(X) \in \ZZ[X]$}
+	$\pro{ExtractCoefficient}(\params, \gr{C}, i, \gr{C}_a; f(X)):$ \pccomment{$f(X) \in \ZZ[X]$}
 		\begin{enumerate}[nolistsep]
 		    \item \prover computes $f_L(X) \gets \sum_{j=0}^{i-1} f_j X^j$ and $f_R \gets \sum_{j=i+1}^d f_j X^{j-i-1}$
-		    \item \prover computes $\gr{C}_L \gets \gr{g}^{f_L(q)}$, $\gr{C}_a \gets \gr{g}^{f_i}$, and $\gr{C}_R \gets \gr{g}^{f_R(q)}$
+		    \item \prover computes $\gr{C}_L \gets \gr{g}^{f_L(q)}$, and $\gr{C}_R \gets \gr{g}^{f_R(q)}$
 		    \item \prover computes $\gr{C}_a' \gets \gr{C}_a^{q^i}$ and $\gr{C}_R' \gets \gr{C}_R^{q^{i+1}}$
-		    \item \prover sends $\gr{C}_L, \gr{C}_a, \gr{C}_a', \gr{C}_R$ to \verifier
+		    \item \prover sends $\gr{C}_L, \gr{C}_a', \gr{C}_R$ to \verifier
 		    \item \verifier computes $\gr{C}_R' \gets \gr{C} \gr{C}_L^{-1} {\gr{C}_a'}^{-1}$
 		    \item \prover and \verifier run $\pro{PoE}(\gr{C}_a, \gr{C}_a', q^i)$ and $\pro{PoE}(\gr{C}_R, \gr{C}_R', q^{i+1})$
 		    \item \prover and \verifier run $\pro{EvalBounded}(\params, \gr{C}_L, z, f_L(z), i-1, b; f_L(X))$ for an arbitrary $z$ and any $b$ such that $\max_j f_j \leq b \ll q$
-		    \item \pcreturn $(\gr{C}_a; f_i)$
+		    \item \pcif{}all checks pass \textbf{then} \textbf{return} 1 \textbf{else} \textbf{return} 0
 		\end{enumerate}
 	\end{flushleft}
 \end{minipage}
 \end{mdframed}
 \end{figure}
+
+\textit{Note.} Instead of line 7, \prover and \verifier might as well run any range proof that establishes that $\gr{C}_L$ is a commitment to an integer smaller than $q^i$ in absolute value.
 
 \begin{lemma}[security of Protocol~\ref{scheme:coefficient_extraction}]
     relation and witness-extended emulation of Protocol~\ref{scheme:coefficient_extraction}. Much wow.
@@ -1009,8 +1011,10 @@ We achieve this task in two modular steps. Protocol $\pro{ExtractCoefficient}(\p
 	\begin{flushleft}
 	$\pro{OpenIndex}(\params, \gr{C}, a, i; f(X)):$ \pccomment{$f(X) \in \ZZ_p[X]$}
 		\begin{enumerate}[nolistsep]
-		    \item \prover and \verifier run $(\gr{C}_a; f_i) \gets \pro{ExtractCoefficient}(\params, \gr{C}, i; f(X))$
-		    \item \textbf{return} $\pro{Open}(\params, \gr{C}_a, a; f_i)$
+		    \item \prover computes $\gr{C}_a \gets \gr{c}^{f_i}$ and sends it to \verifier
+		    \item \prover and \verifier run $\pro{ExtractCoefficient}(\params, \gr{C}, i, \gr{C}_a; f(X))$
+		    \item \prover and \verifier run $\pro{Open}(\params, \gr{C}_a, a; f_i)$
+		    \item \pcif{}all checks pass \textbf{then} \textbf{return} 1 \textbf{else} \textbf{return} 0
 		\end{enumerate}
 	\end{flushleft}
 \end{minipage}
@@ -1036,11 +1040,29 @@ We use this property to realize protocols for extracting inner products.
 \noindent\begin{mdframed}[userdefinedwidth=\textwidth]
 \begin{minipage}{\textwidth}
 	\begin{flushleft}
-	$\pro{InnerProduct}(\params, \gr{C}_\mathbf{f}, \gr{C}_a; \mathbf{f}, \mathbf{s}, \hat{\mathbf{f}}):$ \pccomment{$\mathbf{f}, \mathbf{s} \in \ZZ_p^{d+1}$ but $\hat{f}(X) \in \mathbb{Z}[X]$}
+	$\pro{InnerProductSecret}(\params, \gr{C}_\mathbf{f}, \gr{C}_a; \mathbf{f}, \mathbf{s}):$ \pccomment{$\mathbf{f}, \mathbf{s} \in \ZZ^{d+1}$}
 		\begin{enumerate}[nolistsep]
 		    \item \prover computes $\gr{C}' \gets \gr{C}_\mathbf{f}^{\sum_{i=0}^{d} s_{d-i} q^i}$ and sends it to \verifier
 		    \item \prover computes $h(X) \gets \left(\sum_{i=0}^d f_i X^i\right) \left(\sum_{i=0}^d g_{d-i} X^i\right)$
-		    \item \prover and \verifier run $\pro{ExtractCoefficient}(\params, \gr{C}', \gr{C}_a, d, 2d-1; h(X))$
+		    \item \prover and \verifier run $\pro{ExtractCoefficient}(\params, \gr{C}', d, \gr{C}_a; h(X))$
+		    \item \pcif{}all checks pass \textbf{then} \textbf{return} 1 \textbf{else} \textbf{return} 0
+		\end{enumerate}
+		\vspace{0.25cm}
+	$\pro{InnerProductCommitted}(\params, \gr{C}_\mathbf{f}, \gr{C}_a, \gr{C}_\mathbf{\bar{s}}; \mathbf{f}, \mathbf{s}):$ \pccomment{$\mathbf{f}, \mathbf{s} \in \ZZ^{d+1}$ and $\gr{C}_\mathbf{\bar{s}} = \gr{g}^{\sum_{i=0}^d s_{d-i} q^i}$}
+		\begin{enumerate}[nolistsep]
+		    \item \prover computes $\gr{C}' \gets \gr{C}_\mathbf{f}^{\sum_{i=0}^{d} s_{d-i} q^i}$ and sends it to \verifier
+		    \item \prover computes $h(X) \gets \left(\sum_{i=0}^d f_i X^i\right) \left(\sum_{i=0}^d g_{d-i} X^i\right)$
+		    \item \prover and \verifier run $\pro{PoKEE}(\gr{g}, \gr{C}_\mathbf{\bar{s}}, \gr{C}_\mathbf{f}, \gr{C}'; \mathbf{s})$
+		    \item \prover and \verifier run $\pro{ExtractCoefficient}(\params, \gr{C}', d, \gr{C}_a; h(X))$
+		    \item \pcif{}all checks pass \textbf{then} \textbf{return} 1 \textbf{else} \textbf{return} 0
+		\end{enumerate}
+		\vspace{0.25cm}
+	$\pro{InnerProductKnown}(\params, \gr{C}_\mathbf{f}, \gr{C}_a, \mathbf{s}; \mathbf{f}):$ \pccomment{$\mathbf{f}, \mathbf{s} \in \ZZ^{d+1}$}
+		\begin{enumerate}[nolistsep]
+		    \item \prover computes $\gr{C}' \gets \gr{C}_\mathbf{f}^{\sum_{i=0}^{d} s_{d-i} q^i}$ and sends it to \verifier
+		    \item \prover computes $h(X) \gets \left(\sum_{i=0}^d f_i X^i\right) \left(\sum_{i=0}^d g_{d-i} X^i\right)$
+		    \item \prover and \verifier run $\pro{ExtractCoefficient}(\params, \gr{C}', d, \gr{C}_a; h(X))$
+		    \item \pcif{}all checks pass \textbf{then} \textbf{return} 1 \textbf{else} \textbf{return} 0
 		\end{enumerate}
 	\end{flushleft}
 \end{minipage}
