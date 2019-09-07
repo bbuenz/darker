@@ -302,7 +302,8 @@ Given a public-coin interactive argument tuple $(\textsf{Setup}, P, V)$ and arbi
 Consider a public-coin interactive argument with $r$ rounds and verifier challenges sampled from an exponentially large message space. An \textbf{$\mathbf{(n_1,...,n_r)}$-tree of accepting transcripts} for the interactive argument on input $x$ is defined as follows. The root of the tree is labelled with the statement $x$. The tree has $r$ depth. Each node at depth $i < r$ has $n_i$ children, and each child is labelled with a distinct value for the $i$th challenge. An edge from a parent node to a child node is labelled with a message from prover to verifier. Every path from the root to a leaf corresponds to an accepting transcript, hence there are $\prod_{i=1}^r n_i$ distinct accepting transcripts overall. 
 
 \begin{lemma}[Forking lemma~\cite{EC:BCCGP16}] 
-Let $(\textsf{Setup}, P, V)$ be an $r$-round public-coin interactive protocol for $\mathcal{R}$. Let $\mathcal{X}$ be a PPT algorithm that given any $(n_1,...,n_r)$-tree of accepting transcripts for the statement $x$, with $n_i \geq 1$ for all $i$, outputs $w$ such that $(x, w) \in \mathcal{R}$ in expected polynomial time. Assuming $\prod_{i=1}^r n_i \leq \poly$, the interactive argument $(\textsf{Setup}, P, V)$ has witness-extended emulation. 
+\label{lem:forking}
+Let $(\textsf{Setup}, P, V)$ be an $r$-round public-coin interactive protocol for $\mathcal{R}$. Let $\mathcal{X}$\benedikt{$\mathcal{X}$ or $E$?} be a PPT algorithm that given any $(n_1,...,n_r)$-tree of accepting transcripts for the statement $x$, with $n_i \geq 1$ for all $i$, outputs $w$ such that $(x, w) \in \mathcal{R}$ in expected polynomial time. Assuming $\prod_{i=1}^r n_i \leq \poly$, the interactive argument $(\textsf{Setup}, P, V)$ has witness-extended emulation. 
 \end{lemma}
 
 \subsection{Commitment Schemes}
@@ -401,7 +402,7 @@ Define the following NP relation given $\params \leftarrow \pro{Setup}(1^\lambda
 \langle (c, z, y, d), (f(X), r) \rangle
 : 
 \begin{array}{l} 
-f \in R[X] \ \text{is degree} \ d \ \text{and} \ f(z) = y \\ 
+f \in R[X] \ \text{has degree at most} \ d \ \text{and} \ f(z) = y \\ 
  \text{and} \ \pro{Open}(\params, c, f(X), r) = 1 \\
 \end{array}
 \right\}
@@ -443,7 +444,7 @@ We can show that if $\pro{Eval}$ has witness-extended emulation, then so does $\
 \langle (c, a, i, d), (f(X), r) \rangle
 : 
 \begin{array}{l} 
-f \in R[X] \ \text{is degree} \ d \ \text{with} \ f_i = a \\ 
+f \in R[X] \ \text{has degree at most} \ d \ \text{with} \ f_i = a \\ 
  \text{and} \ \pro{Open}(\params, c, f(X), r) = 1 \\
 \end{array}
 \right\}
@@ -751,7 +752,12 @@ In each round the extractor has $f'(X)=f_L(X)+\alpha f_R(X)$. Using rewinding th
 	The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ instantiated using $\ggen$ is extractable if the adaptive root assumption and the strong RSA assumption hold for $\ggen$ if $q>2 \cdot p^{2 \lceil \log_2(d) \rceil+1}$
 \end{theorem}
 \begin{proof}
-We will show that 
+We will proof security by showing that given a polynomial time adversary $\adversary_{\eval}$ that succeeds in convincing an honest verifier in the $\eval$ protocol on any public input with non-negligible probability we can either (1) construct an adaptive root adversary $\adv_{\textsf{Adaptive Root}}$, (2) extract an element of known order, i.e. break the order assumption, (3) extract a fractional root of $\gr{g}\in \GG$ or (4) extract the polynomial $f(X)$. The proof will use the general forking lemma (Lemma \ref{lem:forking}) to show that the polynomial commitment scheme has witness-extended emulation.
+
+In particular we construct an extractor $E$ that given transcripts with $2$ distinct challenges per round, i.e. $2^{\lceil\log_2(d+1)\rceil}<2 (d+1)$ total transcripts, can compute either an opening to the commitment scheme, an element of known order or a fractional root of the CRS encoded $\gr{g}\in\GG$.
+
+First consider all the $\textsf{PoE}$ executions in all transcripts. There are $\lceil\log_2(d+1)\rceil$ $\textsf{PoE}$s per transcript. Consider the probability $\advantage{\textsf{PoE}Break}$ of the event that the adversary can break the $\textsf{PoE}$ soundness for any execution, i.e. $\gr{C}_L \gr{C}_R^{(q^{d'+1})}\neq \gr{C}$. Under the adaptive root assumption $\adversary_{\eval}$ has negligible probability $\advantage{AR}{}$ in succeeding in each execution. The probability of $\advantage{\textsf{PoE}Break}$ is therefore bounded by $2d \lceil\log_2(d+1)\rceil$ and still negligible in $\lambda$.
+Now consider the case where $\gr{C}_L \gr{C}_R^{(q^{d'+1})}= \gr{C}$ for all executions.
 
 Suppose there is an adversary $\adv$ that breaks extractability with non-negligible probability $\gamma$. Assuming $\adv$ convinces the verifier with non-negligible probability, we proceed to build an algorithm violating the Fractional Root Assumption.
 
