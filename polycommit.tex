@@ -220,27 +220,27 @@ The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\ad
 \benedikt{Talk about specific groups of unknown order}
 
 \subsection{Interactive Arguments of Knowledge}
-Interactive arguments are \emph{interactive proofs}~\cite{GolMicRac89} in which security holds only against a computationally bounded prover. In an interactive argument for a relation $\mathcal{R}$, the prover convinces the verifier that it ``knows" a witness $w$ for a statement $X$ such that $(X, w) \in \mathcal{R}$. The standard definition of \emph{proofs of knowledge} (PoK) by Bellare and Goldreich~\cite{C:BelGol92} is based on the existence of an extractor machine $E$ that has oracle access to a malicious prover $P^*$, and if $P^*$ would cause the verifier to accept on input $X$ with high probability then $E$ outputs $w$ such that $(X, w) \in \mathcal{R}$ (with overwhelming probability). $E$ runs in expected polynomial time. This definition quantifies the success of $E$ over all inputs $X$, which unfortunately is problematic in the case of interactive  \emph{arguments},.
+Interactive arguments are \emph{interactive proofs}~\cite{GolMicRac89} in which security holds only against a computationally bounded prover. In an interactive argument for a relation $\mathcal{R}$, the prover convinces the verifier that it ``knows" a witness $w$ for a statement $x$ such that $(x, w) \in \mathcal{R}$. The standard definition of \emph{proofs of knowledge} (PoK) by Bellare and Goldreich~\cite{C:BelGol92} is based on the existence of an extractor machine $E$ that has oracle access to a malicious prover $P^*$, and if $P^*$ would cause the verifier to accept on input $X$ with high probability then $E$ outputs $w$ such that $(X, w) \in \mathcal{R}$ (with overwhelming probability). $E$ runs in expected polynomial time. This definition quantifies the success of $E$ over all inputs $x$, which unfortunately is problematic in the case of interactive  \emph{arguments},.
 
-To illustrate one issue, if the interactive argument relies on a \emph{common reference string} (CRS) setup with secret trapdoor information (e.g. the factorization of an RSA modulus) then one of the inputs $X^*$ could leak the trapdoor to the prover. Any extractor should clearly fail on input $X^*$ while $P^*$ may succeed, hence the definition cannot be satisfied. This particular problem is fixed by requiring the adversary $P^*$ to generate the input $X$. If the trapdoor is exponentially hard to compute the polynomial time adversary will not be able to embed the trapdoor in $X$ except with negligible probability. (See Damg\r{a}rd and Fujisaki~\cite{AC:DamFuj02} for a broader discussion of the issues that arise when applying the standard PoK definition to interactive arguments).
+To illustrate one issue, if the interactive argument relies on a \emph{common reference string} (CRS) setup with secret trapdoor information (e.g. the factorization of an RSA modulus) then one of the inputs $x^*$ could leak the trapdoor to the prover. Any extractor should clearly fail on input $x^*$ while $P^*$ may succeed, hence the definition cannot be satisfied. This particular problem is fixed by requiring the adversary $P^*$ to generate the input $x$. If the trapdoor is exponentially hard to compute the polynomial time adversary will not be able to embed the trapdoor in $x$ except with negligible probability. (See Damg\r{a}rd and Fujisaki~\cite{AC:DamFuj02} for a broader discussion of the issues that arise when applying the standard PoK definition to interactive arguments).
 
 \emph{Witness-extended emulation}~\cite{EC:Lindell03} strengthens the PoK notion so that the extractor outputs not only a witness but also a simulated transcript of the messages between the prover and verifier. This property is helpful for security analysis when a PoK is used as a subprotocol within a larger protocol (e.g. a PoK of a commitment opening within a NIZK for arbitrary circuits), in particularly in order to construct a simulator that needs to both obtain the adverssary's witness as well as simulate its view in the sub-protocol. Groth and Ishai~\cite{EC:GroIsh08} adapt Lindell's definition for interactive arguments of knowledge (AoK) in the CRS model. This is the AoK definition we will use in the present work.
 
 \begin{definition} [Interactive Argument]
-Let $(P, V)$ denote a pair of PPT interactive algorithms and $\textsf{Setup}$ denote a non-interactive setup algorithm that outputs public parameters $\params$ given a security parameter. Both $P$ and $V$ have access to $\params$. Let $\langle P(pp, X, w), V(pp, X) \rangle$ denote the output of $V$ on input $X$ after its interaction with $P$, who has witness $w$. The triple $(\textsf{Setup}, P, V)$ is called an argument for relation $\mathcal{R}$ if for all non-uniform PPT adversaries $\mathcal{A}$ the following properties hold: 
+Let $(P, V)$ denote a pair of PPT interactive algorithms and $\textsf{Setup}$ denote a non-interactive setup algorithm that outputs public parameters $\params$ given a security parameter. Both $P$ and $V$ have access to $\params$. Let $\langle P(pp, x, w), V(pp, x) \rangle$ denote the output of $V$ on input $x$ after its interaction with $P$, who has witness $w$. The triple $(\textsf{Setup}, P, V)$ is called an argument for relation $\mathcal{R}$ if for all non-uniform PPT adversaries $\mathcal{A}$ the following properties hold: 
 
 \begin{itemize}
 \item \underline{Perfect Completeness}. 
 \[
 \Pr \left[
 \begin{array}{c}
-        (X, w) \not \in  \mathcal{R} \ \text{or} \\
-         \ \langle P(\params, X, w), V(\params, X) \rangle = 1 \\
+        (x, w) \not \in  \mathcal{R} \ \text{or} \\
+         \ \langle P(\params, x, w), V(\params, x) \rangle = 1 \\
 \end{array}
 :
 \begin{array}{c}
              \params \leftarrow \textsf{Setup}(1^\lambda) \\
-             (X, w) \leftarrow \mathcal{A}(\params) \\
+             (x, w) \leftarrow \mathcal{A}(\params) \\
 \end{array} 
 \right]  = 1 
  \]
@@ -249,13 +249,13 @@ Let $(P, V)$ denote a pair of PPT interactive algorithms and $\textsf{Setup}$ de
 \[
 \Pr \left[
 \begin{array}{c}
-        \forall w \ (X, w) \not\in  \mathcal{R} \ \text{and} \\ 
-         \langle \mathcal{A}(\params, X, \st), V(\params, X) \rangle = 1 
+        \forall w \ (x, w) \not\in  \mathcal{R} \ \text{and} \\ 
+         \langle \mathcal{A}(\params, x, \st), V(\params, x) \rangle = 1 
 \end{array}
 :
 \begin{array}{c}
              \params \leftarrow \textsf{Setup}(1^\lambda) \\
-             (X, \st) \leftarrow \mathcal{A}(\params) \\
+             (x, \st) \leftarrow \mathcal{A}(\params) \\
 \end{array}
         \right] \leq \negl
 \]
@@ -266,15 +266,15 @@ The interactive argument is called \textbf{public-coin} if all the verifier's me
 We next recall the definition of witness-extended emulation for interactive arguments, which is a form of knowledge extraction.  
 
 \begin{definition}[Witness-extended emulation~\cite{EC:GroIsh08}]\label{def:wee}
-Given a public-coin interactive argument tuple $(\textsf{Setup}, P, V)$ and arbitrary prover algorithm $P^*$, let $\textsf{Record}(P^*, \params, X, \st)$ denote the message transcript between $P^*$ and $V$ on shared input $X$, initial prover state $\st$, and $\params$ generated by $\textsf{Setup}$. Furthermore, let $E^{\textsf{Record}(P^*, \params, X, \st)}$ denote an machine $E$ with a transcript oracle for this interaction that can be rewound to any round and run again on fresh verifier randomness. The tuple $(\textsf{Setup}, P, V)$ has witness-extended emulation if for every deterministic polynomial time $P^*$ there exists an expected polynomial time emulator $E$ such that for all non-uniform polynomial time adversaries $\mathcal{A}$ the following condition holds: 
+Given a public-coin interactive argument tuple $(\textsf{Setup}, P, V)$ and arbitrary prover algorithm $P^*$, let $\textsf{Record}(P^*, \params, x, \st)$ denote the message transcript between $P^*$ and $V$ on shared input $x$, initial prover state $\st$, and $\params$ generated by $\textsf{Setup}$. Furthermore, let $E^{\textsf{Record}(P^*, \params, x, \st)}$ denote an machine $E$ with a transcript oracle for this interaction that can be rewound to any round and run again on fresh verifier randomness. The tuple $(\textsf{Setup}, P, V)$ has witness-extended emulation if for every deterministic polynomial time $P^*$ there exists an expected polynomial time emulator $E$ such that for all non-uniform polynomial time adversaries $\mathcal{A}$ the following condition holds: 
 \[
 \Pr \left[
 \mathcal{A}(\textsf{tr}) = 1
 :
 \begin{array}{c}
              \params \leftarrow \textsf{Setup}(1^\lambda) \\
-             (X, \st) \leftarrow \mathcal{A}(\params) \\
-             \tr \leftarrow \textsf{Record}(P^*, \params, X, \st)
+             (x, \st) \leftarrow \mathcal{A}(\params) \\
+             \tr \leftarrow \textsf{Record}(P^*, \params, x, \st)
 \end{array} 
 \right] \approx
 \]
@@ -282,13 +282,13 @@ Given a public-coin interactive argument tuple $(\textsf{Setup}, P, V)$ and arbi
 \Pr \left[
 \begin{array}{c} 
 \mathcal{A}(\textsf{tr}) = 1 \ \text{and} \\ 
-\text{\tr accepting} \Rightarrow \ (X, w) \in \mathcal{R}
+\text{\tr accepting} \Rightarrow \ (x, w) \in \mathcal{R}
 \end{array} 
 :
 \begin{array}{c}
              \params \leftarrow \textsf{Setup}(1^\lambda) \\
-             (X, \st) \leftarrow \mathcal{A}(\params) \\
-(\textsf{tr}, w) \leftarrow E^{\textsf{Record}(P^*, \params, X, \st)}(\params, X)
+             (x, \st) \leftarrow \mathcal{A}(\params) \\
+(\textsf{tr}, w) \leftarrow E^{\textsf{Record}(P^*, \params, x, \st)}(\params, x)
 \end{array}
 \right]
 \]
@@ -299,10 +299,10 @@ Given a public-coin interactive argument tuple $(\textsf{Setup}, P, V)$ and arbi
 
 \paragraph{Generalized special soundness} The following lemma was proven by Bootle et. al.~\cite{EC:BCCGP16} as a helpful tool for showing that an interactive argument has witness-extended emulation. It reduces the analysis to a generalized version of special soundness. 
 
-Consider a public-coin interactive argument with $r$ rounds and verifier challenges sampled from an exponentially large message space. An \textbf{$\mathbf{(n_1,...,n_r)}$-tree of accepting transcripts} for the interactive argument on input $X$ is defined as follows. The root of the tree is labelled with the statement $X$. The tree has $r$ depth. Each node at depth $i < r$ has $n_i$ children, and each child is labelled with a distinct value for the $i$th challenge. An edge from a parent node to a child node is labelled with a message from prover to verifier. Every path from the root to a leaf corresponds to an accepting transcript, hence there are $\prod_{i=1}^r n_i$ distinct accepting transcripts overall. 
+Consider a public-coin interactive argument with $r$ rounds and verifier challenges sampled from an exponentially large message space. An \textbf{$\mathbf{(n_1,...,n_r)}$-tree of accepting transcripts} for the interactive argument on input $x$ is defined as follows. The root of the tree is labelled with the statement $x$. The tree has $r$ depth. Each node at depth $i < r$ has $n_i$ children, and each child is labelled with a distinct value for the $i$th challenge. An edge from a parent node to a child node is labelled with a message from prover to verifier. Every path from the root to a leaf corresponds to an accepting transcript, hence there are $\prod_{i=1}^r n_i$ distinct accepting transcripts overall. 
 
 \begin{lemma}[Forking lemma~\cite{EC:BCCGP16}] 
-Let $(\textsf{Setup}, P, V)$ be an $r$-round public-coin interactive protocol for $\mathcal{R}$. Let $\mathcal{X}$ be a PPT algorithm that given any $(n_1,...,n_r)$-tree of accepting transcripts for the statement $X$ outputs $w$ such that $(X, w) \in \mathcal{R}$ in expected polynomial time. Assuming $\prod_{i=1}^r n_i \leq \poly$, the interactive argument $(\textsf{Setup}, P, V)$ has witness-extended emulation. 
+Let $(\textsf{Setup}, P, V)$ be an $r$-round public-coin interactive protocol for $\mathcal{R}$. Let $\mathcal{X}$ be a PPT algorithm that given any $(n_1,...,n_r)$-tree of accepting transcripts for the statement $x$, with $n_i \geq 1$ for all $i$, outputs $w$ such that $(x, w) \in \mathcal{R}$ in expected polynomial time. Assuming $\prod_{i=1}^r n_i \leq \poly$, the interactive argument $(\textsf{Setup}, P, V)$ has witness-extended emulation. 
 \end{lemma}
 
 \subsection{Commitment Schemes}
@@ -313,19 +313,19 @@ In defining the syntax of the various types of commitment schemes, we use the fo
 A commitment scheme $\Gamma$ is a tuple $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open})$ of PPT algorithms where:
 \begin{itemize}
     \item $\pro{Setup}(1^\lambda) \rightarrow \params$ generates public parameters $\params$;
-    \item $\pro{Commit}(\params; X) \rightarrow (c; r)$ takes a secret message $X$ and outputs a public commitment $c$ and (optionally) a secret opening hint $r$ (e.g. the randomness used in the computation).
-    \item $\pro{Open}(\params, c, X, r) \rightarrow b \in \{0, 1\}$ verifies the opening of commitment $c$ to the message $X$ provided with the opening hint $r$. 
+    \item $\pro{Commit}(\params; x) \rightarrow (c; r)$ takes a secret message $x$ and outputs a public commitment $c$ and (optionally) a secret opening hint $r$ (e.g. the randomness used in the computation).
+    \item $\pro{Open}(\params, c, x, r) \rightarrow b \in \{0, 1\}$ verifies the opening of commitment $c$ to the message $x$ provided with the opening hint $r$. 
 \end{itemize}
 
 A commitment scheme $\Gamma$ is \defn{binding} if for all PPT adversaries $\adv$:
 \[
     \Pr\left[
-        b_0 = b_1 \neq 0 \, \wedge \, X_0 \neq X_1 \ : \
+        b_0 = b_1 \neq 0 \, \wedge \, x_0 \neq x_1 \ : \
         \begin{array}{l}
              \params \gets \pro{Setup}(1^\lambda) \\
-             (c, X_0, X_1, r_0, r_1) \gets \adv(\params) \\
-             b_0 \gets \pro{Open}(\params, c, X_0, r_0) \\
-             b_1 \gets \pro{Open}(\params, c, X_1, r_1) \\
+             (c, x_0, x_1, r_0, r_1) \gets \adv(\params) \\
+             b_0 \gets \pro{Open}(\params, c, x_0, r_0) \\
+             b_1 \gets \pro{Open}(\params, c, x_1, r_1) \\
         \end{array}
     \right] \leq \negl \enspace 
 \]
@@ -339,9 +339,9 @@ A commitment scheme $\Gamma$ is \defn{hiding} if for all probabilistic polynomia
             \hat{b} = b \ : \
         \begin{array}{l}
              \params \gets \pro{Setup}(1^\lambda) \\
-             (\state, X_0, X_1) \gets \adv_0(\params) \\
+             (\state, x_0, x_1) \gets \adv_0(\params) \\
              b \sample \{0,1\} \\
-             (\gr{C}; *) \gets \pro{Commit}(\params; X_b) \\
+             (\gr{C}; *) \gets \pro{Commit}(\params; x_b) \\
              \hat{b} \gets \adv_1(\state, \gr{C})
         \end{array}
         \right]
@@ -352,9 +352,11 @@ A commitment scheme $\Gamma$ is \defn{hiding} if for all probabilistic polynomia
 We now extend the syntax to polynomial commitment schemes. The following definition generalizes that of Kate~\emph{et al.}~\cite{AC:KatZavGol10} to allow interactive evaluation proofs. It also stipulates that the polynomial's degree be an argument to the protocol, contrary to Kate~\emph{et al.} where the degree is known and fixed.
 
 \begin{definition} (Polynomial commitment) 
-A polynomial commitment scheme is a tuple of protocols $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ where $(\pro{Setup},$ $\pro{Commit}, \pro{Open})$ is a binding commitment scheme for a message space $R[X]$ of polynomials over some ring $R$, and where
+A polynomial commitment scheme is a tuple of protocols $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ where $(\pro{Setup},$ $\pro{Commit}, \pro{Open})$ is a binding commitment scheme for a message space $R[X]$ of polynomials over some ring $R$: 
+
 \begin{itemize}
-    \item $\pro{Eval}(\params, c, z, y, d; f(X)) \rightarrow b \in \{0, 1\}$ is an interactive public-coin protocol between a PPT prover $P$ and verifier $V$. Both $P$ and $V$ have as input a commitment $c$, points $z, y \in R$ for the claimed input/output, and an integer $d$ for the degree. The prover additionally knows the opening of $c$ to a secret polynomial $f(X) \in R[X]$ with $\deg(f(X)) \leq d$. The protocol convinces the verifier that $f(z) = y$.
+    \item $\pro{Eval}(\params, c, z, y, d, [\mu]; f(X)) \rightarrow b \in \{0, 1\}$ is an interactive public-coin protocol between a PPT prover $P$ and verifier $V$. Both $P$ and $V$ have as input a commitment $c$, points $z, y \in R$ for the claimed input/output, and an integer $d$ for the degree. The prover additionally knows the opening of $c$ to a secret polynomial $f(X) \in R[X]$ with $\deg(f(X)) \leq d$. The protocol convinces the verifier that $f(z) = y$. \emph{In a multivariate extension of polynomial commitments, the input $\mu$ indicates the number of variables in the committed polynomial}. 
+   
 \end{itemize}
 
 A polynomial commitment scheme is \defn{correct} if an honest committer can successfully convince the verifier of any evaluation. Specifically, if the prover is honest then for all polynomials $f(X) \in R[X]$ and all points $z \in R$,
@@ -469,7 +471,7 @@ Given adversarial prover $P^*$ and transcript oracle $\pro{Record}(P^*, \params,
 \item Output $(\tr^*, f^*)$.  
 \end{itemize}
 
-We now argue that for any PPT $\mathcal{A}$ and $\params \leftarrow \pro{Setup}(1^\lambda)$, if the experiment sampling $(X, \st) \leftarrow \mathcal{A}(\params)$ and $\tr \leftarrow \pro{Record}(P^*, \params, X, \st)$, where $X$ is a tuple of the form $(c, a, i, d)$, produces an ``accepting transcript" $\tr$ with probability $\delta$, then the modified experiment that samples $(\tr^*, f^*) \leftarrow E^{\textsf{Record}(P^*, \params, X, \st)}(\params, X)$ returns an $f^*$ such that $((c, a, i, d), f^*) \in \mathcal{R_\textsf{Index}}(\params)$ with probability $\delta - \negl$. 
+We now argue that for any PPT $\mathcal{A}$ and $\params \leftarrow \pro{Setup}(1^\lambda)$, if the experiment sampling $(X, \st) \leftarrow \mathcal{A}(\params)$ and $\tr \leftarrow \pro{Record}(P^*, \params, x, \st)$, where $x$ is a tuple of the form $(c, a, i, d)$, produces an ``accepting transcript" $\tr$ with probability $\delta$, then the modified experiment that samples $(\tr^*, f^*) \leftarrow E^{\textsf{Record}(P^*, \params, x, \st)}(\params, x)$ returns an $f^*$ such that $((c, a, i, d), f^*) \in \mathcal{R_\textsf{Index}}(\params)$ with probability $\delta - \negl$. 
 
 If $\delta$ is negligible the claim holds trivially. For now on assume that $\delta$ is non-negligible. 
 The fact that $\tr$ is an accepting transcript with probability $\delta$ implies that each $\eval$ subprotocol generates accepting transcripts with probability at least $\delta$. Therefore, by the hypothesis that $\eval$ has witness-extended emulation, if each of the subprotocol transcripts $\tr_1$, $\tr_2$, $\tr_3$ are accepting then with probability $\delta - \negl$: subprotocol witnesses $f^*, f_L^*$ and $f_R^*$ are all valid $\mathcal{R_\textsf{Eval}}(\params)$ witnesses for $(c, \beta, y, d)$, $(c_L, \beta, y_L, i-1)$, and $(c_R, \beta, y_R, d - i - 1)$ respectively. 
@@ -915,7 +917,7 @@ Claim: $C=g^{f(q)},\deg(f)\leq d$ and $y=f(z) \mod p$
 
 \subsection{Zero-Knowledge}
 
-\subsection{Multivariate Commitment}
+\subsection{Multivariate Commitment}\label{section:multivariate}
   We extend the Polynomial Commitment scheme to handle multivariate polynomials. The idea is to simply use higher degrees of $q$ to encode the polynomial. The protocol is linear in the number of variables and logarithmic in the total degree of the polynomial. For simplicity we only present a protocol for $n$-variate polynomials where the degree in each variable is $d$ and $d$ is a power of $2$. The protocol naturally extends to different degrees per variable.
 We first define an encoding for multi-variate integer polynomials with small coefficients:
  \begin{itemize}
@@ -972,7 +974,7 @@ Follows from security proof of Eval.
 
 A commitment to a polynomial is a commitment to a list of coefficients, and the ability to extract any indicated coefficient from a polynomial commitment effectively upgrades the scheme to a vector commitment scheme.\footnote{For this classification we allow logarithmic-size proofs to qualify, in contrast to the original definition of Catalano and Fiore~\cite{PKC:CatFio13} which requires them to be constant size.} While it is possible to extract an indicated coefficient using only a polynomial commitment scheme (see Section~\ref{subsection:openindex_from_polycom} for a demonstration of this fact), it is possible to achieve this task much more efficiently by exploiting the homomorphic properties of our commitment scheme. For the following description we will identify polynomials $f(X)$ with their coefficient vectors $\mathbf{f}$ and vice versa.
 
-We achieve this task in two modular steps. Protocol $\pro{ExtractCoefficient}(\params, \gr{C}, i; f(X)) \rightarrow (\gr{C}_a; a)$ generates a commitment to coefficient $i$ along with decommitment information from a vector commitment $\gr{C} \in \mathbb{G}$, an index $i \in \mathbb{N}$, and secret decommitment information $f(X) \in \mathbb{Z}[X]$ for $\gr{C}$. Protocol $\pro{OpenIndex}$ uses this as a subprotocol to realize the syntax defined in the preliminaries (Section~\ref{subsection:openindex}). 
+We achieve this task in two steps. Protocol $\pro{ExtractCoefficient}(\params, \gr{C}, i, \gr{C}_a; f(X)) \rightarrow b \in \{0,1\}$ validates that a given commitment really is a commitment to an indicated coefficient of a vector commitment. Next, Protocol $\pro{OpenIndex}$ uses this as a subprotocol to realize the syntax defined in the preliminaries (Section~\ref{subsection:openindex}). 
 
 \begin{figure}[!htp]
 \renewcommand{\figurename}{Protocol}
@@ -980,21 +982,23 @@ We achieve this task in two modular steps. Protocol $\pro{ExtractCoefficient}(\p
 \noindent\begin{mdframed}[userdefinedwidth=\textwidth]
 \begin{minipage}{\textwidth}
 	\begin{flushleft}
-	$\pro{ExtractCoefficient}(\params, \gr{C}, i; f(X)):$ \pccomment{$f(X) \in \ZZ[X]$}
+	$\pro{ExtractCoefficient}(\params, \gr{C}, i, \gr{C}_a; f(X)):$ \pccomment{$f(X) \in \ZZ[X]$}
 		\begin{enumerate}[nolistsep]
 		    \item \prover computes $f_L(X) \gets \sum_{j=0}^{i-1} f_j X^j$ and $f_R \gets \sum_{j=i+1}^d f_j X^{j-i-1}$
-		    \item \prover computes $\gr{C}_L \gets \gr{g}^{f_L(q)}$, $\gr{C}_a \gets \gr{g}^{f_i}$, and $\gr{C}_R \gets \gr{g}^{f_R(q)}$
+		    \item \prover computes $\gr{C}_L \gets \gr{g}^{f_L(q)}$, and $\gr{C}_R \gets \gr{g}^{f_R(q)}$
 		    \item \prover computes $\gr{C}_a' \gets \gr{C}_a^{q^i}$ and $\gr{C}_R' \gets \gr{C}_R^{q^{i+1}}$
-		    \item \prover sends $\gr{C}_L, \gr{C}_a, \gr{C}_a', \gr{C}_R$ to \verifier
+		    \item \prover sends $\gr{C}_L, \gr{C}_a', \gr{C}_R$ to \verifier
 		    \item \verifier computes $\gr{C}_R' \gets \gr{C} \gr{C}_L^{-1} {\gr{C}_a'}^{-1}$
 		    \item \prover and \verifier run $\pro{PoE}(\gr{C}_a, \gr{C}_a', q^i)$ and $\pro{PoE}(\gr{C}_R, \gr{C}_R', q^{i+1})$
 		    \item \prover and \verifier run $\pro{EvalBounded}(\params, \gr{C}_L, z, f_L(z), i-1, b; f_L(X))$ for an arbitrary $z$ and any $b$ such that $\max_j f_j \leq b \ll q$
-		    \item \pcreturn $(\gr{C}_a; f_i)$
+		    \item \pcif{}all checks pass \textbf{then} \textbf{return} 1 \textbf{else} \textbf{return} 0
 		\end{enumerate}
 	\end{flushleft}
 \end{minipage}
 \end{mdframed}
 \end{figure}
+
+\textit{Note.} Instead of line 7, \prover and \verifier might as well run any range proof that establishes that $\gr{C}_L$ is a commitment to an integer smaller than $q^i$ in absolute value.
 
 \begin{lemma}[security of Protocol~\ref{scheme:coefficient_extraction}]
     relation and witness-extended emulation of Protocol~\ref{scheme:coefficient_extraction}. Much wow.
@@ -1008,8 +1012,10 @@ We achieve this task in two modular steps. Protocol $\pro{ExtractCoefficient}(\p
 	\begin{flushleft}
 	$\pro{OpenIndex}(\params, \gr{C}, a, i; f(X)):$ \pccomment{$f(X) \in \ZZ_p[X]$}
 		\begin{enumerate}[nolistsep]
-		    \item \prover and \verifier run $(\gr{C}_a; f_i) \gets \pro{ExtractCoefficient}(\params, \gr{C}, i; f(X))$
-		    \item \textbf{return} $\pro{Open}(\params, \gr{C}_a, a; f_i)$
+		    \item \prover computes $\gr{C}_a \gets \gr{c}^{f_i}$ and sends it to \verifier
+		    \item \prover and \verifier run $\pro{ExtractCoefficient}(\params, \gr{C}, i, \gr{C}_a; f(X))$
+		    \item \prover and \verifier run $\pro{Open}(\params, \gr{C}_a, a; f_i)$
+		    \item \pcif{}all checks pass \textbf{then} \textbf{return} 1 \textbf{else} \textbf{return} 0
 		\end{enumerate}
 	\end{flushleft}
 \end{minipage}
@@ -1035,11 +1041,29 @@ We use this property to realize protocols for extracting inner products.
 \noindent\begin{mdframed}[userdefinedwidth=\textwidth]
 \begin{minipage}{\textwidth}
 	\begin{flushleft}
-	$\pro{InnerProduct}(\params, \gr{C}_\mathbf{f}, \gr{C}_a; \mathbf{f}, \mathbf{s}, \hat{\mathbf{f}}):$ \pccomment{$\mathbf{f}, \mathbf{s} \in \ZZ_p^{d+1}$ but $\hat{f}(X) \in \mathbb{Z}[X]$}
+	$\pro{InnerProductSecret}(\params, \gr{C}_\mathbf{f}, \gr{C}_a; \mathbf{f}, \mathbf{s}):$ \pccomment{$\mathbf{f}, \mathbf{s} \in \ZZ^{d+1}$}
 		\begin{enumerate}[nolistsep]
 		    \item \prover computes $\gr{C}' \gets \gr{C}_\mathbf{f}^{\sum_{i=0}^{d} s_{d-i} q^i}$ and sends it to \verifier
 		    \item \prover computes $h(X) \gets \left(\sum_{i=0}^d f_i X^i\right) \left(\sum_{i=0}^d g_{d-i} X^i\right)$
-		    \item \prover and \verifier run $\pro{ExtractCoefficient}(\params, \gr{C}', \gr{C}_a, d, 2d-1; h(X))$
+		    \item \prover and \verifier run $\pro{ExtractCoefficient}(\params, \gr{C}', d, \gr{C}_a; h(X))$
+		    \item \pcif{}all checks pass \textbf{then} \textbf{return} 1 \textbf{else} \textbf{return} 0
+		\end{enumerate}
+		\vspace{0.25cm}
+	$\pro{InnerProductCommitted}(\params, \gr{C}_\mathbf{f}, \gr{C}_a, \gr{C}_\mathbf{\bar{s}}; \mathbf{f}, \mathbf{s}):$ \pccomment{$\mathbf{f}, \mathbf{s} \in \ZZ^{d+1}$ and $\gr{C}_\mathbf{\bar{s}} = \gr{g}^{\sum_{i=0}^d s_{d-i} q^i}$}
+		\begin{enumerate}[nolistsep]
+		    \item \prover computes $\gr{C}' \gets \gr{C}_\mathbf{f}^{\sum_{i=0}^{d} s_{d-i} q^i}$ and sends it to \verifier
+		    \item \prover computes $h(X) \gets \left(\sum_{i=0}^d f_i X^i\right) \left(\sum_{i=0}^d g_{d-i} X^i\right)$
+		    \item \prover and \verifier run $\pro{PoKEE}(\gr{g}, \gr{C}_\mathbf{\bar{s}}, \gr{C}_\mathbf{f}, \gr{C}'; \mathbf{s})$
+		    \item \prover and \verifier run $\pro{ExtractCoefficient}(\params, \gr{C}', d, \gr{C}_a; h(X))$
+		    \item \pcif{}all checks pass \textbf{then} \textbf{return} 1 \textbf{else} \textbf{return} 0
+		\end{enumerate}
+		\vspace{0.25cm}
+	$\pro{InnerProductKnown}(\params, \gr{C}_\mathbf{f}, \gr{C}_a, \mathbf{s}; \mathbf{f}):$ \pccomment{$\mathbf{f}, \mathbf{s} \in \ZZ^{d+1}$}
+		\begin{enumerate}[nolistsep]
+		    \item \prover computes $\gr{C}' \gets \gr{C}_\mathbf{f}^{\sum_{i=0}^{d} s_{d-i} q^i}$ and sends it to \verifier
+		    \item \prover computes $h(X) \gets \left(\sum_{i=0}^d f_i X^i\right) \left(\sum_{i=0}^d g_{d-i} X^i\right)$
+		    \item \prover and \verifier run $\pro{ExtractCoefficient}(\params, \gr{C}', d, \gr{C}_a; h(X))$
+		    \item \pcif{}all checks pass \textbf{then} \textbf{return} 1 \textbf{else} \textbf{return} 0
 		\end{enumerate}
 	\end{flushleft}
 \end{minipage}

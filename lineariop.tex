@@ -31,7 +31,7 @@ This determines a query matrix $\mathbf{Q}_i \leftarrow Q(\textsf{st}^V_{i-1}, \
 
 \item \underline{Soundness}. If $(x, w) \notin \mathcal{R}$ for every $w$, then for every prover algorithm $P^*$ that outputs a linear function oracle $\proofO^*_i: \mathbb{F}^{m_i} \rightarrow \mathbb{F}$ in the $i$th round of the protocol initialized on $x$, the probability $V(\textsf{st}^V_t)$ returns $\textsf{Accept}$ is less than $\epsilon$. 
 
-\item \underline{Knowledge}. There exists a PPT knowledge extractor $\mathcal{E}$ such that for any prover algorithm $P^*$ and every $x$, if $V(\textsf{st}^V_t)$ outputs \textsf{Accept} in its interaction with $P^*$ with probability greater than $\delta$ then $\mathcal{E}^{P^*}(x)$ outputs $w$ such that $(x, w) \in \mathcal{R}$ in expected polynomial time. $\mathcal{E}^{P^*}(x)$ receives the input $x$ and interacts with $P^*$ via rewinding, sending partial transcripts and receiving $P^*$'s next output. (Although the verifier only accesses $P^*$'s output by querying a linear function oracle, $E$ reads the whole output). 
+\item \underline{Knowledge}. There exists a PPT knowledge extractor $\mathcal{E}$ such that for any prover algorithm $P^*$ and every $x$, if $V(\textsf{st}^V_t)$ outputs \textsf{Accept} in its interaction with $P^*$ on input $x$ with probability greater than $\delta$ then $\mathcal{E}^{P^*}(x)$ outputs $w$ such that $(x, w) \in \mathcal{R}$ in expected polynomial time. $\mathcal{E}^{P^*}(x)$ receives the input $x$ and interacts with $P^*$ via rewinding, sending partial transcripts and receiving $P^*$'s next output. (Although the verifier only accesses $P^*$'s output by querying a linear function oracle, $E$ reads the whole output). 
 
 \end{itemize}
 
@@ -58,7 +58,7 @@ IOPs. In Section~\ref{sec:instantiations} we discuss optimizations for concrete 
 Let $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ be a $\mu$-variate polynomial commitment scheme. Given any $t$-round $(\mu, d)$-polynomial IOP for $\mathcal{R}$ over $\mathbb{F}$, construct an interactive protocol as follows: 
 \begin{itemize}
 \item Run $\params \leftarrow \pro{Setup}(1^\lambda)$
-\item Replace each $(\mu, d)$ polynomial proof oracle $\proofO: \mathbb{F}^\mu \rightarrow \mathbb{F}$ with a commitment $c_{\proofO} \leftarrow \pro{Commit}(\params, \proofO, \mu)$
+\item Replace each $(\mu, d)$ polynomial proof oracle $\proofO: \mathbb{F}^\mu \rightarrow \mathbb{F}$ with a commitment $c_{\proofO} \leftarrow \pro{Commit}(\params; \proofO)$ 
 \item Replace each verifier \emph{evaluation} query $\mathbf{r}$ to proof oracle $\proofO$ with a interactive execution of $\pro{Eval}(\params, c_\pi, \mathbf{z}, y, \mu, d; \proofO)$, where $\proofO(\mathbf{z}) = y$. Replace each index query to the $i$th $\mathbb{F}$-vector component of $\proofO$ with an execution of $\pro{OpenIndex}(\params, c_\pi, i, \pi_i, \mu, d; \proofO)$ where the $i$th coefficient of $\proofO$ is $\pi_i$. 
 \end{itemize}
 
@@ -69,6 +69,49 @@ If the verifier does not abort in any of these subprotocols, then it receives a 
 \begin{lemma}
 If the polynomial commitment scheme $\Gamma$ has witness-extended emulation and the $t$-round polynomial IOP for $\mathcal{R}$ has negligible knowledge error, then \emph{Compilation I} generates a public-coin interactive argument for $\mathcal{R}$ that has witness-extended emulation. 
 \end{lemma}
+
+\begin{proof}[Proof Sketch]
+
+The proof consists of the following steps in bullet format. (This should probably be turned into a series of subclaims).  
+
+\begin{itemize}
+
+\item Without loss of generality, assume IOP makes at least one query to each oracle sent in a given round (i.e. the queries derived from the verifier's random challenge in this round contain at least one per proof oracle). Otherwise, we can modify the IOP to query at an arbitrary point. (The compiled IOP therefore makes at least one query to every polynomial commitment sent to verifier). 
+ 
+\item Given a record oracle $\pro{Record}(P^*, \params, x, \st)$ that produces accepting transcripts with non-negligible probability, the emulator $E$ construct an IOP adversary $P'$ which succeeds also with non-negligible probability on input $x$. Moreover, every successful interaction of $P'$ with the IOP verifier on input $x$ corresponds to a successful transcript of $P^*$ with $V$ on $x$. In showing how $E$ builds $P'$ we also show how $E$ can obtain this corresponding transcript. We will describe how this is done in the later parts of the proof. Accepting that this is true, $E$ can use the IOP knowledge extractor $E_{\pro{IOP}}^{P'}(x)$ in order to output a witness for $x$ along with the corresponding transcript. 
+
+\item The emulator also can run the polynomial commitment evaluation emulator $E_\eval$ for the commitment scheme $\Gamma$. 
+
+\item  \textbf{The IOP prover $\mathbf{P'}$}. We use the descriptive term ``IOP verifier" to distinguish it from the IP verifier $V$, and let $V_{\pro{IOP}}$ denote the IOP verification (decision) algorithm applied to the final IOP transcript. 
+
+$P'$ runs as follows on initial state $\st_0$ and input $x$. In ``its head", it simulates the interaction of $P^*$ and $V$, using the record oracle $\pro{Record}(P^*, \params, x, \st)$. It begins by running this for the first round on state $\st_0$. We already made the assumption that for every message $m$ that $P^*$ sends in this first round, $V$'s random challenge triggers at least one $\eval$ on $m$ (interpreted as a polynomial commitment). Therefore, the record oracle can be used to simulate $E_\eval$'s record oracle for each $m$ evaluated at some point determined by $V$'s challenge.
+
+For each message $m$ that $P^*$ sends to $V$ at the beginning of the first round, $P'$ attempts to extract a polynomial from $m$ by 
+running the PPT emulator $E_\eval$, simulating its record oracle as just described. \textbf{If it fails in any extraction it aborts.} 
+
+If $P'$ succeeds in all these extractions, then it uses these extracted polynomials as its first round proof oracles that it gives to the IOP verifier. Upon receiving the first public-coin challenge from the IOP verifier, $P'$ uses the query function to derive the corresponding queries to each of these proof oracles. Before answering, it rewinds $P^*$ and $V$ to the point immediately after $P$ sent its ``commitment" messages, and now substitutes the IOP verifier random challenge in order to simulate $P^*$ and $V$ on the same queries. It checks that $P^*$'s answers are consistent with the answers it can compute on its own from the extracted polynomials. \textbf{If any answers are inconsistent, $P'$ aborts}. Otherwise, it sends the answers to the IOP verifier. 
+
+At the end of this first round (assuming $P'$ has not yet aborted), $P'$ has stored an updated state $\st'$ for $P^*$ based on this simulation. It proceeds to the next round and repeats the same process, using the record oracle $\pro{Record}(P^*, \params, x, \st')$. Finally, if $P'$ makes it through all rounds without aborting, then it has a final state $\st_V$ for $V$ based on its internal simulation of $P^*$ and $V$ up through the end of the last round. The IOP verifier runs the IOP decision algorithm $V_{\pro{IOP}}$, which outputs $\pro{Accept}$ if and only if $V$ outputs $1$ on $\st_V$. (This is due to the fact that the verifier in the compiled IOP runs the same final decision algorithm as the IOP verifier). 
+
+\item We will now analyze the probability that $P'$ is successful. In particular, we claim that if $\pro{Record}(P^*, \params, x, \st_0)$ outputs an accepting transcript $\tr$ with non-negligible probability, then $P'$ succeeds with non-negligible probability. First, observe that for any accepting $\tr$ between $P^*$ and $V$, if $P'$ happens to follow the same exact sequence of query/responses without ever aborting then it succeeds because the IOP verifier and $V$ have the same final decision algorithm. Thus, it remains to take a closer look at what events cause $P'$ to abort, and bound the fraction of accepting $\tr$ for which this occurs. 
+
+As indicated in bold above, there are two kinds of events that cause $P'$ to abort: 
+\begin{itemize}
+\item It fails to extract from a ``commitment" message $m$ sent by $P^*$
+\item After successfully extracting a polynomial $f$ from a commitment, $P^*$ answer queries to $f$ in a way that is inconsistent with $f$. 
+\end{itemize}
+
+The second type of event contradicts the evaluation binding property of $\Gamma$, therefore it occurs with negligible probability. To analyze the first type of event, let us define ``bad commitments" for a parameter $B$: a message $m$ in state $\st$ sent by $P^*$ at a particular point in $\tr$ is a ``bad commitment", denoted $\pro{Bad}(m, \st) = 1$ for short, if there is less than a $1/B$ probability (over the randomness of the public-coins) that $\pro{Record}(P^*, \params, x, \st)$ contains a successful execution of $\eval$ on $m$ on the queries defined by $\st$ and the next public coin challenge, where $\st$ is determined by running $\tr$ up until the point $m$ appears. 
+
+The conditional probability that a transcript $\tr$ is accepting given that it contains a ``bad commitment" is less than $1/B$. To see this, fix $(m, \st)$ with $\pro{Bad}(m, \st) = 1$ and consider ``sampling" a random $\tr$ that contains $m$ at state $\st$. This is done by first choosing randomly from all partial transcripts that result in $(m, \st)$ via brute force, and then running the transcript normally from state $\st$ on random public-coins. The probability the latter part results in an accepting transcript is less than $1/B$ by definition.
+
+Flipping this around with Bayes' law, letting $A(\tr)$ denote the event that $\tr$ is accepting and $P(A(\tr)) > 1/\poly$ the a-priori probability of this event, the probability that $\tr$ contains ``bad commmitments" conditioned on $A(\tr)$ is less than $\frac{1}{B P(A(\tr))} < \poly/B$. In other words, for at least a $1 - \poly/B$ fraction of accepting transcripts, for every message $m$ contained therein, $P'$s simulation of $\eval$ succeeds with probability greater than $1/B$. Setting $B = 2 \poly(\lambda)$, we see than on $1/2$ of acceting transcripts $P$'s simulation succeeds with non-negligible probability. Finally, we can invoke the witness-emulation property of $\eval$ to say that the PPT $E_\Gamma$ emulator extracts a witness from each $m$ with overwhelming probability on $1/2$ of accepting transcripts. 
+
+In conclusion, there is a non-negligible fraction transcripts that are both accepted by $V$ and for which $P'$ never aborts (when following the same sequence of queries/responses), hence $P'$ succeeds with non-negligble probability in its interaction with the IOP verifier. 
+
+\end{itemize}
+\end{proof}
+
 
 \subsubsection*{Compilation II: Algebraic Linear IOPs} 
 
