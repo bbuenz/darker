@@ -748,8 +748,9 @@ In each round the extractor has $f'(X)=f_L(X)+\alpha f_R(X)$. Using rewinding th
 \begin{theorem}
 	The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ instantiated using $\ggen$ is extractable if the adaptive root assumption and the strong RSA assumption hold for $\ggen$ if $q>2 \cdot p^{2 \lceil \log_2(d) \rceil+1}$
 \end{theorem}
-%\alan{Is it true that we don't need the order assumption?}
 \begin{proof}
+We will show that 
+
 Suppose there is an adversary $\adv$ that breaks extractability with non-negligible probability $\gamma$. Assuming $\adv$ convinces the verifier with non-negligible probability, we proceed to build an algorithm violating the Fractional Root Assumption.
 
 The proof works by induction on the sequence $d \mapsto d' = \left\lceil \frac{d+1}{2} \right\rceil - 1 \mapsto d'' = \left\lceil \frac{d'+1}{2} \right\rceil - 1 \mapsto \cdots \mapsto 0$ in reverse order. Specifically, at every step we unravel the innermost nesting of the recursion. We show that the following invariants hold at every iteration.
