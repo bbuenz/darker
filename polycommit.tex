@@ -677,7 +677,7 @@ Using the integer encoding of polynomials presented above we can simply commit t
 			%\item $q \gets 2^k$ such that $q > (d+1) \cdot 2\cdot p^{\log_2(d+1)+1} $
 			\item $\pcreturn \params = (\secpar,\GG,\gr{g})$
 		\end{enumerate}
-	$\pro{Commit}(\crs;f(X) \in B_p[X]):$ \pccomment{$f(X)\equiv \bar{f}(X) \mod p$ for  $\bar{f}(X)\ZZ_p[X]$}
+	$\pro{Commit}(\crs;f(X) \in B_p[X]):$ \pccomment{$f(X)\equiv \bar{f}(X) \mod p$ for  $\bar{f}(X) \in \ZZ_p[X]$}
 		\begin{enumerate}[nolistsep]
 			\item $\gr{C} \gets \gr{g}^{f(q)}$
 			\item $\pcreturn (\gr{C};f(X))$
