@@ -130,7 +130,7 @@ It is an open research problem to show whether one of these assumption implies t
 \begin{assumption}[Strong RSA Assumption]
 The \defn{Strong RSA Assumption} sates that no efficient adversary can compute any root of a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
 \[
-    \Pr\left[\gr{u}^\ell = \gr{g} \, \wedge \, \ell > 2:
+    \Pr\left[\gr{u}^\ell = \gr{g} \, \wedge \, \ell\neq 2^k, \forall k \in \NN:
     \begin{array}{l}
          \GG \leftarrow \ggen(\lambda)  \\
          \gr{g} \sample \GG \\
@@ -192,11 +192,11 @@ We additionally define the pseudo root assumption which is a generalization of t
 \label{assum:fracroot}
 The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\adv$:
 \[        
-                \Pr\left[\gr{u}^\beta = \gr{g}^{\alpha} \wedge \vert\frac{\beta}{\gcd(\alpha,\beta)}|>2   : 
+                \Pr\left[\gr{u}^\beta = \gr{g}^{\alpha} \wedge \frac{\beta}{\gcd(\alpha,\beta)}\neq 2^k,  \forall k \in \NN   : 
                 \begin{array}{l} 
                       \GG \sample \ggen(\lambda) \\ 
                       \gr{g} \sample \GG \\
-                      (\alpha, \beta, y) \sample \adv(\GG, \gr{g}) \\
+                      (\alpha, \beta, \gr{u}) \sample \adv(\GG, \gr{g}) \\
                       \quad \textnormal{where} \, |\alpha|<2^{\poly}, |\beta|<2^{\poly} \in \ZZ \\
                       \quad \textnormal{and} \, \gr{u} \in \GG 
                 \end{array} 
@@ -617,35 +617,36 @@ Boneh et al. \cite{journals/iacr/BonehBF18a} built on top of PoE to also develop
 \subsection{Polynomial Encoding}
 At the heart of our protocol is an integer encoding of polynomials with bounded coefficients. The encoding can be viewed as the integer concatenation of the coefficients. This encoding has useful homomorphic properties which we can take advantage of. Additionally, we can represent polynomials in prime fields as integer polynomials with bounded coefficients.
 
-	Consider the set $B_{q/2}:=\{x | x \in \ZZ \wedge \vert x\vert  <q/2\} \subset \ZZ$ of integers with absolute value of less than $q/2$. In a slight abuse of notation we write $B_{q/2}[X]\subset \mathbb{Z}[X]$ as the set of integer polynomials with bounded coefficients. $p(q) \in \ZZ$ for $p(X)\in B_{q/2}[X]$ is a unique encoding of the polynomial:
+	Consider the set $B_{q}:=\{x | x \in \ZZ \wedge \vert x\vert  <q/2\} \subset \ZZ$ of integers with absolute value of less than $q/2$. In a slight abuse of notation we write $B_{q}[X]\subset \mathbb{Z}[X]$ as the set of integer polynomials with bounded coefficients. $p(q) \in \ZZ$ for $p(X)\in B_{q}[X]$ is a unique encoding of the polynomial:
 \begin{itemize}
-	\item Domain $B_{q/2}[X]\subset \ZZ[X]$, Alphabet: $\ZZ$
+	\item Domain $B_{q}[X]\subset \ZZ[X]$, Alphabet: $\ZZ$
 	\item 	$f(X):=\sum_{i=0}^{d} f_i X^i$
-	\item $\enc(f(X) \in B_{q/2}[X])\rightarrow  f(q) \in \ZZ$
+	\item $\enc(f(X) \in B_{q}[X])\rightarrow  f(q) \in \ZZ$
 	\item $\dec(y \in \ZZ):$
 	\item For each $i \in [0,\lfloor \log_q(|y|)\rfloor]$ do\\
 	\begin{enumerate}
 		\item Define $f_{\leq k}(X):=\sum_{j=0}^k f_j X^j$
 		\item $y \bmod q^{i+1}=\begin{cases} f_{\leq i}(q) &\text{ if } f_{\leq i}(q)\geq 0\\ q^{i+1} - f_{\leq i}(q) &\text{ if } f_{\leq i}(q)<0   \end{cases}$
 		\item  Compute $f_{\leq i}(q)$ and $f_{\leq i-1}(q)$ from $y$
-		\item  Compute $f_i\in B_{q/2}$ as $f_i \gets \frac{f_{\leq i}(q)-f_{\leq i-1}(q)}{q^i}$.
+		\item  Compute $f_i\in B_{q}$ as $f_i \gets \frac{f_{\leq i}(q)-f_{\leq i-1}(q)}{q^i}$.
 	\end{enumerate} 
 \end{itemize}
 
 \begin{fact}
-	The encoding scheme is uniquely decodable for polynomials in $B_{q/2}[X]$.
+	The encoding scheme is uniquely decodable for polynomials in $B_{q}[X]$.
 \end{fact}
 The fact follows from $f(q)\in \ZZ$ being a unique integer representation of polynomials with coefficients bounded in absolute value by $q/2$. In particular for the degree $i$ polynomial $f_{\leq i}$ we have $|f_{\leq i}(q)|<\frac{q^{i+1}}{2}$. From this follows that $f_{\leq i}(q)-f_{\leq i-1}(q)=f_i \cdot q^i$.  
 
-Note that the encoding has limited homomorphic properties. $\enc(g(X))+\enc(h(X))=\enc(g(X)+h(X))$ if $g(X)+h(X)\in B_{q/2}$, i,.e. all its coefficients are less than $q/2$ in absolute value. This is ensured if for example the coefficients of $g$ and $h$ are less than $q/4$ in magnitude. Additionally $\enc(g(X))\cdot \enc(h(X))=\enc(g(X)\cdot h(X))$ if $g(X)\cdot h(X)\in B_{q/2}$.
-
+Note that the encoding has limited homomorphic properties. $\enc(g(X))+\enc(h(X))=\enc(g(X)+h(X))$ if $g(X)+h(X)\in B_{q}$, i,.e. all its coefficients are less than $q/2$ in absolute value. This is ensured if for example the coefficients of $g$ and $h$ are less than $q/4$ in magnitude. Additionally $\enc(g(X))\cdot \enc(h(X))=\enc(g(X)\cdot h(X))$ if $g(X)\cdot h(X)\in B_{q}$.
+\paragraph{Commitment to dyadic rationals}
+In class groups there exists an algorithm to compute square roots of any element originially described by Gaus (modern description can by Bosma and Stevenhagen.\cite{bosma1996computation}). This means that in class groups an adversary can also commit to numbers in the ring of dyadic rationals $\mathcal{D}:=\{\frac{x}{2^k} |x \in \ZZ \wedge k \in \NN\}$. We call elements in $\mathcal{R}_{2^k}$ 2-fractions. When using class groups we need to extend the encoding scheme from supporting integers to dyadic rationals. The main difference to the integer encoding scheme will be that the scheme works for dyadic rationals such that for $\frac{x}{2^a}\in \mathcal {D}$ $|x|<\sqrt{q}/2$ and $2^a<\sqrt{q}$. For simplicity assume that $q=2^{2b+2}$ for some integer $b$. Let $C_{q=2^{2b+2}}:=\{(x,a)\in \mathcal{R}_{2^a} | |x|<2^b \wedge 2^a\leq 2^{b+1}\}$ denote the set of such ``small'' dyadic rationals. To encode a polynomial $g(X)$ with coefficients in $C_{q}$ we compute $g(q)$. For decoding we simply compute the integer $y'\cdot 2^{b+1}\in \ZZ$  and use the decoding algorithm described above to decode a polynomial $f(X)$ in $B_{q}[X]$. From $f(X)$ we can derive the polynomial  $g(X)\gets \frac{f(X)}{2^{b+1}} \in C_q[X]$ through division.
 \subsection{Polynomial Commitment}
 
 We now present our main result: 
 A polynomial commitment scheme with an efficient evaluation protocol based on groups of unknown order $\GG$. For polynomials of degree $d$ the protocol uses $\log_2(d+1)$ rounds and $O(\log(d))$ communication and verifier work.
 
 Exponentiation in groups of unknown order is a succinct and homomorphic cryptographic commitments to integers.
-Using the integer encoding of polynomials presented above we can simply commit to an integer polynomial with bounded coefficients $f(X)\in B_{q/2}[X]$ by computing $\gr{g}^{f(q)} \in \GG$. Note that our commitment scheme supports integer polynomials with bounded coefficient. Every polynomial in $\ZZ_p[X]$ naturally maps to an integer polynomial with coefficients in $B_{p}$. The commitment scheme, therefore, supports committing to polynomials in $\ZZ_p[X]$ for $p<q/2$. Interestingly neither $p$ nor the degree $d$ need to be specified in the setup. As long as $q$ is ``big enough'' they can be freely chosen. We will discuss the relationship between $p$, $d$ and $q$ later but first we describe the setup, commitment and opening algorithms:
+Using the integer encoding of polynomials presented above we can simply commit to an integer polynomial with bounded coefficients $f(X)\in B_{q}[X]$ by computing $\gr{g}^{f(q)} \in \GG$. Note that our commitment scheme supports integer polynomials with bounded coefficient. Every polynomial in $\ZZ_p[X]$ naturally maps to an integer polynomial with coefficients in $B_{2\cdot p}$. The commitment scheme, therefore, supports committing to polynomials in $\ZZ_p[X]$ for $p<q/2$. Interestingly neither $p$ nor the degree $d$ need to be specified in the setup. As long as $q$ is ``big enough'' they can be freely chosen. We will discuss the relationship between $p$, $d$ and $q$ later but first we describe the setup, commitment and opening algorithms:
 
 
 \begin{mdframed}[userdefinedwidth=\textwidth]
@@ -658,16 +659,16 @@ Using the integer encoding of polynomials presented above we can simply commit t
 			%\item $q \gets 2^k$ such that $q > (d+1) \cdot 2\cdot p^{\log_2(d+1)+1} $
 			\item $\pcreturn \params = (\secpar,\GG,\gr{g})$
 		\end{enumerate}
-	$\pro{Commit}(\crs;f(X) \in B_p[X]):$ \pccomment{$f(X)\equiv \bar{f}(X) \mod p$ for  $\bar{f}(X)\ZZ_p[X]$}
+	$\pro{Commit}(\crs;f(X) \in B_{2\cdot p}[X]):$ \pccomment{$f(X)\equiv \bar{f}(X) \mod p$ for  $\bar{f}(X)\ZZ_p[X]$}
 		\begin{enumerate}[nolistsep]
 			\item $\gr{C} \gets \gr{g}^{f(q)}$
 			\item $\pcreturn (\gr{C};f(X))$
 		\end{enumerate}
-	$\pro{Open}(\crs,\gr{C},\bar{f}(X);f(X)):$ \pccomment{$f(X) \in B_{q/2}[X]\subset\mathbb{Z}[X]$ but $\bar{f}(X) \in \ZZ_p[X]$}
+	$\pro{Open}(\crs,\gr{C},\bar{f}(X);f(X)):$ \pccomment{$f(X) \in B_{q}[X]\subset\mathbb{Z}[X]$ but $\bar{f}(X) \in \ZZ_p[X]$}
 		\begin{enumerate}[nolistsep]
 		    \item \prover sends $f(X)$ to \verifier.
 		    				\item \verifier computes $\bar{f}(X) \gets f(X) \mod p$
-		    \item \verifier checks that $f(X)\in B_{q/2}[X]$
+		    \item \verifier checks that $f(X)\in B_{q}[X]$
 			\item \verifier checks that $\gr{g}^{f(q)} = \gr{C}$ \pccomment{Can be outsourced using $\textsf{PoE}(\gr{g},C,f(q))$}
 			\item \pcif all checks pass \textbf{then} \pcreturn $1$ \textbf{else} \pcreturn $0$
 		\end{enumerate}
@@ -741,23 +742,45 @@ We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pr
 	The polynomial commitment scheme is binding if either the order assumption or the strong RSA assumption hold.
 \end{lemma}
 \begin{proof}
-    Assume that there is an adversary that breaks the binding property of the scheme. Specifically, assume that some probabilistic polynomial time algorithm $\adv$ takes as input $\params$ and outputs $\gr{C} \in \GG, f(X) \in B_{q/2}[X], f'(X)\in B_{q/2}[X]$ such that with non-negligble probability $\pro{Open}(\params, \gr{C}, f(X)) = \pro{Open}(\params, \gr{C}, f'(X)) = 1$ and $f(X) \neq f'(X)$. We proceed to show that this implies a violation of the Order Assumption~(\ref{assum:order}).
+    Assume that there is an adversary that breaks the binding property of the scheme. Specifically, assume that some probabilistic polynomial time algorithm $\adv$ takes as input $\params$ and outputs $\gr{C} \in \GG, f(X) \in B_{q}[X], f'(X)\in B_{q}[X]$ such that with non-negligble probability $\pro{Open}(\params, \gr{C}, f(X)) = \pro{Open}(\params, \gr{C}, f'(X)) = 1$ and $f(X) \neq f'(X)$. We proceed to show that this implies a violation of the Order Assumption~(\ref{assum:order}).
     
 	Let $h(X)=f(X)-f'(X) \in \ZZ[X]$; this is a polynomial of degree at most $\max(f(X), f'(X))$. Since $\gr{g}^{f(q)}=\gr{g}^{f'(q)}=\gr{C}$ we have that $\gr{g}^{h(q)}=1$. Note that the coefficients of $f(X)$ and $f'(X)$ are all less than $q/2$ in absolute value. By triangle inequality we have that the coefficients of $h(X)$ are less than $q$. This means that $h(q)=0 \implies h(X)=0$. However by assumption $h(X)\neq 0$ so $h(q)\neq 0$ is a multiple of the order of $\gr{g}$. This directly breaks the order assumption and we can also create an adversary $\adv_{RSA}$ that breaks the strong RSA assumption. To do so the $\adv_{RSA}$ pics an odd prime $\ell$ that is co-prime with $h(q)$ and computes $\gr{u}\gets \gr{g}^{\ell^{-1} \bmod h(q)}$ as the $\ell$th root of $\gr{g}$.
 	\end{proof}
 We now proof the main theorem that the polynomial commitment scheme is extractable. Consider the information theoretic version of the eval protocol, where the prover sends the integer polynomials $f_L(X)$ and $f_R(X)$ in each round but the verifier does not read them. 
 In the final round the verifier receives $f_0$ such that $f_0\in[0,b]$. We now construct an extractor by recursively computing $f_L(X)$ and $f_R(X)$ from $f'(X)$.
-In each round the extractor has $f'(X)=f_L(X)+\alpha f_R(X)$. Using rewinding the extractor can also compute $f''(X)=f_L(X)+\alpha' f_R(X)$. From $f'(X)$, $f''(X)$, $\alpha$ and $\alpha'$ it is easy to compute $f_L(X)$ and $f_R(X)$. A careful analysis shows that if the coefficients of $f'(X)$ are bounded by $b$ then $f_L(X)$ and $f_R(X)$ must have coefficients bounded by $b \cdot p$ in absolute value. Using a similar analysis we can show that $f(z)\bmod p=y$ for the extracted polynomial $f(X)$. Our full proof takes into account the cryptographic compilation of the protocol using the integer encoding and exponentiation in groups of unknown order. 
+In each round the extractor has $f'(X)=f_L(X)+\alpha f_R(X)$. Using rewinding the extractor can also compute $f''(X)=f_L(X)+\alpha' f_R(X)$. From $f'(X)$, $f''(X)$, $\alpha$ and $\alpha'$ it is easy to compute $f_L(X)$ and $f_R(X)$. A careful analysis shows that if the coefficients of $f'(X)$ are bounded by $b$ then $f_L(X)$ and $f_R(X)$ must have coefficients bounded by $b \cdot p$ in absolute value. Using a similar analysis we can show that $f(z)\bmod p=y$ for the extracted polynomial $f(X)$. Our full proof takes into account the cryptographic compilation of the protocol using the integer encoding and exponentiation in groups of unknown order. Additionally the full proof will need to work with dyadic rationals as taking square roots is easy in class groups. 
 \begin{theorem}
 	The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ instantiated using $\ggen$ is extractable if the adaptive root assumption and the strong RSA assumption hold for $\ggen$ if $q>2 \cdot p^{2 \lceil \log_2(d) \rceil+1}$
 \end{theorem}
 \begin{proof}
 We will proof security by showing that given a polynomial time adversary $\adv_{\eval}$ that succeeds in convincing an honest verifier in the $\eval$ protocol on any public input with non-negligible probability we can either (1) construct an adaptive root adversary $\adv_{\textsf{Adaptive Root}}$, (2) extract an element of known order, i.e. break the order assumption, (3) extract a fractional root of $\gr{g}\in \GG$ or (4) extract the polynomial $f(X)$. The proof will use the general forking lemma (Lemma \ref{lem:forking}) to show that the polynomial commitment scheme has witness-extended emulation.
 
-In particular we construct an extractor $E$ that given transcripts with $2$ distinct challenges per round, i.e. $2^{\lceil\log_2(d+1)\rceil}<2 (d+1)$ total transcripts, can compute either an opening to the commitment scheme, an element of known order or a fractional root of the CRS encoded $\gr{g}\in\GG$.
+In particular we construct an extractor $E$ that given transcripts with $2$ distinct challenges per round, i.e. $2^{\lceil\log_2(d+1)\rceil}<2 (d+1)$ total transcripts, can compute either an opening to the commitment scheme, an element of known order or a pseudo root of the CRS encoded $\gr{g}\in\GG$.
 
 First consider all the $\textsf{PoE}$ executions in all transcripts. There are $\lceil\log_2(d+1)\rceil$ $\textsf{PoE}$s per transcript. Consider the probability $\advantage{\textsf{PoE}Break}{}$ of the event that the adversary can break the $\textsf{PoE}$ soundness for any execution, i.e. $\gr{C}_L \gr{C}_R^{(q^{d'+1})}\neq \gr{C}$. Under the adaptive root assumption $\adv_{\eval}$ has negligible probability $\advantage{AR}{}$ in succeeding in each execution. The probability of $\advantage{\textsf{PoE}Break}{}$ is therefore bounded by $2d \lceil\log_2(d+1)\rceil$ and still negligible in $\lambda$.
-Now consider the case where $\gr{C}_L \gr{C}_R^{(q^{d'+1})}= \gr{C}$ for all executions.
+Now consider the case where $\gr{C}_L \gr{C}_R^{(q^{d'+1})}= \gr{C}$ for all executions. 
+We will now construct the extractor that recursively either extracts the encoding of a dyadic rational polynomial $f(X)\in \mathcal{D}[X]$ with bounded coefficients or a break of the order assumption or the pseudo-root assumption. The recursion is done over the degree $\hat{d}$ up to the maximum degree $d$.
+
+In each round the extracted witness is a dyadic rational $\hat{y}$ such that $g^{\hat{y}}=C$ and $\hat{y}=\enc(f(X))$ where the coefficients of $f(X)$ have bounded numerators and denominators. The degree of $f(X)$ is at most $\hat{d}$. Also $f(z) \equiv y \bmod p$.
+If $\hat{d}=0$ then we can directly extract $f(X)=\hat{y} \in \ZZ$ such that $\vert \hat{y} \vert < p^{\log_2(d+1)+1}$, $y=\hat{y}\mod p$, $f(X)=y\in \ZZ_p[X]$ and $g^{\hat{y}}=C$ as the witness. We proceed with $d'=2\cdot d +1$.
+
+For $d'>0$ we have $g^{\hat{y}}=C=C_0^{\alpha}C_1$ and $g^{\hat{y}'}=C=C_0^{\alpha'}C_1$ for distinct $\alpha$ and $\alpha'$.  
+ This gives us $C_0^{\alpha-\alpha'}=g^{\hat{y}-\hat{y}'}$. 
+ If $\frac{\alpha-\alpha'}{\gcd(\alpha-\alpha',\hat{y}-\hat{y}')}$ is not a power of $2$ then this gives us a pseudo-root of $g$. Under the pseudo-root assumption which follows from the strong-RSA and the order assumption this happens with probability $\advantage{\textsf{Pseudo-root}}{}$ which is negligible. If this is not the case then we can compute $D=g^{\frac{\hat{y}-\hat{y}'}{\alpha-\alpha'}}$. Either $D=C_0$ or $(D/C_0)^{\alpha-\alpha'}=1$, i.e. $D/C_0$ is an element of known order.
+ Under the order assumption finding elements of known, bounded, order happens with negligible probability $\advantage{\textsf{Order}}{}$.
+Finally, if no bad event occurs and no assumption is broken we have $C_0=g^{\hat{y}_0}$ where $\hat{y}_0=\frac{\hat{y}-\hat{y}'}{\alpha-\alpha'}$ is a dyadic rational.  
+ 
+ In that case $C_1=g^{\hat{y}_1}=g^{\hat{y}-\alpha\hat{y}_0}$. The extractor has now successfully obtained $\hat{y}_0\in \mathbb{D}$ and $\hat{y}_1\in \mathbb{D}$.
+ 
+ If $|y|=|y'|<B$ then $|y_0|<  2 \cdot B$ and $|y_1|<|\hat{y}-\hat{y}+\alpha\hat{y}'|=|\alpha \hat{y}'|<\lambda \cdot B$. 
+ We define $f(X)=\dec(y_0+X^{d} \cdot y_1)$ and with coefficients less than $2B$ in absolute value. 
+ Note that $y_0=\hat{y}_0 \mod p=\dec(y_0)(z)$ and $y_1=\hat{y}_1 \mod p=\dec(y_1)(z)$. Since $y=\dec(\hat{y})(z)=\alpha \cdot \dec(\hat{y}_0)(z)+\dec(\hat{y}_1)(z)$ and $f(X)=\dec(y_0+X^{\hat{d}} \cdot y_1)$ we have that $y=y_0 +z^{\hat{d}/2}y_1 \mod p=f(z) \mod p$.
+ Additionally $C=C_0^{\alpha}C_1=\commit(f(X))$ or we get a break of the adaptive root assumption.\benedikt{So this is technically a bit difficult because it's not actually a witeness}.
+ 
+ The extractor recuses with the encoding of $f(X)$ and degree $\hat{d}'=\hat{d}\cdot 2$.
+ 
+ Repeating this $\log_2(d+1)$ times we get a polynomial $f(X)$ of degree $d$ that has coefficients that are bounded by $(d+1) \cdot p^{\log_2(d+1)+1} <q/2$. 
+
 
 Suppose there is an adversary $\adv$ that breaks extractability with non-negligible probability $\gamma$. Assuming $\adv$ convinces the verifier with non-negligible probability, we proceed to build an algorithm violating the Fractional Root Assumption.
 
@@ -829,7 +852,7 @@ For $d>0$ we have $g^{\hat{y}}=C=C_0^{\alpha}C_1$. Rewinding once we get
 		\begin{enumerate}[nolistsep]
 			\item $ \GG \sample \ggen(\secpar)$
 			\item $ g \sample \GG$
-			\item $q\gets 2^k \text{s.t.} q>(d+1) \cdot 2\cdot p^{\log_2(d+1)+1} $
+			\item $q\gets 2^k \text{ s.t. } q>(d+1) \cdot 2\cdot p^{\log_2(d+1)+1} $
 			\item $\pcreturn \crs=\{\secpar,p,\GG,g,q\}$
 		\end{enumerate}
 		$\commit(\crs,f(X)\in \ZZ[X])$ \pccomment{$f(X)$'s coefficients are \textcolor{blue}{in $[0,p-1]$}} 
@@ -927,8 +950,8 @@ Claim: $C=g^{f(q)},\deg(f)\leq d$ and $y=f(z) \mod p$
   We extend the Polynomial Commitment scheme to handle multivariate polynomials. The idea is to simply use higher degrees of $q$ to encode the polynomial. The protocol is linear in the number of variables and logarithmic in the total degree of the polynomial. For simplicity we only present a protocol for $n$-variate polynomials where the degree in each variable is $d$ and $d$ is a power of $2$. The protocol naturally extends to different degrees per variable.
 We first define an encoding for multi-variate integer polynomials with small coefficients:
  \begin{itemize}
-	\item Domain $B_{q/2}[X^n] \subset \ZZ[X^n]$, Alphabet: $\ZZ$, \\$f(X_0,\dots,X_{n-1})=\sum_{\vec{i} \in [0,d]^n} f_{\vec{i}} \prod_{j=1}^{n} X_j^{i_j}$
-	\item $\enc(f(X_0,\dots,X_{n-1}) \in B_{q/2}[X^n]): f(q,q^{d+1},q^{(d+1)^2},\dots,q^{(d+1)^{n-1}})$
+	\item Domain $B_{q}[X^n] \subset \ZZ[X^n]$, Alphabet: $\ZZ$, \\$f(X_0,\dots,X_{n-1})=\sum_{\vec{i} \in [0,d]^n} f_{\vec{i}} \prod_{j=1}^{n} X_j^{i_j}$
+	\item $\enc(f(X_0,\dots,X_{n-1}) \in B_{q}[X^n]): f(q,q^{d+1},q^{(d+1)^2},\dots,q^{(d+1)^{n-1}})$
 	\item $\textsf{Q-ary}(\vec{i}):\sum_{j=1}^{n} i_j\cdot (d+1)^{j-1}$
 	\item $\dec(y \in \ZZ): f_{\vec{i}}=\frac{y \bmod q^{\textsf{Q-ary}(\vec{i})+1}-y \bmod q^{\textsf{Q-ary}(\vec{i})}}{q^{\textsf{Q-ary}(\vec{i})}} \forall \vec{i} \in [0,d]^n$
 	\item \benedikt{Negative Coefficients?}
@@ -1258,7 +1281,7 @@ Note: we need to pay special attention to the size of the coefficients of $\math
 
 %\bibliography{cryptobib/references}
 \bibliographystyle{alpha}
-  \bibliography{cryptobib/crypto}
+  \bibliography{cryptobib/crypto,biblography}
 
 \appendix
 
