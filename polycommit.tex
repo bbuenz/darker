@@ -590,7 +590,7 @@ Unlike the opening of individual coefficients, we do not know a generic protocol
 \subsection{Proofs of Exponentiation}
 Wesolowski \cite{EC:Wesolowski19} introduced a simple yet powerful proof of correct exponentiation (``PoE'') in groups of unknown order. A prover can efficiently convince a verifier that a large exponentiation in such a group was done correctly. For instance, the prover wishes to convince the verifier that $\gr{w} = \gr{u}^x$ for known group elements $\gr{u}, \gr{w} \in \mathbb{G}$ and exponent $x \in \mathbb{Z}$, and the verifier wants to verify this with much less work than performing the exponentiation. To do this, the verifier samples a large enough prime $\ell$ at random and the prover provides him with $\gr{Q} = \gr{u}^q$ where $q = \lfloor \frac{x}{\ell} \rfloor$. The verifier then simply computes the remainder $r = (x \mod \ell)$ and checks that $\gr{Q}^\ell\gr{u}^r = \gr{w}$. The protocol is an argument for the relation $\mathcal{R}_\mathsf{PoE} = \left\{ \langle(\gr{u}, \gr{w}, x), \varnothing\rangle \ : \ \gr{u}^x = \gr{w} \right\}$.
 
-Boneh~\emph{et al.}~\cite{C:BonBunFis19} add zero-knowledge to this protocol. Specifically, this extension enables the prover to prove that he knows an $x$ such that $\gr{w} = \gr{u}^x$ even while keeping $x$ secret. In the language of arguments and relations, it is an argument of knowledge for the relation $\mathcal{R}_\mathsf{PoKE} = \left\{ \langle(\gr{u}, \gr{w}), x\rangle \ : \ \gr{u}^x = \gr{w} \right\}$. We cover only the more efficient variant, PoKE2. While PoE has a security reduction to the adaptive root assumption, PoKE2 is only provably secure in the generic group model.
+%Boneh~\emph{et al.}~\cite{C:BonBunFis19} add zero-knowledge to this protocol. Specifically, this extension enables the prover to prove that he knows an $x$ such that $\gr{w} = \gr{u}^x$ even while keeping $x$ secret. In the language of arguments and relations, it is an argument of knowledge for the relation $\mathcal{R}_\mathsf{PoKE} = \left\{ \langle(\gr{u}, \gr{w}), x\rangle \ : \ \gr{u}^x = \gr{w} \right\}$. We cover only the more efficient variant, PoKE2. While PoE has a security reduction to the adaptive root assumption, PoKE2 is only provably secure in the generic group model.
 
 \begin{figure}[!htp]
 \noindent\begin{mdframed}[userdefinedwidth=\textwidth]
@@ -608,6 +608,8 @@ Boneh~\emph{et al.}~\cite{C:BonBunFis19} add zero-knowledge to this protocol. Sp
 \end{minipage}
 \end{mdframed}
 \end{figure}
+
+\begin{comment}
 \begin{figure}[!htp]
 \noindent\begin{mdframed}[userdefinedwidth=\textwidth]
 \begin{minipage}{\textwidth}
@@ -626,6 +628,7 @@ Boneh~\emph{et al.}~\cite{C:BonBunFis19} add zero-knowledge to this protocol. Sp
 \end{minipage}
 \end{mdframed}
 \end{figure}
+\end{comment}
 
 \section{Protocols for Groups of Unknown Order}
 \label{sec:protocol}
@@ -1304,6 +1307,7 @@ Note: we need to pay special attention to the size of the coefficients of $\math
 \section{Transparent Preprocessing SNARKs via Linear IOPs} 
 \input{lineariop}
 
+\begin{comment}
 \section{Applications to Other Proof Systems}
 
 \subsection{DARK-Sonic}
@@ -1315,6 +1319,7 @@ Note: we need to pay special attention to the size of the coefficients of $\math
 \subsection{DARK-STARK}
 
 \subsection{Comparison}
+\end{comment}
 
 %\bibliography{cryptobib/references}
 \bibliographystyle{alpha}
