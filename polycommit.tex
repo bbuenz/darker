@@ -660,6 +660,7 @@ Note that the encoding has limited homomorphic properties. $\enc(g(X))+\enc(h(X)
 \paragraph{Encoding of dyadic rational polynomials.}
 In class groups there exists an algorithm to compute square roots of any element originally described by Gauß (modern description by Bosma and Stevenhagen.\cite{bosma1996computation}). This means that in class groups an adversary can also commit to numbers in the ring of dyadic rationals $\mathcal{D}:=\{\frac{x}{2^k} |x \in \ZZ \wedge k \in \NN\}$. When using class groups we need to extend the encoding scheme from supporting integers to dyadic rationals. The main difference to the integer encoding scheme will be that the scheme works for dyadic rationals such that both the numerator and the denominator are bounded. Let $b_n\in \NN$ be a bound on the absolute value of the numerator and $2^{b_d}\in \NN$ be a bound on the value of the denominator. The encoding scheme is uniquely decodable if $b_n\cdot 2^{b_d}<q/2$. Let $C_{b_n,b_d}:=\{(x,a)\in \mathcal{D} | |x|\leq b_n \wedge 2^a\leq 2^{b_n}\}$ denote the set of such bounded dyadic rationals. 
 To encode a polynomial $g(X)$ with coefficients in $C_{b_n,b_d}$ we compute $y \gets g(q)\in \mathcal{D}$. Note that $y$'s denominator is bounded by $2^{b_d}$. For decoding such a dyadic rational $y\in \mathcal{D}$ we compute the integer $y'\gets y\cdot 2^{b_d}\in \ZZ$  and use the decoding algorithm described above to decode a polynomial $f(X)$ in $B_{q}[X]$. From $f(X)$ we can derive the polynomial  $g(X)\gets \frac{f(X)}{2^{(b_d)}} \in C_{\frac{q}{2^{(b_d)}},b_d}[X]$ through division. If the integer polynomial encoding is uniquely decodable then so is the scheme for dyadic rational polynomials.
+We also set $q$ to be odd such that $q$ is co-prime with $q$. If $q$ were a power of $2$ an adversary could encode Laurant polynomials with negative powers.
 
 \subsection{Polynomial Commitment}
 
@@ -667,7 +668,7 @@ We now present our main result:
 A polynomial commitment scheme with an efficient evaluation protocol based on groups of unknown order $\GG$. For polynomials of degree $d$ the protocol uses $\log_2(d+1)$ rounds and $O(\log(d))$ communication and verifier work.
 
 Exponentiation in groups of unknown order is a succinct and homomorphic cryptographic commitments to integers.
-Using the integer encoding of polynomials presented above we can simply commit to an integer polynomial with bounded coefficients $f(X)\in B_{q}[X]$ by computing $\gr{g}^{f(q)} \in \GG$. Note that our commitment scheme supports integer polynomials with bounded coefficient. Every polynomial in $\ZZ_p[X]$ naturally maps to an integer polynomial with coefficients in $B_{2\cdot p}$. The commitment scheme, therefore, supports committing to polynomials in $\ZZ_p[X]$ for $p<q/2$. Interestingly neither $p$ nor the degree $d$ need to be specified in the setup. As long as $q$ is ``big enough'' they can be freely chosen. We will discuss the relationship between $p$, $d$ and $q$ later but first we describe the setup, commitment and opening algorithms:
+Using the integer encoding of polynomials presented above we can simply commit to an integer polynomial with bounded coefficients $f(X)\in B_{q}[X]$ by computing $\gr{g}^{f(q)} \in \GG$. Note that our commitment scheme supports integer polynomials with bounded coefficient. Every polynomial in $\ZZ_p[X]$ naturally maps to an integer polynomial with coefficients in $B_{2\cdot p}$. The commitment scheme, therefore, supports committing to polynomials in $\ZZ_p[X]$ for $p<q/2$. Interestingly neither $p$ nor the degree $d$ need to be specified in the setup. As long as $q$ and ``big enough'' they can be freely chosen. In class groups there exists an efficient algorithm to compute square roots. The adversary can, therefore, also commit to dyadic rationals which are rational numbers where the denominator is a power of two. Since every dyadic rational corresponds to a unique element in $\ZZ_p$ we can simply extend the encoding to work for polynomials with bounded dyadic rational coefficients. The only difference is that we require $q$ to be odd such that the prover cannot commit to polynomials with negative powers. We will discuss the relationship between $p$, $d$ and $q$ in more detail later but first we describe the setup, commitment and opening algorithms:
 
 
 \begin{mdframed}[userdefinedwidth=\textwidth]
@@ -679,7 +680,7 @@ Using the integer encoding of polynomials presented above we can simply commit t
 			\item $ \gr{g} \sample \GG$
 			%\item $q \gets 2^k$ such that $q > (d+1) \cdot 2\cdot p^{\log_2(d+1)+1} $
 			\item Pick a prime $p\in \NN$ such that $\lceil\log_2(p)\rceil=\lambda$.
-			\item Pick a sufficiently large $q\in \NN$ (See discussion above)
+			\item Pick a sufficiently large and odd $q\in \NN$ (See discussion above)
 			\item $\pcreturn \params = (\secpar,\GG,\gr{g},p,q)$
 		\end{enumerate}
 	$\pro{Commit}(\crs;f(X) \in B_{2\cdot p}[X]):$ \pccomment{$f(X)\equiv \bar{f}(X) \mod p$ for  $\bar{f}(X)\ZZ_p[X]$}
@@ -729,11 +730,11 @@ We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pr
 		$\pro{EvalBounded}(\crs,\gr{C}\in \GG,z\in \ZZ_p,y\in \ZZ_p,d\in \NN,b\in \ZZ;f(X)\in B_{b}[X])$
 	    \begin{enumerate}[nolistsep]
         \item \pcif $d=0$:
-        \item \pcind[1] \prover sends $\bar{y}=f(X)\in \ZZ$ to the verifier. \pccomment{$f(X)$ is a constant}
+        \item \pcind[1] \prover sends $f=f(X)\in \ZZ$ to the verifier. \pccomment{$f=f(X)$ is a constant}
         \item \pcind[1] \verifier checks that $b< q$ \benedikt{Make sure this is in line with proof.}
-        \item \pcind[1] \verifier checks that $\bar{y} \in [0,b]$
-          \item \pcind[1] \verifier checks that $\bar{y}\equiv y \bmod p$
-                \item \pcind[1] \verifier checks that $\gr{g}^{\bar{y}}=\gr{C}$
+        \item \pcind[1] \verifier checks that $f \in [0,b]$
+          \item \pcind[1] \verifier checks that $f\equiv y \bmod p$
+                \item \pcind[1] \verifier checks that $\gr{g}^{f}=\gr{C}$
 \item \pcind[1] \verifier outputs $1$ \pcif all checks pass, $0$ otherwise.
           \item \pcif{$d+1$ is odd}
          \item \pcind[1]  $d'\gets d+1, \gr{C}'\gets \gr{C}^q$, $y'\gets y\cdot z \bmod p$ and $f'(X)\gets X \cdot f(X)$.
@@ -760,7 +761,9 @@ We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pr
 	The polynomial commitment scheme is correct for polynomials in $\ZZ_p$ of degree at most $d$ if $q> p^{\lceil \log_2(d+1)\rceil+1}$.
 \end{lemma}
 \begin{proof}
-	We need to ensure that $q$ remains larger than the bound $b$ and the opened polynomial. In each round the coefficients grow by a factor of at most $p$, for example: $f'_0=\alpha f_0 + f_1$ for $\alpha \in [0,p-1]$ and $f_0,f_1 \in [0,b-1]$.\alan{If $f_0 = 1$ then this coefficient may grow by a lot more than a factor $p$. What you mean is, I think, that the bound grows.} The recursion has $\lceil \log_2(d+1)\rceil$ rounds which gives us a bound $b$ of $p^{\lceil \log_2(d+1)\rceil+1}$. If $f(z)=y \bmod p$ then $f'(z)=y' \bmod p$. $\textsf{PoE}$ itself is a perfectly complete argument. The rest of the protocol's correctness is immediate.
+	We need to ensure that $q$ remains larger than the bound $b$ and the opened polynomial. In each round the bound on the coefficient size grows by a factor of $p$, for example: If $f'_0=\alpha f_0 + f_1$ for $\alpha \in [0,p-1]$ and $f_0,f_1 \in [0,b]$ then $f'_0\in [0,p\cdot b]$
+	%\alan{If $f_0 = 1$ then this coefficient may grow by a lot more than a factor $p$. What you mean is, I think, that the bound grows.} Good point fixed.
+	The recursion has $\lceil \log_2(d+1)\rceil$ rounds which gives us a bound $b$ of $p^{\lceil \log_2(d+1)\rceil+1}$. If $f(z)=y \bmod p$ then $f'(z)=y' \bmod p$. $\textsf{PoE}$ itself is a perfectly complete argument. The rest of the protocol's correctness is immediate.
 \end{proof} 
  
 \begin{lemma}
@@ -784,21 +787,19 @@ Our full proof takes into account the cryptographic compilation of the protocol 
 \begin{proof}
 We will prove security by showing that given a polynomial time adversary $\adv_{\eval}$ that succeeds in convincing an honest verifier in the $\eval$ protocol on any public input with non-negligible probability we can either (1) construct an adaptive root adversary $\adv_{\textsf{Adaptive Root}}$, (2) extract an element of known order, i.e. break the order assumption, (3) extract a fractional root of $\gr{g}\in \GG$ or (4) extract the polynomial $f(X)$. The proof will use the general forking lemma (Lemma \ref{lem:forking}) to show that the polynomial commitment scheme has witness-extended emulation.
 
-In particular we construct an extractor $E$ that given transcripts with $2$ distinct challenges per round, \emph{i.e.} $2^{\lceil\log_2(d+1)\rceil}<2 (d+1)$ total transcripts, can compute either an opening to the commitment scheme, an element of known order or a fractional root of $\gr{g}\in\GG$ as encoded in the public parameters $\params$.
-
-In particular we construct an extractor $E$ that given transcripts with $2$ distinct challenges per round, i.e. $2^{\lceil\log_2(d+1)\rceil}<2 (d+1)$ total transcripts, can compute either an opening to the commitment scheme, an element of known order or a pseudo root of the CRS encoded $\gr{g}\in\GG$.
+In particular we construct an extractor $E$ that given transcripts with $2$ distinct challenges per round, \emph{i.e.} $2^{\lceil\log_2(d+1)\rceil}<2 (d+1)$ total transcripts, can compute either an opening to the commitment scheme, an element of known order or a pseudo root of of the CRS encoded $\gr{g}\in\GG$.
 
 First consider all the $\textsf{PoE}$ executions in all transcripts. There are $\lceil\log_2(d+1)\rceil$ $\textsf{PoE}$s per transcript. Consider the probability $\advantage{\textsf{PoE}Break}{}$ of the event that the adversary can break the $\textsf{PoE}$ soundness for any execution, i.e. $\gr{C}_L \gr{C}_R^{(q^{d'+1})}\neq \gr{C}$. Under the adaptive root assumption $\adv_{\eval}$ has negligible probability $\advantage{AR}{}$ in succeeding in each execution. The probability of $\advantage{\textsf{PoE}Break}{}$ is therefore bounded by $2d \lceil\log_2(d+1)\rceil$ and still negligible in $\lambda$.
 Now consider the case where $\gr{C}_L \gr{C}_R^{(q^{d'+1})}= \gr{C}$ for all executions. 
 We will now construct the extractor that recursively either extracts the encoding of a dyadic rational polynomial $f(X)\in \mathcal{D}[X]$ with bounded coefficients or a break of the order assumption or the pseudo-root assumption. Given the tree of transcripts as specified in the general forking lemma (Lemma \ref{lem:forking})  with branching factor $2$ at each level, i.e. $2$ different challenges we will extract a witness at each node of the tree given witness for both of the nodes children. Each level corresponds to a separate invocation to $\pro{EvalBounded}$. We denote the input to $\pro{Eval}$ without subscripts, i.e. $\gr{C},z,y,d;f(X)$ and the input to $\pro{EvalBounded}$ with a subscript indicating the round, e.g. $d_0=d$, $\gr{C}_0=C$ and $d_{\lceil \log_2(d)\rceil }=0,\gr{C}_{\lceil \log_2(d+1)\rceil }=g^{\bar{y}}$ etc. 
 
-In each round the extracted witness is a dyadic rational $\bar{y}_i$ such that $\gr{g}^{\bar{y}_i}=\gr{C}_i$ and $\bar{y}=\enc(f_i(X))$ such that the coefficients of $f_i(X)$ are in $C_{b_n,b_d}$, i.e. have bounded numerators and denominators. The degree of $f_(X)$ is at most $d_i$ and $f(z) \equiv y \bmod p$. Note that for odd primes $p$ and integer $z$ $f(z)\bmod p$ is always defined.
+In each round the extracted witness is a dyadic rational $f_i(q)\in \mathbb{D}$ such that $\gr{g}^{f_i(q)}=\gr{C}_i$ and $f_i(X)=\dec(f_i(q))$ such that the coefficients of $f_i(X)$ are in $C_{b_n,b_d}$, i.e. have bounded numerators and denominators. The degree of $f_(X)$ is at most $d_i$ and $f(z) \equiv y \bmod p$. Note that for odd primes $p$ and integer $z$ $f(z)\bmod p$ is always defined.
 
 We extract starting from the leafs of the tree, i.e. $d_{\lceil \log_2(d)\rceil}=0$. From the transcript we can directly extract the constant integer polynomial $f(X)=\bar{y} \in \ZZ$ such that $\vert \bar{y} \vert < p^{\lceil\log_2(d+1)\rceil+1}$, $y=\hat{y}\mod p$, $f(X)=y\in \ZZ_p[X]$ and $g^{\hat{y}}=C$ as the witness. 
 
-We now show hot to compute the witness for $i-1$ given a witnesses for $i$. If $d_i+1$ is odd then set $f_{i-1}(X)\gets X\cdot f(X)$. From the verification we have that $\gr{C}_{i-1}^q=\gr{C}_i$ $\gr{C}_{i}=\gr{g}^{f_i(q)}$
-
-If $d'+1$ is odd then  
+We now show how to compute the witness for $i-1$ given a witnesses for $i$. If $d_i+1$ is odd then we have $\gr{C}_{i-1}=\gr{C}_i^q$. Since $\gr{C}_{i-1}=\gr{g}^{f_{i-1}(q)}$ we either have that $q$ divides $f_{i-1}(q)$ or since $q$ is odd we have a pseudo root of $\gr{g}$. 
+If this is not the case then $f_{i-1}(q)=f_i(q)\cdot q^{-1}$ and $f_i(X)=\dec(f_i(q))$ has a zero constant term. Additionally since $y_i=y_{i-1}\cdot z$ and $f_i(z)\equiv y_i \bmod p$ we have $f_{i-1}(z)\equiv y_{i-1} \bmod p$, i.e. $f_{i-1}(q)$ is a valid witness and the degree of $f_{i-1}(X)=\dec(f_{i-1}(q))$ is at most $d_{i-1}=d_i-1$. 
+Now if $d_i$ 
 
 For $d'>0$ we have $g^{\hat{y}}=C=C_0^{\alpha}C_1$ and $g^{\hat{y}'}=C=C_0^{\alpha'}C_1$ for distinct $\alpha$ and $\alpha'$.  
  This gives us $C_0^{\alpha-\alpha'}=g^{\hat{y}-\hat{y}'}$. 
