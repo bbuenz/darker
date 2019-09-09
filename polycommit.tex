@@ -821,14 +821,14 @@ If this is not the case then $f_{i-1}(q)=f_i(q)\cdot q^{-1}$ and $f_i(X)=\dec(f_
 Now if $d_i+1$ is even then we have for a challenge $\alpha$: $\gr{C}_{L,i-1}^\alpha \gr{C}_{R,i-1}=\gr{C}_i=\gr{g}^{f_i(q)}$ additionally for a challenge $\alpha'\neq \alpha$ we have $\gr{C}_{L,i-1}^{\alpha'} \gr{C}_{R,i-1}=\gr{C}'_i=\gr{g}^{f'_i(q)}$.  
 
  This gives us $\gr{C}_{L,i-1}^{\alpha-\alpha'}=\gr{g}^{f_i(q)-f'_i(q)}$. 
- If $\frac{\alpha-\alpha'}{f_i(q)-f'_i(q)}$ is not a dyadic rational then this gives us a pseudo-root of $\gr{g}$. If this is not the case then we can compute $\gr{D}=\gr{g}^{\frac{f_i(q)-f'_i(q)}{\alpha-\alpha'}}$. \alan{What is $\alpha-\alph$} Either $\gr{D}=\gr{C}_{L,i-1}$ or $(\gr{D}/\gr{C}_{L,i-1})^{\alpha-\alpha'}=1$, \emph{i.e.} $\gr{D}/\gr{C}_{L,i-1}$ is an element of known order. This would break the order assumption.
+ If $\frac{\alpha-\alpha'}{f_i(q)-f'_i(q)}$ is not a dyadic rational then this gives us a pseudo-root of $\gr{g}$. If this is not the case then we can compute $\gr{D}=\gr{g}^{\frac{f_i(q)-f'_i(q)}{\alpha-\alpha'}}$. \alan{What is $\alpha-\alpha'$ does not divide $f_i(q)-f'_i(q)$?} Either $\gr{D}=\gr{C}_{L,i-1}$ or $(\gr{D}/\gr{C}_{L,i-1})^{\alpha-\alpha'}=1$, \emph{i.e.} $\gr{D}/\gr{C}_{L,i-1}$ is an element of known order. This would break the order assumption.
 % Under the order assumption finding elements of known, bounded, order happens with negligible probability $\advantage{\textsf{Order}}{}$.
 
 Finally, if no bad event occurs and no assumption is broken we have $\gr{C}_{L,i-1}=\gr{g}^{f_{L,i-1}(q)}$ where $f_{L,i-1}(q)=\frac{f_i(q)-f'_i(q)}{\alpha-\alpha'}$ is a dyadic rational.  
  
  In that case $\gr{C}_{R,i-1}=\gr{g}^{f_{R,i-1}(q)}=\gr{g}^{f_{i}(q)-\alpha \cdot f_{L,i-1}(q)}$. The extractor has now successfully obtained $f_{L,i-1}(q)\in \mathbb{D}$ and $f_{R,i-1}(q)\in \mathbb{D}$.
  
- If $f_{i}(q)\in C_{b_n,b_d}$ and $f'_{i}(q)\in C_{b_n,b_d}$, i.e. their numerators are bounded by $b_n$ in absolute value and their denominator is bounded by $2^{b_d}$. The denominator of $f_{L,i-1}(q)$ is at most $|\alpha-\alpha'|<p$ times $2^{b_d}$. Since $\lambda=\lceil\log_2(p)\rceil$ we can deduce that $2^{b_d+\lambda}$ is a bound on the size of the denominator of $f_{L,i-1}(q)$ and consequently also on $f_{R,i-1}(q)$
+ If $f_{i}(q)\in C_{b_n,b_d}$ and $f'_{i}(q)\in C_{b_n,b_d}$, \emph{i.e.} their numerators are bounded by $b_n$ in absolute value and their denominator is bounded by $2^{b_d}$. The denominator of $f_{L,i-1}(q)$ is at most $|\alpha-\alpha'|<p$ times $2^{b_d}$. Since $\lambda=\lceil\log_2(p)\rceil$ we can deduce that $2^{b_d+\lambda}$ is a bound on the size of the denominator of $f_{L,i-1}(q)$ and consequently also on $f_{R,i-1}(q)$
 By triangle equality we also have that the numerator of $f_{L,i-1}(q)$ is at most $2\cdot b_n$. For $f_{R,i-1}(q)=f_{i}(q)-\alpha f_{L,i-1}(q)$ we get a bound of $(2 p )\cdot  b_n$. 
 For a sufficiently large $q$ we can still decode dyadic rational polynomials $f_{L,i-1}(X)=\dec(f_{L,i-1})(q) \in C_{b_n\cdot (p+1),b_d+\lambda}[X]$ and $f_{R,i-1}(X)=\dec(f_{R,i-1})(q) \in C_{b_n\cdot (p+1),b_d+\lambda}[X]$. 
 The homomorphic properties of the commitment scheme along with soundness of the $\textsf{PoE}$ ensure that $f_{i-1}(X)=f_{L,i-1}(X)+X^{d_{i}+1} f_{R,i-1}(X)$. 
@@ -988,6 +988,7 @@ We opted for an accessible presentation of the $\pro{Eval}$ protocol. In practic
 	\item Precompute $g^{q^i}$ to use parallelism etc.
 	\item join PoEs
 	\item early termination
+	\item Parallel Evals using different base elements \emph{e.g.}, $\gr{g}$ and $\gr{h}$. Merge commitments.
 	\item ZK
 	\item SNARK without falsifiable assumptions
 	\item First polynomial commitment scheme with constant size parameters
