@@ -649,7 +649,7 @@ At the heart of our protocol is an integer encoding of polynomials with bounded 
 		\item $y \bmod q^{i+1}=\begin{cases} f_{\leq i}(q) &\text{ if } f_{\leq i}(q)\geq 0\\ q^{i+1} - f_{\leq i}(q) &\text{ if } f_{\leq i}(q)<0   \end{cases}$
 		\item  Compute $f_{\leq i}(q)\gets \begin{cases}y \bmod q^{i+1} & \text{ if }f_{\leq i}(q) \bmod q^{i+1}<q^{i+1}/2\\
 	y-q^{i+1} \bmod q^{i+1} & \text{ if }f_{\leq i}(q) \bmod q^{i+1}>q^{i+1}/2 \end{cases}$ 
-		\item and $f_{\leq i-1}(q)$ from $y$
+		\item Compute $f_{\leq i-1}(q)$ from $y$
 		\item  Compute $f_i\in B_{q}$ as $f_i \gets \frac{f_{\leq i}(q)-f_{\leq i-1}(q)}{q^i}$.
 	\end{enumerate} 
 \end{itemize}
