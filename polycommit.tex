@@ -644,10 +644,12 @@ At the heart of our protocol is an integer encoding of polynomials with bounded 
 	\item $\enc(f(X) \in B_{q}[X])\rightarrow  f(q) \in \ZZ$
 	\item $\dec(y \in \ZZ):$
 	\item For each $i \in [0,\lfloor \log_q(|y|)\rfloor]$ do\\
-	\begin{enumerate}
+	\begin{enumerate}[nolistsep]
 		\item Define $f_{\leq k}(X):=\sum_{j=0}^k f_j X^j$
 		\item $y \bmod q^{i+1}=\begin{cases} f_{\leq i}(q) &\text{ if } f_{\leq i}(q)\geq 0\\ q^{i+1} - f_{\leq i}(q) &\text{ if } f_{\leq i}(q)<0   \end{cases}$
-		\item  Compute $f_{\leq i}(q)$ and $f_{\leq i-1}(q)$ from $y$
+		\item  Compute $f_{\leq i}(q)\gets \begin{cases}y \bmod q^{i+1} & \text{ if }f_{\leq i}(q) \bmod q^{i+1}<q^{i+1}/2\\
+	y-q^{i+1} \bmod q^{i+1} & \text{ if }f_{\leq i}(q) \bmod q^{i+1}>q^{i+1}/2 \end{cases}$ 
+		\item and $f_{\leq i-1}(q)$ from $y$
 		\item  Compute $f_i\in B_{q}$ as $f_i \gets \frac{f_{\leq i}(q)-f_{\leq i-1}(q)}{q^i}$.
 	\end{enumerate} 
 \end{itemize}
@@ -873,97 +875,8 @@ This completes the inductive argument, which in turn completes the proof. \alan{
 
 {\it Note 1.} The extractability proof shows that the extractor is successful whenever the coefficients of the prover's polynomial are bounded in absolute value by $2^ip^{\lceil \log_2(d_{\it max} + 1) \rceil+i}$ or, after the final induction step, by $2^{\lceil \log_2(d_{\it max} + 1) \rceil}p^{2\lceil \log_2(d_{\it max} + 1) \rceil}$. In other words, prover who starts with a polynomial with at least one of the coefficients outside of this range, will succeed with negligible probability. However, the proof fails to cover what happens when he selects a polynomial within this range but outside $[0;p-1]$. As per correctness, his success is only guaranteed if all coefficients lie within this last range. Additionally this growing bound supplies in turn a lower bound on $q$. The coefficients that are too large in absolute value should percolate along with the recursion, remaining outside the bounds even after multiplication by a random $\alpha$. The set of possible coefficients must therefore be a factor $2^\lambda$ larger than the bounded interval. And therefore, $q > 2^{\lambda + \lceil \log_2(d_{\it max} + 1) \rceil}p^{2\lceil \log_2(d_{\it max} + 1) \rceil}$.
 
-{\it Note 2.} The sequence of degrees followed by the inductive argument matches exactly the reversed sequence of degrees occurring in the protocol. As a result, the interactive proof establishes that $\deg(f(X)) \leq d_{\it max}$ and as such doubles as a range proof.
 
 
-\begin{mdframed}[userdefinedwidth=0.8\textwidth]
-\begin{minipage}{\textwidth}
-	\begin{flushleft}
-	\setup(\secpar,p,d,n):
-		\begin{enumerate}[nolistsep]
-			\item $ \GG \sample \ggen(\secpar)$
-			\item $ g \sample \GG$
-			\item $q\gets 2^k \text{ s.t. } q>(d+1) \cdot 2\cdot p^{\log_2(d+1)+1} $
-			\item $\pcreturn \crs=\{\secpar,p,\GG,g,q\}$
-		\end{enumerate}
-		$\commit(\crs,f(X)\in \ZZ[X])$ \pccomment{$f(X)$'s coefficients are \textcolor{blue}{in $[0,p-1]$}} 
-		\begin{enumerate}[nolistsep]
-			\item 	$f(q)\gets \enc(f(X)) \in \ZZ$
-			\item \textcolor{blue}{$C \gets g^{f(q)}$}
-			\item $\pcreturn \textcolor{blue}{C},f(q)$ \textcolor{blue}{Alan: why is including the degree necessary?}\benedikt{Probably commit should have a public and private output. I changed it but we need to think about this.}
-		\end{enumerate}
-		$\open(\crs,\textcolor{blue}{C},f(X)\in \ZZ[X])$ \pccomment{\textcolor{blue}{$f(X)$'s coefficients are in $[-q/2,q/2]$}} 
-		\begin{enumerate}[nolistsep]
-			\item $f(q)\gets \enc(f(X)) \in \ZZ$
-			\item Prover sends $f(q),f(X)$ to verifier.
-			\item Verifier checks that $\dec(f(q)) \mod p=f(X)$
-			\item If $C=g^{f(q)}$ the verifier accepts.
-		\end{enumerate}
-	\end{flushleft}
-	
-\end{minipage}
-\end{mdframed}
-
-\begin{small}
- \begin{minipage}{1.1\textwidth}
-\begin{mdframed}[userdefinedwidth=1\textwidth]  \label{prot:Opening}
-	\noindent \underline{\textsf{Protocol \eval{} Information theoretic} (Polynomial evaluation)}\\
-Inputs: $\enc(f(X)),z,y\in \ZZ_p,d \in \NN $\\
-Witness: $f(X) \in \ZZ[X]$ of degree at most $d$ and with coefficients bounded by $p$ \textcolor{blue}{Alan: if it is bounded by $p$ then you cannot recurse, because the coefficients grow every step.}\footnote{We describe the protocol using an integer polynomial with bounded coefficient. This generalizes the case where the polynomial is in $\ZZ_p[X]$};\\ 
-Claim: $f(X)\gets \dec(\enc(f(X))), y=f(z) \mod p$
-
-\begin{enumerate}[nolistsep]
-\item \pcif $d=0$:
-\item \pcind[1] Prover sends $\hat{y}\gets \enc(f(X))$ to the verifier. 
-\item \pcind[1] Verifier runs that $f(X)\gets \dec(\hat{y})$ and checks that  $f(z) \bmod p=y$, or rejects otherwise 
-%\textcolor{blue}{Alan: not in the exponent of $p$?}, 
-%right
-\item \pcelse: 
-\item \pcind[1] $d'\gets \frac{d+1}{2}-1$
-\item \pcind[1] Prover computes $f_0(X)\gets\sum_{i=0}^{d'} f_i X^i\in \ZZ[X]$ and $f_1(X)\gets\sum_{i=0}^{d'} f_{d'+1+i} X^{i}\in \ZZ[X]$
-\item \pcind[1] $y_0\gets f_0(z) \bmod p$, $y_1\gets f_1(z)\bmod p$
-\item \pcind[1] Prover sends $y_0,y_1, \enc(f_0(X)),\enc(f_1(X))$ to the Verifier
-\item \pcind[1] Verifier checks that $y_0+z^{d'+1} y_1=y\in \FF_p$ 
-\item \pcind[1] Verifier checks that $\enc(f_0(X))+X^{d'+1}\cdot \enc(f_1(X))=\enc(f(X))$
-\item \pcind[1] Verifier samples $\alpha \sample \FF_p$ and sends it to the prover
-\item \pcind[1] Prover and Verifier compute $y'\gets\alpha y_0 +y_1 \bmod p$, $\enc(f'(X))\gets \alpha \cdot \enc(f_0(X)) +\enc(f_1(X))$. 
-\item \pcind[1] Prover also computes $f'(X)\gets\alpha  \cdot f_0(X)+f_1(X) \in \ZZ[X]$ 
-\item \pcind[1] Prover and Verifier run $\eval(\enc(f'(X),z,y',d';f'(X))$
-\end{enumerate}
-\end{mdframed}
-\end{minipage}
-\end{small}
-
-\begin{small}
- \begin{minipage}{1.1\textwidth}
-\begin{mdframed}[userdefinedwidth=1\textwidth]  \label{prot:Opening}
-	\noindent \underline{\textsf{Protocol \eval} (Polynomial evaluation)}\\
-\noindent Params: $\crs=\{\secpar,p,\GG,g,d_{\max},q\}$;\ \
-Inputs: $C\in \GG,z,y\in \FF_p,d \in \NN $\\
-Witness: $f(X) \in \ZZ[X]$ of degree at most $d$ and with coefficients bounded by $p$ \textcolor{blue}{Alan: if it is bounded by $p$ then you cannot recurse, because the coefficients grow every step.}\footnote{We describe the protocol using an integer polynomial with bounded coefficient. This generalizes the case where the polynomial is in $\FF_p[X]$};\\ 
-Claim: $C=g^{f(q)},\deg(f)\leq d$ and $y=f(z) \mod p$
-
-\begin{enumerate}[nolistsep]
-\item \pcif $d=0$:
-\item \pcind[1] Prover sends $f(X)$ to the verifier, $f(X)$ is a constant. 
-\item \pcind[1] Verifier checks that $0\leq f(q)<  p^{\log_2(d+1)+1}$,  $f(z) \bmod p=y$ and $g^{f(q)}=C$, or rejects otherwise 
-%\textcolor{blue}{Alan: not in the exponent of $p$?}, 
-%right
-\item \pcelse: 
-\item \pcind[1] $d'\gets \frac{d+1}{2}-1$
-\item \pcind[1] Prover computes $f_0(X)\gets\sum_{i=0}^{d'} f_i X^i\in \ZZ[X]$ and $f_1(X)\gets\sum_{i=0}^{d'} f_{d'+1+i} X^{i}\in \ZZ[X]$
-\item \pcind[1] $y_0\gets f_0(z) \bmod p$, $y_1\gets f_1(z)\bmod p$, $C_0\gets g^{f_0(q)}$,$C_1\gets g^{f_1(q)}$
-\item \pcind[1] Prover sends $y_0,y_1,C_0,C_1$ to the Verifier
-\item \pcind[1] Verifier checks that $y_0+z^{d'+1} y_1=y\in \FF_p$ 
-\item \pcind[1] Prover and Verifier engage in $\textsf{PoE}(C_1,C/C_0,q^{d'+1})$ to show that $C_0C_1^{(q^{d'+1})}=C$
-\item \pcind[1] Verifier samples $\alpha \sample \FF_p$ and sends it to the prover
-\item \pcind[1] Prover and Verifier compute $y'\gets\alpha y_0 +y_1 \bmod p$, $C'\gets C_0^{\alpha}C_1 \in \GG$. 
-\item \pcind[1] Prover also computes $f'(X)\gets\alpha  \cdot f_0(X)+f_1(X) \in \ZZ[X]$ 
-\item \pcind[1] Prover and Verifier run $\eval(C',z,y',d';f'(X))$
-\end{enumerate}
-\end{mdframed}
-\end{minipage}
-\end{small}
 
 \subsection{Discussion and Optimizations}
 
