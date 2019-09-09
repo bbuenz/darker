@@ -132,7 +132,7 @@ It is an open research problem to show whether one of these assumption implies t
 \begin{assumption}[Strong RSA Assumption]
 The \defn{Strong RSA Assumption} sates that no efficient adversary can compute any root of a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
 \[
-    \Pr\left[\gr{u}^\ell = \gr{g} \, \wedge \, \ell\neq 2^k, \forall k \in \NN:
+    \Pr\left[\gr{u}^\ell = \gr{g} \, \wedge \, \ell\neq 2^k, k \in \NN:
     \begin{array}{l}
          \GG \leftarrow \ggen(\lambda)  \\
          \gr{g} \sample \GG \\
@@ -188,12 +188,14 @@ The first assumption states that computing the order for \emph{any} element is h
 	\end{proof}
 	
 	
-We additionally define the pseudo root assumption which is a generalization of the Strong RSA assumption. It reduces to the order assumption (and therefore to the adaptive root assumption) and the strong RSA assumption. Shoup\benedikt{Cite shoup strong rsa paper} showed that for the unknown order group of quadratic residues in $\ZZ_n$, where $n$ is the composite of two strong primes, that the pseudo root assumption reduces to just the strong RSA assumption.
+We additionally define the pseudo root assumption which is a generalization of the Strong RSA assumption. It states that for random group elements $\gr{g}$ it's hard to find a tuple $(\gr{u}\in \GG,\alpha\in \ZZ,\beta\in \ZZ)$ such that $\gr{u}^{\beta}=\gr{g}^{\alpha}$, unless $\frac{\alpha}{\beta}$ is an dyadic rational, i.e. a rational where the denominator is a power of $2$. In RSA groups the assumption is also conjectured to hold if $\frac{\alpha}{\beta}$ is restricted to be an integer. We say that $(\gr{u},\alpha,\beta)$ is a \emph{pseudo root} of $\gr{g}$.
+
+ The pseudo root assumption reduces to the order assumption (and therefore to the adaptive root assumption) and the strong RSA assumption. Shoup\benedikt{Cite shoup strong rsa paper} showed that for the unknown order group of quadratic residues in $\ZZ_n$, where $n$ is the composite of two strong primes, that the pseudo root assumption reduces to just the strong RSA assumption.
 \begin{assumption}[Pseudo root assumption]
 \label{assum:fracroot}
 The pseudo root assumption holds for $\ggen$ if for any efficient adversary $\adv$:
 \[        
-                \Pr\left[\gr{u}^\beta = \gr{g}^{\alpha} \wedge \frac{\beta}{\gcd(\alpha,\beta)}\neq 2^k,  \forall k \in \NN   : 
+                \Pr\left[\gr{u}^\beta = \gr{g}^{\alpha} \wedge \frac{\beta}{\gcd(\alpha,\beta)}\neq 2^k,  k \in \NN   : 
                 \begin{array}{l} 
                       \GG \sample \ggen(\lambda) \\ 
                       \gr{g} \sample \GG \\
@@ -785,14 +787,14 @@ From $f'(X)$, $f''(X)$, $\alpha$ and $\alpha'$ it is easy to compute $f_L(X)$ an
 A careful analysis shows that if the coefficients of $f'(X)$ are bounded by $b$ then $f_L(X)$ and $f_R(X)$ must have coefficients bounded by $b \cdot p$ in absolute value. Using a similar analysis we can show that $f(z)\bmod p=y$ for the extracted polynomial $f(X)$. 
 Our full proof takes into account the cryptographic compilation of the protocol using the integer encoding and exponentiation in groups of unknown order. Additionally the full proof will need to work with dyadic rationals as taking square roots is easy in class groups. 
 \begin{theorem}
-	The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ instantiated using $\ggen$ is extractable if the adaptive root assumption and the strong RSA assumption hold for $\ggen$ if $q>2^{\lceil \log_2(d+1) \rceil+1} p^{3 \lceil \log_2(d+1) \rceil+1}$
+	The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $\ggen$ is extractable if the adaptive root assumption and the strong RSA assumption hold for $\ggen$ if $q>2^{\lceil \log_2(d+1) \rceil+1} p^{3 \lceil \log_2(d+1) \rceil+1}$
 \end{theorem}
 \begin{proof}
-We will prove security by showing that given a polynomial time adversary $\adv_{\eval}$ that succeeds in convincing an honest verifier in the $\eval$ protocol on any public input with non-negligible probability we can either (1) construct an adaptive root adversary $\adv_{\textsf{Adaptive Root}}$, (2) extract an element of known order, i.e. break the order assumption, (3) extract a fractional root of $\gr{g}\in \GG$ or (4) extract the polynomial $f(X)$.\alan{I'm not sure task (4) is well defined. What are the constraints that the polynomial must satisfy? Otherwise the extractor can sample an arbitrary one and output that.} The proof will use the general forking lemma (Lemma \ref{lem:forking}) to show that the polynomial commitment scheme has witness-extended emulation.
+We will prove security by showing that given a polynomial time adversary $\adv_{\eval}$ that succeeds in convincing an honest verifier in the $\eval$ protocol on any public input with non-negligible probability we can either (1) construct an adaptive root adversary $\adv_{\textsf{Adaptive Root}}$, (2) extract an element of known order, i.e. break the order assumption, (3) extract a fractional root of $\gr{g}\in \GG$ or (4) extract the polynomial $f(X)\in \mathbb{D}[X]$ such that $f(X)$ has degree at most $d$, and the coefficients of $f(X)$ are all bounded such that $f(q)$ is a unique encoding of $f(X)$. Additionally $\gr{g}^{f(q)}=\gr{C}$ and $f(z) \bmod p=y$. The proof will use the general forking lemma (Lemma \ref{lem:forking}) to show that the polynomial commitment scheme has witness-extended emulation.
 
-In particular we construct an extractor $E$ that given transcripts with $2$ distinct challenges per round, \emph{i.e.} $2^{\lceil\log_2(d+1)\rceil}<2 (d+1)$ total transcripts, can compute either an opening to the commitment scheme, an element of known order or a pseudo root\alan{"pseudo root" is not defined} of of the CRS encoded $\gr{g}\in\GG$.
+In particular we construct an extractor $E$ that given transcripts with $2$ distinct challenges per round, \emph{i.e.} $2^{\lceil\log_2(d+1)\rceil}<2 (d+1)$ total transcripts, can compute either an opening to the commitment scheme, an element of known order or a pseudo root\alan{"pseudo root" is not defined}\benedikt{Added it to the definition of the assumption} of of the CRS encoded $\gr{g}\in\GG$.
 
-First consider all the $\textsf{PoE}$ executions in all transcripts. There are $\lceil\log_2(d+1)\rceil$ $\textsf{PoE}$s per transcript. Consider the probability $\advantage{\textsf{PoE}Break}{}$ of the event that the adversary can break the $\textsf{PoE}$ soundness for any execution, i.e. $\gr{C}_L \gr{C}_R^{(q^{d'+1})}\neq \gr{C}$. Under the adaptive root assumption $\adv_{\eval}$ has negligible probability $\advantage{AR}{}$ in succeeding in each execution. The probability of $\advantage{\textsf{PoE}Break}{}$ is therefore bounded by $2d \lceil\log_2(d+1)\rceil$ and still negligible in $\lambda$.
+First consider all the $\textsf{PoE}$ executions in all transcripts. There are $\lceil\log_2(d+1)\rceil$ $\textsf{PoE}$s per transcript. Consider the probability $\advantage{\textsf{PoE}Break}{}$ of the event that the adversary can break the $\textsf{PoE}$ soundness for any execution, i.e. $\gr{C}_L \gr{C}_R^{(q^{d'+1})}\neq \gr{C}$. Under the adaptive root assumption $\adv_{\eval}$ has negligible probability $\advantage{AR}{}$ in succeeding in each execution. The probability of $\advantage{\textsf{PoE}Break}{}$ is therefore bounded by $2d \lceil\log_2(d+1)\rceil \cdot \advantage{AR}{}$ and still negligible in $\lambda$.
 
 \alaninline{I think there are a couple of problems with this argument. \\
  - The quantity $2d \lceil\log_2(d+1)\rceil$ is not a function of $\lambda$ and not negligible. \\
