@@ -788,36 +788,49 @@ Our full proof takes into account the cryptographic compilation of the protocol 
 	The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ instantiated using $\ggen$ is extractable if the adaptive root assumption and the strong RSA assumption hold for $\ggen$ if $q>2^{\lceil \log_2(d+1) \rceil+1} p^{3 \lceil \log_2(d+1) \rceil+1}$
 \end{theorem}
 \begin{proof}
-We will prove security by showing that given a polynomial time adversary $\adv_{\eval}$ that succeeds in convincing an honest verifier in the $\eval$ protocol on any public input with non-negligible probability we can either (1) construct an adaptive root adversary $\adv_{\textsf{Adaptive Root}}$, (2) extract an element of known order, i.e. break the order assumption, (3) extract a fractional root of $\gr{g}\in \GG$ or (4) extract the polynomial $f(X)$. The proof will use the general forking lemma (Lemma \ref{lem:forking}) to show that the polynomial commitment scheme has witness-extended emulation.
+We will prove security by showing that given a polynomial time adversary $\adv_{\eval}$ that succeeds in convincing an honest verifier in the $\eval$ protocol on any public input with non-negligible probability we can either (1) construct an adaptive root adversary $\adv_{\textsf{Adaptive Root}}$, (2) extract an element of known order, i.e. break the order assumption, (3) extract a fractional root of $\gr{g}\in \GG$ or (4) extract the polynomial $f(X)$.\alan{I'm not sure task (4) is well defined. What are the constraints that the polynomial must satisfy? Otherwise the extractor can sample an arbitrary one and output that.} The proof will use the general forking lemma (Lemma \ref{lem:forking}) to show that the polynomial commitment scheme has witness-extended emulation.
 
-In particular we construct an extractor $E$ that given transcripts with $2$ distinct challenges per round, \emph{i.e.} $2^{\lceil\log_2(d+1)\rceil}<2 (d+1)$ total transcripts, can compute either an opening to the commitment scheme, an element of known order or a pseudo root of of the CRS encoded $\gr{g}\in\GG$.
+In particular we construct an extractor $E$ that given transcripts with $2$ distinct challenges per round, \emph{i.e.} $2^{\lceil\log_2(d+1)\rceil}<2 (d+1)$ total transcripts, can compute either an opening to the commitment scheme, an element of known order or a pseudo root\alan{"pseudo root" is not defined} of of the CRS encoded $\gr{g}\in\GG$.
 
 First consider all the $\textsf{PoE}$ executions in all transcripts. There are $\lceil\log_2(d+1)\rceil$ $\textsf{PoE}$s per transcript. Consider the probability $\advantage{\textsf{PoE}Break}{}$ of the event that the adversary can break the $\textsf{PoE}$ soundness for any execution, i.e. $\gr{C}_L \gr{C}_R^{(q^{d'+1})}\neq \gr{C}$. Under the adaptive root assumption $\adv_{\eval}$ has negligible probability $\advantage{AR}{}$ in succeeding in each execution. The probability of $\advantage{\textsf{PoE}Break}{}$ is therefore bounded by $2d \lceil\log_2(d+1)\rceil$ and still negligible in $\lambda$.
+
+\alaninline{I think there are a couple of problems with this argument. \\
+ - The quantity $2d \lceil\log_2(d+1)\rceil$ is not a function of $\lambda$ and not negligible. \\
+ - The various execution events are not independent. \\
+ - No adaptive root adversary is constructed, so it's not clear why $\advantage{\textsf{PoE}Break}{}$ would even apply. \\
+ - The transcripts are presented non-interactively to the extractor, but breaking PoE is an interactive game. It is not at all clear how to go from a fishy transcript to breaking PoE.}
+ 
+ \alaninline{I think the solution might be something along these lines. For every PoE, the tree of transcripts branches into $n$ new branches, where $n$ is whatever number such that you can get the hidden power $q^{d'+1}$ from CRT-ing together $n$ remainders modulo distinct primes.}
+
 Now consider the case where $\gr{C}_L \gr{C}_R^{(q^{d'+1})}= \gr{C}$ for all executions. 
-We will now construct the extractor that recursively either extracts the encoding of a dyadic rational polynomial $f(X)\in \mathcal{D}[X]$ with bounded coefficients or a break of the order assumption or the pseudo-root assumption. In order to break the order assumption we instantiate the adversary $\adv_{\textsf{Order}}$ with the description of the group $\GG$. We also instantiate the pseudo-root adversary $\adv_{\textsf{PseudoRoot}}$ with $\GG$ and $g$ as encoded in $\crs$.
+We will now construct the extractor that recursively either extracts the encoding of a dyadic rational polynomial $f(X)\in \mathcal{D}[X]$ with bounded coefficients or a break of the order assumption or the pseudo-root assumption. In order to break the order assumption we instantiate the adversary $\adv_{\textsf{Order}}$ with the description of the group $\GG$. We also instantiate the pseudo-root adversary $\adv_{\textsf{PseudoRoot}}$ with $\GG$ and $\gr{g}$ as encoded in $\crs$.
 
-Given the tree of transcripts as specified in the general forking lemma (Lemma \ref{lem:forking})  with branching factor $2$ at each level, i.e. $2$ different challenges we will extract a witness at each node of the tree given witness for both of the nodes children. Each level corresponds to a separate invocation to $\pro{EvalBounded}$. We denote the input to $\pro{Eval}$ without subscripts, i.e. $\gr{C},z,y,d;f(X)$ and the input to $\pro{EvalBounded}$ with a subscript indicating the round, e.g. $d_0=d$, $\gr{C}_0=C$ and $d_{\lceil \log_2(d)\rceil }=0,\gr{C}_{\lceil \log_2(d+1)\rceil }=g^{f}$ etc. We let $\alpha$ and $\alpha'$ denote the two distinct challenges at each node of the transcript tree. We use $'$ to denote the proof elements and witnesses corresponding to the $\alpha'$ challenge, e.g. $\gr{C}_i'$.
+Given the tree of transcripts as specified in the general forking lemma (Lemma \ref{lem:forking})  with branching factor $2$ at each level, \emph{i.e.} $2$ different challenges, we will extract a witness at each node of the tree given witness for both nodes' children. Each level corresponds to a separate invocation to $\pro{EvalBounded}$. We denote the input to $\pro{Eval}$ without subscripts, i.e. $\gr{C},z,y,d;f(X)$ and the input to $\pro{EvalBounded}$ with a subscript indicating the round, \emph{e.g.} $d_0=d$, $\gr{C}_0=\gr{C}$ and $d_{\lceil \log_2(d)\rceil }=0,\gr{C}_{\lceil \log_2(d+1)\rceil }=g^{f}$ \alan{$\gr{g}^{f_{\lceil \log_2(d+1) \rceil , 0}}$ ?} \emph{etc}. We let $\alpha$ and $\alpha'$ denote the two distinct challenges at each node of the transcript tree. We use $'$ to denote the proof elements and witnesses corresponding to the $\alpha'$ challenge, \emph{e.g.} $\gr{C}_i'$.
 
-In each round the extracted witness is a dyadic rational polynomial $f_i(X)\in \mathbb{D}[X]$ such that $\gr{g}^{f_i(q)}=\gr{C}_i$ such that the coefficients of $f_i(X)$ are in $C_{b_n,b_d}$, i.e. have bounded numerators and denominators. The degree of $f_(X)$ is at most $d_i$ and $f(z) \equiv y \bmod p$. Note that for odd primes $p$ and integer $z$ $f(z)\bmod p$ is always defined.
+\alaninline{The subscripts for $f$ are in conflict with using $f_i$ as the $i$th coefficient of $f(X)$. We need to find a solution for that.}
 
-We extract starting from the leafs of the tree, i.e. $d_{\lceil \log_2(d)\rceil}=0$. From the transcript we can directly extract the constant integer polynomial $f(X)=f \in \ZZ$ such that $\vert f \vert < p^{\lceil\log_2(d+1)\rceil+1}$, $y=f \mod p$, $f(X)=y\in \ZZ_p[X]$ and $\gr{g}^{f}=\gr{C}$ as the witness.
+In each round the extracted witness is a dyadic rational polynomial $f_i(X)\in \mathbb{D}[X]$ such that $\gr{g}^{f_i(q)}=\gr{C}_i$ such that the coefficients of $f_i(X)$ are in $C_{b_n,b_d}$, \emph{i.e.} have bounded numerators and denominators. The degree of $f_i(X)$ is at most $d_i$ and $f(z) \equiv y \bmod p$. Note that for odd primes $p$ and integer $z$, $f(z)\bmod p$ is always defined.
+
+\alaninline{What do $\mathbb{D}$ and $C_{b_n, b_d}$ denote?}
+
+We extract starting from the leafs of the tree, \emph{i.e.} $d_{\lceil \log_2(d)\rceil}=0$. From the transcript we can directly extract the constant integer polynomial $f(X)=f \in \ZZ$ such that $\vert f \vert < p^{\lceil\log_2(d+1)\rceil+1}$, $y=f \mod p$, $f(X)=y\in \ZZ_p[X]$ and $\gr{g}^{f}=\gr{C}$ as the witness.
 
 We now show how to compute the witness for $i-1$ given a witnesses for $i$. 
 
-If $d_i+1$ is odd then we have $\gr{C}_{i-1}=\gr{C}_i^q$. Since $\gr{C}_{i-1}=\gr{g}^{f_{i-1}(q)}$ we either have that $q$ divides $f_{i-1}(q)$ or since $q$ is odd we have a pseudo root of $\gr{g}$. 
+If $d_i+1$ is odd then we have $\gr{C}_{i-1}=\gr{C}_i^q$.\alan{Shouldn't the $q$ be on the other side?} Since $\gr{C}_{i-1}=\gr{g}^{f_{i-1}(q)}$ we either have that $q$ divides $f_{i-1}(q)$ or since $q$ is odd we have a pseudo root of $\gr{g}$. 
 If this is not the case then $f_{i-1}(q)=f_i(q)\cdot q^{-1}$ and $f_i(X)=\dec(f_i(q))$ has a zero constant term. Additionally since $y_i=y_{i-1}\cdot z$ and $f_i(z)\equiv y_i \bmod p$ we have $f_{i-1}(z)\equiv y_{i-1} \bmod p$, i.e. $f_{i-1}(q)$ is a valid witness and the degree of $f_{i-1}(X)=\dec(f_{i-1}(q))$ is at most $d_{i-1}=d_i-1$. 
 
 Now if $d_i+1$ is even then we have for a challenge $\alpha$: $\gr{C}_{L,i-1}^\alpha \gr{C}_{R,i-1}=\gr{C}_i=\gr{g}^{f_i(q)}$ additionally for a challenge $\alpha'\neq \alpha$ we have $\gr{C}_{L,i-1}^{\alpha'} \gr{C}_{R,i-1}=\gr{C}'_i=\gr{g}^{f'_i(q)}$.  
 
  This gives us $\gr{C}_{L,i-1}^{\alpha-\alpha'}=\gr{g}^{f_i(q)-f'_i(q)}$. 
- If $\frac{\alpha-\alpha'}{f_i(q)-f'_i(q)}$ is not a dyadic rational then this gives us a pseudo-root of $\gr{g}$. If this is not the case then we can compute $\gr{D}=\gr{g}^{\frac{f_i(q)-f'_i(q)}{\alpha-\alpha'}}$. Either $\gr{D}=\gr{C}_{L,i-1}$ or $(\gr{D}/\gr{C}_{L,i-1})^{\alpha-\alpha'}=1$, i.e. $\gr{D}/\gr{C}_{L,i-1}$ is an element of known order. This would break the order assumption.
+ If $\frac{\alpha-\alpha'}{f_i(q)-f'_i(q)}$ is not a dyadic rational then this gives us a pseudo-root of $\gr{g}$. If this is not the case then we can compute $\gr{D}=\gr{g}^{\frac{f_i(q)-f'_i(q)}{\alpha-\alpha'}}$. \alan{What is $\alpha-\alpha'$ does not divide $f_i(q)-f'_i(q)$?} Either $\gr{D}=\gr{C}_{L,i-1}$ or $(\gr{D}/\gr{C}_{L,i-1})^{\alpha-\alpha'}=1$, \emph{i.e.} $\gr{D}/\gr{C}_{L,i-1}$ is an element of known order. This would break the order assumption.
 % Under the order assumption finding elements of known, bounded, order happens with negligible probability $\advantage{\textsf{Order}}{}$.
 
 Finally, if no bad event occurs and no assumption is broken we have $\gr{C}_{L,i-1}=\gr{g}^{f_{L,i-1}(q)}$ where $f_{L,i-1}(q)=\frac{f_i(q)-f'_i(q)}{\alpha-\alpha'}$ is a dyadic rational.  
  
  In that case $\gr{C}_{R,i-1}=\gr{g}^{f_{R,i-1}(q)}=\gr{g}^{f_{i}(q)-\alpha \cdot f_{L,i-1}(q)}$. The extractor has now successfully obtained $f_{L,i-1}(q)\in \mathbb{D}$ and $f_{R,i-1}(q)\in \mathbb{D}$.
  
- If $f_{i}(q)\in C_{b_n,b_d}$ and $f'_{i}(q)\in C_{b_n,b_d}$, i.e. their numerators are bounded by $b_n$ in absolute value and their denominator is bounded by $2^{b_d}$. The denominator of $f_{L,i-1}(q)$ is at most $|\alpha-\alpha'|<p$ times $2^{b_d}$. Since $\lambda=\lceil\log_2(p)\rceil$ we can deduce that $2^{b_d+\lambda}$ is a bound on the size of the denominator of $f_{L,i-1}(q)$ and consequently also on $f_{R,i-1}(q)$
+ If $f_{i}(q)\in C_{b_n,b_d}$ and $f'_{i}(q)\in C_{b_n,b_d}$, \emph{i.e.} their numerators are bounded by $b_n$ in absolute value and their denominator is bounded by $2^{b_d}$. The denominator of $f_{L,i-1}(q)$ is at most $|\alpha-\alpha'|<p$ times $2^{b_d}$. Since $\lambda=\lceil\log_2(p)\rceil$ we can deduce that $2^{b_d+\lambda}$ is a bound on the size of the denominator of $f_{L,i-1}(q)$ and consequently also on $f_{R,i-1}(q)$
 By triangle equality we also have that the numerator of $f_{L,i-1}(q)$ is at most $2\cdot b_n$. For $f_{R,i-1}(q)=f_{i}(q)-\alpha f_{L,i-1}(q)$ we get a bound of $(2 p )\cdot  b_n$. 
 For a sufficiently large $q$ we can still decode dyadic rational polynomials $f_{L,i-1}(X)=\dec(f_{L,i-1})(q) \in C_{b_n\cdot (p+1),b_d+\lambda}[X]$ and $f_{R,i-1}(X)=\dec(f_{R,i-1})(q) \in C_{b_n\cdot (p+1),b_d+\lambda}[X]$. 
 The homomorphic properties of the commitment scheme along with soundness of the $\textsf{PoE}$ ensure that $f_{i-1}(X)=f_{L,i-1}(X)+X^{d_{i}+1} f_{R,i-1}(X)$. 
@@ -888,6 +901,7 @@ We opted for an accessible presentation of the $\pro{Eval}$ protocol. In practic
 	\item Precompute $g^{q^i}$ to use parallelism etc.
 	\item join PoEs
 	\item early termination
+	\item Parallel Evals using different base elements \emph{e.g.}, $\gr{g}$ and $\gr{h}$. Merge commitments.
 	\item ZK
 	\item SNARK without falsifiable assumptions
 	\item First polynomial commitment scheme with constant size parameters
