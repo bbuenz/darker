@@ -876,6 +876,21 @@ We opted for an accessible presentation of the $\pro{Eval}$ protocol. In practic
   We extend the Polynomial Commitment scheme to handle multivariate polynomials. The idea is to simply use higher degrees of $q$ to encode the polynomial. The protocol is linear in the number of variables and logarithmic in the total degree of the polynomial. For simplicity we only present a protocol for $n$-variate polynomials where the degree in each variable is $d$. The protocol naturally extends to different degrees per variable.
 Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_n)\in \ZZ$ is an encoding of the multivariate polynomial $f(X_1,\dots,X_n)$ with maximum degree $d$. Using this encoding we can naturally derive the multi-variate commitment scheme and $\eval$ protocol. The $\eval$ protocol  computes the univariate polynomials $f(q_1,\dots,q_{n-1},X_n)$ and then uses the univariate eval protocol to reduce the claim from a claim about an $n$-variate polynomial to one about an $n-1$-variate one. At the final step the prover opens the now constant polynomial and the verifier can check the claim. For a bivariate (say $X$ and $Y$) cubic polynomial the protocol would first reduce the degree of $X$ to $0$ in two rounds of interaction and then reduce the degree of $Y$ using another two rounds.
  
+ \begin{mdframed}
+\begin{minipage}{\textwidth}
+			$\pro{Eval}(\crs, \gr{C}\in \GG, z_1,\dots z_n,y \in \ZZ_p, d,n \in \NN; f(X_1,\dots,X_n)\in Z_p^n[X]) :$ 			\begin{enumerate}[nolistsep]
+			\item \pcif{n=1} 
+			\item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\params,\gr{C},z_1,y,d,q;f(X_1))$ 
+			\item \pcelse
+			\item \pcind[1] Let $f(X_n)\gets f(q_1,\dots,q_{n-1},X_n)$
+			\item \pcind[1] Let $\crs_n \gets \{\lambda,\GG,\gr{g},p,q_n\}$
+			\item \pcind[1] \prover and \verifier run the univariate $\pro{EvalBounded}(\params_n,\gr{C},z_n,y,d,q_n;f(X))$ but instead of sending $f$ in the last round, which is of size $q_n^{d+1}$, the protocol returns it's input, i.e. $\gr{C}',\gr{y}',b$ and the provers witness $f'(X_1,\dots,X_{n-1})=\dec(f)$.
+			\item \pcind[1]\prover and \verifier run $\eval(\pp,C',z_1,\dots,z_{n-1},y',d,n-1;f'(X_1,\dots,X_{n-1}))$
+		    \end{enumerate}
+      \end{minipage}
+\end{mdframed}
+
+ 
  \begin{mdframed}[userdefinedwidth=\textwidth]
 \begin{minipage}{\textwidth}
 	\begin{flushleft}
@@ -932,19 +947,6 @@ $f_1(X_1,\dots,X_n)\gets \sum_{\vec{i} \in [0,d_{\max}]^{n-1}} \prod_{j=1}^{n-1}
 \end{minipage}
 \end{small}
 
-\begin{mdframed}
-\begin{minipage}{\textwidth}
-			$\pro{Eval}(\crs, \gr{C}\in \GG, z_1,\dots z_n,y \in \ZZ_p, d,n \in \NN; f(X_1,\dots,X_n)\in Z_p^n[X]) :$ 			\begin{enumerate}[nolistsep]
-			\item \pcif{n=1} 
-			\item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\params,\gr{C},z_1,y,d,q;f(X_1))$ 
-			\item \pcelse
-			\item \pcind[1] Let $f(X_n)\gets f(q_1,\dots,q_{n-1},X_n)$
-			\item \pcind[1] Let $\crs_n \gets \{\lambda,\GG,\gr{g},p,q_n\}$
-			\item \pcind[1] \prover and \verifier run the univariate $\pro{EvalBounded}(\params_n,\gr{C},z_n,y,d,q_n;f(X))$ but instead of sending $f$ in the last round, which is of size $q_n^{d+1}$, the protocol returns it's input, i.e. $\gr{C}',\gr{y}',b$ and the provers witness $f'(X_1,\dots,X_{n-1})=\dec(f)$.
-			\item \pcind[1]\prover and \verifier run $\eval(\pp,C',z_1,\dots,z_{n-1},y',d,n-1;f'(X_1,\dots,X_{n-1}))$
-		    \end{enumerate}
-      \end{minipage}
-\end{mdframed}
 
 
 \begin{comment}
