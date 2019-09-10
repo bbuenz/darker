@@ -873,16 +873,32 @@ We opted for an accessible presentation of the $\pro{Eval}$ protocol. In practic
 \end{enumerate}
 
 \subsection{Multivariate Commitment}\label{section:multivariate}
-  We extend the Polynomial Commitment scheme to handle multivariate polynomials. The idea is to simply use higher degrees of $q$ to encode the polynomial. The protocol is linear in the number of variables and logarithmic in the total degree of the polynomial. For simplicity we only present a protocol for $n$-variate polynomials where the degree in each variable is $d$ and $d$ is a power of $2$. The protocol naturally extends to different degrees per variable.
-We first define an encoding for multi-variate integer polynomials with small coefficients:
- \begin{itemize}
-	\item Domain $B_{q}[X^n] \subset \ZZ[X^n]$, Alphabet: $\ZZ$, \\$f(X_0,\dots,X_{n-1})=\sum_{\vec{i} \in [0,d]^n} f_{\vec{i}} \prod_{j=1}^{n} X_j^{i_j}$
-	\item $\enc(f(X_0,\dots,X_{n-1}) \in B_{q}[X^n]): f(q,q^{d+1},q^{(d+1)^2},\dots,q^{(d+1)^{n-1}})$
-	\item $\textsf{Q-ary}(\vec{i}):\sum_{j=1}^{n} i_j\cdot (d+1)^{j-1}$
-	\item $\dec(y \in \ZZ): f_{\vec{i}}=\frac{y \bmod q^{\textsf{Q-ary}(\vec{i})+1}-y \bmod q^{\textsf{Q-ary}(\vec{i})}}{q^{\textsf{Q-ary}(\vec{i})}} \forall \vec{i} \in [0,d]^n$
-	\item \benedikt{Negative Coefficients?}
+  We extend the Polynomial Commitment scheme to handle multivariate polynomials. The idea is to simply use higher degrees of $q$ to encode the polynomial. The protocol is linear in the number of variables and logarithmic in the total degree of the polynomial. For simplicity we only present a protocol for $n$-variate polynomials where the degree in each variable is $d$. The protocol naturally extends to different degrees per variable.
+Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_n)\in \ZZ$ is an encoding of the multivariate polynomial $f(X_1,\dots,X_n)$ with maximum degree $d$. Using this encoding we can naturally derive the multi-variate commitment scheme and $\eval$ protocol. The $\eval$ protocol  computes the univariate polynomials $f(q_1,\dots,q_{n-1},X_n)$ and then uses the univariate eval protocol to reduce the claim from a claim about an $n$-variate polynomial to one about an $n-1$-variate one. At the final step the prover opens the now constant polynomial and the verifier can check the claim. For a bivariate (say $X$ and $Y$) cubic polynomial the protocol would first reduce the degree of $X$ to $0$ in two rounds of interaction and then reduce the degree of $Y$ using another two rounds.
+ 
+ \begin{mdframed}[userdefinedwidth=\textwidth]
+\begin{minipage}{\textwidth}
+	\begin{flushleft}
+	$\pro{Setup}(1^\secpar):$
+		\begin{enumerate}[nolistsep]
+			\item $ \GG \sample \ggen(\secpar)$
+			\item $ \gr{g} \sample \GG$
+			%\item $q \gets 2^k$ such that $q > (d+1) \cdot 2\cdot p^{\log_2(d+1)+1} $
+			\item Pick a prime $p\in \NN$ such that $\lceil\log_2(p)\rceil=\lambda$.
+			\item Pick a sufficiently large and odd $q\in \NN$
+			\item $\pcreturn \params = (\secpar,\GG,\gr{g},p,q)$
+		\end{enumerate}
+	$\pro{Commit}(\crs;f(X_1,\dots,X_n) \in B_{2\cdot p}^n[X]\subset \ZZ[X]):$ 		\begin{enumerate}[nolistsep]
+			\item $d\gets \deg(d)$\pccomment{For simplicity assume $f(X_1,\dots,X_n)$ has degree $d$ in each variable}
+			\item $q_i\gets q^{(d+1)^{i-1}}$ for each $i\in [1,n]$
+			\item $\gr{C} \gets \gr{g}^{f(q_1,\dots,q_n)}$
+			\item $\pcreturn (\gr{C};f(X_1,\dots,X_n))$
+		\end{enumerate}
+			\end{flushleft}
+\end{minipage}
+\end{mdframed}
 
-\end{itemize}
+
 \begin{small}
  \begin{minipage}{1.1\textwidth}
 \begin{mdframed}[userdefinedwidth=1\textwidth]  \label{prot:Opening}
@@ -919,35 +935,14 @@ $f_1(X_1,\dots,X_n)\gets \sum_{\vec{i} \in [0,d_{\max}]^{n-1}} \prod_{j=1}^{n-1}
 \begin{mdframed}
 \begin{minipage}{\textwidth}
 			$\pro{Eval}(\crs, \gr{C}\in \GG, z_1,\dots z_n,y \in \ZZ_p, d,n \in \NN; f(X_1,\dots,X_n)\in Z_p^n[X]) :$ 			\begin{enumerate}[nolistsep]
-			\item \prover and \verifier run $\pro{EvalBounded}(\params,\gr{C},z,y,d,p-1;f(X))$
+			\item \pcif{n=1} 
+			\item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\params,\gr{C},z_1,y,d,q;f(X_1))$ 
+			\item \pcelse
+			\item \pcind[1] Let $f(X_n)\gets f(q_1,\dots,q_{n-1},X_n)$
+			\item \pcind[1] Let $\crs_n \gets \{\lambda,\GG,\gr{g},p,q_n\}$
+			\item \pcind[1] \prover and \verifier run the univariate $\pro{EvalBounded}(\params_n,\gr{C},z_n,y,d,q_n;f(X))$ but instead of sending $f$ in the last round, which is of size $q_n^{d+1}$, the protocol returns it's input, i.e. $\gr{C}',\gr{y}',b$ and the provers witness $f'(X_1,\dots,X_{n-1})=\dec(f)$.
+			\item \pcind[1]\prover and \verifier run $\eval(\pp,C',z_1,\dots,z_{n-1},y',d,n-1;f'(X_1,\dots,X_{n-1}))$
 		    \end{enumerate}
-		$\pro{EvalBounded}(\crs,\gr{C}\in \GG,z\in \ZZ_p,y\in \ZZ_p,d\in \NN,b\in \ZZ;f(X)\in B_{b}[X])$
-	    \begin{enumerate}[nolistsep]
-        \item \pcif $d=0$:
-        \item \pcind[1] \prover sends $f=f(X)\in \ZZ$ to the verifier. \pccomment{$f=f(X)$ is a constant}
-        \item \pcind[1] \verifier checks that $b< q/(2^{\lceil \log_2(d+1) \rceil+1} p^{2 \lceil \log_2(d+1) \rceil+1})$
-        \item \pcind[1] \verifier checks that $f \in [0,b]$
-          \item \pcind[1] \verifier checks that $f\equiv y \bmod p$
-                \item \pcind[1] \verifier checks that $\gr{g}^{f}=\gr{C}$
-\item \pcind[1] \verifier outputs $1$ \pcif all checks pass, $0$ otherwise.
-          \item \pcif{$d+1$ is odd}
-         \item \pcind[1]  $d'\gets d+1, \gr{C}'\gets \gr{C}^q$, $y'\gets y\cdot z \bmod p$ and $f'(X)\gets X \cdot f(X)$.
-         \item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\crs,\gr{C}',z,y',d',bd;f'(X))$
-
-        \item \pcelse: \pccomment{$d \geq 1$ and $d+1$ is even}
-       
-        \item \pcind[1] \prover and \verifier compute $d' \gets \frac{d+1}{2} - 1$
-        \item \pcind[1] \prover computes $f_L(X) \gets \sum\limits_{i=0}^{d'} f_i \cdot X^i$ and $f_R(X)\gets\sum\limits_{i=0}^{d'} f_{d'+1+i}\cdot X^{i}$
-        \item \pcind[1] \prover computes $y_L\gets f_L(z) \bmod p$ and $y_R\gets f_R(z)\bmod p$
-        \item \pcind[1] \prover computes $\gr{C}_L \gets \gr{g}^{f_L(q)}$ and $\gr{C}_R \gets \gr{g}^{f_R(q)}$
-        \item \pcind[1] \prover sends $y_L,y_R, \gr{C}_L, \gr{C}_R$ to \verifier. \pccomment{See Section \ref{sec:optimiztion} for an optimization}
-        \item \pcind[1] \verifier checks that $y=y_L+z^{d'+1}\cdot y_R \bmod p$, outputs $0$ if check fails.
-        \item \pcind[1] \prover and \verifier run $\pro{PoE}(\gr{C}_R, \gr{C}/\gr{C}_L, q^{d'+1})$\pccomment{Showing that $\gr{C}_L\gr{C}_R^{(q^{d'+1})}=\gr{C}$}
-        \item \pcind[1] \verifier samples $\alpha \sample [1,p-1]$ and sends it to \prover
-        \item \pcind[1] \prover and \verifier compute $y'\gets\alpha \cdot y_L +y_R \bmod p$, $\gr{C}' \gets \gr{C}_L^\alpha  \gr{C}_R$ and $b'\gets b\cdot p$. 
-        \item \pcind[1] \prover computes $f'(X) \gets \alpha \cdot f_L(X) + f_R(X) \in \ZZ[X]$ \pccomment{$\deg(f'(X))=d'$}
-        \item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\params, \gr{C}', z, y', d',b' ; f'(X))$
-               \end{enumerate}
       \end{minipage}
 \end{mdframed}
 
