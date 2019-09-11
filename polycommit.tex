@@ -139,7 +139,7 @@ The \defn{Strong RSA Assumption} sates that no efficient adversary can compute a
          (\gr{u}, \ell) \in \mathbb{G} \times \mathbb{N} \leftarrow \adv(\mathbb{G}, \gr{g}) \\
     \end{array}\right] \leq \negl \enspace .
 \]
-\end{assumption} \alan{$\ell$ cannot be a power of 2 either}
+\end{assumption} 
 We note that some definitions of the strong RSA assumption additionally require that $\ell$ be a prime~\cite{EC:BarPfi97}. Our definition does not require $\ell$ to be a prime but we explicitly exclude $\ell$ from being a power of $2$. This is because in class groups taking square roots and power of $2$ roots can be done in polynomial time\cite{bosma1996computation}.
 \begin{assumption}[Adaptive Root Assumption]
 \label{assum:adaptiveroot}
@@ -680,7 +680,7 @@ In class groups there exists an algorithm to compute square roots of any element
 The encoding map is identical, except lifted to the dyadic rationals: $\mathsf{Enc} : \mathcal{D}[X] \rightarrow \mathcal{D}, \, g(X) \mapsto g(q)$. The main difference with respect to the integer encoding scheme will be that decoding works for dyadic rationals where \emph{both the numerator and the denominator are bounded}. Let $b_n \in \NN$ be a bound on the absolute value of the numerator and $2^{b_d}\in \NN$ be a bound on the value of the denominator, and let $C_{b_n,b_d}:=\{(x,a) \in \mathcal{D} \, | \, |x|\leq b_n \wedge 2^a\leq 2^{b_d}\}$ denote the set of such bounded dyadic rationals. The encoding scheme is uniquely decodable if $b_n\cdot 2^{b_d}<q/2$.
  
 To encode a polynomial $g(X)$ with coefficients in $C_{b_n,b_d}$ we compute $y \gets g(q)\in \mathcal{D}$. Note that $y$'s denominator is bounded by $2^{b_d}$. To decode such a dyadic rational $y\in \mathcal{D}$ we compute the integer $y'\gets y\cdot 2^{b_d}\in \ZZ$  and use the decoding algorithm described above to decode a polynomial $f(X)$ in $B_{q}[X]$. From $f(X)$ we can derive the polynomial  $g(X)\gets \frac{f(X)}{2^{(b_d)}} \in C_{\frac{q}{2^{(b_d)}},b_d}[X]$ through division. If the integer polynomial encoding is uniquely decodable then so is the scheme for dyadic rational polynomials.
-We also set $q$ to be odd such that $q$ is co-prime with $q$.\alan{$q$ being coprime with $q$ does not make any sense} If $q$ were a power of $2$ an adversary could encode Laurant polynomials with negative powers.
+We also set $q$ to be odd such that $q$ is co-prime with $2$. If $q$ were a power of $2$ an adversary could encode Laurant polynomials with negative powers.
 
 \subsection{Polynomial Commitment}
 
@@ -727,7 +727,7 @@ The prover splits $f(X)$ into $f_L(X)$ and $f_R(X)$ such that $f_L(X)+X^{d'+1} f
 
 If the prover wants to show, in addition to the previous, that $f(z)=y\bmod p$, then he can simply provide $y_L=f_L(z)\bmod p$ and $y_R=f_R(z)\bmod p$ and show that $y_L + z^{d'+1} \cdot y_R \bmod p=y$. Note that the verifier can compute $y' = f'(z) = \alpha \cdot y_L + y_R \bmod p$ from $y_L$ and $y_R$.
 
-The proof recursively repeats this reduction by using $f'(X),z,y'$ and $d'$ as the input. In the final step, the prover simply sends the constant polynomial $f_0$ and the verifier can check that $f_0 \equiv y \bmod p$. Note that $f_0< p^{\log_2(d+1)}$ so an integer encoding of $f_0$ requires at most $\log_2(d+1)\cdot \log_2(p)$\alan{round up or down?} bits.
+The proof recursively repeats this reduction by using $f'(X),z,y'$ and $d'$ as the input. In the final step, the prover simply sends the constant polynomial $f_0$ and the verifier can check that $f_0 \equiv y \bmod p$. Note that $f_0< p^{\log_2(d+1)}$ so an integer encoding of $f_0$ requires at most $\lceil \log_2(d+1) \cdot \log_2(p)\rceil$ bits.
 
 Using the integer encoding (with a sufficiently large $q>p^{\log_2(d+1)}$) and exponentiation in groups of unknown order as the cryptographic compilers, we can derive an efficient $\eval$ protocol with logarithmic communication. To achieve verifier efficiency we need to build an efficient check that $f(X) = f_L(X) + X^{d'+1} f_R(X)$ given committed $f(X), f_L(X)$ and $f_R(X)$. Concretely, the verifier checks that $\gr{C} = \gr{C}_L \gr{C}_R^{q^{d'+1}}$ for $\gr{C}=\gr{g}^{f(q)}$, $\gr{C}_L=\gr{g}^{f_L(q)}$ and $\gr{C}_R=\gr{g}^{f_R(q)}$. Fortunately, Wesolowski~\cite{EC:Wesolowski19} and Pietrzak~\cite{EPRINT:Pietrzak18b} provide efficient proofs of exponentiations \textsf{PoE} to achieve a similar in the context of verifiable delay functions~\cite{C:BBBF18}. A \textsf{PoE} can be used here to outsource the verification check to the prover. Wesolowski's \textsf{PoE} has constant communication and verification time and is thus particularly well suited here.
 
@@ -776,7 +776,7 @@ We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pr
 	The polynomial commitment scheme is correct for polynomials in $\ZZ_p$ of degree at most $d$ if $q> p^{\lceil \log_2(d+1)\rceil+1}$.
 \end{lemma}
 \begin{proof}
-	We need to ensure that $q$ remains larger than the bound $b$ and the opened polynomial. In each round the bound on the coefficient size grows by a factor of $p$, for example: If $f'_0=\alpha f_0 + f_1$ for $\alpha \in [0,p-1]$ and $f_0,f_1 \in [0,b]$ then $f'_0\in [0,p\cdot b]$.
+	We need to ensure that $q$ remains larger than the bound $b$ on the coefficients of the witness polynomial. In each round the bound on the coefficient size grows by a factor of $p$, for example: If $f'_0=\alpha f_0 + f_1$ for $\alpha \in [0,p-1]$ and $f_0,f_1 \in [0,b]$ then $f'_0\in [0,p\cdot b]$.
 	
 	The recursion has $\lceil \log_2(d+1)\rceil$ rounds which gives us a bound $b$ of $p^{\lceil \log_2(d+1)\rceil+1}$. If $f(z)=y \bmod p$ then $f'(z)=y' \bmod p$. $\textsf{PoE}$ itself is a perfectly complete argument. The rest of the protocol's correctness is immediate.
 	
