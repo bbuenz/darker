@@ -129,9 +129,9 @@ Both of these assumption hold in generic groups of unknown order\cite{genericunk
 It is an open research problem to show whether one of these assumption implies the other.
 
 
-\begin{assumption}[Class Group Strong RSA Assumption]
+\begin{assumption}[Dyadic Strong RSA Assumption]
 \label{assum:strongRSA}
-The \defn{Strong RSA Assumption} sates that no efficient adversary can compute any root of a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
+The \defn{Dyadic Strong RSA Assumption} sates that no efficient adversary can compute any root of a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
 \[
     \Pr\left[\gr{u}^\ell = \gr{g} \, \wedge \, \ell\neq 2^k, k \in \NN:
     \begin{array}{l}
@@ -192,7 +192,7 @@ The first assumption states that computing the order for \emph{any} element is h
 We additionally define the fractional root assumption which is a generalization of the Strong RSA Assumption. It states that for random group elements $\gr{g}$ it is hard to find a tuple $(\gr{u}\in \GG,\alpha\in \ZZ,\beta\in \ZZ)$ such that $\gr{u}^{\beta}=\gr{g}^{\alpha}$, unless $\frac{\alpha}{\beta}$ is an dyadic rational, \emph{i.e.}, a rational whose denominator is a power of $2$. In RSA groups the assumption is also conjectured to hold if $\frac{\alpha}{\beta}$ is restricted to be an integer. We say that $(\gr{u},\alpha,\beta)$ is a \emph{fractional root} of $\gr{g}$.
 
  The fractional root assumption reduces to the order assumption (and therefore to the adaptive root assumption) and the strong RSA assumption. Shoup\benedikt{Cite shoup strong rsa paper} showed that for the unknown order group of quadratic residues in $\ZZ_n$, where $n$ is the composite of two strong primes, that the fractional root assumption reduces to just the strong RSA assumption.
-\begin{assumption}[Class Group Fractional root assumption]
+\begin{assumption}[Dyadic Rational Root Assumption]
 \label{assum:fracroot}
 The fractional root assumption holds for $\ggen$ if for any efficient adversary $\adv$:
 \[        
@@ -687,7 +687,7 @@ We also set $q$ to be odd such that $q$ is co-prime with $2$. If $q$ were a powe
 \subsection{Polynomial Commitment}
 
 We now present our main result: 
-A polynomial commitment scheme with an efficient evaluation protocol based on a group of unknown order $\GG$. For polynomials of degree $d$ the protocol uses $\log_2(d+1)$ rounds and $O(\log(d))$ communication and verifier work.
+A polynomial commitment scheme with an efficient evaluation protocol based on a group of unknown order $\GG$. For polynomials of degree $d=\poly$ the protocol uses $\log_2(d+1)$ rounds and $O(\log(d))$ communication and verifier work.
 
 Exponentiation in groups of unknown order is a succinct and homomorphic cryptographic commitments to integers.
 Using the integer encoding of polynomials presented above we can simply commit to an integer polynomial with bounded coefficients $f(X)\in B_{q}[X]$ by computing $\gr{g}^{f(q)} \in \GG$. Note that our commitment scheme supports integer polynomials with bounded coefficient. Every polynomial in $\ZZ_p[X]$ naturally maps to an integer polynomial with coefficients in $B_{2\cdot p}$. The commitment scheme, therefore, supports committing to polynomials in $\ZZ_p[X]$ for $p<q/2$. Interestingly neither $p$ nor the degree $d$ need to be specified in the setup. As long as $q$ and ``big enough'' they can be freely chosen. In class groups there exists an efficient algorithm to compute square roots. The adversary can, therefore, also commit to dyadic rationals which are rational numbers where the denominator is a power of two. Since every dyadic rational corresponds to a unique element in $\ZZ_p$ we can simply extend the encoding to work for polynomials with bounded dyadic rational coefficients. The only difference is that we require $q$ to be odd such that the prover cannot commit to polynomials with negative powers. We will discuss the relationship between $p$, $d$ and $q$ in more detail later but first we describe the setup, commitment and opening algorithms:
@@ -747,8 +747,9 @@ We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pr
 		$\pro{EvalBounded}(\crs,\gr{C}\in \GG,z\in \ZZ_p,y\in \ZZ_p,d\in \NN,b\in \ZZ;f(X)\in B_{b}[X])$
 	    \begin{enumerate}[nolistsep]
         \item \pcif $d=0$:
-        \item \pcind[1] \prover sends $f=f(X)\in \ZZ$ to the verifier. \pccomment{$f=f(X)$ is a constant}
-        \item \pcind[1] \verifier checks that $b< q/(2^{\lceil \log_2(d+1) \rceil+1} p^{2 \lceil \log_2(d+1) \rceil+1})$
+        \item \pcind[1] \prover sends $f(X)\in \ZZ$ to the verifier. \pccomment{$f=f(X)$ is a constant}
+        \item \pcind[1] \verifier checks that $b< \mu_{p,d}$\pccomment{$\mu_{p,d}=O(p^{\log(d)})$ is a constant}
+        %q/(2^{\lceil \log_2(d+1) \rceil+1} p^{2 \lceil \log_2(d+1) \rceil+1})$
         \item \pcind[1] \verifier checks that $f \in [0,b]$
           \item \pcind[1] \verifier checks that $f\equiv y \bmod p$
                 \item \pcind[1] \verifier checks that $\gr{g}^{f}=\gr{C}$
@@ -775,7 +776,7 @@ We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pr
 \end{mdframed}
 
 \begin{lemma}
-	The polynomial commitment scheme is correct for polynomials in $\ZZ_p$ of degree at most $d$ if $q> p^{3\lceil \log_2(d+1)\rceil+1}$.
+	The polynomial commitment scheme is correct for polynomials in $\ZZ_p$ of degree at most $d$ if $\mu_{p,d}\geq  p^{\lceil \log_2(d+1)\rceil+1}$.
 \end{lemma}
 \begin{proof}
 	We need to ensure that $q$ is larger than $f$ the final value sent by the prover. We show this by showing that $b$ is a bound  In each round the bound on the coefficient size grows by a factor of $p$, for example: If $f'_0=\alpha f_0 + f_1$ for $\alpha \in [0,p-1]$ and $f_0,f_1 \in [0,b]$ then $f'_0\in [0,p\cdot b]$.
@@ -794,15 +795,32 @@ We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pr
 	Let $h(X)=f(X)-f'(X) \in \ZZ[X]$; this is a polynomial of degree at most $\max(f(X), f'(X))$. Since $\gr{g}^{f(q)}=\gr{g}^{f'(q)}=\gr{C}$ we have that $\gr{g}^{h(q)}=1$. Note that the coefficients of $f(X)$ and $f'(X)$ are all less than $q/2$ in absolute value. By triangle inequality we have that the coefficients of $h(X)$ are less than $q$. This means that $h(q)=0 \implies h(X)=0$. However by assumption $h(X)\neq 0$ so $h(q)\neq 0$ is a multiple of the order of $\gr{g}$. This directly breaks the order assumption and we can also create an adversary $\adv_{RSA}$ that breaks the strong RSA assumption. To do so the $\adv_{RSA}$ picks an odd prime $\ell$ that is co-prime with $h(q)$ and computes $\gr{u}\gets \gr{g}^{\ell^{-1} \bmod h(q)}$ as the $\ell$th root of $\gr{g}$.
 	\end{proof}
 	
-We now prove the main security theorem, which states that the polynomial commitment scheme is extractable. Consider the information theoretic version of the eval protocol, where the prover sends the integer polynomials $f_L(X)$ and $f_R(X)$ in each round but the verifier does not read them. 
-In the final round the verifier receives $f_0$ such that $f_0 \in [0,b]$. The goal is to construct an extractor by recursively computing $f_L(X)$ and $f_R(X)$ from $f'(X)$.
+\paragraph{Proof idea}
+We now prove the main security theorem, which states that the polynomial commitment scheme is extractable. Consider the information theoretic version of the eval protocol, where the prover sends the integer polynomials $f_L(X)$ and $f_R(X)$ in each round but the verifier does not read them.
+In the final round the verifier receives $f$ such that $f \in [0,b]$. The goal is to construct an extractor by recursively computing $f_L(X)$ and $f_R(X)$ from $f'(X)$.
 
-In each round the extractor has $f'(X)=\alpha f_L(X)+ f_R(X)$. Using rewinding the extractor can also compute $f''(X)=\alpha' f_L(X)+ f_R(X)$. From $f'(X)$, $f''(X)$, $\alpha$ and $\alpha'$ it is easy to compute $f_L(X)$ and $f_R(X)$.
+In each round the extractor has $f'(X)=\alpha f_L(X)+ f_R(X)$. Using rewinding the extractor can also compute $f''(X)=\alpha' f_L(X)+ f_R(X)$. From $f'(X)$, $f''(X)$, $\alpha$ and $\alpha'$ it is easy to compute $f_L(X)$ and $f_R(X)$. The extractor then computes $f(X)=f_L(X)+x^{d'+1} f_R(X)$.
 
 A careful analysis shows that if the coefficients of $f'(X)$ are bounded by $b$ then $f_L(X)$ and $f_R(X)$ must have coefficients bounded by $b \cdot p$ in absolute value. Using a similar analysis we can show that $f(z)\bmod p=y$ for the extracted polynomial $f(X)$.
 
 Our full proof takes into account the cryptographic compilation of the protocol using the integer encoding and the commitment scheme based on groups of unknown order. Additionally the full proof will need to work with dyadic rationals because taking square roots is easy in class groups.
 
+\paragraph{$\eval'$ security}
+We first begin by showing that the $\eval$ protocol is under the adaptive root assumption as secure as a simplified version of the protocol in which all $\textsf{PoE}$s are replaced by direct checks. We show that the extraction for $\eval'$ implies extraction for $\eval$. This is useful because we will later show that we can build an extractor for $\eval'$, i.e. it has witness extended emulation.
+\begin{lemma}
+Let $\eval'$ be the protocol that is identical to $\eval$ but in line \ref{line:PoE} of $\pro{EvalBounded}$ $\verifier$ directly checks $C_LC_R^{q^{d'+1}}=\gr{C}$ instead of using a $\textsf{PoE}$. If the adaptive root assumption holds and $\eval'$ has witness extended emulation for polynomials of degree $d=\poly$ then so does $\eval$.
+\end{lemma}
+\begin{proof}
+We show that if an extractor $E$ exists for the protocol $\eval'$ then either we can construct $E'$ or construct an adversary $\adv_{\textsf{AdaptiveRoot}}$ for the adaptive root assumption. 
+We construct $E$ an extractor for $\eval$. For each PPT adversary $(\adv,P^*)$, we generate $\crs\sample \setup(\lambda)$ and initiate $\adv_{\textsf{AdaptiveRoot}}(\crs)$. $E$ will receive a polynomial number of transcripts. For any transcript that $\verifier$ accepts there are $\lceil \log(d+1) $  
+
+ adversary $(\adv,P^*)$ can break the witness extended emulation for $\eval$ then there exists an adversary $(\adv,P^*)$ that can break witness extended emulation for $\eval'$ or an efficient adversary $\adv_{\textsf{AdaptiveRoot}}$ that can compute adaptive roots. This would contradict the existence $E'$ which is the efficient extractor for $\eval'$ or the adaptive root assumption. 
+
+ For any transcript that $P^*$ produces we check for all \textsf{PoE} invocations whether the input $(C_R,C/(C_L),q^{d+1})\in \mathcal{R}_\textsf{PoE}$. If for all transcripts this holds but $(\adv,P^*)$ break witness extended emulation then $(\adv,P^*)$ would also break witness extended emulation for $\eval'$. The transcripts of $\eval'$ contain strictly less information then the transcripts of $\eval$ and are thus no harder to extract from then from $\eval$.
+
+
+ Let $E'$ be the extractor for $\eval'$. We construct $E$ from $E'$ as an extractor for $\eval$. If for all $\textsf{PoE}$ evaluations the input $(u,w,x)$ is indeed in $\mathcal{R}_\textsf{PoE}$ then the transcripts for $\eval'$ can be derived directly from the transcripts for $E'$. $P^*$
+\end{proof}
 \begin{theorem}
 	The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>2^{\lceil \log_2(d+1) \rceil+1} p^{3 \lceil \log_2(d+1) \rceil+1}$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the adaptive root assumption and the strong RSA assumption hold for $\ggen$.
 \end{theorem}
@@ -900,21 +918,6 @@ We opted for an accessible presentation of the $\pro{Eval}$ protocol. In practic
   We extend the Polynomial Commitment scheme to handle multivariate polynomials. The idea is to simply use higher degrees of $q$ to encode the polynomial. The protocol is linear in the number of variables and logarithmic in the total degree of the polynomial. For simplicity we only present a protocol for $n$-variate polynomials where the degree in each variable is $d$. The protocol naturally extends to different degrees per variable.
 Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_n)\in \ZZ$ is an encoding of the multivariate polynomial $f(X_1,\dots,X_n)$ with maximum degree $d$. Using this encoding we can naturally derive the multi-variate commitment scheme and $\eval$ protocol. The $\eval$ protocol  computes the univariate polynomials $f(q_1,\dots,q_{n-1},X_n)$ and then uses the univariate eval protocol to reduce the claim from a claim about an $n$-variate polynomial to one about an $n-1$-variate one. At the final step the prover opens the now constant polynomial and the verifier can check the claim. For a bivariate (say $X$ and $Y$) cubic polynomial the protocol would first reduce the degree of $X$ to $0$ in two rounds of interaction and then reduce the degree of $Y$ using another two rounds.
  
- \begin{mdframed}
-\begin{minipage}{\textwidth}
-			$\pro{Eval}(\crs, \gr{C}\in \GG, z_1,\dots z_n,y \in \ZZ_p, d,n \in \NN; f(X_1,\dots,X_n)\in Z_p^n[X]) :$ 			\begin{enumerate}[nolistsep]
-			\item \pcif{n=1} 
-			\item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\params,\gr{C},z_1,y,d,q;f(X_1))$ 
-			\item \pcelse
-			\item \pcind[1] Let $f(X_n)\gets f(q_1,\dots,q_{n-1},X_n)$
-			\item \pcind[1] Let $\crs_n \gets \{\lambda,\GG,\gr{g},p,q_n\}$
-			\item \pcind[1] \prover and \verifier run the univariate $\pro{EvalBounded}(\params_n,\gr{C},z_n,y,d,q_n;f(X))$ but instead of sending $f$ in the last round, which is of size $q_n^{d+1}$, the protocol returns it's input, i.e. $\gr{C}',y',b$ and the provers witness $f'(X_1,\dots,X_{n-1})=\dec(f)$.
-			\item \pcind[1]\prover and \verifier run $\eval(\pp,C',z_1,\dots,z_{n-1},y',d,n-1;f'(X_1,\dots,X_{n-1}))$
-		    \end{enumerate}
-      \end{minipage}
-\end{mdframed}
-
- 
  \begin{mdframed}[userdefinedwidth=\textwidth]
 \begin{minipage}{\textwidth}
 	\begin{flushleft}
@@ -936,6 +939,23 @@ Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_n)\in \ZZ$ is an encoding of the multi
 			\end{flushleft}
 \end{minipage}
 \end{mdframed}
+ 
+ \begin{mdframed}
+\begin{minipage}{\textwidth}
+			$\pro{MultiEval}(\crs, \gr{C}\in \GG, z_1,\dots z_n,y \in \ZZ_p, d,n \in \NN; f(X_1,\dots,X_n)\in Z_p^n[X]) :$ 			\begin{enumerate}[nolistsep]
+			\item \pcif{n=1} 
+			\item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\params,\gr{C},z_1,y,d,q;f(X_1))$ 
+			\item \pcelse
+			\item \pcind[1] Let $f(X_n)\gets f(q_1,\dots,q_{n-1},X_n)$
+			\item \pcind[1] Let $\crs_n \gets \{\lambda,\GG,\gr{g},p,q_n\}$
+			\item \pcind[1] \prover and \verifier run the univariate $\pro{EvalBounded}(\params_n,\gr{C},z_n,y,d,q_n;f(X))$ but instead of sending $f$ in the last round, which is of size $q_n^{d+1}$, the protocol returns it's input, i.e. $\gr{C}',y',b$ and the provers witness $f'(X_1,\dots,X_{n-1})=\dec(f)$.
+			\item \pcind[1]\prover and \verifier run $\eval(\pp,C',z_1,\dots,z_{n-1},y',d,n-1;f'(X_1,\dots,X_{n-1}))$
+		    \end{enumerate}
+      \end{minipage}
+\end{mdframed}
+
+ 
+ 
 
 
 \begin{small}
