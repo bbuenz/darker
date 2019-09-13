@@ -318,7 +318,7 @@ In defining the syntax of the various types of commitment schemes, we use the fo
 A commitment scheme $\Gamma$ is a tuple $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open})$ of PPT algorithms where:
 \begin{itemize}
     \item $\pro{Setup}(1^\lambda) \rightarrow \params$ generates public parameters $\params$;
-    \item $\pro{Commit}(\params; x) \rightarrow (c; r)$ takes a secret message $x$ and outputs a public commitment $c$ and (optionally) a secret opening hint $r$ (e.g. the randomness used in the computation).
+    \item $\pro{Commit}(\params; x) \rightarrow (c; r)$ takes a secret message $x$ and outputs a public commitment $c$ and (optionally) a secret opening hint $r$ (which might or might not be the randomness used in the computation).
     \item $\pro{Open}(\params, c, x, r) \rightarrow b \in \{0, 1\}$ verifies the opening of commitment $c$ to the message $x$ provided with the opening hint $r$. 
 \end{itemize}
 
@@ -336,7 +336,7 @@ A commitment scheme $\Gamma$ is \defn{binding} if for all PPT adversaries $\adv$
 \]
 
 %\ben{We don't use the hiding property so why present?} \alan{For the ZK Eval protocol, maybe. Not sure yet.}
-
+\begin{comment}
 A commitment scheme $\Gamma$ is \defn{hiding} if for all probabilistic polynomial time adversaries $\adv=(\adv_0,\adv_1)$,
 \[
     \left|
@@ -352,6 +352,7 @@ A commitment scheme $\Gamma$ is \defn{hiding} if for all probabilistic polynomia
         \right]
     \right| \leq \negl \enspace .
 \]
+\end{comment}
 \end{definition}
 
 We now extend the syntax to polynomial commitment schemes. The following definition generalizes that of Kate~\emph{et al.}~\cite{AC:KatZavGol10} to allow interactive evaluation proofs. It also stipulates that the polynomial's degree be an argument to the protocol, contrary to Kate~\emph{et al.} where the degree is known and fixed.
@@ -360,7 +361,7 @@ We now extend the syntax to polynomial commitment schemes. The following definit
 A polynomial commitment scheme is a tuple of protocols $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ where $(\pro{Setup},$ $\pro{Commit}, \pro{Open})$ is a binding commitment scheme for a message space $R[X]$ of polynomials over some ring $R$: 
 
 \begin{itemize}
-    \item $\pro{Eval}(\params, c, z, y, d, [\mu]; f(X)) \rightarrow b \in \{0, 1\}$ is an interactive public-coin protocol between a PPT prover $P$ and verifier $V$. Both $P$ and $V$ have as input a commitment $c$, points $z, y \in R$ for the claimed input/output, and an integer $d$ for the degree. The prover additionally knows the opening of $c$ to a secret polynomial $f(X) \in R[X]$ with $\deg(f(X)) \leq d$. The protocol convinces the verifier that $f(z) = y$. \emph{In a multivariate extension of polynomial commitments, the input $\mu$ indicates the number of variables in the committed polynomial}. \alan{Isn't the number of variables fixed by the context?}
+    \item $\pro{Eval}(\params, c, z, y, d, [\mu]; f(X)) \rightarrow b \in \{0, 1\}$ is an interactive public-coin protocol between a PPT prover $\prover$ and verifier $\verifier$. Both $\prover$ and $\verifier$ have as input a commitment $c$, points $z, y \in R$ for the claimed input/output, and an integer $d$ for the degree. The prover additionally knows the opening of $c$ to a secret polynomial $f(X) \in R[X]$ with $\deg(f(X)) \leq d$. The protocol convinces the verifier that $f(z) = y$. \emph{In a multivariate extension of polynomial commitments, the input $\mu$ indicates the number of variables in the committed polynomial}.
    
 \end{itemize}
 
@@ -375,7 +376,7 @@ A polynomial commitment scheme is \defn{correct} if an honest committer can succ
     \end{array} \right] = 1 \enspace .
 \]
 
-A polynomial commitment scheme is \defn{evaluation binding} if no efficient adversary can convince the verifier that the committed polynomial $f(X)$ evaluates to different values $y_0 \neq y_1 \in R$ in the same point $z \in R$. Let $b \gets \pro{Eval}_{\langle \adv_1 \leftrightarrow \mathsf{V}\rangle}(c, z, y, d, \st)$ denote the verifier's output in an execution of this protocol with adversarial prover $\adv_1$ on public inputs $c, z, y, d$ and private adversary state $\st$. (The adversary may or may not know a witness polynomial $f(X)$). Evaluation binding requires that for all probabilistic polynomial-time adversaries $\adv = (\adv_0, \adv_1)$,
+A polynomial commitment scheme is \defn{evaluation binding} if no efficient adversary can convince the verifier that the committed polynomial $f(X)$ evaluates to different values $y_0 \neq y_1 \in R$ in the same point $z \in R$. Let $b \gets \pro{Eval}_{\langle \adv_1 \leftrightarrow \verifier\rangle}(c, z, y, d, \st)$ denote the verifier's output in an execution of this protocol with adversarial prover $\adv_1$ on public inputs $c, z, y, d$ and private adversary state $\st$. (The adversary may or may not know a witness polynomial $f(X)$). Evaluation binding requires that for all probabilistic polynomial-time adversaries $\adv = (\adv_0, \adv_1)$,
 \[
     \Pr\left[
          b_0 = b_1 \neq 0 \, \wedge \, y_0 \neq y_1 \ 
@@ -383,8 +384,8 @@ A polynomial commitment scheme is \defn{evaluation binding} if no efficient adve
        \begin{array}{l}
             \params \gets \pro{Setup}(1^\lambda) \\
             (c, z, y_0, y_1, d_0, d_1, \st_0, \st_1) \gets \adv_0(\params) \\
-            b_0 \gets \pro{Eval}_{\langle \adv_1 \leftrightarrow \mathsf{V}} \rangle(\params, c, z, y_0, d_0; \st_0) \\
-            b_1 \gets \pro{Eval}_{\langle \adv_1 \leftrightarrow \mathsf{V}} \rangle(\params, c, z, y_1, d_1; \st_1) \\
+            b_0 \gets \pro{Eval}_{\langle \adv_1 \leftrightarrow \verifier} \rangle(\params, c, z, y_0, d_0; \st_0) \\
+            b_1 \gets \pro{Eval}_{\langle \adv_1 \leftrightarrow \verifier} \rangle(\params, c, z, y_1, d_1; \st_1) \\
         \end{array}
     \right] \leq \negl \enspace .
 \]
@@ -590,7 +591,7 @@ The relation proved by $\pro{InnerProduct}$ is given below. The decommitment inf
 \right\}
 \]
 
-Unlike the opening of individual coefficients, we do not know a generic protocol for the inner product argument based solely on $\eval$. However, we do construct a simple inner-product argument in Section~\ref{section:inner_product} for our particular construction of polynomial commitments in generic groups of unknown order.
+%Unlike the opening of individual coefficients, we do not know a generic protocol for the inner product argument based solely on $\eval$. However, we do construct a simple inner-product argument in Section~\ref{section:inner_product} for our particular construction of polynomial commitments in generic groups of unknown order.
 
 \subsection{Proofs of Exponentiation}
 Wesolowski \cite{EC:Wesolowski19} introduced a simple yet powerful proof of correct exponentiation (``PoE'') in groups of unknown order. A prover can efficiently convince a verifier that a large exponentiation in such a group was done correctly. For instance, the prover wishes to convince the verifier that $\gr{w} = \gr{u}^x$ for known group elements $\gr{u}, \gr{w} \in \mathbb{G}$ and exponent $x \in \mathbb{Z}$, and the verifier wants to verify this with much less work than performing the exponentiation. To do this, the verifier samples a large enough prime $\ell$ at random and the prover provides him with $\gr{Q} \gets \gr{u}^q$ where $q = \lfloor \frac{x}{\ell} \rfloor$. The verifier then simply computes the remainder $r \gets (x \mod \ell)$ and checks that $\gr{Q}^\ell\gr{u}^r = \gr{w}$. The protocol is an argument for the relation $\mathcal{R}_\mathsf{PoE} = \left\{ \langle(\gr{u}, \gr{w}, x), \varnothing\rangle \ : \ \gr{u}^x = \gr{w} \right\}$.
@@ -622,51 +623,30 @@ assuming the adaptive root assumption (Assumption \ref{assum:adaptiveroot}) hold
 
 \alaninline{Specifying how big the soundness error is exactly, rather than just negligible, is superfluous unless you care about concrete security. If we care about concrete security, then I am surprised (and a little skeptical) that there is no security degradation in the reduction.}
 
-\begin{comment}
-\begin{figure}[!htp]
-\noindent\begin{mdframed}[userdefinedwidth=\textwidth]
-\begin{minipage}{\textwidth}
-	\begin{flushleft}
-	$\pro{PoKE2}(\gr{u}, \gr{w}; x):$
-		\begin{enumerate}[nolistsep]
-		    \item \verifier samples $\gr{g} \xleftarrow{\$} \mathbb{G}$ and sends it to \prover
-		    \item \prover computes $\gr{Z} \gets \gr{g}^x$ and sends it to \verifier
-		    \item \verifier samples $\ell \xleftarrow{\$} \primes$ and $\alpha \xleftarrow{\$} [0;2^\lambda-1)$ and sends $(\ell, \alpha)$ to \prover
-		    \item \prover computes quotient $q$ and remainder $r$ such that $x = q\ell + r$ and $r \in \{0, \ldots, \ell-1\}$
-		    \item \prover computes $\gr{Q} \gets \gr{u}^q\gr{g}^{\alpha{}q}$ and sends it to \verifier
-		    \item \verifier computes $r \gets (x \mod \ell)$ and checks that $\gr{Q}^\ell\gr{u}^r\gr{g}^{\alpha{}r} = \gr{w}\gr{Z}^\alpha$
-		    \item \pcif{}check passes \textbf{then} \textbf{return} 1 \textbf{else} \textbf{return} 0
-		\end{enumerate}
-	\end{flushleft}
-\end{minipage}
-\end{mdframed}
-\end{figure}
-\end{comment}
-
 \section{Protocols for Groups of Unknown Order}
 \label{sec:protocol}
 
 \subsection{Polynomial Encoding}
 At the heart of our protocol is an integer encoding of polynomials with bounded coefficients. The encoding can be viewed as the integer concatenation\alan{I'm not sure what `integer concatenation' means. I can concatenate strings and lists, but not integers except by interpreting them as lists of one integer each.} of the coefficients. This encoding has useful homomorphic properties which we can take advantage of. Additionally, we can represent polynomials in prime fields as integer polynomials with bounded coefficients.
 
-	Consider the set $B_{q}:=\{x | x \in \ZZ \wedge \vert x\vert  <q/2\} \subset \ZZ$ of integers with absolute value less than $q/2$. In a slight abuse of notation we write $B_{q}[X]\subset \mathbb{Z}[X]$ as the set of integer polynomials with bounded coefficients. The map $\mathsf{Enc} : \mathbb{Z}[X] \rightarrow \mathbb{Z}, \, p(X) \mapsto p(q)$ is a unique encoding of polynomial with bounded coefficients. Specifically, it is injective for the domain $B_{q}[X]$.
+Consider the set $B_{q}:=\{x | x \in \ZZ \wedge \vert x\vert  <q/2\} \subset \ZZ$ of integers with absolute value less than $q/2$. In a slight abuse of notation we write $B_{q}[X]\subset \mathbb{Z}[X]$ as the set of integer polynomials with bounded coefficients. The map $\mathsf{Enc} : \mathbb{Z}[X] \rightarrow \mathbb{Z}, \, p(X) \mapsto p(q)$ is a unique encoding of polynomial with bounded coefficients. Specifically, this map is injective for the domain $B_{q}[X]$, and it maps to the alphabet $\mathbb{Z}$. A decoding algorithm is presented below.
 	
 \begin{mdframed}
-\begin{itemize}
-	\item Domain $B_{q}[X]\subset \ZZ[X]$, Alphabet: $\ZZ$
-	\item 	$f(X):=\sum_{i=0}^{d} f_i X^i$
-	\item $\enc(f(X) \in B_{q}[X])\rightarrow  f(q) \in \ZZ$
-	\item $\dec(y \in \ZZ):$
-	\item For each $i \in [0,\lfloor \log_q(|y|)\rfloor]$ do\\
+\begin{flushleft}
+	%\item Domain $B_{q}[X]\subset \ZZ[X]$, Alphabet: $\ZZ$
+	%\item 	$f(X):=\sum_{i=0}^{d} f_i X^i$
+	%\item $\enc(f(X) \in B_{q}[X])\rightarrow  f(q) \in \ZZ$
+	$\pro{Dec}(y \in \mathbb{Z}):$
 	\begin{enumerate}[nolistsep]
-		\item Define $f_{\leq k}(X):=\sum_{j=0}^k f_j X^j$
-		\item $y \bmod q^{i+1}=\begin{cases} f_{\leq i}(q) &\text{ if } f_{\leq i}(q)\geq 0\\ q^{i+1} - f_{\leq i}(q) &\text{ if } f_{\leq i}(q)<0   \end{cases}$
-		\item  Compute $f_{\leq i}(q)\gets \begin{cases}y \bmod q^{i+1} & \text{ if }y \bmod q^{i+1}<q^{i+1}/2\\
+	    \item For each $i \in [0,\lfloor \log_q(|y|)\rfloor]$ do\\
+		\item \pcind[1] Define $f_{\leq k}(X):=\sum_{j=0}^k f_j X^j$
+		\item \pcind[1] $y \bmod q^{i+1}=\begin{cases} f_{\leq i}(q) &\text{ if } f_{\leq i}(q)\geq 0\\ q^{i+1} - f_{\leq i}(q) &\text{ if } f_{\leq i}(q)<0   \end{cases}$
+		\item \pcind[1]  Compute $f_{\leq i}(q)\gets \begin{cases}y \bmod q^{i+1} & \text{ if }y \bmod q^{i+1}<q^{i+1}/2\\
 	y-q^{i+1} \bmod q^{i+1} & \text{ if }y \bmod q^{i+1}>q^{i+1}/2 \end{cases}$ 
-		\item Compute $f_{\leq i-1}(q)$ from $y$
-		\item  Compute $f_i\in B_{q}$ as $f_i \gets \frac{f_{\leq i}(q)-f_{\leq i-1}(q)}{q^i}$.
+		\item \pcind[1] Compute $f_{\leq i-1}(q)$ from $y$
+		\item \pcind[1] Compute $f_i\in B_{q}$ as $f_i \gets \frac{f_{\leq i}(q)-f_{\leq i-1}(q)}{q^i}$.
 	\end{enumerate} 
-\end{itemize}
+\end{flushleft}
 \end{mdframed}
 
 \begin{fact}
@@ -690,7 +670,7 @@ We now present our main result:
 A polynomial commitment scheme with an efficient evaluation protocol based on a group of unknown order $\GG$. For polynomials of degree $d=\poly$ the protocol uses $\log_2(d+1)$ rounds and $O(\log(d))$ communication and verifier work.
 
 Exponentiation in groups of unknown order is a succinct and homomorphic cryptographic commitments to integers.
-Using the integer encoding of polynomials presented above we can simply commit to an integer polynomial with bounded coefficients $f(X)\in B_{q}[X]$ by computing $\gr{g}^{f(q)} \in \GG$. Note that our commitment scheme supports integer polynomials with bounded coefficient. Every polynomial in $\ZZ_p[X]$ naturally maps to an integer polynomial with coefficients in $B_{2\cdot p}$. The commitment scheme, therefore, supports committing to polynomials in $\ZZ_p[X]$ for $p<q/2$. Interestingly neither $p$ nor the degree $d$ need to be specified in the setup. As long as $q$ and ``big enough'' they can be freely chosen. In class groups there exists an efficient algorithm to compute square roots. The adversary can, therefore, also commit to dyadic rationals which are rational numbers where the denominator is a power of two. Since every dyadic rational corresponds to a unique element in $\ZZ_p$ we can simply extend the encoding to work for polynomials with bounded dyadic rational coefficients. The only difference is that we require $q$ to be odd such that the prover cannot commit to polynomials with negative powers. We will discuss the relationship between $p$, $d$ and $q$ in more detail later but first we describe the setup, commitment and opening algorithms:
+Using the integer encoding of polynomials presented above we can simply commit to an integer polynomial with bounded coefficients $f(X)\in B_{q}[X]$ by computing $\gr{g}^{f(q)} \in \GG$. Note that our commitment scheme supports integer polynomials with bounded coefficient. Every polynomial in $\ZZ_p[X]$ naturally maps to an integer polynomial with coefficients in $B_{2\cdot p}$. The commitment scheme, therefore, supports committing to polynomials in $\ZZ_p[X]$ for $p<q/2$. Interestingly, neither $p$ nor the degree $d$ need to be specified in the setup. As long as $q$ and ``big enough'' they can be freely chosen. In class groups there exists an efficient algorithm to compute square roots. The adversary can therefore also commit to dyadic rationals. Since every dyadic rational corresponds to a unique element in $\ZZ_p$ we can simply extend the encoding to work for polynomials with bounded dyadic rational coefficients. The only difference is that we require $q$ to be odd such that the prover cannot commit to polynomials with negative powers. We will discuss the relationship between $p$, $d$ and $q$ in more detail later but first we describe the setup, commitment and opening algorithms:
 
 
 \begin{mdframed}[userdefinedwidth=\textwidth]
@@ -705,7 +685,7 @@ Using the integer encoding of polynomials presented above we can simply commit t
 			\item Pick a sufficiently large and odd $q\in \NN$ (See discussion above)
 			\item $\pcreturn \params = (\secpar,\GG,\gr{g},p,q)$
 		\end{enumerate}
-	$\pro{Commit}(\crs;f(X) \in B_{2\cdot p}[X]):$ \pccomment{$f(X)\equiv \bar{f}(X) \mod p$ for  $\bar{f}(X)\ZZ_p[X]$}
+	$\pro{Commit}(\crs;f(X) \in B_{2\cdot p}[X]):$ \pccomment{$f(X)\equiv \bar{f}(X) \mod p$ for  $\bar{f}(X)\in \ZZ_p[X]$}
 		\begin{enumerate}[nolistsep]
 			\item $\gr{C} \gets \gr{g}^{f(q)}$
 			\item $\pcreturn (\gr{C};f(X))$
@@ -715,7 +695,7 @@ Using the integer encoding of polynomials presented above we can simply commit t
 		    \item \prover sends $f(X)$ to \verifier.
 		    				\item \verifier computes $\bar{f}(X) \gets f(X) \mod p$
 		    \item \verifier checks that $f(X)\in B_{q}[X]$
-			\item \verifier checks that $\gr{g}^{f(q)} = \gr{C}$ \pccomment{Can be outsourced using $\textsf{PoE}(\gr{g},C,f(q))$}
+			\item \verifier checks that $\gr{g}^{f(q)} = \gr{C}$ \pccomment{Can be outsourced using $\textsf{PoE}(\gr{g},\gr{C},f(q))$}
 			\item \pcif all checks pass \textbf{then} \pcreturn $1$ \textbf{else} \pcreturn $0$
 		\end{enumerate}
 		\end{flushleft}
@@ -731,9 +711,11 @@ If the prover wants to show, in addition to the previous, that $f(z)=y\bmod p$, 
 
 The proof recursively repeats this reduction by using $f'(X),z,y'$ and $d'$ as the input. In the final step, the prover simply sends the constant polynomial $f_0$ and the verifier can check that $f_0 \equiv y \bmod p$. Note that $f_0< p^{\log_2(d+1)}$ so an integer encoding of $f_0$ requires at most $\lceil \log_2(d+1) \cdot \log_2(p)\rceil$ bits.
 
-Using the integer encoding (with a sufficiently large $q>p^{\log_2(d+1)}$) and exponentiation in groups of unknown order as the cryptographic compilers, we can derive an efficient $\eval$ protocol with logarithmic communication. To achieve verifier efficiency we need to build an efficient check that $f(X) = f_L(X) + X^{d'+1} f_R(X)$ given committed $f(X), f_L(X)$ and $f_R(X)$. Concretely, the verifier checks that $\gr{C} = \gr{C}_L \gr{C}_R^{q^{d'+1}}$ for $\gr{C}=\gr{g}^{f(q)}$, $\gr{C}_L=\gr{g}^{f_L(q)}$ and $\gr{C}_R=\gr{g}^{f_R(q)}$. Fortunately, Wesolowski~\cite{EC:Wesolowski19} and Pietrzak~\cite{EPRINT:Pietrzak18b} provide efficient proofs of exponentiations \textsf{PoE} to achieve a similar in the context of verifiable delay functions~\cite{C:BBBF18}. A \textsf{PoE} can be used here to outsource the verification check to the prover. Wesolowski's \textsf{PoE} has constant communication and verification time and is thus particularly well suited here.
+Using the integer encoding (with a sufficiently large $q>p^{\log_2(d+1)}$) and exponentiation in groups of unknown order as the cryptographic compilers, we can derive an efficient $\eval$ protocol with logarithmic communication. To achieve verifier efficiency we need to build an efficient check that $f(X) = f_L(X) + X^{d'+1} f_R(X)$ given committed $f(X), f_L(X)$ and $f_R(X)$. Concretely, the verifier checks that $\gr{C} = \gr{C}_L \gr{C}_R^{q^{d'+1}}$ for $\gr{C}=\gr{g}^{f(q)}$, $\gr{C}_L=\gr{g}^{f_L(q)}$ and $\gr{C}_R=\gr{g}^{f_R(q)}$.
 
-We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pro{EvalBounded} which additionally allows the specification of a bound on the size of the coefficients (other than $p$).  This can be particularly useful if commitments where homomorphically combined prior to the execution of $\pro{EvalBounded}$. Recall that any homomorphic operation increases the bound on the size of the coefficients.
+The issue here is the derivation of $\gr{C}_R^{q^{d'+1}}$ from $\gr{C}_R$, because $q^{d'+1}$ is large and the verifier should not be burdened with the expense task of computing this exponentiation naïvely. Fortunately, Wesolowski~\cite{EC:Wesolowski19} and Pietrzak~\cite{EPRINT:Pietrzak18b} provide efficient proofs of exponentiations (\textsf{PoE}) to solve a similar problem in the context of verifiable delay functions~\cite{C:BBBF18}. Specifically, the prover provides the verifier with both the input and the output of the exponentiation, and after some interaction the verifier only needs to perform exponentiations with much smaller exponents to verify their correctness. Wesolowski's \textsf{PoE} has constant communication and verification time and is thus particularly well suited here.
+
+We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pro{EvalBounded} which additionally allows the specification of a bound on the size of the coefficients (other than $p$).  This can be particularly useful if commitments were homomorphically combined prior to the execution of $\pro{EvalBounded}$. Recall that any homomorphic operation increases the bound on the size of the coefficients.
 
 %This intuitive description omits special care afforded to the case where the degree of the polynomial is not one less than a power of two. To take care of this, the left polynomial is guaranteed to have odd degree (unless in the last step when it is zero), and the right half polynomial $f_R(X)$ is shifted to the right by one digit whenever its degree is even. The evaluation $y_R$ and commitment $\gr{C}_R$ are adapted accordingly.
 
@@ -779,6 +761,8 @@ We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pr
 	The polynomial commitment scheme is correct for polynomials in $\ZZ_p$ of degree at most $d$ if $\mu_{p,d}\geq  p^{\lceil \log_2(d+1)\rceil+1}$.
 \end{lemma}
 \begin{proof}
+    Consider the following constraints for a tuple $(\params, \gr{C}, z, y, d, b; f(X))$: a) $\deg(f(X)) \leq d$; b) $\pro{Open}(\params, \gr{C}, f(X) \bmod p, f(X)) = 1$; c) $\forall i \in [0;\deg(f(X))]$, $0 \leq f_i < b$; d) $f(z) = y$.
+
 	We need to ensure that $q$ is larger than $f$ the final value sent by the prover. We show this by showing that $b$ is a bound  In each round the bound on the coefficient size grows by a factor of $p$, for example: If $f'_0=\alpha f_0 + f_1$ for $\alpha \in [0,p-1]$ and $f_0,f_1 \in [0,b]$ then $f'_0\in [0,p\cdot b]$.
 	
 	The recursion has $\lceil \log_2(d+1)\rceil$ rounds which gives us a bound $b$ of $p^{\lceil \log_2(d+1)\rceil+1}$. If $f(z)=y \bmod p$ then $f'(z)=y' \bmod p$. $\textsf{PoE}$ itself is a perfectly complete argument. The rest of the protocol's correctness is immediate.
@@ -787,13 +771,13 @@ We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pr
 \end{proof} 
  
 \begin{lemma}
-	The polynomial commitment scheme is binding if either the order assumption or the strong RSA assumption hold.\alan{why not just order assumption? SRA is superfluous.}
+	The polynomial commitment scheme is binding if either the order assumption or the strong RSA assumption hold.
 \end{lemma}
 \begin{proof}
-    Assume that there is an adversary that breaks the binding property of the scheme. Specifically, assume that some probabilistic polynomial time algorithm $\adv$ takes as input $\params$ and outputs $\gr{C} \in \GG, f(X) \in B_{q}[X], f'(X)\in B_{q}[X]$ such that with non-negligble probability $\pro{Open}(\params, \gr{C}, f(X)) = \pro{Open}(\params, \gr{C}, f'(X)) = 1$ and $f(X) \neq f'(X)$.\alan{$\mathsf{Open}$ takes 4 arguments not 3. It needs both an element from $\mathbb{Z}_p[X]$ and one from $\mathbb{Z}[X]$.} We proceed to show that this implies a violation of the order assumption~(Assumption \ref{assum:order}) and the strong RSA assumption~(Assumption \ref{assum:strongRSA}). The assumptions are incomparable so we show that either suffices to achieve the binding property of the commitment scheme.
+    Assume that there is an adversary that breaks the binding property of the scheme. Specifically, assume that some probabilistic polynomial time algorithm $\adv$ takes as input $\params$ and outputs $\gr{C} \in \GG, f(X) \in B_{q}[X], f'(X)\in B_{q}[X]$ such that with non-negligble probability $\pro{Open}(\params, \gr{C}, \bar{f}(X), f(X)) = \pro{Open}(\params, \gr{C}, \bar{f'}(X), f'(X)) = 1$ and $\bar{f}(X) \neq \bar{f'}(X)$. We proceed to show that this implies a violation of the order assumption~(Assumption \ref{assum:order}) and the strong RSA assumption~(Assumption \ref{assum:strongRSA}). The assumptions are incomparable so we show that either suffices to achieve the binding property of the commitment scheme.
     
-	Let $h(X)=f(X)-f'(X) \in \ZZ[X]$; this is a polynomial of degree at most $\max(f(X), f'(X))$. Since $\gr{g}^{f(q)}=\gr{g}^{f'(q)}=\gr{C}$ we have that $\gr{g}^{h(q)}=1$. Note that the coefficients of $f(X)$ and $f'(X)$ are all less than $q/2$ in absolute value. By triangle inequality we have that the coefficients of $h(X)$ are less than $q$. This means that $h(q)=0 \implies h(X)=0$. However by assumption $h(X)\neq 0$ so $h(q)\neq 0$ is a multiple of the order of $\gr{g}$. This directly breaks the order assumption and we can also create an adversary $\adv_{RSA}$ that breaks the strong RSA assumption. To do so the $\adv_{RSA}$ picks an odd prime $\ell$ that is co-prime with $h(q)$ and computes $\gr{u}\gets \gr{g}^{\ell^{-1} \bmod h(q)}$ as the $\ell$th root of $\gr{g}$.
-	\end{proof}
+	From $\bar{f}(X) \neq \bar{f'}(X)$ it follows that ${f}(X) \neq {f'}(X)$. Let $h(X)=f(X)-f'(X) \in \ZZ[X]$; this is a polynomial of degree at most $\max(f(X), f'(X))$. Since $\gr{g}^{f(q)}=\gr{g}^{f'(q)}=\gr{C}$ we have that $\gr{g}^{h(q)}=1$. Note that the coefficients of $f(X)$ and $f'(X)$ are all less than $q/2$ in absolute value. By triangle inequality we have that the coefficients of $h(X)$ are less than $q$.\alan{Less than $q$ in absolute value. But then unique decoding isn't guaranteed anymore.} This means that $h(q)=0 \implies h(X)=0$. However by assumption $h(X)\neq 0$ so $h(q)\neq 0$ is a multiple of the order of $\gr{g}$. This directly breaks the order assumption and we can also create an adversary $\adv_{RSA}$ that breaks the strong RSA assumption. To do so the $\adv_{RSA}$ picks an odd prime $\ell$ that is co-prime with $h(q)$ and computes $\gr{u}\gets \gr{g}^{\ell^{-1} \bmod h(q)}$ as the $\ell$th root of $\gr{g}$.
+\end{proof}
 	
 \paragraph{Proof idea}
 We now prove the main security theorem, which states that the polynomial commitment scheme is extractable. Consider the information theoretic version of the eval protocol, where the prover sends the integer polynomials $f_L(X)$ and $f_R(X)$ in each round but the verifier does not read them.
