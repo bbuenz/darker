@@ -761,13 +761,11 @@ We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pr
 	The polynomial commitment scheme is correct for polynomials in $\ZZ_p$ of degree at most $d$ if $\mu_{p,d}\geq  p^{\lceil \log_2(d+1)\rceil+1}$.
 \end{lemma}
 \begin{proof}
-    Consider the following constraints for a tuple $(\params, \gr{C}, z, y, d, b; f(X))$: a) $\deg(f(X)) \leq d$; b) $\pro{Open}(\params, \gr{C}, f(X) \bmod p, f(X)) = 1$; c) $\forall i \in [0;\deg(f(X))]$, $0 \leq f_i < b$; d) $f(z) = y$. The honest prover 
+    Consider the following constraints for a tuple $(\params, \gr{C}, z, y, d, b; f(X))$: a) $\deg(f(X)) \leq d$; b) $\pro{Open}(\params, \gr{C}, f(X) \bmod p, f(X)) = 1$; c) $\forall i \in [0;\deg(f(X))]$, $0 \leq f_i < b$; d) $f(z) = y$. The honest prover activates $\pro{EvalBounded}$ with a tuple where the constraints are satisfied. In recursion steps where $d+1$ is odd, the honest prover activates a recursion step on a new tuple that also satisfies the constraints because of how the variables were computed. In non-terminal recursion steps where $d+1$ is even, the verifier's check that $y = y_L + z^{d'+1} \cdot y_R$ succeeds due to the way the new variables were computed. The verifier's checks occurring in the $\mathsf{PoE}$ succeed due to how $d', \gr{C}_L$ and $\gr{C}_R$ were computed and due to the correctness of $\mathsf{PoE}$. So in these recursion steps, the honest prover will reach the final line which activates the next recursion step with input $(\params, \gr{C}', z, y', d', b'; f'(X))$. Due to the way the new variables were computed, the same constraints hold for this tuple. In every recursion step, $d$ is either increased by one when it is even, or it is decreased by more than 1. Since $d$ starts as a positive integer, the terminal recursion step $d=0$ must eventually be reached.
 
-	We need to ensure that $q$ is larger than $f$ the final value sent by the prover. We show this by showing that $b$ is a bound  In each round the bound on the coefficient size grows by a factor of $p$, for example: If $f'_0=\alpha f_0 + f_1$ for $\alpha \in [0,p-1]$ and $f_0,f_1 \in [0,b]$ then $f'_0\in [0,p\cdot b]$.
+	What remains to be shown is that in the terminal recursion step, all the verifier's checks pass. The verifier's checks in lines 4---6 follow immediately from the constraints' satisfaction. The check in line 3 passes because in each round the bound on the coefficient size grows by a factor of $p$. For example: If $f'_0=\alpha f_0 + f_1$ for $\alpha \in [0,p-1]$ and $f_0,f_1 \in [0,b]$ then $f'_0\in [0,p\cdot b]$. The recursion has $\lceil \log_2(d+1)\rceil$ rounds which gives us a bound on $b$ of $p^{\lceil \log_2(d+1)\rceil+1}$. 
 	
-	The recursion has $\lceil \log_2(d+1)\rceil$ rounds which gives us a bound $b$ of $p^{\lceil \log_2(d+1)\rceil+1}$. If $f(z)=y \bmod p$ then $f'(z)=y' \bmod p$. $\textsf{PoE}$ itself is a perfectly complete argument. The rest of the protocol's correctness is immediate.
-	
-\alaninline{I don't find this proof convincing. How is it that the prover's capacity to prove a truth holds throughout the recursion even though the statement that's being proven changes? I think demonstrating this requires an inductive argument.}
+	Since all the verifier's checks pass, the verifier outputs 1.
 \end{proof} 
  
 \begin{lemma}
