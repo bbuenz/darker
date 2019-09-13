@@ -761,7 +761,7 @@ We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pr
 	The polynomial commitment scheme is correct for polynomials in $\ZZ_p$ of degree at most $d$ if $\mu_{p,d}\geq  p^{\lceil \log_2(d+1)\rceil+1}$.
 \end{lemma}
 \begin{proof}
-    Consider the following constraints for a tuple $(\params, \gr{C}, z, y, d, b; f(X))$: a) $\deg(f(X)) \leq d$; b) $\pro{Open}(\params, \gr{C}, f(X) \bmod p, f(X)) = 1$; c) $\forall i \in [0;\deg(f(X))]$, $0 \leq f_i < b$; d) $f(z) = y$. The honest prover activates $\pro{EvalBounded}$ with a tuple where the constraints are satisfied. In recursion steps where $d+1$ is odd, the honest prover activates a recursion step on a new tuple that also satisfies the constraints because of how the variables were computed. In non-terminal recursion steps where $d+1$ is even, the verifier's check that $y = y_L + z^{d'+1} \cdot y_R$ succeeds due to the way the new variables were computed. The verifier's checks occurring in the $\mathsf{PoE}$ succeed due to how $d', \gr{C}_L$ and $\gr{C}_R$ were computed and due to the correctness of $\mathsf{PoE}$. So in these recursion steps, the honest prover will reach the final line which activates the next recursion step with input $(\params, \gr{C}', z, y', d', b'; f'(X))$. Due to the way the new variables were computed, the same constraints hold for this tuple. In every recursion step, $d$ is either increased by one when it is even, or it is decreased by more than 1. Since $d$ starts as a positive integer, the terminal recursion step $d=0$ must eventually be reached.
+    Consider the following constraints for a tuple $(\params, \gr{C}, z, y, d, b; f(X))$: a) $\deg(f(X)) \leq d$; b) $\pro{Open}(\params, \gr{C}, f(X) \bmod p, f(X)) = 1$; c) $\forall i \in [0;\deg(f(X))]$, $0 \leq f_i < b$; d) $f(z) = y$. The honest prover activates $\pro{EvalBounded}$ with a tuple where the constraints are satisfied. In recursion steps where $d+1$ is odd, the honest prover activates a recursion step on a new tuple that also satisfies the constraints because of how the variables were computed. In non-terminal recursion steps where $d+1$ is even, the verifier's check that $y = y_L + z^{d'+1} \cdot y_R$ succeeds due to the way the new variables were computed. The verifier's checks occurring in the $\mathsf{PoE}$ succeed due to how $d', \gr{C}_L$ and $\gr{C}_R$ were computed and due to the correctness of $\mathsf{PoE}$. So in these recursion steps, the honest prover will reach the final line which activates the next recursion step with input $(\params, \gr{C}', z, y', d', b'; f'(X))$. Due to the way the new variables were computed, the same constraints hold for this tuple. In every recursion step, $d$ is either increased by one when it is even, or it is decreased by $(d+1)/2 > 1$. Since $d$ starts as a positive integer, the terminal recursion step $d=0$ must eventually be reached.
 
 	What remains to be shown is that in the terminal recursion step, all the verifier's checks pass. The verifier's checks in lines 4---6 follow immediately from the constraints' satisfaction. The check in line 3 passes because in each round the bound on the coefficient size grows by a factor of $p$. For example: If $f'_0=\alpha f_0 + f_1$ for $\alpha \in [0,p-1]$ and $f_0,f_1 \in [0,b]$ then $f'_0\in [0,p\cdot b]$. The recursion has $\lceil \log_2(d+1)\rceil$ rounds which gives us a bound on $b$ of $p^{\lceil \log_2(d+1)\rceil+1}$. 
 	
@@ -794,7 +794,7 @@ Let $\eval'$ be the protocol that is identical to $\eval$ but in line \ref{line:
 \end{lemma}
 \begin{proof}
 We show that if an extractor $E$ exists for the protocol $\eval'$ then either we can construct $E'$ or construct an adversary $\adv_{\textsf{AdaptiveRoot}}$ for the adaptive root assumption. 
-For each PPT adversary $(\adv,P^*)$, we generate $\crs\sample \setup(\lambda)$ and initiate $\adv_{\textsf{AdaptiveRoot}}(\crs)$. $E$ will receive a polynomial number of transcripts. Any transcript that $\verifier$ accepts contains $\lceil \log(d+1)\rceil$ $\textsf{PoE}s$ executions. If for any $\textsf{PoE}$ the instance $(\gr{C}_R,\gr{C}/\gr{C}_{L},q^{d'+1})\not\in\mathcal{R}_{\textsf{PoE}}$ then we can construct $\adv_{\textsf{AdaptiveRoot}}(\crs)$ that computes an adaptive root in $\GG\sample \ggen$. This happens with negligible probability per $\textsf{PoE}$ execution. Since the adversary produces at most a polynomial number of transcripts and each transcript contains only a logarithmic number of $\textsf{PoE}$ we have that with overwhelming probability, under the adaptive root assumption, no such event can happen. 
+For each PPT adversary $(\adv,P^*)$, we generate $\crs\sample \setup(\lambda)$ and initiate $\adv_{\textsf{AdaptiveRoot}}(\crs)$. $E$ will receive a polynomial number of transcripts.\alan{I don't see why this holds. You can't make assumptions about $E$; you have to show how to build $E'$ given black box access to $E$. In fact, I don't even see why transcripts are relevant; both $E$ and $E'$ are supposed to interact with $\prover^*$.} Any transcript that $\verifier$ accepts contains $\lceil \log(d+1)\rceil$ $\textsf{PoE}s$ executions. If for any $\textsf{PoE}$ the instance $(\gr{C}_R,\gr{C}/\gr{C}_{L},q^{d'+1})\not\in\mathcal{R}_{\textsf{PoE}}$ then we can construct $\adv_{\textsf{AdaptiveRoot}}(\crs)$ that computes an adaptive root in $\GG\sample \ggen$. This happens with negligible probability per $\textsf{PoE}$ execution. Since the adversary produces at most a polynomial number of transcripts and each transcript contains only a logarithmic number of $\textsf{PoE}$ we have that with overwhelming probability, under the adaptive root assumption, no such event can happen. 
 This means that all transcripts are equivalent to having the verifier directly check $(\gr{C}_R,\gr{C}/\gr{C}_{L},q^{d'+1})\in\mathcal{R}_{\textsf{PoE}}$. Now we forward all these transcripts, without the $\textsf{PoE}$ to the $\eval'$ extractor $E'$. By assumption, $E'$ succeeds with overwhelming probability on all transcripts $\tr$ such that $\adv(\tr)=1$. and $E$ can simply output the same witnesses as $E'$. $E$ will therefore be a valid extractor for the protocol $\eval$ which shoes that $\eval$ has witness extended emulation and by definition so does the polynomial commitment scheme.
 
  adversary $(\adv,P^*)$ can break the witness extended emulation for $\eval$ then there exists an adversary $(\adv,P^*)$ that can break witness extended emulation for $\eval'$ or an efficient adversary $\adv_{\textsf{AdaptiveRoot}}$ that can compute adaptive roots. This would contradict the existence $E'$ which is the efficient extractor for $\eval'$ or the adaptive root assumption. 
@@ -873,20 +873,21 @@ First consider all the $\textsf{PoE}$ executions in all transcripts. There are $
 
 {\it Note 1.} The extractability proof shows that the extractor is successful whenever the coefficients of the prover's polynomial are bounded in absolute value by $2^ip^{\lceil \log_2(d_{\it max} + 1) \rceil+i}$ or, after the final induction step, by $2^{\lceil \log_2(d_{\it max} + 1) \rceil}p^{2\lceil \log_2(d_{\it max} + 1) \rceil}$. In other words, prover who starts with a polynomial with at least one of the coefficients outside of this range, will succeed with negligible probability. However, the proof fails to cover what happens when he selects a polynomial within this range but outside $[0;p-1]$. As per correctness, his success is only guaranteed if all coefficients lie within this last range. Additionally this growing bound supplies in turn a lower bound on $q$. The coefficients that are too large in absolute value should percolate along with the recursion, remaining outside the bounds even after multiplication by a random $\alpha$. The set of possible coefficients must therefore be a factor $2^\lambda$ larger than the bounded interval. And therefore, $q > 2^{\lambda + \lceil \log_2(d_{\it max} + 1) \rceil}p^{2\lceil \log_2(d_{\it max} + 1) \rceil}$.
 
-
-
-
 \subsection{Discussion and Optimizations}
 
 We opted for an accessible presentation of the $\pro{Eval}$ protocol. In practice, it might make sense to apply certain optimizations.
 
-\textbf{Precomputation.} The prover has to compute powers of $\gr{g}$ as large as $q^d$. While this can be done in linear time, this expense can be shifted to a preprocessing phase in which all elements $\gr{g}^{q^i}, i \in \{1, \ldots, d_{\it max}\}$ are computed.
+\textbf{Precomputation.} The prover has to compute powers of $\gr{g}$ as large as $q^d$. While this can be done in linear time, this expense can be shifted to a preprocessing phase in which all elements $\gr{g}^{q^i}, i \in \{1, \ldots, d_{\it max}\}$ are computed. In addition to reducing the prover's workload, this optimization enables parallelizing it. The elements $\gr{g}^{q^i}$ can themselves be adjoined with non-interactive $\mathsf{PoE}$s to establish their correct computation.
+
+\textbf{Joining $\mathsf{PoE}$s.} Instead of running each $\mathsf{PoE}$ separately in the order they occur, it pays to postpone to the end where they can be aggregated. Boneh~\emph{et al.} provide an extension to $\mathsf{PoE}$ called $\mathsf{PoHP}$ (proof of homomorphism preimage) to accomplish exactly this task~\cite[\S A.1]{C:BonBunFis19}. Instead of transmitting $\lceil \log_2(d + 1)\rceil $ primes $\ell$ and as many group elements $\mathsf{Q}$, this optimization requires the transmission of only one of each.
+
+\textbf{Early termination.} The protocol specifies the recursion ends when $d=0$, but the communication cost might be reduced if it terminates earlier. This reduction holds when the size of the fewer group elements $\gr{C}_L$ and $\gr{C}_R$ outweigh the size of the larger polynomial $f(X)$ instead of the constant $f$.
+
+\textbf{Non-interactive.} All the challenges of the verifier are public coin. Therefore, the protocol can be made non-interactive in the random oracle model with the Fiat-Shamir heuristic~\cite{C:FiaSha86}.
+
+\textbf{Joining $\mathsf{Eval}$s.} While the polynomial commitment scheme might be useful in a standalone context, it is certainly useful as a primitive tool applied in multiple places in a SNARK construction. In such cases, the scheme's homomorphic properties enable another reduction of the bandwidth cost. Instead of proving $k$ evaluations of $k$ polynomials, it suffices to state $k$ evaluation claims and proceed to prove one evaluation of a random linear combination of the $k$ polynomials, with the random weights being supplied by the verifier. If the points $z$ in which the evaluations are queried, are different, then the batched protocol must account for different $(y_i, y_{L,i}, y_{R,i})$ tuples in every round, one for each point $z_i$. The communication cost scales linearly with the number of distinct evaluation points, but the amortization technique remains concretely effective as the group elements dominates the communication cost for a single standalone protocol.
 
 \begin{enumerate}
-	\item Precompute $g^{q^i}$ to use parallelism etc.
-	\item join PoEs
-	\item early termination
-	\item Parallel Evals using different base elements \emph{e.g.}, $\gr{g}$ and $\gr{h}$. Merge commitments.
 	\item ZK
 	\item SNARK without falsifiable assumptions
 	\item First polynomial commitment scheme with constant size parameters
@@ -1114,6 +1115,93 @@ We use this property to realize protocols for extracting inner products. A minor
 In the full version of the paper.
 \end{proof}
 
+\section{Generic Protocols for Polynomial Commitment Schemes}
+
+We study here some protocols that make use of a polynomial commitment scheme as a black box, without making any assumptions about homomorphic properties or the underlying computational hardness problems.
+
+\subsection{Reversed Coefficients}
+
+It is quite straightforward to show that two commitments represent polynomials with the same coefficients but in reverse order. Suppose $f(X) = \sum_{i=0}^d f_i X^i$ and $\bar{f}(X) = \sum_{i=0}^d f_{d-i}X^i$ are two polynomials with the same coefficients but in reverse order. Then the relation $\bar{f}(X) = X^d \cdot f(X^{-1})$ holds for all $X \in \mathbb{Z}_p \backslash \{0\}$. This relation can be tested probabilistically by choosing a random $z \xleftarrow{\$} \mathbb{Z}_p \backslash \{0\}$ and opening the evaluations $f(z)$ and $\bar{f}(z)$. This observation gives rise to the protocol $\pro{Reverse}(\params, \gr{C}_f, \gr{C}_{\bar{f}}; f(X)) \rightarrow b \in \{0,1\}$ which proves that $\gr{C}_f$ and $\gr{C}_{\bar{f}}$ are indeed commitments to polynomials with the same coefficients but in reverse order.
+
+\begin{figure}[!htp]
+\noindent\begin{mdframed}[userdefinedwidth=\textwidth]
+\begin{minipage}{\textwidth}
+	\begin{flushleft}
+	$\pro{Reverse}(\params, \gr{C}_{f}, \gr{C}_{\bar{f}}; {f}(X)):$ \pccomment{$\gr{C}_f = \gr{g}^{\sum f_i q^i}$ whereas $\gr{C}_{\bar{f}} = \gr{g}^{\sum f_{d-i} q^i}$}
+		\begin{enumerate}[nolistsep]
+		    \item $\verifier$ samples $z \xleftarrow{\$} \mathbb{Z}_p \backslash \{0\}$ and sends $z$ to $\prover$
+		    \item $\prover$ computes $y \leftarrow f(z)$ and $\bar{y} \leftarrow \bar{f}(z^{-1})$ and sends $(y, \bar{y})$ to $\verifier$
+		    \item $\prover$ and $\verifier$ run $\pro{Eval}(\gr{C}_f, z, y, d; f(X))$ and $\pro{Eval}(\gr{C}_{\bar{f}}, z, \bar{y}, d; \bar{f}(X))$ \pccomment{$\bar{f}(X) = \sum_i f_{d-i} X^i$}
+		    \item $\verifier$ checks that $y = z^d \bar{y}$
+		    \item \pcif{}all checks pass \textbf{then} \textbf{return} 1 \textbf{else} \textbf{return} 0
+		\end{enumerate}
+	\end{flushleft}
+\end{minipage}
+\end{mdframed}
+\end{figure}
+
+\begin{lemma}
+    The protocol $\pro{Reverse}$ is an argument of knowledge for the relation 
+    \[
+        \mathcal{R}_\mathsf{Rev}(\params) = \left\{
+            \langle ( \gr{C}_f, \gr{C}_{\bar{f}} ), (\mathbf{f}, r_f, r_{\bar{f}})\rangle \ : \ \begin{array}{l}
+                \mathbf{f} \in \mathbb{Z}_p^d \\
+                \pro{Open}(\params, \gr{C}_f, \sum_{i=0}^d f_i X^i, r_f) = 1 \\
+                \pro{Open}(\params, \gr{C}_{\bar{f}}, \sum_{i=0}^d f_{d-i} X^i, r_{\bar{f}}) = 1 
+            \end{array}
+        \right\} \enspace .
+    \]
+\end{lemma}
+
+\begin{proof}
+Full version / appendix.
+\end{proof}
+
+\subsection{Coefficient Extraction}
+
+\subsection{Inner Product}
+
+Using the $\pro{Reverse}$ and $\pro{OpenIndex}$ protocols as subprotocols, it is straightforward to construct a protocol to prove that a given scalar is the inner product of the coefficient vectors of two committed polynomiails. To see this, observe that if $\bar{g}(X)$ is the polynomial with the same coefficients as $g(X)$ but in reverse order, and if both $\bar{g}(X)$ and $f(X)$ have degree $d$, then the coefficient of the monomial $X^d$ in the polynomial $f(X) \cdot \bar{g}(X)$ is exactly the inner product between $\mathbf{f}$ and $\mathbf{g}$. This gives rise to the protocol $\pro{InnerProduct}(\params, \gr{C}_{f}, \gr{C}_{\bar{g}}, a; {f}(X), {\bar{g}}(X)) \rightarrow b \in \{0,1\}$, which proves that $a = \langle \mathbf{f}, \mathbf{g} \rangle$. Note that this protocol assumes that $\gr{C}_{\bar{g}}$ is a commitment to the polynomial $\bar{g}(X)$, which has the same coefficients as $g(X)$ but in reverse order. Protocol $\pro{Reverse}$ can be used to establish that two commitments $\gr{C}_g$ and $\gr{C}_{\bar{g}}$ represent two polynomials with the same coefficients but in reversed order.
+
+\begin{figure}[!htp]
+\noindent\begin{mdframed}[userdefinedwidth=\textwidth]
+\begin{minipage}{\textwidth}
+	\begin{flushleft}
+	$\pro{InnerProduct}(\params, \gr{C}_{{f}}, \gr{C}_{\bar{g}}, a; f(X), \bar{g}(X)):$ 
+		\begin{enumerate}[nolistsep]
+		    \item $\prover$ computes $h(X) \gets f(X) \cdot \bar{g}(X)$ and $(\gr{C}_h; r_h) \gets \pro{Commit}(\params, h(X))$
+		    \item \prover sends $\gr{C}_h$ to \verifier
+		    \item \verifier samples $z \xleftarrow{\$} \mathbb{Z}_p$ and sends $z$ to \prover
+		    \item \prover computes $y_f \gets f(z)$ and $y_{\bar{g}} \gets \bar{g}(z)$ and $y_h \gets h(z)$ and sends $(y_f, y_{\bar{g}}, y_h)$ to \verifier
+		    \item \prover and \verifier run $\pro{Eval}(\params, \gr{C}_f, z, y_f, d; f(X))$ and $\pro{Eval}(\params, \gr{C}_{\bar{g}}, z, y_{\bar{g}}, d; \bar{g}(X))$ and $\pro{Eval}(\params, \gr{C}_h, z, y_f, d; h(X))$
+		    \item \verifier checks that $y_f \cdot y_{\bar{g}} = y_h$
+		    \item \prover and \verifier run $\pro{OpenIndex}(\params, \gr{C}_h, a, d; h(X))$
+		    \item \pcif{}all checks pass \textbf{then} \textbf{return} 1 \textbf{else} \textbf{return} 0
+		\end{enumerate}
+	\end{flushleft}
+\end{minipage}
+\end{mdframed}
+\end{figure}
+
+\begin{lemma}
+    Protocol $\pro{InnerProduct}$ is an argument of knowledge for the relation
+\[\mathcal{R}_\mathsf{IP}(\params) = \left\{
+    \langle(\gr{C}_{f}, \gr{C}_{\bar{g}}, a), ({f}(X), \bar{g}, r_f, r_{\bar{g}})\rangle \ : \     \begin{array}{l}
+            \mathbf{f}, \mathbf{\bar{g}} \in \mathbb{Z}_p^{d+1} \\
+            \langle \mathbf{f}, \mathbf{g} \rangle = a \\
+            \pro{Open}(\params, \gr{C}_{f}, {f}(X), r_f) = 1 \\
+            \pro{Open}(\params, \gr{C}_{\bar{g}}, {\bar{g}}(X), r_{\bar{g}}) = 1
+        \end{array}
+    \right\} \enspace .
+\]
+\end{lemma}
+
+\begin{proof}
+Full version / appendix.
+\end{proof}
+
+
+
 \begin{comment}
 \section{Security}
 
@@ -1166,7 +1254,7 @@ For $d>0$ we have $g^{\hat{y}}=C=C_0^{\alpha}C_1$. Rewinding once we get
 
 
 
-
+\begin{comment}
 \section{Zero knowledge polynomial commitment} 
 This section sketches how to make the polynomial commitment scheme zero knowledge. 
 
@@ -1195,7 +1283,7 @@ However, the solution is still simple. The prover creates hiding commitments $C_
 The protocol then proceeds on modified commitments $C_0' = C_0 C_\alpha$ and $C_1' = C_1 C_\beta$.
 
 \end{itemize}
-
+\end{comment}
 
 
 \begin{comment}
@@ -1299,7 +1387,9 @@ Note: we need to pay special attention to the size of the coefficients of $\math
  
  * nevertheless, polynomial commitment schemes do not necessarily correspond integer relations; it's just that integer relations are powerful enough to do that also --- what other things can they do beyond polynomial commitments?
  
- * future work:
+ * falsifiable assumptions at the cost of the fiat-shamir heuristic
+ 
+ * future work / open questions:
  
   - constant-size evaluations
   
@@ -1317,22 +1407,8 @@ Note: we need to pay special attention to the size of the coefficients of $\math
 
 \appendix
 
-
+\begin{comment}
 \section{Protocols for Proving Permutations}
-
-
-\subsection{Flip}
-
-The following protocol establishes that two commitments, $c_a$ and $c_b$ represent polynomials $f_a, f_b \in \ZZ_p$ (or vectors, for that matter) whose coefficients are flipped. Specifically, that $f_a = \sum_{i=0}^{d}f_i X^i$ for some coefficients $f_i$, and $f_b = \sum_{i=0}^df_ix^{d-i}$ for the same coefficients $f_i$.
-Protocol:
-\begin{itemize}
-    \item Common knowledge: $c_a, c_b \in \mathbb{G}$.
-    \item Verifier chooses $z \xleftarrow{\$} \ZZ_p \backslash \{0\}$ and sends it to Prover.
-    \item Prover and Verifier engage in proofs of correct evaluation producing $f_a(z)$ and $f_b(z^{-1})$, matching $c_a$ and $c_b$, respectively.
-    \item Verifier checks that $f_a(z) \stackrel{?}{=} z^d f_b(z^{-1})$.
-\end{itemize}
-
-To see why it works, observe that $f_a(X) = X^df_b(X^{-1})$ and we can test this equation probabilistically by choosing a random $z \in \mathbb{F}_p \backslash \{0\}$ to evaluate $f_a$ and $f_b$ in. If $f_a$ is indeed the flipping of $f_b$ then the polynomial $F = f_a(X) - X^df_b(X^{-1})$ is identically zero; but otherwise it has at most $d$ zeros, and so the inequality will be exposed with overwhelming probability $(p-1-d)/(p-1)$.
 
 \subsection{Rotation}
 
@@ -1360,6 +1436,6 @@ The following protocol establishes that two polynomial commitments have the same
     \item Prover and Verifier engage in proofs of correct evaluation for $f(z), p(z), d(z)$.
     \item Verifier checks that $p(z) = z^{\sigma(0)} f(z^{d+1}) - d(z)$.
 \end{itemize}
-
+\end{comment}
 
 \end{document}
