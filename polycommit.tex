@@ -617,11 +617,10 @@ Wesolowski showed that an adversary that succeeds in the $\textsf{PoE}$ protocol
 
 \begin{lemma}[\textsf{PoE} soundness\cite{EC:Wesolowski19}]
 \label{lem:poe}
-\textsf{PoE} is an argument system for  Relation $\mathcal{R}_\textsf{PoE}$ with negligible, computational soundness error \advantage{ar}{\adv},
+\textsf{PoE} is an argument system for  Relation $\mathcal{R}_\textsf{PoE}$ with negligible soundness error,
 assuming the adaptive root assumption (Assumption \ref{assum:adaptiveroot}) holds for~$\ggen$.
 \end{lemma}
 
-\alaninline{Specifying how big the soundness error is exactly, rather than just negligible, is superfluous unless you care about concrete security. If we care about concrete security, then I am surprised (and a little skeptical) that there is no security degradation in the reduction.}
 
 \section{Protocols for Groups of Unknown Order}
 \label{sec:protocol}
@@ -793,8 +792,8 @@ We first begin by showing that we can safely replace all of the $\textsf{PoE}$ e
 Let $\eval'$ be the protocol that is identical to $\eval$ but in line \ref{line:PoE} of $\pro{EvalBounded}$ $\verifier$ directly checks $C_LC_R^{q^{d'+1}}=\gr{C}$ instead of using a $\textsf{PoE}$. If the adaptive root assumption holds for $\ggen$ and $\eval'$ has witness extended emulation for polynomials of degree $d=\poly$ then so does $\eval$.
 \end{lemma}
 \begin{proof}
-We show that if an extractor $E$ exists for the protocol $\eval'$ then either we can construct $E'$ or construct an adversary $\adv_{\textsf{AdaptiveRoot}}$ for the adaptive root assumption. 
-For each PPT adversary $(\adv,P^*)$, we generate $\crs\sample \setup(\lambda)$ and initiate $\adv_{\textsf{AdaptiveRoot}}(\crs)$. $E$ will receive a polynomial number of transcripts. Any transcript that $\verifier$ accepts contains $\lceil \log(d+1)\rceil$ $\textsf{PoE}s$ executions. If for any $\textsf{PoE}$ the instance $(\gr{C}_R,\gr{C}/\gr{C}_{L},q^{d'+1})\not\in\mathcal{R}_{\textsf{PoE}}$ then we can construct $\adv_{\textsf{AdaptiveRoot}}(\crs)$ that computes an adaptive root in $\GG\sample \ggen$. This happens with negligible probability per $\textsf{PoE}$ execution. Since the adversary produces at most a polynomial number of transcripts and each transcript contains only a logarithmic number of $\textsf{PoE}$ we have that with overwhelming probability, under the adaptive root assumption, no such event can happen. 
+We show that if an extractor $E'$ exists for the protocol $\eval'$ then either can construct $E$ or. 
+For each PPT adversary $(\adv,P^*)$, $E$ will receive a polynomial number of transcripts. Any transcript that $\verifier$ accepts contains $\lceil \log(d+1)\rceil$ $\textsf{PoE}s$ executions. If for any $\textsf{PoE}$ the instance $(\gr{C}_R,\gr{C}/\gr{C}_{L},q^{d'+1})\not\in\mathcal{R}_{\textsf{PoE}}$ then we can construct $\adv_{\textsf{AdaptiveRoot}}(\crs)$ that computes an adaptive root in $\GG\sample \ggen$. This happens with negligible probability per $\textsf{PoE}$ execution. Since the adversary produces at most a polynomial number of transcripts and each transcript contains only a logarithmic number of $\textsf{PoE}$ we have that with overwhelming probability, under the adaptive root assumption, no such event can happen. 
 This means that all transcripts are equivalent to having the verifier directly check $(\gr{C}_R,\gr{C}/\gr{C}_{L},q^{d'+1})\in\mathcal{R}_{\textsf{PoE}}$. Now we forward all these transcripts, without the $\textsf{PoE}$ to the $\eval'$ extractor $E'$. By assumption, $E'$ succeeds with overwhelming probability on all transcripts $\tr$ such that $\adv(\tr)=1$. and $E$ can simply output the same witnesses as $E'$. $E$ will therefore be a valid extractor for the protocol $\eval$ which shoes that $\eval$ has witness extended emulation and by definition so does the polynomial commitment scheme.
 
  adversary $(\adv,P^*)$ can break the witness extended emulation for $\eval$ then there exists an adversary $(\adv,P^*)$ that can break witness extended emulation for $\eval'$ or an efficient adversary $\adv_{\textsf{AdaptiveRoot}}$ that can compute adaptive roots. This would contradict the existence $E'$ which is the efficient extractor for $\eval'$ or the adaptive root assumption. 
