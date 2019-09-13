@@ -761,7 +761,7 @@ We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pr
 	The polynomial commitment scheme is correct for polynomials in $\ZZ_p$ of degree at most $d$ if $\mu_{p,d}\geq  p^{\lceil \log_2(d+1)\rceil+1}$.
 \end{lemma}
 \begin{proof}
-    Consider the following constraints for a tuple $(\params, \gr{C}, z, y, d, b; f(X))$: a) $\deg(f(X)) \leq d$; b) $\pro{Open}(\params, \gr{C}, f(X) \bmod p, f(X)) = 1$; c) $\forall i \in [0;\deg(f(X))]$, $0 \leq f_i < b$; d) $f(z) = y$.
+    Consider the following constraints for a tuple $(\params, \gr{C}, z, y, d, b; f(X))$: a) $\deg(f(X)) \leq d$; b) $\pro{Open}(\params, \gr{C}, f(X) \bmod p, f(X)) = 1$; c) $\forall i \in [0;\deg(f(X))]$, $0 \leq f_i < b$; d) $f(z) = y$. The honest prover 
 
 	We need to ensure that $q$ is larger than $f$ the final value sent by the prover. We show this by showing that $b$ is a bound  In each round the bound on the coefficient size grows by a factor of $p$, for example: If $f'_0=\alpha f_0 + f_1$ for $\alpha \in [0,p-1]$ and $f_0,f_1 \in [0,b]$ then $f'_0\in [0,p\cdot b]$.
 	
