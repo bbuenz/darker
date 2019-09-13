@@ -286,7 +286,7 @@ Given a public-coin interactive argument tuple $(\textsf{Setup}, P, V)$ and arbi
 \Pr \left[
 \begin{array}{c} 
 \mathcal{A}(\textsf{tr}) = 1 \ \text{and} \\ 
-\text{\tr accepting} \Rightarrow \ (x, w) \in \mathcal{R}
+\text{\tr~accepting} \Rightarrow \ (x, w) \in \mathcal{R}
 \end{array} 
 :
 \begin{array}{c}
@@ -792,12 +792,12 @@ We first begin by showing that we can safely replace all of the $\textsf{PoE}$ e
 Let $\eval'$ be the protocol that is identical to $\eval$ but in line \ref{line:PoE} of $\pro{EvalBounded}$ $\verifier$ directly checks $C_LC_R^{q^{d'+1}}=\gr{C}$ instead of using a $\textsf{PoE}$. If the adaptive root assumption holds for $\ggen$ and $\eval'$ has witness extended emulation for polynomials of degree $d=\poly$ then so does $\eval$.
 \end{lemma}
 \begin{proof}
-We show that if an extractor $E'$ exists for the protocol $\eval'$ then either can construct $E$ or. 
-For each PPT adversary $(\adv,P^*)$, $E$ will receive a polynomial number of transcripts. Any transcript that $\verifier$ accepts contains $\lceil \log(d+1)\rceil$ $\textsf{PoE}s$ executions. If for any $\textsf{PoE}$ the instance $(\gr{C}_R,\gr{C}/\gr{C}_{L},q^{d'+1})\not\in\mathcal{R}_{\textsf{PoE}}$ then we can construct $\adv_{\textsf{AdaptiveRoot}}(\crs)$ that computes an adaptive root in $\GG\sample \ggen$. This happens with negligible probability per $\textsf{PoE}$ execution. Since the adversary produces at most a polynomial number of transcripts and each transcript contains only a logarithmic number of $\textsf{PoE}$ we have that with overwhelming probability, under the adaptive root assumption, no such event can happen. 
+We show that if an extractor $E'$, as defined in Definition~\ref{def:wee}, exists for the protocol $\eval'$ then we can construct an extractor $E$ for the protocol $\eval$. 
+For each PPT adversary $(\adv,P^*)$, $E$ will receive a polynomial number of transcripts. Any transcript $\tr$ of $\eval$ such that $\adv(\tr)=1$ and $\tr$ is accepting contains exactly $\lceil \log(d+1)\rceil$ $\textsf{PoE}s$ executions. 
+In total $E$ sees a polynomial number of $\textsf{PoE}$ executions. By Lemma~\ref{lem:poe} under the adaptive root assumption the probability that a polynomial time adversary can break the soundness of $\textsf{PoE}$, i.e. convince a verifier on a $\textsf{PoE}$ instance $(\gr{C}_R,\gr{C}/\gr{C}_{L},q^{d'+1})$, where $(\gr{C}_R,\gr{C}/\gr{C}_{L},q^{d'+1})\not\in\mathcal{R}_{\textsf{PoE}}$, is negligible. 
+Consequently the probability that the adversary can break $\textsf{PoE}$ on \emph{any} of the polynomial number of executions is still negligible.
 
-This means that all transcripts are equivalent to having the verifier directly check $(\gr{C}_R,\gr{C}/\gr{C}_{L},q^{d'+1})\in\mathcal{R}_{\textsf{PoE}}$. Now we forward all these transcripts, without the $\textsf{PoE}$ to the $\eval'$ extractor $E'$. By assumption, $E'$ succeeds with overwhelming probability on all transcripts $\tr$ such that $\adv(\tr)=1$. and $E$ can simply output the same witnesses as $E'$. $E$ will therefore be a valid extractor for the protocol $\eval$ which shoes that $\eval$ has witness extended emulation and by definition so does the polynomial commitment scheme.
-
- adversary $(\adv,P^*)$ can break the witness extended emulation for $\eval$ then there exists an adversary $(\adv,P^*)$ that can break witness extended emulation for $\eval'$ or an efficient adversary $\adv_{\textsf{AdaptiveRoot}}$ that can compute adaptive roots. This would contradict the existence $E'$ which is the efficient extractor for $\eval'$ or the adaptive root assumption. 
+This means that with overwhelming probability all transcripts are equivalent to having the verifier directly check $(\gr{C}_R,\gr{C}/\gr{C}_{L},q^{d'+1})\in\mathcal{R}_{\textsf{PoE}}$. Now we forward all these transcripts, without the $\textsf{PoE}$ to the $\eval'$ extractor $E'$. By assumption, $E'$ succeeds with overwhelming probability in extraction on all accepting transcripts $\tr$ such that $\adv(\tr)=1$. $E$ can simply output the same witnesses as $E'$. $E$ will therefore be a valid extractor for the protocol $\eval$ which shows that under the adaptive root assumption $\eval$ has witness extended emulation and by definition so does the polynomial commitment scheme.
 \end{proof}
 \begin{theorem}
 	The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>2^{\lceil \log_2(d+1) \rceil+1} p^{3 \lceil \log_2(d+1) \rceil+1}$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the adaptive root assumption and the strong RSA assumption hold for $\ggen$.
