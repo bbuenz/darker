@@ -822,6 +822,7 @@ We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pr
 	What remains to be shown is that in the terminal recursion step, all the verifier's checks pass. The verifier's checks in lines 4---6 follow immediately from the constraints' satisfaction. The check in line 3 passes because in each round the bound on the coefficient size grows by a factor of $p$. For example: If $f'_0=\alpha f_0 + f_1$ for $\alpha \in [0,p-1]$ and $f_0,f_1 \in [0,b]$ then $f'_0\in [0,p\cdot b]$. The recursion has $\lceil \log_2(d+1)\rceil$ rounds which gives us a bound on $b$ of $p^{\lceil \log_2(d+1)\rceil+1}$. 
 	
 	Since all the verifier's checks pass, the verifier outputs 1.
+	\benedikt{This seems long for the correctness proofs. I don't really like the term activate.}
 \end{proof} 
  
 \begin{lemma}
@@ -861,8 +862,17 @@ This means that with overwhelming probability all transcripts are equivalent to 
 The $\eval$ protocol combines two statements into one by using a random linear combination of group elements, i.e. $\gr{C}'\gets \gr{C}_L^{\alpha}\gr{C}_R$. We now show that this step is sound and that given the discrete logarithm for $\gr{C}'$ we can extract the discrete logarithm for $\gr{C}_L$ and $\gr{C}_R$ we also show that the we can bound the size of the discrete logarithm. We show that this statement holds in two settings. First we consider a group $\GG$ were the standard strong RSA assumption holds and group elements are encodings of integers. Then we will show that in groups were taking square roots is easy we can extract dyadic rationals using the dyadic strong RSA assumption.
  %For $\GG \sample \ggen(\lambda)$, and $\gr{g}\sample \GG$. Let $(\gr{C}_L\in \GG,\gr{C}_R\in \GG,\alpha\in [0,p-1],f\in [0,b];\gr{g}^{f}=\gr{C}_L^{\alpha}\gr{C}_R)$ and  $(\gr{C}_L,\gr{C}_R,\alpha'\in [0,p-1],f'\in [0,b];\gr{g}^{f'}=\gr{C}_L^{\alpha'}\gr{C}_R)$  be two transcripts for $\alpha\neq \alpha'$.
 \begin{lemma}
-	
+	For $\GG \sample \ggen(\lambda)$, and $\gr{g}\sample \GG$. Let $(\gr{C}_L\in \GG,\gr{C}_R\in \GG,\alpha\in [0,p-1],|f|\leq b;\gr{g}^{f}=\gr{C}_L^{\alpha}\gr{C}_R)$ and  $(\gr{C}_L,\gr{C}_R,\alpha'\in [0,p-1],f'\in [0,b];\gr{g}^{f'}=\gr{C}_L^{\alpha'}\gr{C}_R)$ be two transcripts for $\alpha\neq \alpha'$. There exists a PPT algorithm $\mathcal{X}$ that given these transcripts can compute either (1) $f_1,f_2\in \ZZ$ such that $\gr{g}^{f_1}=\gr{C}_1$, $\gr{g}^{f_1}=\gr{C}_2$, $|f_1|\leq b \cdot p$ and $|f_2|\leq b \cdot p$ or (2) an element in $\GG$ of known order or a non-trivial root of $\gr{g}$.
 \end{lemma}
+\begin{proof}
+	Using the transcripts we compute $\gr{C}_{L}^{\alpha-\alpha'}=\gr{g}^{f-f'}$. 
+ If $\frac{f-f'}{\alpha-\alpha'}$ is not an integer then this gives us a fractional root of $\gr{g}$, that is the tuple $(f-f',\alpha-\alpha',\gr{C}_{L})$. By Lemma~\ref{lem:strongtofractional}, from a fractional root we can either compute an element of known order or the $\frac{\alpha-\alpha'}{gcd(f-f',\alpha-\alpha')}\in \ZZ$'s root of $\gr{g}$.  
+ If $\frac{f-f'}{\alpha-\alpha'}$ is indeed an integer then we can compute $\gr{D}=\gr{g}^{\frac{f-f'}{\alpha-\alpha'}}$. Either $\gr{D}=\gr{C}_{L}$ or $(\gr{D}/\gr{C}_{L})^{\alpha-\alpha'}=1$, \emph{i.e.} $\gr{D}/\gr{C}_{L}$ is an element of known order. 
+  
+Otherwise we have $\gr{C}_{L}=\gr{g}^{f_L}$ where $f_L=\frac{f-f'}{\alpha-\alpha'}$ is an integer.
+Additionally $\gr{C}_R=\gr{g}^{f_R}$ for $f_R=f-\alpha f_L$.  
+\benedikt{Finish proof by computing order}
+\end{proof}
 \begin{theorem}
 	The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>2^{\lceil \log_2(d+1) \rceil+1} p^{3 \lceil \log_2(d+1) \rceil+1}$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the adaptive root assumption and the strong RSA assumption hold for $\ggen$.
 \end{theorem}
