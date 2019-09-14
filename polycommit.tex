@@ -109,7 +109,7 @@ Spurred by the recent demand for cryptographic tools from the blockchain industr
 \benedikt{Merge with table}
 \paragraph{Notation}
 \begin{itemize}
-\item Let $f(X) \in \mathbb{F}_p[X]$ be a polynomial of degree at most $N-1$ where $N$ is a power of two. The coefficients of $f(X)$ are denoted by $f_i$ such that $f(X) \stackrel{\triangle}{=} \sum_{i=0}^{N-1} f_i X^i$.
+\item Let $f(X) \in \mathbb{F}_p[X]$ be a polynomial of degree at most $d$. The coefficients of $f(X)$ are denoted by $f_i$ such that $f(X) \stackrel{\triangle}{=} \sum_{i=0}^{d} f_i X^i$.
 \item Throughout, $p$ is a prime of at least $\lambda$ bits, and $q \in \mathbb{N}$ be an integer with $q \gg p$.  $\primes$ denotes the set of primes less than $2^{2\cdot \lambda \log(\lambda)}$. There are at least $2^\lambda$ primes in that set.
 \item We work in a group $\mathbb{G}$ of unknown order together with one or many designated base elements $\gr{g}, \gr{h} \in \mathbb{G}$ with unknown order. 
 %(It might be tempting refer to these elements as \emph{generators} but that terminology would imply that $\mathbb{G}$ is cyclic, which is not necessarily true. \ben{Every element is a generator of a cyclic subgroup; why make this comment at all?}\textcolor{blue}{Alan: true; moot point.})
@@ -128,12 +128,13 @@ First the strong RSA assumption\cite{CCS:CraSho99} which roughly states that it 
 Both of these assumption hold in generic groups of unknown order\cite{genericunknown,C:BonBunFis19}, i.e. there are no efficient algorithms that only have black-box access to the group but are able to break these assumptions. 
 It is an open research problem to show whether one of these assumption implies the other.
 
+\begin{assumption}[Strong RSA Assumption]
 
-\begin{assumption}[Dyadic Strong RSA Assumption]
+
 \label{assum:strongRSA}
-The \defn{Dyadic Strong RSA Assumption} sates that no efficient adversary can compute any root of a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
+The \defn{Strong RSA Assumption} sates that no efficient adversary can compute any root of a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
 \[
-    \Pr\left[\gr{u}^\ell = \gr{g} \, \wedge \, \ell\neq 2^k, k \in \NN:
+    \Pr\left[\gr{u}^\ell = \gr{g} \,\wedge \ell>1:
     \begin{array}{l}
          \GG \leftarrow \ggen(\lambda)  \\
          \gr{g} \sample \GG \\
@@ -141,7 +142,7 @@ The \defn{Dyadic Strong RSA Assumption} sates that no efficient adversary can co
     \end{array}\right] \leq \negl \enspace .
 \]
 \end{assumption} 
-We note that some definitions of the strong RSA assumption additionally require that $\ell$ be a prime~\cite{EC:BarPfi97}. Our definition does not require $\ell$ to be a prime but we explicitly exclude $\ell$ from being a power of $2$. This is because in class groups taking square roots and power of $2$ roots can be done in polynomial time\cite{bosma1996computation}.
+We note that some definitions of the strong RSA assumption additionally require that $\ell$ be an odd prime~\cite{EC:BarPfi97}. Our definition is stronger and says that all roots are difficult.
 \begin{assumption}[Adaptive Root Assumption]
 \label{assum:adaptiveroot}
 We say that the \defn{Adaptive Root Assumption} holds for $\ggen$ if 
@@ -163,9 +164,17 @@ More precisely, for all efficient $(\adv_0,\adv_1)$:
 \]
 \end{assumption}
 
+
+
+
+
+
+
 We additionally use two more assumptions, however both of them reduce to the Strong RSA and the Adaptive Root assumptions.
 
-The first assumption states that computing the order for \emph{any} element is hard. It reduces to the adaptive root assumption. Interestingly, it doesn't necessarily hold for all candidate groups of unknown order. In $\ZZ_n$ for composite $n$, the element $-1\in \ZZ_n$ has known order $2$. For other candidate groups such as class groups with fundamental discriminants or $\ZZ_n/\{-1,1\}$ we have no efficient algorithms for computing elements of known order. We note that if $n=p\cdot q$ for strong primes $p$ and $q$ and we operate in the group of quadratic residues of $\ZZ_n$ then the order assumption reduces to the strong RSA assumption.\benedikt{Suitable citation}
+The first assumption states that computing the order for \emph{any} element is hard. It reduces to the adaptive root assumption. Interestingly, it doesn't necessarily hold for all candidate groups of unknown order as we explain below. In particular it is important to exclude elements of known order such as $-1$ from the candidate unknown order group $\ZZ_n$.
+%As explained below this assumption does not hold in 
+%In $\ZZ_n$ for composite $n$, the element $-1\in \ZZ_n$ has known order $2$. For other candidate groups such as class groups with fundamental discriminants or $\ZZ_n/\{-1,1\}$ we have no efficient algorithms for computing elements of known order. We note that if $n=p\cdot q$ for strong primes $p$ and $q$ and we operate in the group of quadratic residues of $\ZZ_n$ then the order assumption reduces to the strong RSA assumption.\benedikt{Suitable citation}
 \begin{assumption}[Order assumption]
 \label{assum:order}
 	The order assumption holds for $\ggen$ if for any efficient adversary $\adv$:
@@ -208,6 +217,7 @@ The fractional root assumption holds for $\ggen$ if for any efficient adversary 
 \]
 \end{assumption}
 \begin{lemma}
+\label{lem:strongtofractional}
 	The adaptive root assumption and the strong RSA assumption imply the fractional root assumption.
 \end{lemma}
 \begin{proof}
@@ -221,7 +231,52 @@ The fractional root assumption holds for $\ggen$ if for any efficient adversary 
 \end{proof}
 
 
-\benedikt{Talk about specific groups of unknown order}
+
+
+\paragraph{Groups of unknown order}
+We consider several candidate groups of unknown order. First the RSA group which is the multiplicative group $\ZZ_n$ for a composite integer $n=p\cdot q$ for primes $p$ and $q$. Computing the order of 
+$\ZZ_n$ is as hard as factoring $n$. Unfortunately, the order assumption does not hold for $\ZZ_n$ this is because $-1 \in \ZZ_n$ can be easily computed and has order two. This can be resolved though by working in the quotient group $\ZZ_n\{-1,1\}$ which does not contain an element of order $2$. Alternatively one can use the subgroup of quadratic residues $\mathbb{QR}\subset \ZZ_n$ which also does not contain elements of known order. Additionally if $n$ is the product of strong primes, i.e. $\frac{p-1}{2}$ and $\frac{q-1}{2}$ are prime, then $\mathbb{QR}\subset\ZZ_n$ does not contain elements of low order\cite{JC:FisSch00,C:HofKil09}. In this group the order assumption and the strong RSA assumption are equivalent to the hardness of factoring $n$.
+
+Generating $n$ requires a private coin trusted setup as the factorization of $n$ needs to be unknown. To circumvent this we can use the class groups of imaginary quadratic order \cite{Fill in} which are candidate groups of unknown order but do not require a trusted setup. Specifically, we can define a class group $\mathbb{CL}(p)$ by sampling a prime discriminant $p$. $p$ can be public which means that the setup simply requires random bits for sampling $p$. If $p=7 \bmod 8$ then we know that the order of $p$ is odd and that no elements of order $2$ exist.
+Working in $\mathbb{CL}(p)$ presents us with several difficulties. Most importantly, there exists an efficient polynomial time algorithm due to Gauß and described by Bosma and Stevenhagen\cite{bosma1996computation} to compute square roots of arbitrary elements in $\mathbb{CL}(p)$. This algorithm can be leveraged to compute arbitrary power of two roots. 
+Class groups can therefore not be used to cryptographically commit to integers but rather to rationals, whose denominator is a power of $2$. This set of rationals is called the \emph{dyadic rationals}. 
+Additionally the strong RSA assumption and as such the fractional RSA assumption are both broken if computing square roots is easy. We, therefore, now state modified assumptions which are believed to still hold even if computing square roots is easy.
+\paragraph{Assumptions for groups with efficient square roots}
+We modify and weaken that the strong RSA assumption such that it explicitly allows an adversary to take square roots (and higher power of $2$ roots).
+\begin{assumption}[Dyadic Strong RSA Assumption]
+\label{assum:dyadicstrongRSA}
+The \defn{Dyadic Strong RSA Assumption} sates that no efficient adversary can compute any non power of $2$ root of a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
+\[
+    \Pr\left[\gr{u}^\ell = \gr{g} \, \wedge \, \ell\neq 2^k, k \in \NN:
+    \begin{array}{l}
+         \GG \leftarrow \ggen(\lambda)  \\
+         \gr{g} \sample \GG \\
+         (\gr{u}, \ell) \in \mathbb{G} \times \mathbb{N} \leftarrow \adv(\mathbb{G}, \gr{g}) \\
+    \end{array}\right] \leq \negl \enspace .
+\]
+\end{assumption} 
+
+We also state a weakened version of the fraction root assumption which again allows an adversary to compute power of two roots.
+\begin{assumption}[Dyadic Rational Root Assumption]
+\label{assum:dyadicfracroot}
+The \defn{Dyadic Rational Root Assumption} holds for $\ggen$ if for any efficient adversary $\adv$:
+\[        
+                \Pr\left[\gr{u}^\beta = \gr{g}^{\alpha} \wedge \frac{\beta}{\gcd(\alpha,\beta)}\neq 2^k,  k \in \NN   : 
+                \begin{array}{l} 
+                      \GG \sample \ggen(\lambda) \\ 
+                      \gr{g} \sample \GG \\
+                      (\alpha, \beta, \gr{u}) \sample \adv(\GG, \gr{g}) \\
+                      \quad \textnormal{where} \, |\alpha|<2^{\poly}, |\beta|<2^{\poly} \in \ZZ \\
+                      \quad \textnormal{and} \, \gr{u} \in \GG 
+                \end{array} 
+        \right] \leq \negl \enspace .
+\]
+\end{assumption}
+
+\begin{lemma}
+	The adaptive root assumption and the dyadic strong RSA assumption imply the dyadic rational root assumption.
+\end{lemma}
+The proof of the Lemma is nearly identical to the proof of Lemma \ref{lem:strongtofractional}
 
 \subsection{Interactive Arguments of Knowledge}
 Interactive arguments are \emph{interactive proofs}~\cite{GolMicRac89} in which security holds only against a computationally bounded prover. In an interactive argument for a relation $\mathcal{R}$, the prover convinces the verifier that it ``knows" a witness $w$ for a statement $x$ such that $(x, w) \in \mathcal{R}$. The standard definition of \emph{proofs of knowledge} (PoK) by Bellare and Goldreich~\cite{C:BelGol92} is based on the existence of an extractor machine $E$ that has oracle access to a malicious prover $P^*$, and if $P^*$ would cause the verifier to accept on input $X$ with high probability then $E$ outputs $w$ such that $(X, w) \in \mathcal{R}$ (with overwhelming probability). $E$ runs in expected polynomial time. This definition quantifies the success of $E$ over all inputs $x$, which unfortunately is problematic in the case of interactive  \emph{arguments},.
@@ -799,6 +854,13 @@ Consequently the probability that the adversary can break $\textsf{PoE}$ on \emp
 
 This means that with overwhelming probability all transcripts are equivalent to having the verifier directly check $(\gr{C}_R,\gr{C}/\gr{C}_{L},q^{d'+1})\in\mathcal{R}_{\textsf{PoE}}$. Now we forward all these transcripts, without the $\textsf{PoE}$ to the $\eval'$ extractor $E'$. By assumption, $E'$ succeeds with overwhelming probability in extraction on all accepting transcripts $\tr$ such that $\adv(\tr)=1$. $E$ can simply output the same witnesses as $E'$. $E$ will therefore be a valid extractor for the protocol $\eval$ which shows that under the adaptive root assumption $\eval$ has witness extended emulation and by definition so does the polynomial commitment scheme.
 \end{proof}
+
+
+The $\eval$ protocol combines two statements into one by using a random linear combination of group elements, i.e. $\gr{C}'\gets \gr{C}_L^{\alpha}\gr{C}_R$. We now show that this step is sound and that given the discrete logarithm for $\gr{C}'$ we can extract the discrete logarithm for $\gr{C}_L$ and $\gr{C}_R$ we also show that the we can bound the size of the discrete logarithm. We show that this statement holds in two settings. First we consider a group $\GG$ were the standard strong RSA assumption holds and group elements are encodings of integers. Then we will show that in groups were taking square roots is easy we can extract dyadic rationals using the dyadic strong RSA assumption.
+ %For $\GG \sample \ggen(\lambda)$, and $\gr{g}\sample \GG$. Let $(\gr{C}_L\in \GG,\gr{C}_R\in \GG,\alpha\in [0,p-1],f\in [0,b];\gr{g}^{f}=\gr{C}_L^{\alpha}\gr{C}_R)$ and  $(\gr{C}_L,\gr{C}_R,\alpha'\in [0,p-1],f'\in [0,b];\gr{g}^{f'}=\gr{C}_L^{\alpha'}\gr{C}_R)$  be two transcripts for $\alpha\neq \alpha'$.
+\begin{lemma}
+	
+\end{lemma}
 \begin{theorem}
 	The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>2^{\lceil \log_2(d+1) \rceil+1} p^{3 \lceil \log_2(d+1) \rceil+1}$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the adaptive root assumption and the strong RSA assumption hold for $\ggen$.
 \end{theorem}
@@ -830,7 +892,7 @@ Now if $d_i+1$ is even then we have for a challenge $\alpha$: $\gr{C}_{L,i-1}^\a
  This gives us $\gr{C}_{L,i-1}^{\alpha-\alpha'}=\gr{g}^{f^{(i)}(q)-f'^{(i)}(q)}$. 
  If $\frac{f^{(i)}(q)-f'^{(i)}(q)}{\alpha-\alpha'}$ is not a dyadic rational then this gives us a fractional root of $\gr{g}$, that is the tuple $(f^{(i)}(q)-f'^{(i)}(q),\alpha-\alpha',\gr{C}_{L,i-1})$. If this is not the case then we can compute $\gr{D}=\gr{g}^{\frac{f^{(i)}(q)-f'^{(i)}(q)}{\alpha-\alpha'}}$. Either $\gr{D}=\gr{C}_{L,i-1}$ or $(\gr{D}/\gr{C}_{L,i-1})^{\alpha-\alpha'}=1$, \emph{i.e.} $\gr{D}/\gr{C}_{L,i-1}$ is an element of known order. This would break the order assumption.
  
-Note that if $\frac{f^{(i)}(q)-f'^{(i)}(q)}{\alpha-\alpha'}$ is in fact a dyadic rational but not an integer then computing $D$ requires the extractor to take power of two roots. In class groups with discriminants that are prime and $7 \bmod 8$ this is always efficiently possible using an algorithm by Gauß\cite{bosma1996computation}. In other groups of unknown order, such as $\ZZ_N/\{-1,1\}$ for composite $N$, it is not known how to efficiently compute square roots. This is, however, not a problem as the scheme can still be proven secure under a stronger fractional root assumption where any rational root breaks the assumption. Even a dyadic rational $\frac{f^{(i)}(q)-f'^{(i)}(q)}{\alpha-\alpha'}$ would then lead to a break of the assumption.
+Note that if $\frac{f^{(i)}(q)-f'^{(i)}(q)}{\alpha-\alpha'}$ is in fact a dyadic rational but not an integer then computing $D$ requires the extractor to take power of two roots. In class groups with discriminants that are prime and $7 \bmod 8$ this is always efficiently possible using an algorithm by Gauß\cite{bosma1996computation}. In other groups of unknown order, such as $\ZZ_n/\{-1,1\}$ for composite $n$, it is not known how to efficiently compute square roots. This is, however, not a problem as the scheme can still be proven secure under a stronger fractional root assumption where any rational root breaks the assumption. Even a dyadic rational $\frac{f^{(i)}(q)-f'^{(i)}(q)}{\alpha-\alpha'}$ would then lead to a break of the assumption.
 % Under the order assumption finding elements of known, bounded, order happens with negligible probability $\advantage{\textsf{Order}}{}$.
 
 Finally, if no bad event occurs and no assumption is broken we have $\gr{C}_{L,i-1}=\gr{g}^{f^{(i-1)}_L(q)}$ where $f^{(i-1)}_L(q)=\frac{f^{(i)}(q)-f'^{(i)}(q)}{\alpha-\alpha'}$ is a dyadic rational.  
