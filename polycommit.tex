@@ -783,21 +783,46 @@ This means that with overwhelming probability all transcripts are equivalent to 
 
 \paragraph{Forking.} The $\eval$ protocol combines two statements into one by using a random linear combination of group elements, i.e. $\gr{C}'\gets \gr{C}_L^{\alpha}\gr{C}_R$. We now show that this step is sound and that given the discrete logarithm for $\gr{C}'$ we can extract the discrete logarithm for $\gr{C}_L$ and $\gr{C}_R$ we also show that the we can bound the size of the discrete logarithm. We show that this statement holds in two settings. First we consider a group $\GG$ were the standard Strong RSA Assumption holds and group elements are encodings of integers. Then we will show that in groups were taking square roots is easy we can extract dyadic rationals using the dyadic Strong RSA Assumption.
  %For $\GG \gets \ggen(\lambda)$, and $\gr{g}\sample \GG$. Let $(\gr{C}_L\in \GG,\gr{C}_R\in \GG,\alpha\in [0,p-1],f\in [0,b];\gr{g}^{f}=\gr{C}_L^{\alpha}\gr{C}_R)$ and  $(\gr{C}_L,\gr{C}_R,\alpha'\in [0,p-1],f'\in [0,b];\gr{g}^{f'}=\gr{C}_L^{\alpha'}\gr{C}_R)$  be two transcripts for $\alpha\neq \alpha'$.
-\begin{lemma}
-	For $\GG \gets \ggen(\lambda)$, and $\gr{g}\sample \GG$. Let $(\gr{C}_L\in \GG,\gr{C}_R\in \GG,\alpha\in [0,p-1],|f|\leq b;\gr{g}^{f}=\gr{C}_L^{\alpha}\gr{C}_R)$ and  $(\gr{C}_L,\gr{C}_R,\alpha'\in [0,p-1],f'\in [0,b];\gr{g}^{f'}=\gr{C}_L^{\alpha'}\gr{C}_R)$ be two transcripts for $\alpha\neq \alpha'$. There exists a PPT algorithm $\mathcal{X}$ that given these transcripts can compute either (1) $f_1,f_2\in \ZZ$ such that $\gr{g}^{f_1}=\gr{C}_1$, $\gr{g}^{f_1}=\gr{C}_2$, $|f_1|\leq b \cdot p$ and $|f_2|\leq b \cdot p$ or (2) an element in $\GG$ of known order or a non-trivial root of $\gr{g}$.
+\begin{lemma}[Forking for integer witnesses]
+	For $\GG \gets \ggen(\lambda)$, and $\gr{g}\sample \GG$. 
+	Let $(\gr{C}_L,\gr{C}_R,\alpha,f)$ and  $(\gr{C}_L,\gr{C}_R,\alpha',f')$ be two transcripts such that $\gr{g}^{f}=\gr{C}_L^{\alpha}\gr{C}_R$ and $\gr{g}^{f'}=\gr{C}_L^{\alpha'}\gr{C}_R$ for group elements $\gr{C}_L,\gr{C}_R \in \GG$, and integers $\alpha,\alpha' \in  [-\frac{p-1}{2},\frac{p-1}{2}]/\{0\}$, $\alpha\neq \alpha'$. Further let $f,f'\in \ZZ$ be such that $f(X)\gets\dec{f}$ and $f'(X)\gets\dec{f'}$ are degree $d$ bounded polynomials with coefficients bounded by $b$, i.e. $f(X),f'(X)\in B_{b}[X]\subset \ZZ[X]$.
+	 There exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either (1) $f_L(X),f_R(X)\in B_{(p-1) \cdot b}[X]$ or (2) an element in $\GG$ of known order or (3) an integer root of $\gr{g}$.
 \end{lemma}
 \begin{proof}
 	Using the transcripts we $\Delta_\alpha\gets\alpha-\alpha'$ and $\Delta_f\gets f-f'$ such that $\gr{C}_{L}^{\Delta_\alpha}=\gr{g}^{\Delta_f}$. 
- If $\frac{\Delta_f}{\Delta_\alpha}$ is not an integer then this gives us a fractional root of $\gr{g}$, that is the tuple $(\Delta_f,\Delta_\alpha,\gr{C}_{L})$. By Lemma~\ref{lem:strongtofractional}, from a fractional root we can either compute an element of known order or the $\beta$th root of $\gr{g}$, where $\beta = \frac{\Delta_\alpha}{gcd(\Delta_f,\Delta_\alpha)}\in \ZZ$'.  
- If $\frac{\Delta_f}{\Delta_\alpha}$ is indeed an integer then we can compute $\gr{D}\gets\gr{g}^{\frac{\Delta_f}{\Delta_\alpha}}$. Either $\gr{D}=\gr{C}_{L}$ or $(\gr{D}/\gr{C}_{L})^{\Delta_\alpha}=1$, \emph{i.e.} $\gr{D}/\gr{C}_{L}$ is an element of known order. 
+ If $\frac{\Delta_f}{\Delta_\alpha}$ is not an integer then this gives us a fractional root of $\gr{g}$, that is the tuple $(\Delta_f,\Delta_\alpha,\gr{C}_{L})$. By Lemma~\ref{lem:strongtofractional}, from a fractional root we can either compute an element of known order or the $\beta$th root of $\gr{g}$, where $\beta = \frac{\Delta_\alpha}{gcd(\Delta_f,\Delta_\alpha)}\in \ZZ$.  
+ If $\frac{\Delta_f}{\Delta_\alpha}$ is indeed an integer then we can compute $\gr{D}\gets\gr{g}^{\frac{\Delta_f}{\Delta_\alpha}}$. Either $\gr{D}=\gr{C}_{L}$ or $(\gr{D}/\gr{C}_{L})^{\Delta_\alpha}=1$, \emph{i.e.} $\gr{D}/\gr{C}_{L}$ is an element of known order.
   
-Otherwise we have $\gr{C}_{L}=\gr{g}^{f_L}$ where $f_L=\frac{\Delta_f}{\Delta_\alpha}$ is an integer.
+  Otherwise we have $\gr{C}_{L}=\gr{g}^{f_L}$ where $f_L=\frac{\Delta_f}{\Delta_\alpha}$ is an integer.
 Additionally $\gr{C}_R=\gr{g}^{f_R}$ for $f_R\gets f-\alpha \cdot f_L$.  
-Now if $f$ and $f'\in[-b,b]$ and $\alpha,\alpha' \in [-\frac{p-1}{2},\frac{p-1}{2}]/\{0\}$ then by triangle inequality $f_L\in [-2b,2b]$. Additionally we have $f_R=\frac{f'\alpha-f \alpha'}{\Delta_\alpha}$. Using the triangle inequality again we have that $f_R \in [-(p-1) \cdot b, (p-1) \cdot b]$.
-%The actual bound on f_R is b*(p-2)
-Given that the protocol has $\lceil \log_2(d+1)\rceil$ rounds and $|f|< p^{\lceil\log_2(d+1)\rceil+1}$ then the final extracted polynomial $f_0(X)\in C_{b_n,b_d}$ for $b_n=2^{\lceil\log_2(d+1)\rceil}p^{2 \lceil\log_2(d+1)\rceil+1}$ and $b_d=\lambda \lceil\log_2(d+1)\rceil$. A sufficient bound on $q$ is therefore, $q>2^{\lceil\log_2(d+1)\rceil}p^{3 \lceil\log_2(d+1)\rceil+1}\approx d \cdot p^3$.
 
+We now compute the corresponding polynomials $f_L(X)\gets \dec(f_L)$ and $f_R(X)\gets \dec(f_R)$.
+Now if the coefficients $f_i$ and $f'_i\in [-b,b]$ and $\alpha,\alpha' \in [-\frac{p-1}{2},\frac{p-1}{2}]/\{0\}$ then by triangle inequality we have that for $i$th coefficient of $f_L(X)$, $f_{L,i}\in [-2b,2b]$. Additionally we have $f_{R,i}=\frac{f_i'\alpha-f_i \alpha'}{\Delta_\alpha}$. Using the triangle inequality again we have that $f_{R,i} \in [-(p-1) \cdot b, (p-1) \cdot b]$. For an odd prime $p$, $(p-1)\cdot p\geq 2b$. This gives us $f_L(X),f_R(X)\in B_{(p-1) \cdot b}$
+%The actual bound on f_{R,i} is b*(p-2)
 \end{proof}
+
+
+%PROOF FOR DYADIC RATIONALS
+\begin{lemma}[Forking for dyadic rational witnesses]
+	For $\GG \gets \ggen(\lambda)$, and $\gr{g}\sample \GG$. 
+	Let $(\gr{C}_L,\gr{C}_R,\alpha,f)$ and  $(\gr{C}_L,\gr{C}_R,\alpha',f')$ be two transcripts such that $\gr{g}^{f}=\gr{C}_L^{\alpha}\gr{C}_R$ and $\gr{g}^{f'}=\gr{C}_L^{\alpha'}\gr{C}_R$ for group elements $\gr{C}_L,\gr{C}_R \in \GG$, and integers $\alpha,\alpha' \in  [-\frac{p-1}{2},\frac{p-1}{2}]/\{0\}$, $\alpha\neq \alpha'$. Further let $f,f'\in \mathcal{D}$ be such that $f(X)\gets\dec{f}$ and $f'(X)\gets\dec{f'}$ are degree $d$ bounded polynomials with dyadic rational coefficients bounded by $b_n$ in the numerator and $2^{b_d}$ in the denominator, i.e. $f(X),f'(X)\in C_{b_d}^{b_n}[X]\subset \mathcal{D}[X]$.
+	 There exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either (1) $f_L(X),f_R(X)\in C_{(p-1) \cdot b}[X]$ or (2) an element in $\GG$ of known order or (3) a non root of $\gr{g}$ that is not a power of $2$.
+\end{lemma}
+\begin{proof}
+\benedikt{adapt proof}
+	Using the transcripts we $\Delta_\alpha\gets\alpha-\alpha'$ and $\Delta_f\gets f-f'$ such that $\gr{C}_{L}^{\Delta_\alpha}=\gr{g}^{\Delta_f}$. 
+ If $\frac{\Delta_f}{\Delta_\alpha}$ is not an integer then this gives us a fractional root of $\gr{g}$, that is the tuple $(\Delta_f,\Delta_\alpha,\gr{C}_{L})$. By Lemma~\ref{lem:strongtofractional}, from a fractional root we can either compute an element of known order or the $\beta$th root of $\gr{g}$, where $\beta = \frac{\Delta_\alpha}{gcd(\Delta_f,\Delta_\alpha)}\in \ZZ$.  
+ If $\frac{\Delta_f}{\Delta_\alpha}$ is indeed an integer then we can compute $\gr{D}\gets\gr{g}^{\frac{\Delta_f}{\Delta_\alpha}}$. Either $\gr{D}=\gr{C}_{L}$ or $(\gr{D}/\gr{C}_{L})^{\Delta_\alpha}=1$, \emph{i.e.} $\gr{D}/\gr{C}_{L}$ is an element of known order.
+  
+  Otherwise we have $\gr{C}_{L}=\gr{g}^{f_L}$ where $f_L=\frac{\Delta_f}{\Delta_\alpha}$ is an integer.
+Additionally $\gr{C}_R=\gr{g}^{f_R}$ for $f_R\gets f-\alpha \cdot f_L$.  
+
+We now compute the corresponding polynomials $f_L(X)\gets \dec(f_L)$ and $f_R(X)\gets \dec(f_R)$.
+Now if the coefficients $f_i$ and $f'_i\in [-b,b]$ and $\alpha,\alpha' \in [-\frac{p-1}{2},\frac{p-1}{2}]/\{0\}$ then by triangle inequality we have that for $i$th coefficient of $f_L(X)$, $f_{L,i}\in [-2b,2b]$. Additionally we have $f_{R,i}=\frac{f_i'\alpha-f_i \alpha'}{\Delta_\alpha}$. Using the triangle inequality again we have that $f_{R,i} \in [-(p-1) \cdot b, (p-1) \cdot b]$. For an odd prime $p$, $(p-1)\cdot p\geq 2b$. This gives us $f_L(X),f_R(X)\in B_{(p-1) \cdot b}$
+%The actual bound on f_{R,i} is b*(p-2)
+\end{proof}
+
+
 \begin{theorem}
 	The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>2^{\lceil \log_2(d+1) \rceil+1} p^{3 \lceil \log_2(d+1) \rceil+1}$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the Adaptive Root Assumption and the Strong RSA Assumption hold for $\ggen$.
 \end{theorem}
