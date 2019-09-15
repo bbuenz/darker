@@ -808,6 +808,7 @@ This means that with overwhelming probability all transcripts are equivalent to 
 \paragraph{Forking.} The $\eval$ protocol combines two statements into one by using a random linear combination of group elements, i.e. $\gr{C}'\gets \gr{C}_L^{\alpha}\gr{C}_R$. We now show that this step is sound and that given the discrete logarithm for $\gr{C}'$ we can extract the discrete logarithm for $\gr{C}_L$ and $\gr{C}_R$ we also show that the we can bound the size of the discrete logarithm. We show that this statement holds in two settings. First we consider a group $\GG$ were the standard Strong RSA Assumption holds and group elements are encodings of integers. Then we will show that in groups were taking square roots is easy we can extract dyadic rationals using the dyadic Strong RSA Assumption.
  %For $\GG \gets \ggen(\lambda)$, and $\gr{g}\sample \GG$. Let $(\gr{C}_L\in \GG,\gr{C}_R\in \GG,\alpha\in [0,p-1],f\in [0,b];\gr{g}^{f}=\gr{C}_L^{\alpha}\gr{C}_R)$ and  $(\gr{C}_L,\gr{C}_R,\alpha'\in [0,p-1],f'\in [0,b];\gr{g}^{f'}=\gr{C}_L^{\alpha'}\gr{C}_R)$  be two transcripts for $\alpha\neq \alpha'$.
 \begin{lemma}[Forking for integer witnesses]
+\label{lem:intrandomcombine}
 	For $\GG \gets \ggen(\lambda)$, and $\gr{g}\sample \GG$. 
 	Let $(\gr{C}_L,\gr{C}_R,\alpha,f)$ and  $(\gr{C}_L,\gr{C}_R,\alpha',f')$ be two transcripts such that $\gr{g}^{f}=\gr{C}_L^{\alpha}\gr{C}_R$ and $\gr{g}^{f'}=\gr{C}_L^{\alpha'}\gr{C}_R$ for group elements $\gr{C}_L,\gr{C}_R \in \GG$, and integers $\alpha,\alpha' \in  [-\frac{p-1}{2},\frac{p-1}{2}]/\{0\}$, $\alpha\neq \alpha'$. Further let $f,f'\in \ZZ$ be such that $f(X)\gets\dec{f}$ and $f'(X)\gets\dec{f'}$ are degree $d$ bounded polynomials with coefficients bounded by $b$, i.e. $f(X),f'(X)\in B_{b}[X]\subset \ZZ[X]$.
 	 There exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either (1) $f_L(X),f_R(X)\in B_{(p-1) \cdot b}[X]$ or (2) an element in $\GG$ of known order or (3) an integer root of $\gr{g}$.
@@ -830,23 +831,15 @@ Now if the coefficients $f_i$ and $f'_i\in [-b,b]$ and $\alpha,\alpha' \in [-\fr
 \begin{lemma}[Forking for dyadic rational witnesses]
 	For $\GG \gets \ggen(\lambda)$, and $\gr{g}\sample \GG$. 
 	Let $(\gr{C}_L,\gr{C}_R,\alpha,f)$ and  $(\gr{C}_L,\gr{C}_R,\alpha',f')$ be two transcripts such that $\gr{g}^{f}=\gr{C}_L^{\alpha}\gr{C}_R$ and $\gr{g}^{f'}=\gr{C}_L^{\alpha'}\gr{C}_R$ for group elements $\gr{C}_L,\gr{C}_R \in \GG$, and integers $\alpha,\alpha' \in  [-\frac{p-1}{2},\frac{p-1}{2}]/\{0\}$, $\alpha\neq \alpha'$. Further let $f,f'\in \mathcal{D}$ be such that $f(X)\gets\dec{f}$ and $f'(X)\gets\dec{f'}$ are degree $d$ bounded polynomials with dyadic rational coefficients bounded by $b_n$ in the numerator and $2^{b_d}$ in the denominator, i.e. $f(X),f'(X)\in C_{b_d}^{b_n}[X]\subset \mathcal{D}[X]$.
-	 There exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either (1) $f_L(X),f_R(X)\in C_{(p-1) \cdot b}[X]$ or (2) an element in $\GG$ of known order or (3) a non root of $\gr{g}$ that is not a power of $2$.
+	 There exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either (1) $f_L(X),f_R(X)\in C_{(p-1) \cdot b_d}^{b_n}[X]$ or (2) an element in $\GG$ of known order or (3) a non root of $\gr{g}$ that is not a power of $2$.
 \end{lemma}
 \begin{proof}
-\benedikt{adapt proof}
-	Using the transcripts we $\Delta_\alpha\gets\alpha-\alpha'$ and $\Delta_f\gets f-f'$ such that $\gr{C}_{L}^{\Delta_\alpha}=\gr{g}^{\Delta_f}$. 
- If $\frac{\Delta_f}{\Delta_\alpha}$ is not a dyadic rational then this gives us a dyadic rational root of $\gr{g}$, that is the tuple $(\Delta_f,\Delta_\alpha,\gr{C}_{L})$. By Lemma~\ref{lem:strongtofractional}, from a fractional root we can either compute an element of known order or the $\beta$th root of $\gr{g}$, where $\beta = \frac{\Delta_\alpha}{gcd(\Delta_f,\Delta_\alpha)}\in \ZZ$.  
- If $\frac{\Delta_f}{\Delta_\alpha}$ is indeed an integer then we can compute $\gr{D}\gets\gr{g}^{\frac{\Delta_f}{\Delta_\alpha}}$. Either $\gr{D}=\gr{C}_{L}$ or $(\gr{D}/\gr{C}_{L})^{\Delta_\alpha}=1$, \emph{i.e.} $\gr{D}/\gr{C}_{L}$ is an element of known order.
-  
-  Otherwise we have $\gr{C}_{L}=\gr{g}^{f_L}$ where $f_L=\frac{\Delta_f}{\Delta_\alpha}$ is an integer.
-Additionally $\gr{C}_R=\gr{g}^{f_R}$ for $f_R\gets f-\alpha \cdot f_L$.  
-
-We now compute the corresponding polynomials $f_L(X)\gets \dec(f_L)$ and $f_R(X)\gets \dec(f_R)$.
-Now if the coefficients $f_i$ and $f'_i\in [-b,b]$ and $\alpha,\alpha' \in [-\frac{p-1}{2},\frac{p-1}{2}]/\{0\}$ then by triangle inequality we have that for $i$th coefficient of $f_L(X)$, $f_{L,i}\in [-2b,2b]$. Additionally we have $f_{R,i}=\frac{f_i'\alpha-f_i \alpha'}{\Delta_\alpha}$. Using the triangle inequality again we have that $f_{R,i} \in [-(p-1) \cdot b, (p-1) \cdot b]$. For an odd prime $p$, $(p-1)\cdot p\geq 2b$. This gives us $f_L(X),f_R(X)\in B_{(p-1) \cdot b}$
-%The actual bound on f_{R,i} is b*(p-2)
+\benedikt{write proof (Very similar to Lemma \ref{lem:intrandomcombine}, perhaps move lemma}
+	
 \end{proof}
 
 
+%%%OLD THEOREM
 \begin{theorem}
 	The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>2^{\lceil \log_2(d+1) \rceil+1} p^{3 \lceil \log_2(d+1) \rceil+1}$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the Adaptive Root Assumption and the Strong RSA Assumption hold for $\ggen$.
 \end{theorem}
@@ -856,11 +849,11 @@ We will prove security by showing that given a polynomial time adversary $\adv_{
 
 In particular we construct an extractor $\mathcal{X}$ that given transcripts with $2$ distinct challenges per round, \emph{i.e.} $2^{\lceil\log_2(d+1)\rceil}<2 (d+1)$ total transcripts, can compute either an opening to the commitment scheme, an element of known order or a fractional root of $\gr{g}\in\GG$ as encoded in the public parameters $\params$.
 
-First we consider the protocol $\eval'$ which is identical to $\eval$ but in line \ref{line:PoE} of $\pro{EvalBounded}$ $\verifier$ directly checks $C_LC_R^{q^{d'+1}}=\gr{C}$ instead of using a $\textsf{PoE}$ to outsource the computation to the prover. We will show that given a tree of valid extracting $\eval'$ transcripts we can compute a valid witness with overwhelming probability. This shows that $\eval'$ has witness-extended emulation. From Lemma~\ref{lemma:poe_security} it then follows that $\eval$ has witness-extended emulation.
+Using Lemma \ref{lemma:poe_security} it suffices to consider an extractor $\mathcal{X}$ that works on transcripts were all $\textsf{PoE}$s proof true statement. That is $C_LC_R^{q^{d'+1}}=\gr{C}$ on all transcripts.
 
 
 %Now consider the case where $\gr{C}_L \gr{C}_R^{(q^{d'+1})}= \gr{C}$ for all executions. 
-We will now construct the extractor that given a tree of $\eval'$ transcripts, recursively either extracts the encoding of a dyadic rational polynomial $f(X)\in \mathbb{D}[X]$ with bounded coefficients or a break of the Order Assumption or the Fractional Root Assumption. In order to break the Order Assumption we instantiate the adversary $\adv_{\textsf{Ord}}$ with the description of the group $\GG$. We also instantiate the fractional root adversary $\adv_{\textsf{FR}}$ with $\GG$ and $\gr{g}$ as encoded in $\crs$.
+$\mathcal{X}$ given a tree of $\eval'$ transcripts, recursively either extracts the encoding of a dyadic rational polynomial $f(X)\in \mathbb{D}[X]$ with bounded coefficients or a break of the Order Assumption or the Fractional Root Assumption. In order to break the Order Assumption we instantiate the adversary $\adv_{\textsf{Ord}}$ with the description of the group $\GG$. We also instantiate the fractional root adversary $\adv_{\textsf{FR}}$ with $\GG$ and $\gr{g}$ as encoded in $\crs$.
 
 Given the tree of transcripts as specified in the general forking lemma (Lemma \ref{lem:forking})  with branching factor $2$ at each level, \emph{i.e.}, $2$ different challenges, we will extract a witness at each node of the tree given witness for both nodes' children. Each level corresponds to a separate invocation to $\pro{EvalBounded}'$. We denote the input to $\pro{Eval}'$ without subscripts, \emph{i.e.}, $\gr{C},z,y,d;f(X)$, and the input to $\pro{EvalBounded}'$ with a subscript indicating the round, \emph{e.g.}, $d_0=d$, $\gr{C}_0=\gr{C}$ and $d_{\lceil \log_2(d)\rceil }=0,\gr{C}_{\lceil \log_2(d+1)\rceil }=\gr{g}^{f}$, \emph{etc}. For the witness polynomials we use superscripts and parentheses, \emph{i.e.}, $f^{(i)}(X)$ to avoid confusion with the notation for coefficients.  We let $\alpha$ and $\alpha'$ denote the two distinct challenges at each node of the transcript tree. We use $'$ to denote the proof elements and witnesses corresponding to the $\alpha'$ challenge, \emph{e.g.}, $\gr{C}_i'$.
 
