@@ -849,24 +849,27 @@ We will prove security by showing that given a polynomial time adversary $\adv_{
 
 In particular we construct an extractor $\mathcal{X}$ that given transcripts with $2$ distinct challenges per round, \emph{i.e.} $2^{\lceil\log_2(d+1)\rceil}<2 (d+1)$ total transcripts, can compute either an opening to the commitment scheme, an element of known order or a fractional root of $\gr{g}\in\GG$ as encoded in the public parameters $\params$.
 
-Using Lemma \ref{lemma:poe_security} it suffices to consider an extractor $\mathcal{X}$ that works on transcripts were all $\textsf{PoE}$s proof true statement. That is $C_LC_R^{q^{d'+1}}=\gr{C}$ on all transcripts.
+Using Lemma \ref{lemma:poe_security} and under the Adaptive Root Assumption, it suffices to consider an extractor $\mathcal{X}$ that works on transcripts of $\eval'$ were all $\textsf{PoE}$s proof true statement. That is $C_LC_R^{q^{d'+1}}=\gr{C}$ on all transcripts.
 
 
 %Now consider the case where $\gr{C}_L \gr{C}_R^{(q^{d'+1})}= \gr{C}$ for all executions. 
-$\mathcal{X}$ given a tree of $\eval'$ transcripts, recursively either extracts the encoding of a dyadic rational polynomial $f(X)\in \mathbb{D}[X]$ with bounded coefficients or a break of the Order Assumption or the Fractional Root Assumption. In order to break the Order Assumption we instantiate the adversary $\adv_{\textsf{Ord}}$ with the description of the group $\GG$. We also instantiate the fractional root adversary $\adv_{\textsf{FR}}$ with $\GG$ and $\gr{g}$ as encoded in $\crs$.
+$\mathcal{X}$ given a tree of $\eval'$ transcripts, recursively either extracts the encoding of an integer polynomial $f(X)\in \mathbb{D}[X]$ with bounded coefficients or a break of the Order Assumption or the Fractional Root Assumption. 
+In order to break the Order Assumption we instantiate the adversary $\adv_{\textsf{Ord}}$ with the description of the group $\GG$. We also instantiate the fractional root adversary $\adv_{\textsf{FR}}$ with $\GG$ and $\gr{g}$ as encoded in $\crs$.
 
 Given the tree of transcripts as specified in the general forking lemma (Lemma \ref{lem:forking})  with branching factor $2$ at each level, \emph{i.e.}, $2$ different challenges, we will extract a witness at each node of the tree given witness for both nodes' children. Each level corresponds to a separate invocation to $\pro{EvalBounded}'$. We denote the input to $\pro{Eval}'$ without subscripts, \emph{i.e.}, $\gr{C},z,y,d;f(X)$, and the input to $\pro{EvalBounded}'$ with a subscript indicating the round, \emph{e.g.}, $d_0=d$, $\gr{C}_0=\gr{C}$ and $d_{\lceil \log_2(d)\rceil }=0,\gr{C}_{\lceil \log_2(d+1)\rceil }=\gr{g}^{f}$, \emph{etc}. For the witness polynomials we use superscripts and parentheses, \emph{i.e.}, $f^{(i)}(X)$ to avoid confusion with the notation for coefficients.  We let $\alpha$ and $\alpha'$ denote the two distinct challenges at each node of the transcript tree. We use $'$ to denote the proof elements and witnesses corresponding to the $\alpha'$ challenge, \emph{e.g.}, $\gr{C}_i'$.
 
-In each round the extracted witness is a dyadic rational polynomial $f^{(i)}(X)\in \mathbb{D}[X]$ such that $\gr{g}^{f^{(i)}(q)}=\gr{C}_i$ such that the coefficients of $f^{(i)}(X)$ are in $C_{b_n,b_d}$, \emph{i.e.}, have bounded numerators and denominators. The degree of $f^{(i)}(X)$ is at most $d_i$ and $f(z) \equiv y \bmod p$. Note that for odd primes $p$ and integer $z$, $f(z)\bmod p$ is always defined.
+In each round the extracted witness is an integer polynomial $f^{(i)}(X)\in \ZZ[X]$ such that $\gr{g}^{f^{(i)}(q)}=\gr{C}_i$ and such that the coefficients are bounded, i.e. all $f^{(i)}(X)$ are in $B_{b_i}$. The degree of $f^{(i)}(X)$ is at most $d_i$ and $f(z) \equiv y \bmod p$. Note that for odd primes $p$ and integer $z$, $f(z)\bmod p$ is always defined.
 
-We extract starting from the leafs of the tree, \emph{i.e.}, $d_{\lceil \log_2(d)\rceil}=0$. From the transcript we can directly extract the constant integer polynomial $f(X)=f \in \ZZ$ such that $\vert f \vert < p^{\lceil\log_2(d+1)\rceil+1}$, $y=f \mod p$, $f(X)=y\in \ZZ_p[X]$ and $\gr{g}^{f}=\gr{C}$ as the witness.
+We extract starting from the leafs of the tree, \emph{i.e.}, $d_{\lceil \log_2(d)\rceil}=0$. From the transcript we can directly extract the constant integer polynomial $f(X)=f \in \ZZ$ such that $\vert f \vert \leq(p-1) (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$, $y=f \mod p$, $f(X)=y\in \ZZ_p[X]$ and $\gr{g}^{f}=\gr{C}$ as the witness.
 
 We now show how to compute the witness for $i-1$ given a witnesses for $i$. 
 
 If $d_i+1$ is odd then we have $\gr{C}_{i-1}^q=\gr{C}_i$. Since $\gr{C}_{i-1}=\gr{g}^{f^{(i-1)}(q)}$ we either have that $q$ divides $f^{(i-1)}(q)$ or since $q$ is odd we have a fractional root of $\gr{g}$. 
 If this is not the case then $f^{(i-1)}(q)=f^{(i)}(q)\cdot q^{-1}$ and $f^{(i)}(X)=\dec(f^{(i)}(q))$ has a zero constant term. Additionally since $y_i=y_{i-1}\cdot z$ and $f^{(i)}(z)\equiv y_i \bmod p$ we have $f^{(i-1)}(z)\equiv y_{i-1} \bmod p$, \emph{i.e.}, $f^{(i-1)}(q)$ is a valid witness and the degree of $f^{(i-1)}(X)=\dec(f^{(i-1)}(q))$ is at most $d_{i-1}=d_i-1$. 
 
-Now if $d_i+1$ is even then we have for a challenge $\alpha$: $\gr{C}_{L,i-1}^\alpha \gr{C}_{R,i-1}=\gr{C}_i=\gr{g}^{f^{(i)}(q)}$ additionally for a challenge $\alpha'\neq \alpha$ we have $\gr{C}_{L,i-1}^{\alpha'} \gr{C}_{R,i-1}=\gr{C}'_i=\gr{g}^{f'^{(i)}(q)}$.  
+Now if $d_i+1$ is even then we can use Lemma~\ref{lem:intrandomcombine} to extract two bounded polynomials $f_{L}^{(i)},f_{R}^{(i)}$.
+
+ have for a challenge $\alpha$: $\gr{C}_{L,i-1}^\alpha \gr{C}_{R,i-1}=\gr{C}_i=\gr{g}^{f^{(i)}(q)}$ additionally for a challenge $\alpha'\neq \alpha$ we have $\gr{C}_{L,i-1}^{\alpha'} \gr{C}_{R,i-1}=\gr{C}'_i=\gr{g}^{f'^{(i)}(q)}$.  
 
  This gives us $\gr{C}_{L,i-1}^{\alpha-\alpha'}=\gr{g}^{f^{(i)}(q)-f'^{(i)}(q)}$. 
  If $\frac{f^{(i)}(q)-f'^{(i)}(q)}{\alpha-\alpha'}$ is not a dyadic rational then this gives us a fractional root of $\gr{g}$, that is the tuple $(f^{(i)}(q)-f'^{(i)}(q),\alpha-\alpha',\gr{C}_{L,i-1})$. If this is not the case then we can compute $\gr{D}=\gr{g}^{\frac{f^{(i)}(q)-f'^{(i)}(q)}{\alpha-\alpha'}}$. Either $\gr{D}=\gr{C}_{L,i-1}$ or $(\gr{D}/\gr{C}_{L,i-1})^{\alpha-\alpha'}=1$, \emph{i.e.} $\gr{D}/\gr{C}_{L,i-1}$ is an element of known order. This would break the Order Assumption.
