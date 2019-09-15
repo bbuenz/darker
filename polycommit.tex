@@ -902,11 +902,11 @@ We opted for an accessible presentation of the $\pro{Eval}$ protocol. In practic
         $\pro{EvalBounded}(\prod_{i=1}^k (\gr{c}_i^{\alpha_i})^{q^{D-d_i}}, \boldsymbol{z}, \boldsymbol{y}, D, pb; \sum_{i=0}^k \alpha_i X^{D-d_i} f_i(X))$, \\
         where $D = \max_i d_i, \boldsymbol{z} = (z_1, \ldots, z_k)$, and $\boldsymbol{y} = (y_1, \ldots, y_k)$.
     \end{itemize}
-    Then $(\prover_\mathsf{join}, \verifier_\mathsf{join})$ has witness-extended emulation if $(\prover_\mathsf{orig}, \verifier_\mathsf{orig})$ has.
+    Then $(\prover_\mathsf{join}, \verifier_\mathsf{join})$ has witness-extended emulation for the relation $\mathcal{R}$ if $(\prover_\mathsf{orig}, \verifier_\mathsf{orig})$ has witness-extended emulation for the relation $\mathcal{R}$.
 \end{theorem}
 
 \begin{proof}
-Todo ...
+We show how to build the extractor $\mathcal{E}_\mathsf{join}$ for $\prover_\mathsf{join}^*$, given black-box access to an extractor $\mathcal{E}_\mathsf{orig}$ and a prover $\prover^*$ attempting to prove a statement $x$. The extractor $\mathcal{E}_\mathsf{join}$ obtains the polynomial $f(X) = \sum_{i=0}^k \alpha_i X^{D-d_i} f_i(X)$ by from the extractor $\mathcal{E}_\pro{Eval}$, and repeating this process for $k$ different $\boldsymbol{\alpha}$'s yields the individual polynomials $f_i(X)$. With the knowledge of these individual polynomials, $\mathcal{E}_\mathsf{join}$ can now generate transcripts for the individual evaluations of $f_i(X)$ occurring in the original protocol. This enables $\mathcal{E}_\mathsf{join}$ to provide $\mathcal{E}_\mathsf{orig}$ with transcripts that are indistinguishable from authentic ones. As a result, $\mathcal{E}_\mathsf{orig}$ will output a transcript-witness pair $(\mathsf{tr}_\mathsf{orig}, w)$. The extractor $\mathcal{E}_\mathsf{join}$ outputs one of the transcripts it provided to $\mathcal{E}_\mathsf{orig}$ in addition to the witnes it received from $\mathcal{E}_\mathsf{orig}$. By the assumption about $\mathcal{E}_\mathsf{orig}$, $w$ is a valid witness: $(x,w) \in \mathcal{R}$.
 \end{proof}
 
 \paragraph{Zero-knowledge.} It is possible to extend the scheme with zero-knowledge, but we do advise against this option. The reason for this advice is two-fold. First, in a SNARK compilation process where the commitment scheme is used as a primitive, zero-knowledge is typically added at the end anyway and it suffices to have a primitive that does not provide zero-knowledge on it own.
