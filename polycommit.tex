@@ -728,7 +728,7 @@ We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pr
         \item \pcind[1] \verifier checks that $y=y_L+z^{d'+1}\cdot y_R \bmod p$, outputs $0$ if check fails.
         \item \pcind[1] \label{line:PoE} \prover and \verifier run $\pro{PoE}(\gr{C}_R, \gr{C}/\gr{C}_L, q^{d'+1})$\pccomment{Showing that $\gr{C}_L\gr{C}_R^{(q^{d'+1})}=\gr{C}$}
         \item \pcind[1] \verifier samples $\alpha \sample [-\frac{p-1}{2},\frac{p-1}{2}]/\{0\}$ and sends it to \prover
-        \item \pcind[1] \prover and \verifier compute $y'\gets\alpha \cdot y_L +y_R \bmod p$, $\gr{C}' \gets \gr{C}_L^\alpha  \gr{C}_R$ and $b'\gets b\cdot p$. 
+        \item \pcind[1] \prover and \verifier compute $y'\gets\alpha  y_L +y_R \bmod p$, $\gr{C}' \gets \gr{C}_L^\alpha  \gr{C}_R$, $b'\gets b \frac{p+1}{2}$. 
         \item \pcind[1] \prover computes $f'(X) \gets \alpha \cdot f_L(X) + f_R(X) \in \ZZ[X]$ \pccomment{$\deg(f'(X))=d'$}
         \item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\params, \gr{C}', z, y', d',b' ; f'(X))$
                \end{enumerate}
@@ -736,30 +736,33 @@ We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pr
 \end{mdframed}
 
 \begin{lemma}
-	The polynomial commitment scheme is correct for polynomials in $\ZZ_p$ of degree at most $d$ if $q> 2\cdot (\frac{p-1}{2})^{\lceil \log_2(d+1)\rceil+1}$.
+	The polynomial commitment scheme is correct for polynomials in $\ZZ_p$ of degree at most $d$ if $q> (p-1) (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$.
 \end{lemma}
 \begin{proof}
 In order to ensure correctness we must ensure that $b< q/2$ and that $|f|\leq b$. To show this we show that in each recursion step the honest prover's witness polynomial has coefficients bounded by $b$ and has degree $d$. 
 We argue inductively that for each recursive call of $\pro{EvalBounded}$ the following constraints on the inputs are satisfied: The degree of $f(X)$ is bounded by $d$. $\gr{C}$ encodes the polynomial, i.e. $\gr{C}=\gr{g}^{f(q)}$ and $f(X)\in B_b$. Also $f(z) = y\bmod p$.
 
-Initially during the execution of $\eval$ the prover maps the coefficients of a polynomial $\bar{f}(X)\in \ZZ_p$ to an integer polynomial $f(X)$ with coefficients in $B_{\frac{p-1}{2}}$ and degree at most $d$ such that $\gr{C}=\gr{g}^{f(q)}$. Additionally $f(z)\bmod p=\bar{f}(z)=y$
+Initially during the execution of $\eval$ the prover maps the coefficients of a polynomial $\bar{f}(X)\in \ZZ_p$ to an integer polynomial $f(X)$ with coefficients in $B_{\frac{p+1}{2}}$ and degree at most $d$ such that $\gr{C}=\gr{g}^{f(q)}$. Additionally $f(z)\bmod p=\bar{f}(z)=y$
 
  In a recursion steps where $d+1$ is odd, $f'(X)=X\cdot f(X)$ is a polynomial of degree $d+1$ such that $\gr{C}'=\gr{C}^q=\gr{g}^{q\cdot f(q)}=\gr{g}^{f'(X)}$. $f'(z)\bmod p = z \cdot f(z) \bmod p=z\cdot y\bmod p$. If $d+1$ is odd, then $d$ and $d+2$ are even.
  
  If $d+1$ is even then, $\prover$ computes $f_L(X)$ and $f_R(X)$ such that $f_L(X)+X^{\frac{d+1}{2}} f_R(X)=f(X)$. Consequently $f(z) \bmod p=f_L(z)+ z^{\frac{d+1}{2}} f_R(z)\bmod p=y_L+z^{\frac{d+1}{2}}  y_R\bmod p =y$. The \textsf{PoE} protocol has perfect correctness so $\gr{g}^{f_L(q)+q^{\frac{d+1}{2}} f_R(X)}=\gr{C}_L\gr{C}_R^{(q^{\frac{d+1}{2}})}=\gr{C}$.
- Finally $f'(X)=\alpha f_L(X) + f_R(X)\in B_{\frac{p-1}{2}\cdot b}$ is a degree $d$ polynomial with coefficients bounded in absolute value by $\frac{p-1}{2}\cdot b$
+ Finally $f'(X)=\alpha f_L(X) + f_R(X)\in B_{\frac{p+1}{2}\cdot b}$ is a degree $d$ polynomial with coefficients bounded in absolute value by $(\frac{p+1}{2})\cdot b$. This is precisely the value of $b'$ the input to the next call of $\pro{EvalBounded}$.
  
-  The verifier's checks occurring in the $\mathsf{PoE}$ succeed due to how $d', \gr{C}_L$ and $\gr{C}_R$ were computed and due to the correctness of $\mathsf{PoE}$. So in these recursion steps, the honest prover will reach the final line which invokes the next recursion step with input $(\params, \gr{C}', z, y', d', b'; f'(X))$. Due to the way the new variables were computed, the same constraints hold for this tuple. In every recursion step, $d$ is either increased by one when it is even, or it is decreased by $(d+1)/2 > 1$. Since $d$ starts as a positive integer, the terminal recursion step $d=0$ must eventually be reached.
+ The updated $y'$ is also correct:
+$f'(z)\bmod p=\alpha f_L(z) +f_R(z) \bmod p= \alpha y_L +y_R\bmod p=y'$
+ 
+ There are exactly $\lceil\log_2(d+1)\rceil$ recursion steps with even $d+1$. In the final recursion step we therefore have $b=\frac{p-1}{2}(\frac{p+1}{2})^{\lceil\log_2(d+1)\rceil}$ and as such the requirement that $q/2>\frac{p-1}{2}(\frac{p+1}{2})^{\lceil\log_2(d+1)\rceil}$. 
+ So if $q>(p-1) (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$ then all verifier checks pass and the verifier outputs $1$.
+ 
+ 
+ % The verifier's checks occurring in the $\mathsf{PoE}$ succeed due to how $d', \gr{C}_L$ and $\gr{C}_R$ were computed and due to the correctness of $\mathsf{PoE}$. So in these recursion steps, the honest prover will reach the final line which invokes the next recursion step with input $(\params, \gr{C}', z, y', d', b'; f'(X))$. Due to the way the new variables were computed, the same constraints hold for this tuple. In every recursion step, $d$ is either increased by one when it is even, or it is decreased by $(d+1)/2 > 1$. Since $d$ starts as a positive integer, the terminal recursion step $d=0$ must eventually be reached.
 
 
 %    Consider the following constraints for a tuple $(\params, \gr{C}, z, y, d, b; f(X))$: a) $\deg(f(X)) \leq d$; b) $\pro{Open}(\params, \gr{C}, f(X) \bmod p, f(X)) = 1$; c) $\forall i \in [0;\deg(f(X))]$, $0 \leq f_i < b$; d) $f(z) = y$. The honest prover activates $\pro{EvalBounded}$ with a tuple where the constraints are satisfied. 
   %  In recursion steps where $d+1$ is odd, the honest prover recurses on a new tuple that also satisfies the constraints because of how the variables were computed. In non-terminal recursion steps where $d+1$ is even, the verifier's check that $y = y_L + z^{d'+1} \cdot y_R$ succeeds due to the way the new variables were computed. The verifier's checks occurring in the $\mathsf{PoE}$ succeed due to how $d', \gr{C}_L$ and $\gr{C}_R$ were computed and due to the correctness of $\mathsf{PoE}$. So in these recursion steps, the honest prover will reach the final line which invokes the next recursion step with input $(\params, \gr{C}', z, y', d', b'; f'(X))$. Due to the way the new variables were computed, the same constraints hold for this tuple. In every recursion step, $d$ is either increased by one when it is even, or it is decreased by $(d+1)/2 > 1$. Since $d$ starts as a positive integer, the terminal recursion step $d=0$ must eventually be reached.
 
 %	What remains to be shown is that in the terminal recursion step, all the verifier's checks pass. The verifier's checks in lines 4---6 follow immediately from the constraints' satisfaction. The check in line 3 passes because in each round the bound on the coefficient size grows by a factor of $p$. For example: If $f'_0=\alpha f_0 + f_1$ for $\alpha \in [0,p-1]$ and $f_0,f_1 \in [0,b]$ then $f'_0\in [0,p\cdot b]$. The recursion has $\lceil \log_2(d+1)\rceil$ rounds which gives us a bound on $b$ of $p^{\lceil \log_2(d+1)\rceil+1}$. 
-	
-	Since all the verifier's checks pass, the verifier outputs 1.
-	\benedikt{This seems long for the correctness proofs. I don't really like the term activate.}
-	\alan{I dropped that term. Would you agree though that this proof highlights and answers non-trivial questions that the previous proof hid under ``immediate''?}
 \end{proof} 
  
 \begin{lemma}
