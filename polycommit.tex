@@ -695,15 +695,15 @@ We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pr
 \begin{minipage}{\textwidth}
 			$\pro{Eval}(\crs, \gr{C}\in \GG, z\in \ZZ_p, y\in \ZZ_p, d \in \NN; f(X)) :$ \pccomment{$f(X) = \sum_{i=0}^d f_i X^i \in \ZZ_p[X]$}
 			\begin{enumerate}[nolistsep]
-			\item \prover and \verifier run $\pro{EvalBounded}(\params,\gr{C},z,y,d,p-1;f(X))$
+			\item \prover and \verifier run $\pro{EvalBounded}(\params,\gr{C},z,y,d,\frac{p-1}{2};f(X))$
 		    \end{enumerate}
 		$\pro{EvalBounded}(\crs,\gr{C}\in \GG,z\in \ZZ_p,y\in \ZZ_p,d\in \NN,b\in \ZZ;f(X)\in B_{b}[X])$
 	    \begin{enumerate}[nolistsep]
         \item \pcif $d=0$:
         \item \pcind[1] \prover sends $f(X)\in \ZZ$ to the verifier. \pccomment{$f=f(X)$ is a constant}
-        \item \pcind[1] \verifier checks that $b< \mu_{p,d}\leq q$\pccomment{$\mu_{p,d}=O(p^{\log(d)})$ is a constant}
+        \item \pcind[1] \verifier checks that $b\cdot \mu_{p,d} < q$\pccomment{$\mu_{p,d}=O(p^{\log(d)})$ is a constant}
         %q/(2^{\lceil \log_2(d+1) \rceil+1} p^{2 \lceil \log_2(d+1) \rceil+1})$
-        \item \pcind[1] \verifier checks that $f \in [0,b]$
+        \item \pcind[1] \verifier checks that $f \in [-b,b]$
           \item \pcind[1] \verifier checks that $f\equiv y \bmod p$
                 \item \pcind[1] \verifier checks that $\gr{g}^{f}=\gr{C}$
 \item \pcind[1] \verifier outputs $1$ \pcif all checks pass, $0$ otherwise.
@@ -720,7 +720,7 @@ We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pr
         \item \pcind[1] \prover sends $y_L,y_R, \gr{C}_L, \gr{C}_R$ to \verifier. \pccomment{See Section \ref{sec:optimiztion} for an optimization}
         \item \pcind[1] \verifier checks that $y=y_L+z^{d'+1}\cdot y_R \bmod p$, outputs $0$ if check fails.
         \item \pcind[1] \label{line:PoE} \prover and \verifier run $\pro{PoE}(\gr{C}_R, \gr{C}/\gr{C}_L, q^{d'+1})$\pccomment{Showing that $\gr{C}_L\gr{C}_R^{(q^{d'+1})}=\gr{C}$}
-        \item \pcind[1] \verifier samples $\alpha \sample [1,p-1]$ and sends it to \prover
+        \item \pcind[1] \verifier samples $\alpha \sample [-\frac{p-1}{2},\frac{p-1}{2}]/\{0\}$ and sends it to \prover
         \item \pcind[1] \prover and \verifier compute $y'\gets\alpha \cdot y_L +y_R \bmod p$, $\gr{C}' \gets \gr{C}_L^\alpha  \gr{C}_R$ and $b'\gets b\cdot p$. 
         \item \pcind[1] \prover computes $f'(X) \gets \alpha \cdot f_L(X) + f_R(X) \in \ZZ[X]$ \pccomment{$\deg(f'(X))=d'$}
         \item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\params, \gr{C}', z, y', d',b' ; f'(X))$
@@ -729,7 +729,7 @@ We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pr
 \end{mdframed}
 
 \begin{lemma}
-	The polynomial commitment scheme is correct for polynomials in $\ZZ_p$ of degree at most $d$ if $\mu_{p,d}\geq  p^{\lceil \log_2(d+1)\rceil+1}$.
+	The polynomial commitment scheme is correct for polynomials in $\ZZ_p$ of degree at most $d$ if $q>  (\frac{p-1}{2})^{\lceil \log_2(d+1)\rceil+1}$.
 \end{lemma}
 \begin{proof}
     Consider the following constraints for a tuple $(\params, \gr{C}, z, y, d, b; f(X))$: a) $\deg(f(X)) \leq d$; b) $\pro{Open}(\params, \gr{C}, f(X) \bmod p, f(X)) = 1$; c) $\forall i \in [0;\deg(f(X))]$, $0 \leq f_i < b$; d) $f(z) = y$. The honest prover activates $\pro{EvalBounded}$ with a tuple where the constraints are satisfied. 
@@ -787,13 +787,16 @@ This means that with overwhelming probability all transcripts are equivalent to 
 	For $\GG \gets \ggen(\lambda)$, and $\gr{g}\sample \GG$. Let $(\gr{C}_L\in \GG,\gr{C}_R\in \GG,\alpha\in [0,p-1],|f|\leq b;\gr{g}^{f}=\gr{C}_L^{\alpha}\gr{C}_R)$ and  $(\gr{C}_L,\gr{C}_R,\alpha'\in [0,p-1],f'\in [0,b];\gr{g}^{f'}=\gr{C}_L^{\alpha'}\gr{C}_R)$ be two transcripts for $\alpha\neq \alpha'$. There exists a PPT algorithm $\mathcal{X}$ that given these transcripts can compute either (1) $f_1,f_2\in \ZZ$ such that $\gr{g}^{f_1}=\gr{C}_1$, $\gr{g}^{f_1}=\gr{C}_2$, $|f_1|\leq b \cdot p$ and $|f_2|\leq b \cdot p$ or (2) an element in $\GG$ of known order or a non-trivial root of $\gr{g}$.
 \end{lemma}
 \begin{proof}
-	Using the transcripts we compute $\gr{C}_{L}^{\alpha-\alpha'}=\gr{g}^{f-f'}$. 
- If $\frac{f-f'}{\alpha-\alpha'}$ is not an integer then this gives us a fractional root of $\gr{g}$, that is the tuple $(f-f',\alpha-\alpha',\gr{C}_{L})$. By Lemma~\ref{lem:strongtofractional}, from a fractional root we can either compute an element of known order or the $\beta$th root of $\gr{g}$, where $\beta = \frac{\alpha-\alpha'}{gcd(f-f',\alpha-\alpha')}\in \ZZ$'.  
- If $\frac{f-f'}{\alpha-\alpha'}$ is indeed an integer then we can compute $\gr{D}=\gr{g}^{\frac{f-f'}{\alpha-\alpha'}}$. Either $\gr{D}=\gr{C}_{L}$ or $(\gr{D}/\gr{C}_{L})^{\alpha-\alpha'}=1$, \emph{i.e.} $\gr{D}/\gr{C}_{L}$ is an element of known order. 
+	Using the transcripts we $\Delta_\alpha\gets\alpha-\alpha'$ and $\Delta_f\gets f-f'$ such that $\gr{C}_{L}^{\Delta_\alpha}=\gr{g}^{\Delta_f}$. 
+ If $\frac{\Delta_f}{\Delta_\alpha}$ is not an integer then this gives us a fractional root of $\gr{g}$, that is the tuple $(\Delta_f,\Delta_\alpha,\gr{C}_{L})$. By Lemma~\ref{lem:strongtofractional}, from a fractional root we can either compute an element of known order or the $\beta$th root of $\gr{g}$, where $\beta = \frac{\Delta_\alpha}{gcd(\Delta_f,\Delta_\alpha)}\in \ZZ$'.  
+ If $\frac{\Delta_f}{\Delta_\alpha}$ is indeed an integer then we can compute $\gr{D}\gets\gr{g}^{\frac{\Delta_f}{\Delta_\alpha}}$. Either $\gr{D}=\gr{C}_{L}$ or $(\gr{D}/\gr{C}_{L})^{\Delta_\alpha}=1$, \emph{i.e.} $\gr{D}/\gr{C}_{L}$ is an element of known order. 
   
-Otherwise we have $\gr{C}_{L}=\gr{g}^{f_L}$ where $f_L=\frac{f-f'}{\alpha-\alpha'}$ is an integer.
-Additionally $\gr{C}_R=\gr{g}^{f_R}$ for $f_R=f-\alpha f_L$.  
-\benedikt{Finish proof by computing order}
+Otherwise we have $\gr{C}_{L}=\gr{g}^{f_L}$ where $f_L=\frac{\Delta_f}{\Delta_\alpha}$ is an integer.
+Additionally $\gr{C}_R=\gr{g}^{f_R}$ for $f_R\gets f-\alpha \cdot f_L$.  
+Now if $f$ and $f'\in[-b,b]$ and $\alpha,\alpha' \in [-\frac{p-1}{2},\frac{p-1}{2}]/\{0\}$ then by triangle inequality $f_L\in [-2b,2b]$. Additionally we have $f_R=\frac{f'\alpha-f \alpha'}{\Delta_\alpha}$. Using the triangle inequality again we have that $f_R \in [-(p-1) \cdot b, (p-1) \cdot b]$.
+%The actual bound on f_R is b*(p-2)
+Given that the protocol has $\lceil \log_2(d+1)\rceil$ rounds and $|f|< p^{\lceil\log_2(d+1)\rceil+1}$ then the final extracted polynomial $f_0(X)\in C_{b_n,b_d}$ for $b_n=2^{\lceil\log_2(d+1)\rceil}p^{2 \lceil\log_2(d+1)\rceil+1}$ and $b_d=\lambda \lceil\log_2(d+1)\rceil$. A sufficient bound on $q$ is therefore, $q>2^{\lceil\log_2(d+1)\rceil}p^{3 \lceil\log_2(d+1)\rceil+1}\approx d \cdot p^3$.
+
 \end{proof}
 \begin{theorem}
 	The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>2^{\lceil \log_2(d+1) \rceil+1} p^{3 \lceil \log_2(d+1) \rceil+1}$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the Adaptive Root Assumption and the Strong RSA Assumption hold for $\ggen$.
@@ -851,9 +854,9 @@ This establishes that $\eval'$ has witness-extended emulation. From Lemma~\ref{l
 
 We opted for an accessible presentation of the $\pro{Eval}$ protocol. In practice, it might make sense to apply certain optimizations.
 
-\textbf{Precomputation.} The prover has to compute powers of $\gr{g}$ as large as $q^d$. While this can be done in linear time, this expense can be shifted to a preprocessing phase in which all elements $\gr{g}^{q^i}, i \in \{1, \ldots, d_{\it max}\}$ are computed. In addition to reducing the prover's workload, this optimization enables parallelizing it. The elements $\gr{g}^{q^i}$ can themselves be adjoined with non-interactive $\mathsf{PoE}$s to establish their correct computation.
+\textbf{Precomputation.} The prover has to compute powers of $\gr{g}$ as large as $q^d$. While this can be done in linear time, this expense can be shifted to a preprocessing phase in which all elements $\gr{g}^{q^i}, i \in \{1, \ldots, d_{\it max}\}$ are computed. In addition to reducing the prover's workload, this optimization enables parallelizing it. The elements $\gr{g}^{q^i}$ can themselves be accompanied by non-interactive $\mathsf{PoE}$s to establish their correct computation.
 
-\textbf{Joining $\mathsf{PoE}$s.} Instead of running each $\mathsf{PoE}$ separately in the order they occur, it pays to postpone to the end where they can be aggregated. Boneh~\emph{et al.} provide an extension to $\mathsf{PoE}$ called $\mathsf{PoHP}$ (proof of homomorphism preimage) to accomplish exactly this task~\cite[\S A.1]{C:BonBunFis19}. Instead of transmitting $\lceil \log_2(d + 1)\rceil $ primes $\ell$ and as many group elements $\mathsf{Q}$, this optimization requires the transmission of only one of each.
+\textbf{Batching $\mathsf{PoE}$s.} Instead of running each $\mathsf{PoE}$ separately in the order they occur, it is possible to postpone to the end where they can be aggregated. Boneh~\emph{et al.} provide an extension to $\mathsf{PoE}$ called $\mathsf{PoHP}$ (proof of homomorphism preimage) to accomplish exactly this task~\cite[\S A.1]{C:BonBunFis19}. Instead of transmitting $\lceil \log_2(d + 1)\rceil $ primes $\ell$ and as many group elements $\mathsf{Q}$, this optimization requires the transmission of only one of each.
 
 \textbf{Early termination.} The protocol specifies the recursion ends when $d=0$, but the communication cost might be reduced if it terminates earlier. This reduction holds when the size of the fewer group elements $\gr{C}_L$ and $\gr{C}_R$ outweigh the size of the larger polynomial $f(X)$ instead of the constant $f$.
 
