@@ -20,20 +20,17 @@ Interactive Oracle Proofs (IOPs) \cite{TCC:BenChiSpo16, STOC:ReiRotRot16} combin
 
 \begin{definition} [Public-coin linear IOP]
 \label{def:linearIOP}
-Let $\mathcal{R}$ be a binary relation and $\FF$ a finite field. A $t$-round $\ell$-query public-coin linear IOP for $\mathcal{R}$ over $\FF$ with soundness error $\epsilon$ and knowledge error $\delta$ and query length $\mathbf{m} = (m_1,...,m_t)$ satisfies the following requirements: 
+Let $\mathcal{R}$ be a binary relation and $\FF$ a finite field. A $t$-round $\ell$-query public-coin linear IOP for $\mathcal{R}$ over $\FF$ with soundness error $\epsilon$ and knowledge error $\delta$ and query length $\mathbf{m} = (m_1,...,m_t)$ satisfies the following requirements: \\
+ 
+\noindent \underline{Protocol syntax}. There is a prover algorithm $P$, a query algorithm $Q$, and a verification algorithm $V$. For each $i$th round there is a prover state $\textsf{st}^P_i$ and a verifier state $\textsf{st}^V_i$. For any common input $x$ and $\mathcal{R}$ witness $w$, at round 0 the states are $\textsf{st}^P_0 = (x, w)$ and $\textsf{st}^V_0 = x$. 
+In the $i$th round (starting at $i = 1$) the prover outputs a single\footnote{The prover may also output more than one proof oracle per round, however this doesn't add any power since two proof oracles of the same size may be viewed as a single (concatenated) oracle of twice the length.} proof oracle $\proofO_i \leftarrow P(\textsf{st}^P_{i-1})$ in $\FF^{m_i}$ and the verifier outputs a uniformly sampled $\mathbf{r}_i \leftarrow_R \FF^{\mu_i}$. 
+This determines a query matrix $\mathbf{Q}_i \leftarrow Q(\textsf{st}^V_{i-1}, \mathbf{r}_i)$ consisting of $\ell$ column vectors in $\FF^{m_i}$, and the verifier obtains the linear oracle response $\mathbf{a}_i \leftarrow \proofO_i^\top \mathbf{Q}_i$. The updated prover state is $\textsf{st}^P_i \leftarrow (\textsf{st}^P_{i-1}, \mathbf{r}_i)$ and verifier state is $\textsf{st}^V_i \leftarrow (\textsf{st}^P_{i-1}, \mathbf{r}_i, \mathbf{a}_i)$. Finally, $V(\textsf{st}^V_t)$ returns $\textsf{Accept}$ or $\textsf{Reject}$. \\ 
 
-\begin{itemize} 
-\item \underline{Protocol syntax}. There is a prover algorithm $P$, a query algorithm $Q$, and a verification algorithm $V$. For each $i$th round there is a prover state $\textsf{st}^P_i$ and a verifier state $\textsf{st}^V_i$. For any common input $x$ and $\mathcal{R}$ witness $w$, at round 0 the states are $\textsf{st}^P_0 = (x, w)$ and $\textsf{st}^V_0 = x$. 
-In the $i$th round (starting at $i = 1$) the prover outputs\footnote{The prover may also output more than one proof oracle per round, however this doesn't add any power since two proof oracles of the same size may be viewed as a single (concatenated) oracle of twice the length.} $\proofO_i \leftarrow P(\textsf{st}^P_{i-1})$ in $\FF^{m_i}$ and the verifier outputs a uniformly sampled $\mathbf{r}_i \leftarrow_R \FF^{\mu_i}$. 
-This determines a query matrix $\mathbf{Q}_i \leftarrow Q(\textsf{st}^V_{i-1}, \mathbf{r}_i)$ consisting of $\ell$ column vectors in $\FF^{m_i}$, and the verifier obtains the linear oracle response $\mathbf{a}_i \leftarrow \proofO_i^\top \mathbf{Q}_i$. The updated prover state is $\textsf{st}^P_i \leftarrow (\textsf{st}^P_{i-1}, \mathbf{r}_i)$ and verifier state is $\textsf{st}^V_i \leftarrow (\textsf{st}^P_{i-1}, \mathbf{r}_i, \mathbf{a}_i)$. Finally, $V(\textsf{st}^V_t)$ returns $\textsf{Accept}$ or $\textsf{Reject}$.
+\noindent \underline{Completeness}. For every $(x, w) \in \mathcal{R}$, following the protocol syntax above $V(\textsf{st}^V_t)$ returns $\textsf{Accept}$ with probability 1. \\
 
-\item \underline{Completeness}. For every $(x, w) \in \mathcal{R}$, following the protocol syntax above $V(\textsf{st}^V_t)$ returns $\textsf{Accept}$ with probability 1. 
+\noindent \underline{Soundness}. If $(x, w) \notin \mathcal{R}$ for every $w$, then for every prover algorithm $P^*$ that outputs a linear function oracle $\proofO^*_i: \FF^{m_i} \rightarrow \FF$ in the $i$th round of the protocol initialized on $x$, the probability $V(\textsf{st}^V_t)$ returns $\textsf{Accept}$ is less than $\epsilon$. \\
 
-\item \underline{Soundness}. If $(x, w) \notin \mathcal{R}$ for every $w$, then for every prover algorithm $P^*$ that outputs a linear function oracle $\proofO^*_i: \FF^{m_i} \rightarrow \FF$ in the $i$th round of the protocol initialized on $x$, the probability $V(\textsf{st}^V_t)$ returns $\textsf{Accept}$ is less than $\epsilon$. 
-
-\item \underline{Knowledge}. There exists a PPT knowledge extractor $\mathcal{E}$ such that for any prover algorithm $P^*$ and every $x$, if $V(\textsf{st}^V_t)$ outputs \textsf{Accept} in its interaction with $P^*$ on input $x$ with probability greater than $\delta$ then $\mathcal{E}^{P^*}(x)$ outputs $w$ such that $(x, w) \in \mathcal{R}$ in expected polynomial time. $\mathcal{E}^{P^*}(x)$ receives the input $x$ and interacts with $P^*$ via rewinding, sending partial transcripts and receiving $P^*$'s next output. (Although the verifier only accesses $P^*$'s output by querying a linear function oracle, $E$ reads the whole output). 
-
-\end{itemize}
+\noindent \underline{Knowledge}. There exists a PPT knowledge extractor $\mathcal{E}$ such that for any prover algorithm $P^*$ and every $x$, if $V(\textsf{st}^V_t)$ outputs \textsf{Accept} in its interaction with $P^*$ on input $x$ with probability greater than $\delta$ then $\mathcal{E}^{P^*}(x)$ outputs $w$ such that $(x, w) \in \mathcal{R}$ in expected polynomial time. $\mathcal{E}^{P^*}(x)$ receives the input $x$ and interacts with $P^*$ via rewinding, sending partial transcripts and receiving $P^*$'s next output. (Although the verifier only accesses $P^*$'s output by querying a linear function oracle, $E$ reads the whole output). \\
 
 Furthermore, the linear IOP has \textbf{degree} $d$ if for each $i \in [t]$ and $\textsf{st}^V_{i-1}$ there are $\ell$ $\mu_i$-variate degree-$d$ polynomial functions $p_1,...,p_\ell: \FF^{\mu_i} \rightarrow \FF^{m_i}$ such that $Q(\textsf{st}^V_{i-1}, \mathbf{r}_i) = p_i(\mathbf{r}_i)$. The IOP is \textbf{algebraic} for a parameter $\lambda$ if $d = poly(\lambda)$. 
 It is \textbf{input-oblivious} if $x$ is not included in the state passed to $Q$, and is \textbf{stateless} if the only input to $Q$ in each round is the round index $i$ and $\mathbf{r}_i$.
@@ -136,7 +133,7 @@ The original linear IOP is modified as follows.
 
 If all substeps succeed the the verifier obtains correct output of each oracle query from the original IOP. These outputs are passed to the original verifier decision algorithm, which either accepts or rejects. 
 
-\paragraph{Round complexity} The prover and verifier can first simulate the $t$-round original IOP  on the verifier's public-coin challenges, proceeding as if all queries were answered honestly. Whereeve the original IOP prover would send an oracle for the vector $\proofO$ the prover sends $f_\pi$. Then, after the verifier has sent its final public coin challenge from the original IOP, there is one more round in which the prover sends all $F_{i, k}$ for the $k$th query vector in the $i$th round and all the purported answers $a_{i, k}$ to the $k$th query in the $i$th round. The prover/verifier engage in the protocol above to prove that these answers are correct. The inner product subprotocol for each $F_{i,k}$ with $f_\pi$ can be done in parallel with the check that $F_{i,k}(\beta) = \tilde{P}_{i,k}(\mathbf{r}_i, \beta)$. Thus, there is only one extra round.    
+\paragraph{Round complexity} The prover and verifier can first simulate the $t$-round original IOP  on the verifier's public-coin challenges, proceeding as if all queries were answered honestly. Whereever the original IOP prover would send an oracle for the vector $\proofO$ the prover sends $f_\pi$. Then, after the verifier has sent its final public coin challenge from the original IOP, there is one more round in which the prover sends all $F_{i, k}$ for the $k$th query vector in the $i$th round and all the purported answers $a_{i, k}$ to the $k$th query in the $i$th round. The prover/verifier engage in the protocol above to prove that these answers are correct. The inner product subprotocol for each $F_{i,k}$ with $f_\pi$ can be done in parallel with the check that $F_{i,k}(\beta) = \tilde{P}_{i,k}(\mathbf{r}_i, \beta)$. Thus, there is only one extra round.    
 
 
 
@@ -157,9 +154,10 @@ Let $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ be a multivar
 
 If the verifier does not abort in any of these subprotocols, then it receives a simulated IOP transcript of oracle query outputs. It runs the IOP verifier $V$ on this transcript and outputs the result. 
 
+\paragraph{Optimization: delayed evaluation} As an optimization to reduce round-complexity and enable batching techniques, all invocations of $\pro{Eval}$ can be delayed until the final round and therefore could be run in parallel. As a caveat, this optimization is not considered in our analysis of witness-extended emulation in Lemma~\ref{lem:IOPcompiler}. Indeed, it would complicate the security argument because we assume that $\eval$ is executed on each proof oracle immediately after it is sent and we use the fact that the knowledge extractor obtains the proof oracle using the $\eval$ extractor. However, this does not appear fundamental. An $\eval$ can only cause the protocol to abort or continue. The entire protocol can be simulated as if each $\eval$ passes, and only run the $\eval$'s at the end. 
 %We begin with a lemma on using polynomial commitments (that has witness-extended emulation) to compile a public-coin polynomial IOP with negligible knowledge error into a public-coin interactive argument with witness-extended emulation. 
 
-\begin{lemma}
+\begin{lemma}\label{lem:IOPcompiler}
 If the polynomial commitment scheme $\Gamma$ has witness-extended emulation and the $t$-round polynomial IOP for $\mathcal{R}$ has negligible knowledge error, then \emph{Compilation I} generates a public-coin interactive argument for $\mathcal{R}$ that has witness-extended emulation. The compilation also preserves HVZK. 
 \end{lemma}
 
@@ -217,7 +215,7 @@ In conclusion, if $\tr$ is accepting with non-negligible probability, then there
 We discuss three concrete examples of polynomial IOPs to which we can apply our polynomial commitment compiler. Section~\ref{sec:optimizations} discusses optimizations and performance estimates for a compilation of the polynomial IOP introduced in \textsf{Sonic}~\cite{Sonic} and improved in \textsf{PLONK}. 
 
 \subsubsection{Sonic} 
-\textsf{Sonic} is zkSNARK system that has a universal trusted setup, which produces a $CRS$ of $n$ group elements that can be used to prove any statement represented as arithmetic circuits with at most $n$ gates. The CRS can also be updated (e.g. to handle larger circuits, or increase the trust distribution) without re-doing the initial setup. The result in \textsf{Sonic} was not presented using the language of IOPs. Furthermore, the result also relied on a special construction of polynomial commitments (a modification of Kate et. al.~\cite{ASIACRYPT:KatZavGol10}) that forces the prover to commit to a Laurent polynomial with no constant term. Given our generic reduction from coefficient queries to evaluation queries (Section~\ref{sec:opencoefficient}), we re-characterize the main theorem of \textsf{Sonic} as follows: 
+\textsf{Sonic} is zk-SNARK system that has a universal trusted setup, which produces a $CRS$ of $n$ group elements that can be used to prove any statement represented as arithmetic circuits with at most $n$ gates. The CRS can also be updated (e.g. to handle larger circuits, or increase the trust distribution) without re-doing the initial setup. The result in \textsf{Sonic} was not presented using the language of IOPs. Furthermore, the result also relied on a special construction of polynomial commitments (a modification of Kate et. al.~\cite{AC:KatZavGol10}) that forces the prover to commit to a Laurent polynomial with no constant term. Given our generic reduction from coefficient queries to evaluation queries (Section~\ref{sec:opencoefficient}), we re-characterize the main theorem of \textsf{Sonic} as follows: 
 
 \begin{theorem}[Sonic Bivariate, MBKM19]
 There exists a 2-round polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with arithmetic complexity $n$) that makes 1 query to a bivariate polynomial oracle of degree $n$ on each variable, and 6 queries to degree $n$ univariate oracles. The preprocessing verifier does $O(n)$ work to check the single bivariate oracle. 
@@ -225,13 +223,23 @@ There exists a 2-round polynomial IOP with preprocessing for any NP relation $\m
 
 The number of univariate queries increased from the original $3$ in \textsf{Sonic} (with special commitments) to $6$ with our generic coefficient query technique. For uniform circuits, the bivariate query is not necessary and can be evaluated efficiently by the verifier. If we were to compile the bivariate query directly using our multivariate commitment scheme this would result in $O(n^2)$ prover time (a bivariate polynomial with degree $n$ on each variable is converted to a univariate polynomial of degree roughly $n^2$). However, \textsf{Sonic} also provides a way to replace the bivariate polynomial with several degree $n$ univariate polynomials and more rounds of communication. 
 
-\begin{theorem}[Sonic Univariate, MBKM19]
+\begin{theorem}[Sonic Univariate, MBKM19]\label{thm:sonic} 
 There exists a 5-round polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with arithmetic complexity $n$) that makes 27 queries overall to univariate degree $n$ polynomial oracles. The preprocessing verifier does $O(n)$ work to check $12$ univariate degree $n$ polynomials. 
 \end{theorem}
  
-Combining the $\pro{Sonic}$ IOP with the new transparent polynomial compiler of Section~\ref{sec:polycommit}. 
+Combining the $\pro{Sonic}$ IOP with the new transparent polynomial compiler of Section~\ref{sec:protocol} gives the following result:  
 
+\begin{theorem} 
+There exists an $O(\log n)$-round public-coin interactive argument of knowledge for any NP relation of size $n$ that has $O(\log n)$ communication, $O(\log n)$ ``online" verification, quasilinear prover time, and a preprocessing step that is verifiable in quasilinear time. The argument of knowledge has witness-extended emulation. 
+\end{theorem}
+\begin{proof}
+We apply the univariate polynomial commitment scheme from Section~\ref{sec:protocol} to the 5-round polynomial IOP from Theorem~\ref{thm:sonic}. Denote this commitment scheme by $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ 
 
+The preprocessing requires running $\pro{Commit}$ on $12$ univariate degree $n$ polynomials, which involves a quasilinear number of group operations in the group of unknown order $\GG$ determined by $\pro{Setup}$. The prover sends a constant number of proof oracles of degree $n$ to the verifier, which also takes a quasilinear number of group operations. Finally, the 27 queries are replaced with at most $27$ (parallel) invocations of $\eval$, which adds $O(\log n )$ rounds and has $O(\log n)$ communication. (Recall tha the evaluations can be delayed until the last round of the underlying IOP and therefore can be run in parallel). By Theorem~\ref{thm:polycommitsecurity} (i.e. $\Gamma$ has witness extended emulation) and Lemma~\ref{lem:IOPcompiler}, the compiled interactive argument has witness-extended emulation. 
+
+\end{proof}
+
+\paragraph{Zero knowledge} Unfortunately, the \textsf{Sonic} IOP as originally presented does not have HVZK. However, we show how to easily modify the underlying IOP to obtain HVZK. 
 
 \subsubsection{Spartan}
 \textsf{Spartan}~\cite{Spartan} transforms an arbitrary circuit satisfaction problem into a polynomial IOP based on an arithmetization technique developed by Blumberg et. al. \cite{EPRINT:BTVW14}, which improved on the classical techniques of Babai, Fortnow, and Lund~\cite{BFL}. Specifically, satisfiability of a 2-fan-in arithmetic circuit on $n$ gates can be transformed into the expression: 
