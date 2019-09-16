@@ -235,7 +235,8 @@ The \defn{Dyadic Rational Root Assumption} holds for $\ggen$ if for any efficien
                       \GG \sample \ggen(\lambda) \\ 
                       \gr{g} \sample \GG \\
                       (\alpha, \beta, \gr{u}) \sample \adv(\GG, \gr{g}) \\
-                      \quad \textnormal{where} \, |\alpha|<2^{\poly}, |\beta|<2^{\poly} \in \ZZ \\
+                      \quad \textnormal{where} \, |\alpha|<2^{\poly}, \\
+                      \quad |\beta|<2^{\poly} \in \ZZ \\
                       \quad \textnormal{and} \, \gr{u} \in \GG 
                 \end{array} 
         \right] \leq \negl \enspace .
@@ -811,6 +812,12 @@ We show how to build the extractor $\mathcal{E}_\mathsf{join}$ for $\prover_\mat
 \paragraph{Performance.} 
 \ben{What is this supposed to say?} 
 
+\textit{Communication complexity.} In the non-interactive protocol, the prover sends $2$ group elements and $2$ field elements. In the final round, the prover sends 
+ 
+ - verification complexity 
+ 
+ - prover complexity
+
 \subsection{Extensions}\label{section:multivariate}
 
 \paragraph{Multivariate commitments} 
@@ -954,6 +961,6 @@ For $d>0$ we have $g^{\hat{y}}=C=C_0^{\alpha}C_1$. Rewinding once we get
 
 \appendix
 
-\input{appendix} 
+%\input{appendix} 
 
 \end{document}
