@@ -93,7 +93,7 @@ The following is an IOP where the prover first sends two degree $d$ univariate p
 \item Prover and verifier engage in the 1 round IOP (Section~\ref{sec:opencoefficient}) for proving that the $d$th coefficient (i.e. on term $X^d$) of $h(X)$ is equal to $a$. (The proof oracles for this subprotocol can all be sent in the first round, so this does not add an additional round). Abort and output $0$ if this fails, otherwise return 1 (accept). 
 \end{itemize}
 
-\paragraph{Knowledge extraction} If $h(X) \neq f(X) \cdot g(X)$ then the verifier's check $y_1 y_2 = y_3$ at the random point $\beta$ fails with probability $1/\FF$. The extractor directly obtains $h(X)$, and by definition the middle coefficient (i.e. on the monomial $X^d$) of $h(X)$ is the inner product $\langle \mathbf{f}, \mathbf{g} \rangle$. Combined with the the knowledge extraction property of the IOP for opening coefficients, it follows that this inner product is equal to $a$.  
+\paragraph{Knowledge extraction} If $h(X) \neq f(X) \cdot g(X)$ then the verifier's check $y_1 y_2 = y_3$ at the random point $\beta$ fails with probability $1/\FF$. The extractor directly obtains $h(X)$, and by definition the middle coefficient (i.e. on the monomial $X^d$) of $h(X)$ is the inner product $\langle \mathbf{f}, \mathbf{g} \rangle$. Combined with the the knowledge extraction property of the IOP for opening coefficients, it follows that this inner product is equal to $a$.  \alan{This does not work unless you flip $g(X)$.}
 
 \subsubsection{Reducing algebraic linear IOPs to polynomial IOPs} 
 

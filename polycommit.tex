@@ -795,7 +795,7 @@ We present several ideas for optimizing the performance of the $\pro{Eval}$ prot
         \item an instruction is added at the end: \verifier sends $\boldsymbol{\alpha} \sample [-\frac{p-1}{2}; \frac{p-1}{2}]^k$ to \prover;
         \item an instruction is added at the end: \\
         $\pro{EvalBounded}(\prod_{i=1}^k (\gr{c}_i^{\alpha_i})^{q^{D-d_i}}, \boldsymbol{z}, \boldsymbol{y}, D, pb; \sum_{i=0}^k \alpha_i X^{D-d_i} f_i(X))$, \\
-        where $D = \max_i d_i, \boldsymbol{z} = (z_1, \ldots, z_k)$, and $\boldsymbol{y} = (y_1, \ldots, y_k)$.
+        where $D = \max_i d_i, \boldsymbol{z} = (z_1, \ldots, z_k)$, and $\boldsymbol{y} = (y_1', \ldots, y_k')$, where ${y'}_j = \sum_{i=0}^k \alpha_i f_i(z_j)$.
     \end{itemize}
     Then $(\prover_\mathsf{join}, \verifier_\mathsf{join})$ has witness-extended emulation for the relation $\mathcal{R}$ if $(\prover_\mathsf{orig}, \verifier_\mathsf{orig})$ has witness-extended emulation for the relation $\mathcal{R}$.
 \end{theorem}
@@ -931,29 +931,25 @@ For $d>0$ we have $g^{\hat{y}}=C=C_0^{\alpha}C_1$. Rewinding once we get
 
 \section{Conclusion}
 
- * talk about the importance of polynomial commitments from an information theoretical point of view, how it links to vector commitments and inner product arguments, how existing SNARK constructions are really just polynomial-IOPs in disguise, how polynomial-IOPs relate to other IOPs
+The compilation of a SNARK for general purpose computations is generally divisible into three phases. First is \emph{arithmetization}, in which the computation is expressed as a satisfaction problem over some algebra. Second is \emph{information-theoretic compilation}, in which the algebraic problem is transformed into an interactive protocol for proving satisfiability or knowledge of witness for the algebraic claim. The third and last step is \emph{cryptographic compilation}, in which information-theoretical and ideal components in the information-theoretical protocol are replaced by cryptographic components, thereby realizing the abstract object at the cost of computational security. 
+
+In the context of this three-pass compilation process, DARK protocols inhabit the last phase. Our polynomial commitment scheme based on groups of unknown order represents an alternative to similar schemes based on powers-of-alpha or Merkle trees of Reed-Solomon codewords. Any SNARK construction that uses these latter schemes as black boxes can be lifted to the DARK family by replacing the polynomial commitment scheme. When the DARK protocol is instantiated with class groups, this replacement obviates the need for a trusted setup.
+
+The polynomial commitment scheme presented by this paper highlights the need for a theoretical framework where such a tool is a native first-order member.  The information-theoretical Polynomial IOP formalism provides exactly such a framework. Upon inspection it is found to capture SNARK constructions such as Sonic and STARK, indicating conceptual soundness. The slightly more general Algebraic Linear IOP captures more SNARK constructions still. While all IOPs can be instantiated with DARK protocols, in the Algebraic Linear case, a quasilinear prover time can no longer be guaranteed. 
+
+By design, the IOP formalisms make abstraction of the cryptographic assumptions used in the layer underneath. As a result, the IOP formalisms fail to capture fully the expressive power of Diophantine Complexity. An interesting question left open by this work is the potential of algebraic IOPs where the proofs represent integers rather than polynomials or vectors over a finite field. An associated question is the search for alternative algebras that naturally commit to integers --- not just alternative groups of unknown order which, while an interesting research project, admit Shor's quantum order finding algorithm~\cite{conf/focs/Shor94} and therefore necessarily fail to provide post-quantum security. The converse is yet another interesting open question: is it possible to instantiate Polynomial IOPs or polynomial commitment schemes with other algebras and hard problems, beyond groups of unknown order and Merklte trees of Reed-Solomon codes --- for instance, from elliptic curve groups and based on the hardness of the discrete logarithm, or based on post-quantum hard problems that are more expressive than generic hash functions.
+
+The cryptographic hardness assumptions underlying the security of SNARK constructions are rarely falsifiable, and this seems to be a by-product of the cryptographic compilation process. In powers-of-alpha type constructions the unfalsifiable hardness assumption is inherently algebraic. In contrast, the hardness assumption of groups of unknown order \emph{are} falsifiable; it is only the Fiat-Shamir heuristic for $\mathsf{polylog}$-many round protocols that is unfalsifiable because it is only provably secure in the random oracle model; a security reduction of such heuristics to standard assumptions is as yet unavailable.
+
+% * nevertheless, polynomial commitment schemes do not necessarily correspond integer relations; it's just that integer relations are powerful enough to do that also --- what other things can they do beyond polynomial commitments?
  
- * how to interface between IOPs and integer relations, as opposed to relations between polynomials and scalars 
- 
- * groups of unknown order are the natural algebraic object for concisely encoding integer relations
- 
- * integer relations are really powerful, especially if you add interaction to the mix. ``You do not know the power of the DARK side.''
- 
- * nevertheless, polynomial commitment schemes do not necessarily correspond integer relations; it's just that integer relations are powerful enough to do that also --- what other things can they do beyond polynomial commitments?
- 
- * falsifiable assumptions at the cost of the fiat-shamir heuristic
- 
- * future work / open questions:
- 
-  - constant-size evaluations
-  
-  - constructions for smaller groups of unknown order (because no subexponential algorithms)
-  
-  - PQ analogues $<--$ for capturing integer relations
-  
-  - PQ analogues $<--$ for capturing polynomial commitments
-  
-  - polynomial commitment schemes from DLOG ?
+% * falsifiable assumptions at the cost of the fiat-shamir heuristic
+% * future work / open questions:
+%  - constant-size evaluations
+%  - constructions for smaller groups of unknown order (because no subexponential algorithms)
+%  - PQ analogues $<--$ for capturing integer relations
+%  - PQ analogues $<--$ for capturing polynomial commitments
+%  - polynomial commitment schemes from DLOG ?
 
 %\bibliography{cryptobib/references}
 \bibliographystyle{alpha}
@@ -961,6 +957,6 @@ For $d>0$ we have $g^{\hat{y}}=C=C_0^{\alpha}C_1$. Rewinding once we get
 
 \appendix
 
-%\input{appendix} 
+\input{appendix} 
 
 \end{document}
