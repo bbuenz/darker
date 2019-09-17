@@ -846,7 +846,7 @@ Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_n)\in \ZZ$ is an encoding of the multi
  \begin{mdframed}[userdefinedwidth=\textwidth]
 \begin{minipage}{\textwidth}
 	\begin{flushleft}
-	$\pro{Setup}(1^\secpar):$
+	$\pro{MultiSetup}(1^\secpar):$
 		\begin{enumerate}[nolistsep]
 			\item $ \GG \sample \ggen(\secpar)$
 			\item $ \gr{g} \sample \GG$
@@ -855,7 +855,7 @@ Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_n)\in \ZZ$ is an encoding of the multi
 			\item Pick a sufficiently large and odd $q\in \NN$ \pccomment{$q=O_\lambda(p^{n \cdot \log(d)})$}
 			\item $\pcreturn \params = (\secpar,\GG,\gr{g},p,q)$
 		\end{enumerate}
-	$\pro{Commit}(\crs;f(X_1,\dots,X_n) \in B_{p}^n[X]\subset \ZZ[X]):$ 		\begin{enumerate}[nolistsep]
+	$\pro{MultiCommit}(\crs;f(X_1,\dots,X_n) \in B_{p}^n[X]\subset \ZZ[X]):$ 		\begin{enumerate}[nolistsep]
 			\item $d\gets \deg(f)$\pccomment{For simplicity assume $f(X_1,\dots,X_n)$ has degree $d$ in each variable}
 			\item $q_i\gets q^{(d+1)^{i-1}}$ for each $i\in [1,n]$
 			\item $\gr{C} \gets \gr{g}^{f(q_1,\dots,q_n)}$
@@ -867,17 +867,26 @@ Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_n)\in \ZZ$ is an encoding of the multi
  
  \begin{mdframed}
 \begin{minipage}{\textwidth}
-			$\pro{MultiEval}(\crs, \gr{C}\in \GG, z_1,\dots z_n,y \in \ZZ_p, d,n, \in \NN; f(X_1,\dots,X_n)\in Z_p^n[X]) :$ 			\begin{enumerate}[nolistsep]
+			$\pro{MultiEval}(\crs, \gr{C}\in \GG, \boldsymbol{z}\in \ZZ_n,y \in \ZZ_p, d,n,b \in \NN; f(X_1,\dots,X_n)\in \ZZ_p^n[X]) :$ 			\begin{enumerate}[nolistsep]
 			\item \pcif{n=1} 
-			\item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\params,\gr{C},z_1,y,d,\frac{p-1}{2}^nx;f(X_1))$ 
+			\item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\params,\gr{C},z_1,y,d,b,x;f(X_1))$ 
 			\item \pcelse
 			\item \pcind[1] Let $\hat{f}(X_n)\gets f(q_1,\dots,q_{n-1},X_n)$
 			\item \pcind[1] Let $\crs_n \gets \{\lambda,\GG,\gr{g},p,q_n\}$
-			\item \pcind[1] \prover and \verifier run the univariate $\pro{EvalBounded}(\params_n,\gr{C},z_n,y,d,q_n;\hat{f}(X))$ but instead of sending $f$, when $d=0$, which is of size $q_n^{d+1}$, the protocol returns it's input, i.e. $\gr{C}',y',b$ and the provers witness $f'(X_1,\dots,X_{n-1})=\dec(f)$ (Lines~\ref{line:basestart}-\ref{line:baseend} of $\pro{EvalBounded}$).
-			\item \pcind[1]\prover and \verifier run $\pro{MultiEval}(\crs,C',z_1,\dots,z_{n-1},y',d,n-1;f')$
+			\item \pcind[1] \prover and \verifier run the univariate $\pro{EvalBounded}(\params_n,\gr{C},z_n,y,d,q_n;\hat{f}(X))$ but instead of sending $f$, when $d=0$, which is of size $q_n^{d+1}$, the protocol returns it's input, i.e. $\gr{C}',y',b'$ and the provers witness $f'(X_1,\dots,X_{n-1})=\dec(f)$ (Lines~\ref{line:basestart}-\ref{line:baseend} of $\pro{EvalBounded}$).
+			\item \pcind[1]$\boldsymbol{z}'\gets (z_1,\dots,z_{n-1})\in \ZZ_p^{n-1}$
+			\item \pcind[1]\prover and \verifier run $\pro{MultiEval}(\crs,C',\boldsymbol{z}',y',d,n-1,b';f')$
 		    \end{enumerate}
       \end{minipage}
 \end{mdframed}
+\begin{theorem}[Multivariate Eval]
+	The polynomial commitment scheme for multi-variate polynomials consisting of protocols $(\pro{MultiSetup},\pro{MultiCommit},\pro{MultiEval})$ has perfect correctness and witness extended emulation if the univariate scheme has perfect correctness and witness extended emulation for $n$-variate polynomials of degree $d$ and if $d^n=\poly$ if $q>(p-1)^{n\cdot \lceil \log_2(d+1)\rceil+1}(\frac{p+1}{2})^{n \cdot \lceil \log_2(d+1)\rceil}$.
+\end{theorem}
+\begin{proof}
+	Perfect correctness follows from the correctness of the univariate scheme and the fact that the bounds $b$ are appropriately updated and remain less than $q/2$.
+	To show witness extended emulation we run the 
+\end{proof}
+
 
 \begin{comment}
 \subsection{Fix coefficients and negative degrees}
@@ -888,6 +897,7 @@ Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_n)\in \ZZ$ is an encoding of the multi
 \subsection{Range Proofs}
 
 Follows from security proof of Eval.
+f(z),f_L(z)+f_R(z)
 \end{comment}
 
 \paragraph{Zero-knowledge.} It is possible to extend the scheme with zero-knowledge. We sketch one way to do this in Appendix~\ref{apx:zeroknowledge}. However, this zero-knowledge transformation impacts performance and also weakens the security assumption because it requires a \emph{proof of knowledge of exponent} (PoKE) by Boneh et. al.~\cite{C:BonBunFis19}, which has only been shown secure in the generic group model. Fortunately, a hiding commitment scheme (with zero-knowledge $\eval$) is not necessary for our main application (building zk-SNARKs) if HVZK can be obtained at the information-theoretic level. Section~\ref{sec:polyiop} discusses how polynomial commitments are used to compile information-theoretic IOPs that already have the HVZK property. 
