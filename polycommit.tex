@@ -721,7 +721,7 @@ Now if the coefficients $f_i$ and $f'_i\in [-b,b]$ and $\alpha,\alpha' \in [-\fr
 
 %%%OLD THEOREM
 \begin{theorem}~\label{thm:polycommitsecurity} 
-	The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>2^{\lceil \log_2(d+1) \rceil+1} p^{3 \lceil \log_2(d+1) \rceil+1}$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the Adaptive Root Assumption and the Strong RSA Assumption hold for $\ggen$.
+	The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>(p-1)^{\lceil \log_2(d+1)\rceil+1}(\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the Adaptive Root Assumption and the Strong RSA Assumption hold for $\ggen$.
 \end{theorem}
 
 \begin{proof}
@@ -754,13 +754,16 @@ This yields $f^{(i)}(X)=f_{L}^{(i)}(X)+X^{\frac{d_i+1}{2}} f_{R}^{(i)}(X)$ a pol
 Note that the application of Lemma~\ref{lem:intrandomcombine} requires that $q/2$ is greater than the magnitude of each of $f^{(i)}$'s coefficient. We will show that this is the case.
 
 The check on $f$ ensures that $|f|\leq b=\frac{(p-1)}{2} (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$. 
-Lemma \ref{lem:forking} in each invocation guarantees that the extracted parent polynomial has coefficients at most $(p-1)$ larger than the coefficients of the childrens polynomials. Given that the transcript tree has depth $\lceil \log_2(d+1)\rceil$ we get that the final extracted polynomial $f^{(0)}(X)\in (p-1)^{\lceil \log_2(d+1)\rceil} \frac{p-1}{2}(\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$ 
+Lemma \ref{lem:forking} in each invocation guarantees that the extracted parent polynomial has coefficients at most $(p-1)$ larger than the coefficients of the childrens polynomials. Given that the transcript tree has depth $\lceil \log_2(d+1)\rceil$ we get that the final extracted polynomial $f_0(X)\in B_b[X]$ has coefficients bounded by $b=(p-1)^{\lceil \log_2(d+1)\rceil} \frac{p-1}{2}(\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$.
+$q$ needs to be large enough such that $f_0(X)$ is uniquely decodable, i.e. $q>2\cdot b=(p-1)^{\lceil \log_2(d+1)\rceil+1}(\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}=O(p^{2\log(d)})$
 
-Given that the protocol has $\lceil \log_2(d+1)\rceil$ rounds and $|f|< p^{\lceil\log_2(d+1)\rceil+1}$ then the final extracted polynomial $f_0(X)\in C_{b_n,b_d}$ for $b_n=2^{\lceil\log_2(d+1)\rceil}p^{2 \lceil\log_2(d+1)\rceil+1}$ and $b_d=\lambda \lceil\log_2(d+1)\rceil$. A sufficient bound on $q$ is therefore, $q>2^{\lceil\log_2(d+1)\rceil}p^{3 \lceil\log_2(d+1)\rceil+1}\approx d \cdot p^3$.
+We can successfully extract either a witness or a fractional root or an element of known order from any tree of valid transcripts of $\eval'$.
+Under the Fractional Root Assumption and the Order Assumption, the probability that a polynomial time adversary along with a polynomial time extractor $\mathcal{X}$ can produce such a fractional root or an element of known order is negligible. $\eval'$, therefore, has witness extended emulation and under the Adaptive Root Assumption by Lemma \ref{lemma:poe_security} so does $\eval$.
+Lemma \ref{lem:ordertoadaptive} and Lemma \ref{lem:strongtofractional} show that we can reduce the assumptions to just the Adaptive Root Assumption and the Strong RSA Assumption.
+%\alan{The adversary has unlimited time to produce a nasty tree of transcripts. Computing elements of known order or fractional roots is easy if time is no issue.} 
+%This, however, only happens with negligible probability by assumption, where the probability is taken over the randomness of the setup. Finally using the forking lemma (Lemma \ref{lem:forking}) we can show that if the Strong RSA Assumption and the Adaptive Root Assumption (which in turn imply the fractional root and the Order Assumption) hold then $\eval'$ has witness extended emulation.
 
-We can successfully extract from any tree of valid transcripts unless the adversary can find an element of known order or a fractional root.\alan{The adversary has unlimited time to produce a nasty tree of transcripts. Computing elements of known order or fractional roots is easy if time is no issue.} This, however, only happens with negligible probability by assumption, where the probability is taken over the randomness of the setup. Finally using the forking lemma (Lemma \ref{lem:forking}) we can show that if the Strong RSA Assumption and the Adaptive Root Assumption (which in turn imply the fractional root and the Order Assumption) hold then $\eval'$ has witness extended emulation.
-
-This establishes that $\eval'$ has witness-extended emulation. From Lemma~\ref{lemma:poe_security} it follows that $\eval$ has witness-extended emulation also.
+%This establishes that $\eval'$ has witness-extended emulation. From Lemma~\ref{lemma:poe_security} it follows that $\eval$ has witness-extended emulation also.
  
  
 %Note that if $\frac{f^{(i)}(q)-f'^{(i)}(q)}{\alpha-\alpha'}$ is in fact a dyadic rational but not an integer then computing $D$ requires the extractor to take power of two roots. In class groups with discriminants that are prime and $7 \bmod 8$ this is always efficiently possible using an algorithm by Gauß~\cite{bosma1996computation}. In other groups of unknown order, such as $\ZZ_n^*/\{-1,1\}$ for composite $n$, it is not known how to efficiently compute square roots. This is, however, not a problem as the scheme can still be proven secure under a stronger Fractional Root Assumption where any rational root breaks the assumption. Even a dyadic rational $\frac{f^{(i)}(q)-f'^{(i)}(q)}{\alpha-\alpha'}$ would then lead to a break of the assumption.
