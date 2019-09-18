@@ -85,7 +85,7 @@ Check that $y = y_L \beta^{-d + i - 1} + \beta^{i+1} y_R - a \beta^i \bmod p$ an
  
 
 \subsubsection{Polynomial IOP for inner product}\label{sec:innerproduct}
-The following is an IOP where the prover first sends two degree $d$ univariate polynomial oracles $f, g$ and proves to the verifier that $\langle \mathbf{f}, \mathbf{g} \rangle = a$ where $\mathbf{f}, \mathbf{g}$ denote the coefficient vectors of $f, g$ respectively. 
+The following is an IOP where the prover first sends two degree $d$ univariate polynomial oracles $f, g$ and proves to the verifier that $\langle \mathbf{f}, \mathbf{g}^r \rangle = a$ where $\mathbf{f}, \mathbf{g}$ denote the coefficient vectors of $f, g$ respectively and $\mathbf{g}^r$ is the reverse of $\mathbf{g}$. This argument is sufficient for our application to transforming algebraic linear IOPs into polynomial IOPs. It is also possible to obtain an IOP that proves the inner product $\langle \mathbf{f}, \mathbf{g} \rangle$ by combining this with a single round IOP showing that one oracle has the reverse coefficient vector as another (see Appendix~\ref{apx:reverse}).  
 
 \begin{itemize}
 \item \emph{Prover}: Sends proof oracles for $f(X)$, $g(X)$, and the degree $2d$ polynomial product $h(X) = f(X)\cdot g(X)$ to the verifier. 
@@ -93,7 +93,8 @@ The following is an IOP where the prover first sends two degree $d$ univariate p
 \item Prover and verifier engage in the 1 round IOP (Section~\ref{sec:opencoefficient}) for proving that the $d$th coefficient (i.e. on term $X^d$) of $h(X)$ is equal to $a$. (The proof oracles for this subprotocol can all be sent in the first round, so this does not add an additional round). Abort and output $0$ if this fails, otherwise return 1 (accept). 
 \end{itemize}
 
-\paragraph{Knowledge extraction} If $h(X) \neq f(X) \cdot g(X)$ then the verifier's check $y_1 y_2 = y_3$ at the random point $\beta$ fails with probability $1/\FF$. The extractor directly obtains $h(X)$, and by definition the middle coefficient (i.e. on the monomial $X^d$) of $h(X)$ is the inner product $\langle \mathbf{f}, \mathbf{g} \rangle$. Combined with the the knowledge extraction property of the IOP for opening coefficients, it follows that this inner product is equal to $a$.  
+\paragraph{Knowledge extraction} If $h(X) \neq f(X) \cdot g(X)$ then the verifier's check $y_1 y_2 = y_3$ at the random point $\beta$ fails with probability $1/\FF$. The extractor directly obtains $h(X)$, and by definition the middle coefficient (i.e. on the monomial $X^d$) of $h(X)$ is the inner product $\langle \mathbf{f}, \mathbf{g}^r \rangle$. Combined with the the knowledge extraction property of the IOP for opening coefficients, it follows that this inner product is equal to $a$.  
+%\alan{This does not work unless you flip $g(X)$.}
 
 \subsubsection{Reducing algebraic linear IOPs to polynomial IOPs} 
 
@@ -114,7 +115,7 @@ The original linear IOP is modified as follows.
 
 \begin{itemize}
 
-\item Wherever the original IOP prover sends an oracle $\proofO$ of length $m_i$, the new prover sends a degree $m_i - 1$ polynomial oracle $f_\pi$ whose coefficient vector is $\proofO$. 
+\item Wherever the original IOP prover sends an oracle $\proofO$ of length $m_i$, the new prover sends a degree $m_i - 1$ polynomial oracle $f_\pi$ whose coefficient vector is \emph{the reverse} of $\proofO$. 
 
 \item Wherever the original IOP makes $\ell$ queries within a round to a particular proof oracle $\proofO$, where queries are defined by query matrix $\mathbf{Q} \in \FF^{m_i \times \ell}$, consisting of column query vectors $(\mathbf{q}_1,...,\mathbf{q}_\ell)$, the new prover and verifier engage in the following interactive subprotocol for each $k \in [\ell]$: 
 
@@ -128,7 +129,7 @@ The original linear IOP is modified as follows.
  
  \item Prover: Compute $a_k = \langle \proofO, \mathbf{q}_k \rangle$ and sends $a_k$ to the verifier. 
  
- \item The prover and verifier run the inner product polynomial IOP from Section~\ref{sec:innerproduct} on the oracles $F_k$ and $f_\pi$ to convince the verifier that $a_k = \langle \proofO, \mathbf{q}_k \rangle$. If the inner product subprotocol fails the verifier aborts and outputs 0.  
+ \item The prover and verifier run the inner product polynomial IOP from Section~\ref{sec:innerproduct} on the oracles $F_k$ and $f_\pi$ to convince the verifier that $a_k = \langle \mathbf{q}_k, \proofO \rangle$. If the inner product subprotocol fails the verifier aborts and outputs 0.  
  \end{itemize}
 \end{itemize}
 
