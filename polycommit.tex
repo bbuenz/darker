@@ -612,6 +612,13 @@ We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pr
       \end{minipage}
 \end{mdframed}
 
+\paragraph{Hiding and Zero-knowledge.} Turning the polynomial commitment into a hiding scheme is easy by replacing $g^{\bar{f}(q)}$ with a Pedersen commitment to $\bar{f}(q)$ over $\GG$. The setup parameters must contain two independent generators $g, h$ for which the discrete logarithm between $g$ and $h$ is unknown. (Previously, in the non-hiding scheme, any generator would suffice). A commitment to $f \in \FF_p$ is then $g^{\bar{f}(q)} h^r$ for random $r \sample [0, 2^\lambda)$. If a trusted (or MPC) setup is acceptable then $g, h$ can be chosen such that $\langle g \rangle = \langle h \rangle$ generate the same subgroup (e.g. set $h = g^\alpha$ for large random $\alpha$). In this case the commitment is statistically hiding~\cite{AC:DamFuj02}. 
+
+The setup can be made publicly verifiable using a hash function onto the group $\GG$, i.e. a collision-resistant function $H: \{0,1\}^* \rightarrow \GG$ that behaves as a random oracle. In this case the commitment is computationally hiding under a \emph{subgroup indistinguishability assumption}, as formulated by Brakerski and Goldwasser~\cite{C:BraGol10}. A subgroup $G' \leq \GG$ is computationally indistinguishable from $\GG$ if $g' \sample G'$ is computationally indistinguishable from $g \sample \GG$. A sufficient assumption that would imply Pedersen commitments with the random oracle setup are computationally hiding is that for $h \sample \GG$, the subgroup $\langle h \rangle$ is indistinguishable from $\GG$. This basic subgroup indistinguishability assumption holds in generic groups of unknown order. However, it does not hold in class groups because $h$ could be a quadratic residue with high probability and Gauss's square root algorithm may be used to test quadratic residuosity efficiently. For class groups, we assume the subgroup indistinguishability assumption applies in $NQR$, the subgroup of non-quadratic residues. It is easy to convert the deterministic $H$ into a PPT hash function onto $NQR$ by iterating until hitting the first quadratic non-residue (succeeding in an expected constant number of iterations). 
+
+It is also possible to transform the interactive $\eval$ scheme into one with HVZK. We sketch one way to do this in Appendix~\ref{apx:zeroknowledge}. This transformation impacts performance as it requires sending several extra group elements per level of recursion resulting in a multiplicative increase in proof size. It also requires a stronger security assumption due to a reliance on a \emph{proof of knowledge of exponent} (PoKE) by Boneh et. al.~\cite{C:BonBunFis19}. The PoKE protocol has been proven secure in the generic group model, but does not reduce to any concrete falsifiable assumption. 
+
+
 \subsection{Analysis of polynomial commitment scheme} 
 \begin{lemma}
 	The polynomial commitment scheme is correct for polynomials in $\ZZ_p$ of degree at most $d$ if $q> (p-1) (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$.
@@ -818,9 +825,8 @@ We show how to build the extractor $\mathcal{E}_\mathsf{join}$ for $\prover_\mat
  
  - prover complexity
 
-\subsection{Extensions}\label{section:multivariate}
+\subsection{Multivariate polynomial commitments}\label{sec:multivariate}
 
-\paragraph{Multivariate commitments} 
 We can extend our polynomial commitment scheme to multivariate polynomials. The idea is simply to use higher degrees of $q$ to encode the polynomial. The protocol is linear in the number of variables and logarithmic in the total degree of the polynomial. For simplicity we only present a protocol for $n$-variate polynomials where the degree in each variable is $d$. The protocol naturally extends to different degrees per variable.
 
 Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_n)\in \ZZ$ is an encoding of the multivariate polynomial $f(X_1,\dots,X_n)$ with maximum degree $d$. Using this encoding we can naturally derive the multi-variate commitment scheme and $\eval$ protocol. The $\eval$ protocol  computes the univariate polynomials $f(q_1,\dots,q_{n-1},X_n)$ and then uses the univariate eval protocol to reduce the claim from a claim about an $n$-variate polynomial to one about an $n-1$-variate one. At the final step the prover opens the now constant polynomial and the verifier can check the claim. For a bivariate (say $X$ and $Y$) cubic polynomial the protocol would first reduce the degree of $X$ to $0$ in two rounds of interaction and then reduce the degree of $Y$ using another two rounds.
@@ -871,9 +877,6 @@ Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_n)\in \ZZ$ is an encoding of the multi
 
 Follows from security proof of Eval.
 \end{comment}
-
-\paragraph{Zero-knowledge.} It is possible to extend the scheme with zero-knowledge. We sketch one way to do this in Appendix~\ref{apx:zeroknowledge}. However, this zero-knowledge transformation impacts performance and also weakens the security assumption because it requires a \emph{proof of knowledge of exponent} (PoKE) by Boneh et. al.~\cite{C:BonBunFis19}, which has only been shown secure in the generic group model. Fortunately, a hiding commitment scheme (with zero-knowledge $\eval$) is not necessary for our main application (building zk-SNARKs) if HVZK can be obtained at the information-theoretic level. Section~\ref{sec:polyiop} discusses how polynomial commitments are used to compile information-theoretic IOPs that already have the HVZK property. 
-
 
 \begin{comment}
 \section{Security}
@@ -961,6 +964,6 @@ For $d>0$ we have $g^{\hat{y}}=C=C_0^{\alpha}C_1$. Rewinding once we get
 
 \appendix
 
-%\input{appendix} 
+\input{appendix} 
 
 \end{document}
