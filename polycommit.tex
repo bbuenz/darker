@@ -923,12 +923,12 @@ Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_n)\in \ZZ$ is an encoding of the multi
       \end{minipage}
 \end{mdframed}
 \begin{theorem}[Multivariate Eval]
-	The polynomial commitment scheme for multi-variate polynomials consisting of protocols $(\pro{MultiSetup},\pro{MultiCommit},\pro{MultiEval})$ has perfect correctness and witness extended emulation if the univariate scheme has perfect correctness and witness extended emulation for $n$-variate polynomials of degree $d$ and if $d^n=\poly$ if $q>(p-1)^{n\cdot \lceil \log_2(d+1)\rceil+1}(\frac{p+1}{2})^{n \cdot \lceil \log_2(d+1)\rceil}$.
+	The polynomial commitment scheme for multi-variate polynomials consisting of protocols $(\pro{MultiSetup},\pro{MultiCommit},\pro{MultiEval})$ has perfect correctness and witness extended emulation if the Adaptive Root Assumption and the strong RSA Assumption hold for $\ggen$ for $n$-variate polynomials of degree $d$ and if $d^n=\poly$ if $q>(p-1)^{n\cdot \lceil \log_2(d+1)\rceil+1}(\frac{p+1}{2})^{n \cdot \lceil \log_2(d+1)\rceil}$.
 \end{theorem}
 \begin{proof}
 	Perfect correctness follows from the correctness of the univariate scheme and the fact that the bounds $b$ are appropriately updated and remain less than $q/2$.
 	
-	To show witness extended emulation we use the forking lemma (Lemma \ref{lem:forking}) and build a polynomial time extractor algorithm $\mathcal{X}$ that given a tree of transcripts, extracts a witness.
+	To show witness extended emulation we use the forking lemma (Lemma \ref{lem:forking}) and build a polynomial time extractor algorithm $\mathcal{X}$ that given a binary tree of transcripts of depth $n \cdot\lceil\log(d+1)\rceil$, extracts a witness. Each node corresponds to a different challenge $\alpha$ as described in the forking lemma. The extractor uses the extractor described in the proof of Theorem~\ref{thm:polycommitsecurity}. If $n=1$ it simply 
 \end{proof}
 
 
