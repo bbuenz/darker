@@ -332,14 +332,19 @@ Given a public-coin interactive argument tuple $(\textsf{Setup}, P, V)$ and arbi
 
 %\alaninline{About the above definition: after reading [GI08] I think the adversary outputs a claim $X$ and a \emph{state} $\st$ (which may or may not be a witness). Otherwise you aren't considering adversaries that try to prove a claim without knowing a witness. I marked my proposed changes in blue because I'm not sure.}
 
-\paragraph{Generalized special soundness} The following lemma was proven by Bootle et. al.~\cite{EC:BCCGP16} as a helpful tool for showing that an interactive argument has witness-extended emulation. It reduces the analysis to a generalized version of special soundness. 
+\paragraph{Generalized special soundness} The following lemma was proven by Bootle~\emph{et al.}~\cite{EC:BCCGP16} as a helpful tool for showing that an interactive argument has witness-extended emulation. It reduces the analysis to a generalized version of special soundness. 
 
 Consider a public-coin interactive argument with $r$ rounds and verifier challenges sampled from an exponentially large message space. An \textbf{$\mathbf{(n_1,...,n_r)}$-tree of accepting transcripts} for the interactive argument on input $x$ is defined as follows. The root of the tree is labelled with the statement $x$. The tree has $r$ depth. Each node at depth $i < r$ has $n_i$ children, and each child is labelled with a distinct value for the $i$th challenge. An edge from a parent node to a child node is labelled with a message from prover to verifier. Every path from the root to a leaf corresponds to an accepting transcript, hence there are $\prod_{i=1}^r n_i$ distinct accepting transcripts overall. 
 
-\begin{lemma}[Forking lemma~\cite{EC:BCCGP16}] 
-\label{lem:forking}
-Let $(\textsf{Setup}, P, V)$ be an $r$-round public-coin interactive protocol for $\mathcal{R}$. Let $\mathcal{X}$ be a PPT algorithm that given any $(n_1,...,n_r)$-tree of accepting transcripts for the statement $x$, with $n_i \geq 1$ for all $i$, outputs $w$ such that $(x, w) \in \mathcal{R}$ in expected polynomial time. Assuming $\prod_{i=1}^r n_i \leq \poly$, the interactive argument $(\textsf{Setup}, P, V)$ has witness-extended emulation. 
+%\begin{lemma}[Forking lemma~\cite{EC:BCCGP16}] 
+%\label{lem:forking}
+%Let $(\textsf{Setup}, P, V)$ be an $r$-round public-coin interactive protocol for $\mathcal{R}$. Let $\mathcal{X}$ be a PPT algorithm that given any $(n_1,...,n_r)$-tree of accepting transcripts for the statement $x$, with $n_i \geq 1$ for all $i$, outputs $w$ such that $(x, w) \in \mathcal{R}$ in expected polynomial time. Assuming $\prod_{i=1}^r n_i \leq \poly$, the interactive argument $(\textsf{Setup}, P, V)$ has witness-extended emulation. 
+%\end{lemma}
+\begin{lemma}[Generalized Forking Lemma~\cite{EC:BCCGP16}] \label{lemma:GFL}
+Let $(\prover, \verifier)$ be an $r$-round public-coin interactive argument system for a relation $\mathcal{R}$. Let $\mathcal{T}$ be a tree-finder algorithm that, given access to a $\pro{Record}(\cdots)$ oracle with rewinding capability, runs in polynomial time and outputs an $({n_1}, \ldots, {n_r})$-tree of accepting transcripts with overwhelming probability. Let $\mathcal{X}$ be an extractor algorithm that, given an $(n_1, \ldots, n_r)$-tree of accepting transcripts, runs in polynomial time and outputs a witness $w$ for the statement $x$ with overwhelming probability. Then $(\prover, \verifier)$ has witness-extended emulation.
 \end{lemma}
+
+We note that our phrasing of the Generalized Forking Lemma differs from that of Bootle~\emph{et al.}, which does not mention a tree-finder $\mathcal{T}$ and requires that the extractor $\mathcal{X}$ have success probability one. Nevertheless, the present statement, while weaker, follows directly from the proof of Bootle~\emph{et al.}
 
 \paragraph{Zero knowledge} We recall the definition of \emph{honest verifier zero-knowledge} (HVZK) for interactive proofs. HVZK only considers simulating the view of a verifier that follows the protocol honestly. The Fiat-Shamir transform compiles public-coin proofs that have HVZK into non-interactive proofs that have statistical zero-knowledge (for malicious verifiers). \ben{TODO: cite appropriate works, Bellare-Rogaway, more recent for more than constant round} 
 
