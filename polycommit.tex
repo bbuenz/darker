@@ -829,11 +829,15 @@ We present several ideas for optimizing the performance of the $\pro{Eval}$ prot
 
 %Q^{\ell}g^r x mod \ell = r 
 %
-\paragraph{Two group elements per round.} Instead of sending $\gr{C}_L$ and $\gr{C}_R$ as well as $\gr{Q}\in \GG$ in the \textsf{PoE}, we can reduce the prover communication to just two group elements. The prover sends $\gr{C}_R$ as well as $\gr{Q}$. From the $\textsf{PoE}$ the verifier computes $\gr{Q}^{\ell} \gr{C}_R^r=\gr{C}_R^{q^{d'+1}}$ as well as $\gr{C}_L=\gr{C}/\gr{C}_R^{q^{d'+1}}$. The security of $\textsf{PoE}$ does not require that $\gr{C}_R^{q^{d'+1}}$ be sent before the challenge $\ell$ as it is uniquely defined by $\gr{C}_R$.
-The same optimization works for the non-interactive variant of the protocol. 
+\paragraph{Two group elements per round.} In each round the verifier has a value $\gr{C}$ and receives $\gr{C}_L$ and $\gr{C}_R$ such that $\gr{C}_L\gr{C}_R^{q'+1}=\gr{C}$. This is redundant. It suffices that the verifier sends $\gr{C}_R$. The verifier could now compute $\gr{C}_L\gets \frac{\gr{C}}{\gr{C}_R^{q'+1}}$ but this is expensive. Instead it can use the $\textsf{PoE}$ to infer $\gr{C}_R^{(q^{d'+1})}$. The \textsf{PoE}s first message is $\gr{Q}$. From this $\ell\in \ZZ$ and $r \in \ZZ$ the verifier computes $\gr{C}_R^{q^{d'+1}}\gets \gr{Q}^{\ell} \gr{C}_R^{r}$ as well as $\gr{C}_L=\gr{C}/\gr{C}_R^{q^{d'+1}}$. The security of $\textsf{PoE}$ does not require that $\gr{C}_R^{q^{d'+1}}$ be sent before the challenge $\ell$ as it is uniquely defined by $\gr{C}_R$ and $q^{d'+1}$.
+The same optimization can be applied to the non-interactive variant of the protocol. 
+
+Similarly the verifier can infer $y_L$ as $y_L\gets y-z^{d'+1} y_R$. This reduces the communication to two group elements per round and 1 field element. Additionally the prover sends $f$ which has roughly the size of $\log(d+1)$ field elements, which increases the total communication to roughly $2\log(d)$ elements in $\GG$ and $2\log(d)$ elements in $\ZZ_p$. 
+
 %When the $\mathsf{PoE}$s are made non-interactive, the prover can get away with producing only two group elements instead of three. With a naïve application of the Fiat-Shamir heuristic, the $\mathsf{PoE}$ proof consists of $(\gr{C}_R, \gr{C}_R^\star, \gr{Q})$ where $\gr{Q}$ is determined by $\ell$, which in turn is determined by hashing all previous protocol messages: $\ell \gets \mathsf{H}(\cdot \Vert \gr{C}_R \Vert \gr{C}_R^\star)$. The optimization sends $(\gr{C}_R, \gr{Q}, \ell)$ instead. The verifier can infer $\gr{C}_R^\star = \gr{C}_R^{(q^{d'+1} \bmod \ell)}$ and then test $\mathsf{H}(\cdots \Vert \gr{C}_R \Vert \gr{C}_R^\star) \stackrel{?}{=} \ell$. This optimization is particularly compatible with the previous batching of $\mathsf{PoE}$s optimization, because while there is a unique $\gr{Q}$ for each round, there need only be one $\ell$ for the entire $\eval$ protocol.
 
 \paragraph{Joining $\mathsf{Eval}$s.} While the polynomial commitment scheme might be useful in a standalone context, it is certainly useful as a primitive tool applied in multiple places in a SNARK construction. In such cases, the scheme's homomorphic properties enable another reduction of the bandwidth cost. Instead of proving $k$ evaluations of $k$ polynomials, it suffices to state $k$ evaluation claims and proceed to prove one evaluation of a random linear combination of the $k$ polynomials, with the random weights being supplied by the verifier. If the points $z$ in which the evaluations are queried, are different, then the batched protocol must account for different $(y_i, y_{L,i}, y_{R,i})$ tuples in every round, one for each point $z_i$. The communication cost scales linearly with the number of distinct evaluation points, but the amortization technique remains concretely effective as the group elements dominates the communication cost for a single standalone protocol. This optimization is important enough to warrant its own security proof. Correctness is immediate (after accounting for a larger bound), so we focus on knowledge-soundness.
+
 
 \begin{theorem}
     Let $(\prover_\mathsf{orig}, \verifier_\mathsf{orig})$ be a proof system where $k$ polynomial commitments are evaluated using $\eval$; specifically, $\pro{EvalBounded}(\gr{c}_i, z_i, y_i, d_i, b_i; f_i(X))$ for $i \in [k]$. Let $(\prover_\mathsf{join}, \verifier_\mathsf{join})$ be the same proof system but with the following changes: \begin{itemize} \itemsep0pt
@@ -854,6 +858,15 @@ We show how to build the extractor $\mathcal{E}_\mathsf{join}$ for $\prover_\mat
 %Second, the natural way to add zero-knowledge is via a Pedersen-like commitment function $f(X) \mapsto \gr{g}^{f(q)}\gr{h}^r$, where $\gr{g}, \gr{h}$ are both random group elements and where $r \sample [0; 2^\lambda]$ is a randomizer with enough entropy.
 %The scheme's homomorphism translates naturally to $\eval$ protocol and the only change the protocol needs is in the last step where $\gr{g}^f\gr{h}^{r'}$ must be opened to $f \bmod p$ and \emph{should not leak any other information}.
 %The natural tool to achieve this is a zk-$\mathsf{PoKE}$ (zero-knowledge proof-of-knowledge of exponent)~\cite[\S A.4]{C:BonBunFis19} but unfortunately it is only provably secure in the generic group model.
+\paragraph{Evaluating the polynomial over multiple fields}
+The polynomial commitment scheme is highly flexible. For example it does not specify a prime field $\ZZ_p$ in the setup. It instead commits to an integer polynomial with bounded coefficients. That integer polynomial can be evaluated modulo arbitrary primes which are exponential in the security parameter $\lambda$ as the soundness error is proportional to its inverse.
+Note that $q$ also needs large enough such that the scheme is secure for the given prime $p$ (see Theorem \ref{thm:polycommitsecurity}). The second condition, however, is only a minor one as a careful analysis shows that the challenges $\alpha$ just need to be sampled from an exponential space.
+
+Additionally the proof elements $\gr{C}_L$, $\gr{C}_R \in \GG$ are independent from the field over which the polynomial is evaluated. This means that it is possible to evaluate a committed polynomial $f(X) \in B_b$ over two separate fields $\ZZ_{p}$ and $\ZZ_{p'}$ in parallel using only $2\log(d+1)$ group elements. 
+
+This property can be used to evaluate the polynomial over larger fields by choosing multiple $\lambda$ bit primes and using the Chinese Remainder Theorem to simulate the evaluation over the larger field.
+\benedikt{\@ Alan: This probably needs a pass but I need to write some other sections first.}
+
 
 \paragraph{Performance.} 
 \ben{Still missing... } 
