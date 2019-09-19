@@ -162,9 +162,15 @@ If the polynomial commitment scheme $\Gamma$ has witness-extended emulation and 
 \end{lemma}
 
 \begin{proof}
-%It is trivial to see that if the original IOP has the HVZK property then so does the compiled IOP. We focus on proving witness-extended emulation. 
-\ben{TODO HVZK part}
+The fact that the compilation preserves HVZK is straightforward. We prove this part first and then move on to proving witness-extended emulation. 
 
+\paragraph{HVZK} Let $S_\eval$ denote the HVZK simulator for $\eval$ and $S_\pro{IOP}$ denote the HVZK simulator for the original polynomial IOP. We construct an HVZK simulator $S$ for the compiled interactive argument as follows. 
+$S$ begins by running $S_\pro{IOP}$ on the input $x$, which produces a series of query/response pairs to arbitrarily labeled oracles that are ``sent" from the IOP prover to the verifier. $S$ simulates the view of the honest verifier in the compiled interactive proof by replacing each distinctly labeled oracle with a fresh $\Gamma$ commitment to $0$, i.e. the $0$ polynomial over $\FF_p$. By the hiding property of $\Gamma$ this has negligible distance $\delta_0$ from the commitment sent in the real protocol.
+(It places this commitment at the location in the transcript where the commitment to this oracle would be sent in the compiled protocol).
+ For each query/response pair $(z, y)$ to an oracle, $S$ runs $S_\eval$ to simulate the view of an honest-verifier in the $\eval$ protocol opening a hiding polynomial commitment to the value $y$ at the point $z$. Let $P$ denote an upper bound on the total number of oracles sent and $Q$ denote an upper bound on the total number of queries to IOP oracles. 
+If the simulation of $S_\pro{IOP}$ has statistical distance $\delta_1$ from the real IOP verifier's view, and each simulated $\eval$ subprotocol has statistical distance $\delta_2$ to the real $\eval$ verifier's view, then the output of $S$ has statistical distance at most $P/\delta_0 + \delta_1 + Q/\delta_2$ from $\textsf{View}_{\langle P(x, w), V(x) \rangle}$. For $P, Q < \poly$ and $\delta_0, \delta_1, \delta_2 < \negl$ this statistical distance is negligible in $\lambda$. 
+
+\paragraph{Witness-extended emulation (knowledge)}
 Without loss of generality, assume the original IOP makes at least one query to each oracle sent (i.e. the queries derived from the verifier's random challenge in this round contain at least one per proof oracle). An oracle which is never queried can be ommitted from the IOP.
 
 We denote by $\verifier$ the IP verifier for the compiled IP, and $\verifier_{O}$ the verifier for the original IOP. 
@@ -221,13 +227,13 @@ We discuss three concrete examples of polynomial IOPs to which we can apply our 
 \textsf{Sonic} is zk-SNARK system that has a universal trusted setup, which produces a $CRS$ of $n$ group elements that can be used to prove any statement represented as arithmetic circuits with at most $n$ gates. The CRS can also be updated (e.g. to handle larger circuits, or increase the trust distribution) without re-doing the initial setup. The result in \textsf{Sonic} was not presented using the language of IOPs. Furthermore, the result also relied on a special construction of polynomial commitments (a modification of Kate et. al.~\cite{AC:KatZavGol10}) that forces the prover to commit to a Laurent polynomial with no constant term. Given our generic reduction from coefficient queries to evaluation queries (Section~\ref{sec:opencoefficient}), we re-characterize the main theorem of \textsf{Sonic} as follows: 
 
 \begin{theorem}[Sonic Bivariate, MBKM19]
-There exists a 2-round polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with arithmetic complexity $n$) that makes 1 query to a bivariate polynomial oracle of degree $n$ on each variable, and 6 queries to degree $n$ univariate oracles. The preprocessing verifier does $O(n)$ work to check the single bivariate oracle. 
+There exists a 2-round HVZK polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with arithmetic complexity $n$) that makes 1 query to a bivariate polynomial oracle of degree $n$ on each variable, and 6 queries to degree $n$ univariate oracles. The preprocessing verifier does $O(n)$ work to check the single bivariate oracle. 
 \end{theorem}
 
 The number of univariate queries increased from the original $3$ in \textsf{Sonic} (with special commitments) to $6$ with our generic coefficient query technique. For uniform circuits, the bivariate query is not necessary and can be evaluated efficiently by the verifier. If we were to compile the bivariate query directly using our multivariate commitment scheme this would result in $O(n^2)$ prover time (a bivariate polynomial with degree $n$ on each variable is converted to a univariate polynomial of degree roughly $n^2$). However, \textsf{Sonic} also provides a way to replace the bivariate polynomial with several degree $n$ univariate polynomials and more rounds of communication. 
 
 \begin{theorem}[Sonic Univariate, MBKM19]\label{thm:sonic} 
-There exists a 5-round polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with arithmetic complexity $n$) that makes 27 queries overall to univariate degree $n$ polynomial oracles. The preprocessing verifier does $O(n)$ work to check $12$ univariate degree $n$ polynomials. 
+There exists a 5-round HVZK polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with arithmetic complexity $n$) that makes 27 queries overall to univariate degree $n$ polynomial oracles. The preprocessing verifier does $O(n)$ work to check $12$ univariate degree $n$ polynomials. 
 \end{theorem}
  
 Combining the $\pro{Sonic}$ IOP with the new transparent polynomial compiler of Section~\ref{sec:protocol} gives the following result:  
@@ -239,12 +245,9 @@ There exists an $O(\log n)$-round public-coin interactive argument of knowledge 
 \begin{proof}
 We apply the univariate polynomial commitment scheme from Section~\ref{sec:protocol} to the 5-round polynomial IOP from Theorem~\ref{thm:sonic}. Denote this commitment scheme by $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ 
 
-The preprocessing requires running $\pro{Commit}$ on $12$ univariate degree $n$ polynomials, which involves a quasilinear number of group operations in the group of unknown order $\GG$ determined by $\pro{Setup}$. The prover sends a constant number of proof oracles of degree $n$ to the verifier, which also takes a quasilinear number of group operations. Finally, the 27 queries are replaced with at most $27$ invocations of $\eval$, which adds $O(\log n )$ rounds and has $O(\log n)$ communication. By Theorem~\ref{thm:polycommitsecurity} (i.e. $\Gamma$ has witness extended emulation) and Lemma~\ref{lem:IOPcompiler}, the compiled interactive argument has witness-extended emulation. 
+The preprocessing requires running $\pro{Commit}$ on $12$ univariate degree $n$ polynomials, which involves a quasilinear number of group operations in the group of unknown order $\GG$ determined by $\pro{Setup}$. The prover sends a constant number of proof oracles of degree $n$ to the verifier, which also takes a quasilinear number of group operations. Finally, the 27 queries are replaced with at most $27$ invocations of $\eval$, which adds $O(\log n )$ rounds and has $O(\log n)$ communication. By Theorem~\ref{thm:polycommitsecurity} (i.e. $\Gamma$ has witness extended emulation) and Lemma~\ref{lem:IOPcompiler}, the compiled interactive argument has witness-extended emulation.
 
 \end{proof}
-
-\ben{TODO zero knowledge} 
-%\paragraph{Zero knowledge} Unfortunately, the \textsf{Sonic} IOP as originally presented does not have HVZK. However, we show how to easily modify the underlying IOP to obtain HVZK. 
 
 \subsubsection{Spartan}
 \textsf{Spartan}~\cite{Spartan} transforms an arbitrary circuit satisfaction problem into a polynomial IOP based on an arithmetization technique developed by Blumberg et. al. \cite{EPRINT:BTVW14}, which improved on the classical techniques of Babai, Fortnow, and Lund~\cite{BFL}. Specifically, satisfiability of a 2-fan-in arithmetic circuit on $n$ gates can be transformed into the expression: 
