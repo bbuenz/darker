@@ -486,6 +486,7 @@ assuming the Adaptive Root Assumption (Assumption \ref{assum:adaptiveroot}) hold
 \label{sec:protocol}
 
 \subsection{Polynomial Encoding}
+\label{sec:encoding}
 At the heart of our protocol is an encoding of integer polynomials with bounded coefficients as integers with useful homomorphic properties. To extend the encoding to polynomials over an odd prime field $\mathbb{F}_p$, we first lift them to the ring of polynomials over the integers by selecting representatives from $\{-\frac{p-1}{2}, \ldots, \frac{p-1}{2}\}$ for each coefficient. The lifted polynomial has bounded integer coefficients and can hence be mapped into the integers.
 
 the set $B_{b}:=\{x \in \ZZ \, | \, \vert x \vert  \leq b\}$ of integers with absolute value less than or equal to $b$. In a slight abuse of notation we write $B_{b}[X]\subset \mathbb{Z}[X]$ as the set of integer polynomials with bounded coefficients. 
@@ -860,8 +861,10 @@ We show how to build the extractor $\mathcal{E}_\mathsf{join}$ for $\prover_\mat
 \subsection{Multivariate polynomial commitments}\label{sec:multivariate}
 
 We can extend our polynomial commitment scheme to multivariate polynomials. The idea is simply to use higher degrees of $q$ to encode the polynomial. The protocol is linear in the number of variables and logarithmic in the total degree of the polynomial. For simplicity we only present a protocol for $n$-variate polynomials where the degree in each variable is $d$. The protocol naturally extends to different degrees per variable.
-
-Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_n)\in \ZZ$ is an encoding of the multivariate polynomial $f(X_1,\dots,X_n)$ with maximum degree $d$. Using this encoding we can naturally derive the multi-variate commitment scheme and $\eval$ protocol. The $\eval$ protocol  computes the univariate polynomials $f(q_1,\dots,q_{n-1},X_n)$ and then uses the univariate eval protocol to reduce the claim from a claim about an $n$-variate polynomial to one about an $n-1$-variate one. At the final step the prover opens the now constant polynomial and the verifier can check the claim. For a bivariate (say $X$ and $Y$) cubic polynomial the protocol would first reduce the degree of $X$ to $0$ in two rounds of interaction and then reduce the degree of $Y$ using another two rounds.
+\paragraph{Encoding}
+Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_n)\in \ZZ$ is an encoding of the multivariate polynomial $f(X_1,\dots,X_n)$ with maximum degree $d$. We use $\dec_{Multi}(f(q),n,d)$ to denote the decoding of an $n$-variate polynomial with degree exactly $d$ in each variable. The decoding algorithm simply uses the univariate decoding algorithm described in Section \ref{sec:encoding} to decode a univariate polynomial $\hat{h}(X)$ of degree $(d+1)^n-1$. From this it is easy to compute the $n$-variate polynomial $f(X_1,\dots,X_n)$ of degree $d$ by assigning the coefficients of $X^{(d+1)^i}$ to the variable $X_i$.
+\paragraph{Protocols}
+ Using this encoding we can naturally derive the multi-variate commitment scheme and $\eval$ protocol. The $\eval$ protocol computes the univariate polynomials $f(q_1,\dots,q_{n-1},X_n)$ and then uses the univariate eval protocol to reduce the claim from a claim about an $n$-variate polynomial to one about an $n-1$-variate one. At the final step the prover opens the now constant polynomial and the verifier can check the claim. For a bivariate (say $X$ and $Y$) cubic polynomial the protocol would first reduce the degree of $X$ to $0$ in two rounds of interaction and then reduce the degree of $Y$ using another two rounds.
  
  \begin{mdframed}[userdefinedwidth=\textwidth]
 \begin{minipage}{\textwidth}
@@ -894,7 +897,7 @@ Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_n)\in \ZZ$ is an encoding of the multi
 			\item \pcind[1] Let $\hat{f}(X_n)\gets f(q_1,\dots,q_{n-1},X_n)$
 			\item \pcind[1] Let $\crs_n \gets \{\lambda,\GG,\gr{g},p,q_n\}$
 			\item \pcind[1] \prover and \verifier run the univariate $\pro{EvalBounded}(\params_n,\gr{C},z_n,y,d,q_n;\hat{f}(X))$
-			\item \pcind[2] except: when $d=0$, $f$ is not sent; instead the protocol returns its input at this point, \emph{i.e.}, $(\gr{C}',y',b')$ along with the prover's witness $f'(X_1,\dots,X_{n-1})=\dec(f)$ (Lines~\ref{line:basestart}-\ref{line:baseend} of $\pro{EvalBounded}$). \textcolor{blue}{Alan: $\mathsf{Dec}(f)$ is not defined to do this.}
+			\item \pcind[2] except: when $d=0$, $f$ is not sent; instead the protocol returns its input at this point, \emph{i.e.}, $(\gr{C}',y',b')$ along with the prover's witness $f'(X_1,\dots,X_{n-1})=\dec(f,n-1,d)$ (Lines~\ref{line:basestart}-\ref{line:baseend} of $\pro{EvalBounded}$). 
 			\item \pcind[1]$\boldsymbol{z}'\gets (z_1,\dots,z_{n-1})\in \ZZ_p^{n-1}$
 			\item \pcind[1]\prover and \verifier run $\pro{MultiEval}(\crs,C',\boldsymbol{z}',y',d,n-1,b';f')$
 		    \end{enumerate}
