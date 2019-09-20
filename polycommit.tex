@@ -718,8 +718,8 @@ Then we will show that in groups in which taking square roots is easy we can ext
 \begin{lemma}[Combining for integer witnesses]
 \label{lem:intrandomcombine}
 	For $\GG \gets \ggen(\lambda)$, and $\gr{g}\sample \GG$. 
-	Let $(\gr{C}_L,\gr{C}_R,\alpha,f)$ and  $(\gr{C}_L,\gr{C}_R,\alpha',f')$ be two transcripts such that $\gr{g}^{f}=\gr{C}_L^{\alpha}\gr{C}_R$ and $\gr{g}^{f'}=\gr{C}_L^{\alpha'}\gr{C}_R$ for group elements $\gr{C}_L,\gr{C}_R \in \GG$, and integers $\alpha,\alpha' \in  [-\frac{p-1}{2},\frac{p-1}{2}]$, $\alpha\neq \alpha'$. Further let $f,f'\in \ZZ$ be such that $f(X)\gets\dec(f)$ and $f'(X)\gets\dec(f')$ are degree $d$ bounded polynomials with coefficients bounded by $b$, \emph{i.e.}, $f(X),f'(X)\in B_{b}[X]\subset \ZZ[X]$.
-	 Then there exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either (1) $f_L(X),f_R(X)\in B_{(p-1) \cdot b}[X]$ or (2) an element in $\GG$ of known order or (3) a fractional root of $\gr{g}$.
+	Let $(z,\gr{C}_L,\gr{C}_R,y_L,y_R,\alpha,f,y)$ and  $(z,\gr{C}_L,\gr{C}_R,y_L,y_R,\alpha',f',y')$ be two transcripts such that $\gr{g}^{f}=\gr{C}_L^{\alpha}\gr{C}_R$ and $\gr{g}^{f'}=\gr{C}_L^{\alpha'}\gr{C}_R$ for group elements $\gr{C}_L,\gr{C}_R \in \GG$, and integers $\alpha,\alpha' \in  [-\frac{p-1}{2},\frac{p-1}{2}]$, $\alpha\neq \alpha'$. Further let $f,f'\in \ZZ$ be such that $f(X)\gets\dec(f)$ and $f'(X)\gets\dec(f')$ are degree $d$ bounded polynomials with coefficients bounded by $b$, \emph{i.e.}, $f(X),f'(X)\in B_{b}[X]\subset \ZZ[X]$. And finally let $y=f(z)\bmod p$ and $y'=f'(z)\bmod p$.
+	 Then there exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either (1) $y_L,y_R\in \ZZ_p,f_L(X),f_R(X)\in B_{(p-1) \cdot b}[X]$  such that $f_L(z)=y_L\bmod p$ and $f_R(z)=y_R \bmod p$ or (2) an element in $\GG$ of known order or (3) a fractional root of $\gr{g}$.
 \end{lemma}
 \begin{proof}
 	Using the transcripts we $\Delta_\alpha\gets\alpha-\alpha'$ and $\Delta_f\gets f-f'$ such that $\gr{C}_{L}^{\Delta_\alpha}=\gr{g}^{\Delta_f}$. 
@@ -731,6 +731,8 @@ Additionally $\gr{C}_R=\gr{g}^{f_R}$ for $f_R\gets f-\alpha \cdot f_L$.
 
 We now compute the corresponding polynomials $f_L(X)\gets \dec(f_L)$ and $f_R(X)\gets \dec(f_R)$.
 Now if the coefficients $f_i$ and $f'_i\in [-b,b]$ and $\alpha,\alpha' \in [-\frac{p-1}{2},\frac{p-1}{2}]$ then by the triangle inequality we have that for the $i$th coefficient of $f_L(X)$, $f_{L,i}\in [-2b,2b]$. Additionally we have $f_{R,i}=\frac{f_i'\alpha-f_i \alpha'}{\Delta_\alpha}$. Using the triangle inequality again we have that $f_{R,i} \in [-(p-1) \cdot b, (p-1) \cdot b]$. For an odd prime $p$, $(p-1)\cdot p\geq 2b$. This gives us $f_L(X),f_R(X)\in B_{(p-1) \cdot b}$
+
+Let $y_L=\frac{y-y'}{\Delta_\alpha} \bmod p=\frac{f(z)-f'(z)}{\Delta \alpha} \bmod p$ and $y_R= y-\alpha\frac{y-y'}{\Delta_\alpha} \bmod p$. Since $f_L(X)=\frac{f(X)-f'(X)}{\Delta \alpha}$ this shows that $y_L=f_L(z)\bmod p$ and $y_R=f_R(z)\bmod p$.
 %The actual bound on f_{R,i} is b*(p-2)
 \end{proof}
 
@@ -776,8 +778,8 @@ We now show how to compute the witness for $i-1$ given a witnesses for $i$.
 If $d_i+1$ is odd then we have $\gr{C}_{i-1}^q=\gr{C}_i$. Since $\gr{C}_{i-1}=\gr{g}^{f^{(i-1)}(q)}$ we either have that $q$ divides $f^{(i-1)}(q)$ or since $q$ is odd we have a fractional root of $\gr{g}$. 
 If this is not the case then $f^{(i-1)}(q)=f^{(i)}(q)\cdot q^{-1}$ and $f^{(i)}(X)=\dec(f^{(i)}(q))$ has a zero constant term. Additionally since $y_i=y_{i-1}\cdot z$ and $f^{(i)}(z)\equiv y_i \bmod p$ we have $f^{(i-1)}(z)\equiv y_{i-1} \bmod p$, \emph{i.e.}, $f^{(i-1)}(q)$ is a valid witness and the degree of $f^{(i-1)}(X)=\dec(f^{(i-1)}(q))$ is at most $d_{i-1}=d_i-1$. 
 
-Now if $d_i+1$ is even then we can use Lemma~\ref{lem:intrandomcombine} to either extract a fractional root of $\gr{g}$, an element of known order in $\GG$ or the two bounded polynomials $f_{L}^{(i)}(X),f_{R}^{(i)}(X)$ of degree $\frac{d_i+1}{2}-1$. 
-This yields $f^{(i)}(X)=f_{L}^{(i)}(X)+X^{\frac{d_i+1}{2}} f_{R}^{(i)}(X)$ a polynomial of degree at most $d_i$ such that $\gr{C}_i=\gr{g}^{f^{(i)}(q)}$ and such that $f^{(i)}(z) \bmod p=y_i$.
+Now if $d_i+1$ is even then we can use Lemma~\ref{lem:intrandomcombine} to either extract a fractional root of $\gr{g}$, an element of known order in $\GG$ or the two bounded polynomials $f_{L}^{(i)}(X),f_{R}^{(i)}(X)$ of degree $\frac{d_i+1}{2}-1$ and $y_L=f_{L}^{(i)}(z)\bmod p$ as well as $y_R=f_{R}^{(i)}(z)\bmod p$. 
+This yields $f^{(i)}(X)=f_{L}^{(i)}(X)+X^{\frac{d_i+1}{2}} f_{R}^{(i)}(X)$ a polynomial of degree at most $d_i$ such that $\gr{C}_i=\gr{g}^{f^{(i)}(q)}$ and such that $f^{(i)}(z) \bmod p=y_L+y_R \cdot z^{\frac{d_i+1}{2}}\bmod p=  y_i$.
 
 Note that the application of Lemma~\ref{lem:intrandomcombine} requires that $q/2$ is greater than the magnitude of each of $f^{(i)}$'s coefficient. We will show that this is the case. \alan{How does this translate to the dyadic case?}
 
@@ -935,11 +937,7 @@ We can therefore use Lemma~\ref{lem:poe} to replace all \textsf{PoE} executions 
 	
 	$\mathcal{X}_{\pro{MultiEval}}$ takes the entire transcript tree and invokes the univariate extractor on input $\gr{C}$ to extract either a degree $(d+1)^n-1$ polynomial univariate polynomial $\hat{f}(X)$ or an element of known order or a fractional root of $\gr{g}$. The extracted polynomial has coefficients bounded by $b=\frac{p-1}{2}(\frac{p^2-1}{2})^{n
 	cdot \lceil\log_2(d+1)\rceil}$. Since $q>2b$ decoding and extraction succeeds. Further using $f(X_1,\dots,X_n)\gets\dec_{Multi}(\hat{f}(q),n,d)$ we can extract an $n$-variate polynomial of degree $d$ in each variable. 
-	It remains to show that $f(z_1,\dots,z_n)=y$.  
-	
-	If $n=1$ the $\mathcal{X}_{\pro{Eval'}}$ extracts a univariate degree $d$ polynomial $f^{(1)}(X_1)\in B_{b}$ for $b=\frac{p-1}{2}(\frac{p^2-1}{2})^{\lceil\log_2(d+1)\rceil}$ such that $f^{(1)}(z_1)=y_1$ or an element of known order in $\GG$ or a fractional root of $\gr{g}$. 
-	
-	If $n>1$ we can recursively extract. Given the $i-1$ variate degree polynomial we call the univariate extractor with $f=f^{(i-1)}(q_1,\dots,q_{i-1})$ as the final prover output. Note that $f<q_{i-1}\cdot b_{i-1}<q_{i}/2$ so the univariate extractor will extract a witness to an assumption break or a univariate polynomial with coefficients less than $b_i\cdot q_i$. We can use the decoding algorithm to decode each coefficient into a $i-1$ variate polynomial with coefficients bounded by $b_i$ such that we can compute $f^{(i)}(X_1,\dots,X_i)\in B_{b_i}$ an $i$-variate polynomial with bounded coefficients. 
+	%It remains to show that $f(z_1,\dots,z_n)=y$. Lemma~\ref{lem:strongtofractional}
 	
 	Under the Strong RSA Assumption and the Adaptive Root Assumption the probability that the polynomial time adversary can produce an element of known order or a fractional root of $\gr{g}$ is negligible. This shows that the multivariate polynomial commitment scheme has witness extended emulation.
 \end{proof}
