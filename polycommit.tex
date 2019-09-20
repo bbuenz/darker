@@ -882,7 +882,9 @@ Additionally the proof elements $\gr{C}_L$, $\gr{C}_R \in \GG$ are independent f
 
 
 \paragraph{Performance.}
-The polynomial commitment scheme has logarithmic proof size and verifier time in the degree $d$ of the committed polynomial.  
+The polynomial commitment scheme has logarithmic proof size and verifier time in the degree $d$ of the committed polynomial. 
+As discussed it has highly batchable proofs and it is possible to evaluate $n$ degree $d$ polynomials at $m$ points using only $2\log_2(d+1)$ group elements and $(m+1)\log_2(d+1)$ field elements.
+We describe the performance for different settings in Table \ref{tab:performance}
 
 \begin{table} 
 \begin{tabular}{l|l||l|l|l}
@@ -898,6 +900,7 @@ The polynomial commitment scheme has logarithmic proof size and verifier time in
                 \eval($f(z)=y, g(z)=y'\in \ZZ_p$)  & $d$ $\GG$ & $O(\lambda d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$2 \log(d) \ZZ_p$ \\
 
 \end{tabular}
+\label{tab:performance}
 \caption{$\GG$ denotes the size of a group element for communication and a single group operation for computation. $\ZZ_p$ denotes the size of a field element, i.e. $\lambda$ bits.}
 \end{table}
 
