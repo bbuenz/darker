@@ -719,16 +719,15 @@ Then we will show that in groups in which taking square roots is easy we can ext
 \label{lem:intrandomcombine}
 	For $\GG \gets \ggen(\lambda)$, and $\gr{g}\sample \GG$. 
 	Let $(\gr{C}_L,\gr{C}_R,\alpha,f)$ and  $(\gr{C}_L,\gr{C}_R,\alpha',f')$ be two transcripts such that $\gr{g}^{f}=\gr{C}_L^{\alpha}\gr{C}_R$ and $\gr{g}^{f'}=\gr{C}_L^{\alpha'}\gr{C}_R$ for group elements $\gr{C}_L,\gr{C}_R \in \GG$, and integers $\alpha,\alpha' \in  [-\frac{p-1}{2},\frac{p-1}{2}]$, $\alpha\neq \alpha'$. Further let $f,f'\in \ZZ$ be such that $f(X)\gets\dec(f)$ and $f'(X)\gets\dec(f')$ are degree $d$ bounded polynomials with coefficients bounded by $b$, \emph{i.e.}, $f(X),f'(X)\in B_{b}[X]\subset \ZZ[X]$.
-	 Then there exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either (1) $f_L(X),f_R(X)\in B_{(p-1) \cdot b}[X]$ or (2) an element in $\GG$ of known order or (3) an integer root of $\gr{g}$.
+	 Then there exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either (1) $f_L(X),f_R(X)\in B_{(p-1) \cdot b}[X]$ or (2) an element in $\GG$ of known order or (3) a fractional root of $\gr{g}$.
 \end{lemma}
 \begin{proof}
 	Using the transcripts we $\Delta_\alpha\gets\alpha-\alpha'$ and $\Delta_f\gets f-f'$ such that $\gr{C}_{L}^{\Delta_\alpha}=\gr{g}^{\Delta_f}$. 
- If $\frac{\Delta_f}{\Delta_\alpha}$ is not an integer then this gives us a fractional root of $\gr{g}$, that is the tuple $(\Delta_f,\Delta_\alpha,\gr{C}_{L})$.\alan{Why not stop at fractional root? That's good enough.} By Lemma~\ref{lem:strongtofractional}, from a fractional root we can either compute an element of known order or the $\beta$th root of $\gr{g}$, where $\beta = \frac{\Delta_\alpha}{gcd(\Delta_f,\Delta_\alpha)}\in \ZZ$.  
- If $\frac{\Delta_f}{\Delta_\alpha}$ is indeed an integer then we can compute $\gr{D}\gets\gr{g}^{\frac{\Delta_f}{\Delta_\alpha}}$. Either $\gr{D}=\gr{C}_{L}$ or $(\gr{D}/\gr{C}_{L})^{\Delta_\alpha}=1$, \emph{i.e.} $\gr{D}/\gr{C}_{L}$ is an element of known order. \alan{What happens when $\gr{D} = \gr{C}_L$?}
-  
-  Otherwise\alan{``otherwise'' as opposed to which other case?} we have $\gr{C}_{L}=\gr{g}^{f_L}$ where $f_L=\frac{\Delta_f}{\Delta_\alpha}$ is an integer.
-Additionally $\gr{C}_R=\gr{g}^{f_R}$ for $f_R\gets f-\alpha \cdot f_L$.  
-\benedikt{Integer root fractional root}
+ If $\frac{\Delta_f}{\Delta_\alpha}$ is not an integer then this gives us a fractional root of $\gr{g}$, that is the tuple $(\Delta_f,\Delta_\alpha,\gr{C}_{L})$.  
+ If $\frac{\Delta_f}{\Delta_\alpha}$ on the other hand is an integer then we can compute $\gr{D}\gets\gr{g}^{\frac{\Delta_f}{\Delta_\alpha}}$. Either $\gr{D}=\gr{C}_{L}$ or $(\gr{D}/\gr{C}_{L})^{\Delta_\alpha}=1$, \emph{i.e.} $\gr{D}/\gr{C}_{L}$ is an element of known order.
+   
+  Otherwise $\gr{D} = \gr{C}_L$ and we have $\gr{C}_{L}=\gr{g}^{f_L}$ where $f_L=\frac{\Delta_f}{\Delta_\alpha}$ is an integer.
+Additionally $\gr{C}_R=\gr{g}^{f_R}$ for $f_R\gets f-\alpha \cdot f_L$.
 
 We now compute the corresponding polynomials $f_L(X)\gets \dec(f_L)$ and $f_R(X)\gets \dec(f_R)$.
 Now if the coefficients $f_i$ and $f'_i\in [-b,b]$ and $\alpha,\alpha' \in [-\frac{p-1}{2},\frac{p-1}{2}]$ then by the triangle inequality we have that for the $i$th coefficient of $f_L(X)$, $f_{L,i}\in [-2b,2b]$. Additionally we have $f_{R,i}=\frac{f_i'\alpha-f_i \alpha'}{\Delta_\alpha}$. Using the triangle inequality again we have that $f_{R,i} \in [-(p-1) \cdot b, (p-1) \cdot b]$. For an odd prime $p$, $(p-1)\cdot p\geq 2b$. This gives us $f_L(X),f_R(X)\in B_{(p-1) \cdot b}$
@@ -751,7 +750,7 @@ We are now in a position to prove the main security statement.
 
 %%%OLD THEOREM
 \begin{theorem}~\label{thm:polycommitsecurity} 
-	The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>(p-1)^{\lceil \log_2(d+1)\rceil+1}(\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the Adaptive Root Assumption and the Strong RSA Assumption hold for $\ggen$.
+	The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>(p-1)(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}=O(p^{2\log(d)})$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the Adaptive Root Assumption and the Strong RSA Assumption hold for $\ggen$.
 \end{theorem}
 
 \begin{proof}
@@ -778,13 +777,13 @@ If $d_i+1$ is odd then we have $\gr{C}_{i-1}^q=\gr{C}_i$. Since $\gr{C}_{i-1}=\g
 If this is not the case then $f^{(i-1)}(q)=f^{(i)}(q)\cdot q^{-1}$ and $f^{(i)}(X)=\dec(f^{(i)}(q))$ has a zero constant term. Additionally since $y_i=y_{i-1}\cdot z$ and $f^{(i)}(z)\equiv y_i \bmod p$ we have $f^{(i-1)}(z)\equiv y_{i-1} \bmod p$, \emph{i.e.}, $f^{(i-1)}(q)$ is a valid witness and the degree of $f^{(i-1)}(X)=\dec(f^{(i-1)}(q))$ is at most $d_{i-1}=d_i-1$. 
 
 Now if $d_i+1$ is even then we can use Lemma~\ref{lem:intrandomcombine} to either extract a fractional root of $\gr{g}$, an element of known order in $\GG$ or the two bounded polynomials $f_{L}^{(i)}(X),f_{R}^{(i)}(X)$ of degree $\frac{d_i+1}{2}-1$. 
-This yields $f^{(i)}(X)=f_{L}^{(i)}(X)+X^{\frac{d_i+1}{2}} f_{R}^{(i)}(X)$ a polynomial of degree at most $d_i$ such that $\gr{C}_i=\gr{g}^{f^{(i)}(q)}$ and such that $f^{(i)}(z) \bmod p=y_i$
+This yields $f^{(i)}(X)=f_{L}^{(i)}(X)+X^{\frac{d_i+1}{2}} f_{R}^{(i)}(X)$ a polynomial of degree at most $d_i$ such that $\gr{C}_i=\gr{g}^{f^{(i)}(q)}$ and such that $f^{(i)}(z) \bmod p=y_i$.
 
 Note that the application of Lemma~\ref{lem:intrandomcombine} requires that $q/2$ is greater than the magnitude of each of $f^{(i)}$'s coefficient. We will show that this is the case. \alan{How does this translate to the dyadic case?}
 
 The check on $f$ ensures that $|f|\leq b=\frac{(p-1)}{2} (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$. 
-Lemma \ref{lem:forking} in each invocation guarantees that the extracted parent polynomial has coefficients at most $(p-1)$ times larger than the coefficients of the children's polynomials. Given that the transcript tree has depth $\lceil \log_2(d+1)\rceil$ we get that the final extracted polynomial $f_0(X)\in B_b[X]$ has coefficients bounded by $b=(p-1)^{\lceil \log_2(d+1)\rceil} \frac{p-1}{2}(\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$.
-Therefore, $q$ needs to be large enough such that $f_0(X)$ is uniquely decodable, \emph{i.e.}, $q>2\cdot b=(p-1)^{\lceil \log_2(d+1)\rceil+1}(\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$.
+Lemma \ref{lem:forking} in each invocation guarantees that the extracted parent polynomial has coefficients at most $(p-1)$ times larger than the coefficients of the children's polynomials. Given that the transcript tree has depth $\lceil \log_2(d+1)\rceil$ we get that the final extracted polynomial $f_0(X)\in B_b[X]$ has coefficients bounded by $b= \frac{p-1}{2}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$.
+Therefore, $q$ needs to be large enough such that $f_0(X)$ is uniquely decodable, \emph{i.e.}, $q>2\cdot b=(p-1)(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$.
 
 We can successfully extract either a witness or a fractional root or an element of known order from any tree of valid transcripts of $\eval'$.
 Under the Fractional Root Assumption and the Order Assumption, the probability that a polynomial time adversary along with a polynomial time extractor $\mathcal{X}$ can produce such a fractional root or an element of known order is negligible. $\eval'$, therefore, has witness extended emulation and under the Adaptive Root Assumption by Lemma \ref{lemma:poe_security} so does $\eval$.
@@ -932,11 +931,14 @@ Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_n)\in \ZZ$ is an encoding of the multi
 	To show witness extended emulation we use the forking lemma (Lemma \ref{lemma:GFL}) and build a polynomial time extractor algorithm $\mathcal{X}_{\pro{MultiEval}}$ that given a binary tree of transcripts of depth $n \cdot\lceil\log(d+1)\rceil$, extracts a witness. Each node corresponds to a different challenge $\alpha$ as described in the forking lemma. The tree consists of $n^{\lceil\log(d+1)\rceil}=\poly$ transcripts. 
 We can therefore use Lemma~\ref{lem:poe} to replace all \textsf{PoE} executions with direct verification checks that $\gr{C}_L\gr{C}_R^{q^{d'+1}}=\gr{C}$. The lemma focusses on the univariate \pro{Eval} protocol but works identically for the multivariate protocol. The probability that an adversary can create any accepting transcript for which the $\textsf{PoE}$ can't be replaced by a direct check is negligible under the Adaptive Root Assumption.
 
-We use subscripts to denote the inputs $\gr{C}_i$ and $y_i$ to $\pro{MultiEval}$ such that the subscript $i$ corresponds to the call of $pro{MultiEval}$ where $n=i$ and the witness polynomial has $i$ variables. 
-For the witness polynomials $f^{(i)}(X_1,\dots,X_{i})$ we use superscripts instead of subscripts to distinguish it from the notation for coefficient.
-
 	We now use the extractor $\mathcal{X}_{\pro{Eval'}}$ described in the proof of Theorem~\ref{thm:polycommitsecurity} to build $\mathcal{X}_{\pro{MultiEval}}$. 
-	If $n=1$ the $\mathcal{X}_{\pro{Eval'}}$ extracts a univariate degree $d$ polynomial $f^{(1)}(X_1)$ such that $f^{(1)}(z_1)=y_1$ or an element of known order in $\GG$ or a fractional root of $\gr{g}$. 
+	
+	$\mathcal{X}_{\pro{MultiEval}}$ takes the entire transcript tree and invokes the univariate extractor on input $\gr{C}$ to extract either a degree $(d+1)^n-1$ polynomial univariate polynomial $\hat{f}(X)$ or an element of known order or a fractional root of $\gr{g}$. The extracted polynomial has coefficients bounded by $b=\frac{p-1}{2}(\frac{p^2-1}{2})^{n
+	cdot \lceil\log_2(d+1)\rceil}$. Since $q>2b$ decoding and extraction succeeds. Further using $f(X_1,\dots,X_n)\gets\dec_{Multi}(\hat{f}(q),n,d)$ we can extract an $n$-variate polynomial of degree $d$ in each variable. 
+	It remains to show that $f(z_1,\dots,z_n)=y$.  
+	
+	If $n=1$ the $\mathcal{X}_{\pro{Eval'}}$ extracts a univariate degree $d$ polynomial $f^{(1)}(X_1)\in B_{b}$ for $b=\frac{p-1}{2}(\frac{p^2-1}{2})^{\lceil\log_2(d+1)\rceil}$ such that $f^{(1)}(z_1)=y_1$ or an element of known order in $\GG$ or a fractional root of $\gr{g}$. 
+	
 	If $n>1$ we can recursively extract. Given the $i-1$ variate degree polynomial we call the univariate extractor with $f=f^{(i-1)}(q_1,\dots,q_{i-1})$ as the final prover output. Note that $f<q_{i-1}\cdot b_{i-1}<q_{i}/2$ so the univariate extractor will extract a witness to an assumption break or a univariate polynomial with coefficients less than $b_i\cdot q_i$. We can use the decoding algorithm to decode each coefficient into a $i-1$ variate polynomial with coefficients bounded by $b_i$ such that we can compute $f^{(i)}(X_1,\dots,X_i)\in B_{b_i}$ an $i$-variate polynomial with bounded coefficients. 
 	
 	Under the Strong RSA Assumption and the Adaptive Root Assumption the probability that the polynomial time adversary can produce an element of known order or a fractional root of $\gr{g}$ is negligible. This shows that the multivariate polynomial commitment scheme has witness extended emulation.
