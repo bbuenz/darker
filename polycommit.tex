@@ -859,12 +859,12 @@ We show how to build the extractor $\mathcal{E}_\mathsf{join}$ for $\prover_\mat
 %The scheme's homomorphism translates naturally to $\eval$ protocol and the only change the protocol needs is in the last step where $\gr{g}^f\gr{h}^{r'}$ must be opened to $f \bmod p$ and \emph{should not leak any other information}.
 %The natural tool to achieve this is a zk-$\mathsf{PoKE}$ (zero-knowledge proof-of-knowledge of exponent)~\cite[\S A.4]{C:BonBunFis19} but unfortunately it is only provably secure in the generic group model.
 \paragraph{Evaluating the polynomial over multiple fields}
-The polynomial commitment scheme is highly flexible. For example it does not specify a prime field $\ZZ_p$ in the setup. It instead commits to an integer polynomial with bounded coefficients. That integer polynomial can be evaluated modulo arbitrary primes which are exponential in the security parameter $\lambda$ as the soundness error is proportional to its inverse.
-Note that $q$ also needs large enough such that the scheme is secure for the given prime $p$ (see Theorem \ref{thm:polycommitsecurity}). The second condition, however, is only a minor one as a careful analysis shows that the challenges $\alpha$ just need to be sampled from an exponential space.
+The polynomial commitment scheme is highly flexible. For example it does not specify a prime field $\ZZ_p$ or a degree $d$ in the setup. It instead commits to an integer polynomial with bounded coefficients. That integer polynomial can be evaluated modulo arbitrary primes which are exponential in the security parameter $\lambda$ as the soundness error is proportional to its inverse.
+Note that $q$ also needs large enough such that the scheme is secure for the given prime $p$ and degree $d$ (see Theorem \ref{thm:polycommitsecurity}). The second condition, however, can be relaxed. A careful analysis shows that the challenges $\alpha$ just need to be sampled from an exponential space, e.g. $[-2^{\lambda},2^{\lambda}]$. So as long as $q>2^{\lambda 2\lceil \log_2(d+1)\rceil+1}$ for RSA groups or  $q>2^{\lambda 3\lceil \log_2(d+1)\rceil+1}$ for Class groups one can evaluate degree $d$ polynomial with coefficients bounded by $2^\lambda$ over any prime field.
 
 Additionally the proof elements $\gr{C}_L$, $\gr{C}_R \in \GG$ are independent from the field over which the polynomial is evaluated. This means that it is possible to evaluate a committed polynomial $f(X) \in B_b$ over two separate fields $\ZZ_{p}$ and $\ZZ_{p'}$ in parallel using only $2\log(d+1)$ group elements. 
 
-This property can be used to evaluate the polynomial over larger fields by choosing multiple $\lambda$ bit primes and using the Chinese Remainder Theorem to simulate the evaluation over the larger field.
+%This property can be used to efficiently evaluate the polynomial modulo a large integer $m$ by choosing multiple $\lambda$ bit primes $p_1,\dots p_k$ such that $\prod_{i=1}^k p_i\geq m$ and using the Chinese Remainder Theorem to simulate the evaluation modulo $m$.
 \benedikt{\@ Alan: This probably needs a pass but I need to write some other sections first.}
 
 
@@ -876,6 +876,7 @@ This property can be used to evaluate the polynomial over larger fields by choos
  - verification complexity 
  
  - prover complexity
+
 
 \subsection{Multivariate polynomial commitments}\label{sec:multivariate}
 
