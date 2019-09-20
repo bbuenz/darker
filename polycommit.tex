@@ -1,4 +1,4 @@
-\documentclass{article}
+\documentclass[11pt]{article}
 \usepackage[operators,lambda,keys,sets,primitives,adversary,asymptotics,advantage]{cryptocode}
 \usepackage{notations}
 \usepackage{mdframed}
@@ -10,6 +10,7 @@
 \usepackage[normalem]{ulem}
 \usepackage{comment}
 \usepackage{hyperref}
+\usepackage[legalpaper, margin=1.5in]{geometry}
 
 %Theorems
 \theoremstyle{definition}
@@ -47,7 +48,7 @@
 \begin{abstract} 
 We construct a new polynomial commitment scheme for multivariate polynomials over finite fields, with public-coin evaluation proofs that have logarithmic communication in the degree of the polynomial. The techniques are reminiscent of \emph{Diophantine Arguments of Knowledge} (Lipmaa, Asiacrypt'03), leveraging integer representations of polynomials and groups of unknown order. Security is shown from falsifiable assumptions that hold in generic groups. Moreover, the scheme does not require a trusted setup if instantiated with class groups. We apply this new cryptographic compiler to algebraic linear IOPs in order to obtain doubly-efficient public-coin IPs with succinct communication and witness-extended emulation for any NP relation. Allowing for linear preprocessing, the online verifier's work is logarithmic in the circuit complexity of the relation.
 
-Concretely, compiling a QAP-based IOP results in quadratic prover time, but we obtain quasi-linear prover time when compiling instead the IOP employed in Sonic (Maller \emph{et. al.}, CCS 2019) based on bivariate Laurent polynomials. Applying the Fiat-Shamir transform in the random oracle model results in a transparent preprocessing zk-SNARK system with quasi-linear prover time, logarithmic proof size, and logarithmic verification time for arbitrary circuits, which we call \textsf{\textbf{Supersonic}}. This is the first zk-SNARK without trusted setup with only logarithmic proof sizes and verification time.\alan{The STARK proof system also qualifies for that description, as do the CS proofs of Micali and Lai-Malavolta.} 
+Concretely, compiling a QAP-based IOP results in quadratic prover time, but we obtain quasi-linear prover time when compiling instead the IOP employed in Sonic\cite{Sonic} based on bivariate Laurent polynomials. Applying the Fiat-Shamir transform in the random oracle model results in a transparent preprocessing zk-SNARK system with quasi-linear prover time, logarithmic proof size, and logarithmic verification time for arbitrary circuits, which we call \textsf{\textbf{Supersonic}}. This is the first zk-SNARK without trusted setup with only logarithmic proof sizes and verification time.\alan{The STARK proof system also qualifies for that description, as do the CS proofs of Micali and Lai-Malavolta.} 
 
 \end{abstract} 
 
@@ -542,7 +543,7 @@ The prover splits $f(X)$ into $f_L(X)$ and $f_R(X)$ such that $f(X) = f_L(X)+X^{
 
 If the prover wants to show, in addition to the previous, that $f(z)=y\bmod p$, then he can simply provide $y_L=f_L(z)\bmod p$ and $y_R=f_R(z)\bmod p$ and show that $y_L + z^{d'+1} \cdot y_R \bmod p=y$. Note that the verifier can compute $y' = f'(z) = \alpha \cdot y_L + y_R \bmod p$ from $y_L$ and $y_R$.
 
-The proof recursively repeats this reduction by using $f'(X),z,y'$ and $d'$ as the input. In the final step, the prover simply sends the constant polynomial $f$ and the verifier can check that $f \equiv y \bmod p$. Note that $|f|< (\frac{p}{2})^{\log_2(d+1)+1}$ so an integer encoding of $f_0$ requires at most $\lceil \log_2(d+1) \cdot \log_2(p)\rceil$ bits.
+The proof recursively repeats this reduction by using $f'(X),z,y'$ and $d'$ as the input. In the final step, the prover simply sends the constant polynomial $f$ and the verifier can check that $f \equiv y \bmod p$. Note that $|f|< (\frac{p}{2})^{\log_2(d+1)+1}$ so an integer encoding of $f_0$ requires at most $\lceil \log_2(d+1) \cdot \log_2(p)\rceil$ bits. 
 
 Using the integer encoding (with a sufficiently large $q=O(p^{\log(d)})$) and exponentiation in groups of unknown order as the commitments to these integers, we can derive an efficient $\eval$ protocol with logarithmic communication. To achieve verifier efficiency we need to build an efficient check that $f(X) = f_L(X) + X^{d'+1} f_R(X)$ given committed $f(X), f_L(X)$ and $f_R(X)$. Concretely, the verifier checks that $\gr{C} = \gr{C}_L \gr{C}_R^{q^{d'+1}}$ for $\gr{C}=\gr{g}^{f(q)}$, $\gr{C}_L=\gr{g}^{f_L(q)}$ and $\gr{C}_R=\gr{g}^{f_R(q)}$.
 
@@ -776,15 +777,19 @@ Lemma \ref{lem:ordertoadaptive} and Lemma \ref{lem:strongtofractional} show that
 \end{proof}
 
 %{\it Note 1.} The extractability proof shows that the extractor is successful whenever the coefficients of the prover's polynomial are bounded in absolute value by $2^ip^{\lceil \log_2(d_{\it max} + 1) \rceil+i}$ or, after the final induction step, by $2^{\lceil \log_2(d_{\it max} + 1) \rceil}p^{2\lceil \log_2(d_{\it max} + 1) \rceil}$. In other words, prover who starts with a polynomial with at least one of the coefficients outside of this range, will succeed with negligible probability. However, the proof fails to cover what happens when he selects a polynomial within this range but outside $[0;p-1]$. As per correctness, his success is only guaranteed if all coefficients lie within this last range. Additionally this growing bound supplies in turn a lower bound on $q$. The coefficients that are too large in absolute value should percolate along with the recursion, remaining outside the bounds even after multiplication by a random $\alpha$. The set of possible coefficients must therefore be a factor $2^\lambda$ larger than the bounded interval. And therefore, $q > 2^{\lambda + \lceil \log_2(d_{\it max} + 1) \rceil}p^{2\lceil \log_2(d_{\it max} + 1) \rceil}$. \alan{Is this still relevant? Feel free to drop if not.}
-\textit{Note 1.}
+\textit{Note}
 The bound on $q$ for correctness (Lemma \ref{lem:correctness}) is $O((\frac{p}{2})^{\log(d)})$ while the bound for soundness is $O((\frac{p}{2})^{2 \log(d)})$. It is not clear whether this gap can be closed. While the soundness analysis is tight for the worst case assumption on challenges it is possible that a probabilistic analysis could give a tighter result.
 
-\textit{Note 2.} The protocol and the security proof extend naturally to the evaluation in a vector of points $\boldsymbol{z}$ resulting in a vector of values $\boldsymbol{y}$, where both are members of $\mathbb{Z}_p^k$. The prover still sends $\gr{C}_L\in \GG$ and $\gr{C}_R\in \GG$ in each round and additionally $\boldsymbol{y}_L,\boldsymbol{y}_R \in \ZZ^k_p$. This is significantly more efficient than independent executions of the protocol as the encoding of group elements is usually much larger than the encoding of elements in $\ZZ_p$. \benedikt{Move this to optimizations?}
+
 \subsection{Optimizations and Performance}
-\label{subsec:optimiztion}
+\label{subsec:optimization}
 We present several ideas for optimizing the performance of the $\pro{Eval}$ protocol.
 
-\paragraph{Precomputation.} The prover has to compute powers of $\gr{g}$ as large as $q^d$. While this can be done in linear time, this expense can be shifted to a preprocessing phase in which all elements $\gr{g}^{q^i}, i \in \{1, \ldots, d_{\it max}\}$ are computed. In addition to reducing the prover's workload, this optimization enables parallelizing it. The elements $\gr{g}^{q^i}$ can themselves be accompanied by non-interactive $\mathsf{PoE}$s to establish their correct computation.
+\paragraph{Precomputation.} The prover has to compute powers of $\gr{g}$ as large as $q^d$. While this can be done in linear time, this expense can be shifted to a preprocessing phase in which all elements $\gr{g}^{q^i}, i \in \{1, \ldots, d_{\it max}\}$ are computed. Since for coefficient $|f_i|\leq -\frac{p-1}{2}$ this allows the computation of $g^{f(q)}$ in $O(\lambda d)$ group operations as opposed to $O(\lambda \log(d) d)$.
+In addition to reducing the prover's workload, this optimization enables parallelizing it. 
+The elements $\gr{g}^{q^i}$ can themselves be accompanied by non-interactive $\mathsf{PoE}$s to establish their correct computation.
+
+The pre-computation also enables the use of multi-exponentiation techniques \cite{pippenger1980evaluation}. Boneh et al. and Wesolowski\cite{EPRINT:BonBunFis18,EC:Wesolowski19} showed how to use these techniques to reduce the complexity of the $\textsf{PoE}$ prover. The largest $\textsf{PoE}$ exponent $q^{\frac{d+1}{2}}$ has $O(\lambda d \log(d))$ bits. Multi-exponentiation can therefore reduce the prover work to $O(\lambda d)$ instead of $O(\lambda d \log(d))$ 
 
 %\paragraph{Batching $\mathsf{PoE}$s.} Instead of running each $\mathsf{PoE}$ separately in the order they occur, it is possible to postpone to the end where they can be aggregated. Boneh~\emph{et al.} provide an extension to $\mathsf{PoE}$ called $\mathsf{PoHP}$ (proof of homomorphism preimage) to accomplish exactly this task~\cite[\S A.1]{C:BonBunFis19}. Instead of transmitting $\lceil \log_2(d + 1)\rceil $ primes $\ell$, this optimization requires the transmission of only one.\benedikt{Not sure that PoHP is applicable here, PoHP has exactly one output. although this indeed a generalization for it.} 
 
@@ -794,12 +799,19 @@ We present several ideas for optimizing the performance of the $\pro{Eval}$ prot
 
 %Q^{\ell}g^r x mod \ell = r 
 %
+
+
 \paragraph{Two group elements per round.} In each round the verifier has a value $\gr{C}$ and receives $\gr{C}_L$ and $\gr{C}_R$ such that $\gr{C}_L\gr{C}_R^{q'+1}=\gr{C}$. This is redundant. It suffices that the verifier sends $\gr{C}_R$. The verifier could now compute $\gr{C}_L\gets \frac{\gr{C}}{\gr{C}_R^{q'+1}}$ but this is expensive. Instead it can use the $\textsf{PoE}$ to infer $\gr{C}_R^{(q^{d'+1})}$. The \textsf{PoE}s first message is $\gr{Q}$. From this $\ell\in \ZZ$ and $r \in \ZZ$ the verifier computes $\gr{C}_R^{q^{d'+1}}\gets \gr{Q}^{\ell} \gr{C}_R^{r}$ as well as $\gr{C}_L=\gr{C}/\gr{C}_R^{q^{d'+1}}$. The security of $\textsf{PoE}$ does not require that $\gr{C}_R^{q^{d'+1}}$ be sent before the challenge $\ell$ as it is uniquely defined by $\gr{C}_R$ and $q^{d'+1}$.
 The same optimization can be applied to the non-interactive variant of the protocol. 
 
 Similarly the verifier can infer $y_L$ as $y_L\gets y-z^{d'+1} y_R$. This reduces the communication to two group elements per round and 1 field element. Additionally the prover sends $f$ which has roughly the size of $\log(d+1)$ field elements, which increases the total communication to roughly $2\log(d)$ elements in $\GG$ and $2\log(d)$ elements in $\ZZ_p$. 
 
 %When the $\mathsf{PoE}$s are made non-interactive, the prover can get away with producing only two group elements instead of three. With a naïve application of the Fiat-Shamir heuristic, the $\mathsf{PoE}$ proof consists of $(\gr{C}_R, \gr{C}_R^\star, \gr{Q})$ where $\gr{Q}$ is determined by $\ell$, which in turn is determined by hashing all previous protocol messages: $\ell \gets \mathsf{H}(\cdot \Vert \gr{C}_R \Vert \gr{C}_R^\star)$. The optimization sends $(\gr{C}_R, \gr{Q}, \ell)$ instead. The verifier can infer $\gr{C}_R^\star = \gr{C}_R^{(q^{d'+1} \bmod \ell)}$ and then test $\mathsf{H}(\cdots \Vert \gr{C}_R \Vert \gr{C}_R^\star) \stackrel{?}{=} \ell$. This optimization is particularly compatible with the previous batching of $\mathsf{PoE}$s optimization, because while there is a unique $\gr{Q}$ for each round, there need only be one $\ell$ for the entire $\eval$ protocol.
+
+\paragraph{Evaluation at multiple points}
+The protocol and the security proof extend naturally to the evaluation in a vector of points $\boldsymbol{z}$ resulting in a vector of values $\boldsymbol{y}$, where both are members of $\mathbb{Z}_p^k$. The prover still sends $\gr{C}_L\in \GG$ and $\gr{C}_R\in \GG$ in each round and additionally $\boldsymbol{y}_L,\boldsymbol{y}_R \in \ZZ^k_p$. In the final round the prover only sends a single integer $f$ such that $\gr{g}^{f}=\gr{C}$ and $f \bmod p=y$.
+
+This is significantly more efficient than independent executions of the protocol as the encoding of group elements is usually much larger than the encoding of elements in $\ZZ_p$. Using the optimization above, the marginal cost with respect to $k$ of the protocol is a single element in $\ZZ_p$. If $\lambda=\lceil\log_2(p)\rceil$ is $120$, then this means evaluating the polynomial at an additional point increases the proof size by only $15\log(d+1)$ bytes.
 
 \paragraph{Joining $\mathsf{Eval}$s.} While the polynomial commitment scheme might be useful in a standalone context, it is certainly useful as a primitive tool applied in multiple places in a SNARK construction. In such cases, the scheme's homomorphic properties enable another reduction of the bandwidth cost. Instead of proving $k$ evaluations of $k$ polynomials, it suffices to state $k$ evaluation claims and proceed to prove one evaluation of a random linear combination of the $k$ polynomials, with the random weights being supplied by the verifier. If the points $z$ in which the evaluations are queried, are different, then the batched protocol must account for different $(y_i, y_{L,i}, y_{R,i})$ tuples in every round, one for each point $z_i$. The communication cost scales linearly with the number of distinct evaluation points, but the amortization technique remains concretely effective as the group elements dominates the communication cost for a single standalone protocol. This optimization is important enough to warrant its own security proof. Correctness is immediate (after accounting for a larger bound), so we focus on knowledge-soundness.
 
@@ -833,15 +845,28 @@ Additionally the proof elements $\gr{C}_L$, $\gr{C}_R \in \GG$ are independent f
 \benedikt{\@ Alan: This probably needs a pass but I need to write some other sections first.}
 
 
-\paragraph{Performance.} 
-\ben{Still missing... } 
+\paragraph{Performance.}
+The polynomial commitment scheme has logarithmic proof size and verifier time in the degree $d$ of the committed polynomial. 
+As discussed it has highly batchable proofs and it is possible to evaluate $n$ degree $d$ polynomials at $m$ points using only $2\log_2(d+1)$ group elements and $(m+1)\log_2(d+1)$ field elements.
+We describe the performance for different settings in Table \ref{tab:performance}
 
-\textit{Communication complexity.} In the non-interactive protocol, the prover sends $2$ group elements and $2$ field elements. In the final round, the prover sends 
- 
- - verification complexity 
- 
- - prover complexity
+\begin{table} 
+\begin{tabular}{l|l||l|l|l}
+	Operation & $|\crs|$  & Prover & Verifier & Communication\\
+	\hline
+    \commit(f(X)) & 1 $\GG$ & $O(\lambda d\log(d))\GG$ & - & $1 \GG$\\
+    \commit(f(X)) & $d$ $\GG$ & $O(\frac{\lambda d}{\log(d)}) \GG$ & - & $1 \GG$\\
+    \eval($f(z)=y\in \ZZ_p$)  & 1 $\GG$ & $O(\lambda  \log(d) d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$2 \log(d) \ZZ_p$ \\
+        \eval($f(z)=y\in \ZZ_p$)  & $d$ $\GG$ & $O(\lambda d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$2 \log(d) \ZZ_p$ \\
+    \eval($f(\boldsymbol{z})=\boldsymbol{y}\in \ZZ^k_p$)  & 1 $\GG$ & $O(\lambda \log(d)d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$(k+1) \log(d) \ZZ_p$ \\
+       \eval($f(\boldsymbol{z})=\boldsymbol{y}\in \ZZ^k_p$)  & $d$ $\GG$ & $O(\lambda d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$(k+1) \log(d) \ZZ_p$ \\
+        \eval($f(z)=y, g(z)=y'\in \ZZ_p$)  & $1$ $\GG$ & $O(\lambda\log(d) d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$2 \log(d) \ZZ_p$ \\
+                \eval($f(z)=y, g(z)=y'\in \ZZ_p$)  & $d$ $\GG$ & $O(\lambda d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$2 \log(d) \ZZ_p$ \\
 
+\end{tabular}
+\label{tab:performance}
+\caption{$\GG$ denotes the size of a group element for communication and a single group operation for computation. $\ZZ_p$ denotes the size of a field element, i.e. $\lambda$ bits.}
+\end{table}
 
 \subsection{Multivariate polynomial commitments}\label{sec:multivariate}
 
@@ -901,7 +926,8 @@ We can therefore use Lemma~\ref{lem:poe} to replace all \textsf{PoE} executions 
 	
 	$\mathcal{X}_{\pro{MultiEval}}$ takes the entire transcript tree and invokes the univariate extractor on input $\gr{C}$ to extract either a degree $(d+1)^n-1$ polynomial univariate polynomial $\hat{f}(X)$ or an element of known order or a fractional root of $\gr{g}$. The extracted polynomial has coefficients bounded by $b=\frac{p-1}{2}(\frac{p^2-1}{2})^{n
 	cdot \lceil\log_2(d+1)\rceil}$. Since $q>2b$ decoding and extraction succeeds. Further using $f(X_1,\dots,X_n)\gets\dec_{Multi}(\hat{f}(q),n,d)$ we can extract an $n$-variate polynomial of degree $d$ in each variable. 
-	%It remains to show that $f(z_1,\dots,z_n)=y$. Lemma~\ref{lem:strongtofractional}
+It remains to show that $f(z_1,\dots,z_n)=y$. Lemma~\ref{lem:strongtofractional} which proofs the soundness of each individual extraction step does not require the evaluation point $z$ to be the same in each round. This shows that the extracted evaluation of $f(X_1,\dots,X_n)$ follows exactly the honest provers evaluation.
+For the $y=\sum_{i=0}^{(d+1)^n-1 } \hat{f}_{i} (\prod_{j=1}^n  z_j^{\lceil i/(d+1)^j\rceil \bmod d+1 }) $, where $\hat{f}_i$ are the coefficients of the encoded univariate degree $(d+1)^n-1$. The decoding sets $\hat{f}_i$ to be the coefficient of $\prod_{j=1}^n  X_j^{\lceil i/(d+1)^j\rceil \bmod d+1 }$ which shows that $y=f(z_1,\dots,z_n)$.
 	
 	Under the Strong RSA Assumption and the Adaptive Root Assumption the probability that the polynomial time adversary can produce an element of known order or a fractional root of $\gr{g}$ is negligible. This shows that the multivariate polynomial commitment scheme has witness extended emulation.
 \end{proof}
@@ -911,6 +937,23 @@ We can therefore use Lemma~\ref{lem:poe} to replace all \textsf{PoE} executions 
 
 \section{Transparent Preprocessing SNARKs via Polynomial IOPs}\label{sec:polyiop}
 \input{lineariop}
+
+\section{Evaluation}
+We now evaluate \textsf{\textbf{Supersonic}} the compiled trust-less setup SNARK built on the polynomial IOPs from Sonic\cite{Sonic} and Plonk\cite{Plonk} and compiled using our new polynomial commitment scheme.
+As explained in Section \ref{subsec:optimization} the commitment scheme has several batching properties. It is possible to evaluate $k$ polynomials of degree at most $d$ using only $2$ group elements and $(k+1)$ field elements. To take advantage of this we delay the evaluation until the last step of the protocol (see Section \ref{subsec:compiling}). We present the proof size for both the compilation of Sonic and Plonk. We use 1200 bits as the size of the class group and $\lambda=120$. This leads to proof sizes of $11KB$ for Sonic and $7.8$KB using Plonk for circuits with a million gates.
+\begin{mdframed}
+
+	
+\begin{tabular}{l|l|l|l|l}
+Poly-IOP &Polynomials  & \eval{} at& $|SNARK|$&$n=2^{20}$ \\
+\hline
+
+ Sonic\cite{Sonic}& 12 in $\crs$+ 15 & $8$  & $(15+2\log_2(n))\GG$ &11.3 KB \\
+ & & & $+(27+9\log_2(n))\ZZ_p$ &  \\
+  Plonk\cite{Plonk}& $4$ in $\crs$ + 6 & $2$& $6+2\log_2(3n)\GG$& 7.8 KB\\
+  & & & + $(10+3\log_2(3n))$
+	\end{tabular}
+\end{mdframed}
 
 \section{Conclusion}
 
