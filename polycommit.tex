@@ -928,72 +928,20 @@ Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_n)\in \ZZ$ is an encoding of the multi
 \begin{proof}
 	Perfect correctness follows from the correctness of the univariate scheme and the fact that the bounds $b$ are appropriately updated and remain less than $q/2$.
 	
-	To show witness extended emulation we use the forking lemma (Lemma \ref{lemma:GFL}) and build a polynomial time extractor algorithm $\mathcal{X}$ that given a binary tree of transcripts of depth $n \cdot\lceil\log(d+1)\rceil$, extracts a witness. Each node corresponds to a different challenge $\alpha$ as described in the forking lemma. The extractor uses the extractor described in the proof of Theorem~\ref{thm:polycommitsecurity}. If $n=1$ it simply 
+	To show witness extended emulation we use the forking lemma (Lemma \ref{lemma:GFL}) and build a polynomial time extractor algorithm $\mathcal{X}_{\pro{MultiEval}}$ that given a binary tree of transcripts of depth $n \cdot\lceil\log(d+1)\rceil$, extracts a witness. Each node corresponds to a different challenge $\alpha$ as described in the forking lemma. The tree consists of $n^{\lceil\log(d+1)\rceil}=\poly$ transcripts. 
+We can therefore use Lemma~\ref{lem:poe} to replace all \textsf{PoE} executions with direct verification checks that $\gr{C}_L\gr{C}_R^{q^{d'+1}}=\gr{C}$. The lemma focusses on the univariate \pro{Eval} protocol but works identically for the multivariate protocol. The probability that an adversary can create any accepting transcript for which the $\textsf{PoE}$ can't be replaced by a direct check is negligible under the Adaptive Root Assumption.
 
-\end{proof}
+We use subscripts to denote the inputs $\gr{C}_i$ and $y_i$ to $\pro{MultiEval}$ such that the subscript $i$ corresponds to the call of $pro{MultiEval}$ where $n=i$ and the witness polynomial has $i$ variables. 
+For the witness polynomials $f^{(i)}(X_1,\dots,X_{i})$ we use superscripts instead of subscripts to distinguish it from the notation for coefficient.
 
-
-\begin{comment}
-\subsection{Fix coefficients and negative degrees}
-\begin{itemize}
-	\item Several ways to do this.
-\end{itemize}
-
-\subsection{Range Proofs}
-
-Follows from security proof of Eval.
-f(z),f_L(z)+f_R(z)
-\end{comment}
-
-\begin{comment}
-\section{Security}
-
-\begin{lemma}
-	The Fractional Root Assumption holds in the generic group model.
-\end{lemma}
-\begin{lemma}
-	The polynomial commitment scheme satisfies the opening binding property
-\end{lemma}
-\begin{proof}
-	Assume $\hat{f}(X)$ and $\hat{f}'(X)$ are integer encodings of two distinct polynomials $f(X),f'(X) \in \FF_p[X]$. Assume that the adversary can open a commitment $C$ to both $f(X)$ and $f'(X)$. We show that we can use this adversary to break the Fractional Root Assumption (Assumption \ref{assum:fracroot}).
+	We now use the extractor $\mathcal{X}_{\pro{Eval'}}$ described in the proof of Theorem~\ref{thm:polycommitsecurity} to build $\mathcal{X}_{\pro{MultiEval}}$. 
+	If $n=1$ the $\mathcal{X}_{\pro{Eval'}}$ extracts a univariate degree $d$ polynomial $f^{(1)}(X_1)$ such that $f^{(1)}(z_1)=y_1$ or an element of known order in $\GG$ or a fractional root of $\gr{g}$. 
+	If $n>1$ we can recursively extract. Given the $i-1$ variate degree polynomial we call the univariate extractor with $f=f^{(i-1)}(q_1,\dots,q_{i-1})$ as the final prover output. Note that $f<q_{i-1}\cdot b_{i-1}<q_{i}/2$ so the univariate extractor will extract a witness to an assumption break or a univariate polynomial with coefficients less than $b_i\cdot q_i$. We can use the decoding algorithm to decode each coefficient into a $i-1$ variate polynomial with coefficients bounded by $b_i$ such that we can compute $f^{(i)}(X_1,\dots,X_i)\in B_{b_i}$ an $i$-variate polynomial with bounded coefficients. 
 	
-	 Then $\hat{h}(X)=\hat{f}(X)-\hat{f}'(X) \in \ZZ[X]$ is a polynomial of degree at most $d$. Since $g^{\hat{f}(q)}=g^{\hat{f}'(q)}=C$ we have that $g^{\hat{h}(q)}=1$. Note that the coefficients of $\hat{f}(X)$ and $\hat{f}'(X)$ are all less than $q/2$ in absolute value. By triangle inequality we have that $\hat{h}(X)$'s coefficients are less than $q$. $\hat{h}$ is by assumption not the zero polynomial. This implies that $\hat{h}(q)\neq 0$ is a multiple of the order of $g\in \GG$. This however can directly be used to break the Adaptive Root Assumption (Assumption \ref{assum:adaptiveroot}) by taking the inverse of $\ell$ modulo $\hat{h}(q)$.
+	Under the Strong RSA Assumption and the Adaptive Root Assumption the probability that the polynomial time adversary can produce an element of known order or a fractional root of $\gr{g}$ is negligible. This shows that the multivariate polynomial commitment scheme has witness extended emulation.
 \end{proof}
 
-\begin{theorem}
-	The polynomial commitment scheme from Section \ref{sec:protocol} satisfies extraction under the Fractional Root Assumption and the Order Assumption. We show that we can either extract a fractional root of $g$ or a witness \benedikt{Formally we should define witness extended emulation }
-\end{theorem}
-\begin{proof}
-(SKETCH)
-We prove the statement by showing that we can recursively either extract the encoding of an integer polynomial $f(X) \in \ZZ[X]$ of degree $d$ with bounded coefficients or a break of the Fractional Root Assumption for element $g$ or a non trivial element of known (random) order in $\GG$. We recurse over degree $\hat{d}$ up to the final degree $d$.
-In each round the extracted witness is an integer $\hat{y}$ such that $\hat{y}=\enc(f(X))$ where the coefficients of $f(X)$ are less than $B$ in absolute value and the degree is at most $\hat{d}$ and such that $g^{\hat{y}}=C$. Also $f(z) \equiv y \mod p$.
-If $\hat{d}=0$ then we can directly extract $f(X)=\hat{y}$ such that $\vert \hat{y} \vert < p^{\log_2(d+1)+1}$, $y=\hat{y}\mod p$, $f(X)=y\in \FF_p[X]$ and $g^{\hat{y}}=C$ as the witness. We proceed with $d=1$.
-For $d>0$ we have $g^{\hat{y}}=C=C_0^{\alpha}C_1$. Rewinding once we get 
- $C=C_0^{\alpha}C_1=g^{\hat{y}}$ and $C'=C_0^{\alpha'}C_1=g^{\hat{y}'}$ for distinct $\alpha$ and $\alpha'$. 
- This gives us $C_0^{\alpha-\alpha'}=g^{\hat{y}-\hat{y}'}$. 
- Either $\alpha-\alpha' \not|~ \hat{y}-\hat{y}' $ which would directly break the Fractional Root Assumption or we can compute $D=g^{\frac{\hat{y}-\hat{y}'}{\alpha-\alpha'}}$. Either $D=C_0$ or $(D/C_0)^{\alpha-\alpha'}=1$, i.e. $D/C_0$ is an element of known order. In either of the cases the extraction succeeds and is completed. (Invoke Order Assumption).
- 
- If $D=C_0$ then we have $\hat{y}_0=\frac{\hat{y}-\hat{y}'}{\alpha-\alpha'}$ and
- $g^{\hat{y}_0}=C_0$. In that case $C_1=g^{\hat{y}_1}=g^{\hat{y}-\alpha\hat{y}_0}$. The extractor has now successfully obtained $\hat{y}_0$ and $\hat{y}_1$
- 
- If $|y|=|y'|<B$ then $|y_0|<  2 \cdot B$ and $|y_1|<|\hat{y}-\hat{y}+\alpha\hat{y}'|=|\alpha \hat{y}'|<\lambda \cdot B$. 
- We define $f(X)=\dec(y_0+X^{d} \cdot y_1)$ and with coefficients less than $2B$ in absolute value. 
- Note that $y_0=\hat{y}_0 \mod p=\dec(y_0)(z)$ and $y_1=\hat{y}_1 \mod p=\dec(y_1)(z)$. Since $y=\dec(\hat{y})(z)=\alpha \cdot \dec(\hat{y}_0)(z)+\dec(\hat{y}_1)(z)$ and $f(X)=\dec(y_0+X^{\hat{d}} \cdot y_1)$ we have that $y=y_0 +z^{\hat{d}/2}y_1 \mod p=f(z) \mod p$.
- Additionally $C=C_0^{\alpha}C_1=\commit(f(X))$ or we get a break of the Adaptive Root Assumption.\benedikt{So this is technically a bit difficult because it's not actually a witeness}.
- 
- The extractor recuses with the encoding of $f(X)$ and degree $\hat{d}'=\hat{d}\cdot 2$.
- 
- Repeating this $\log_2(d+1)$ times we get a polynomial $f(X)$ of degree $d$ that has coefficients that are bounded by $(d+1) \cdot p^{\log_2(d+1)+1} <q/2$. 
- 
 
-
-\end{proof}
-
-\begin{corollary}
-	If $q<bla$ there exists an efficient adversary that can break the evaluation binding property of the polynomial commitment.
-\end{corollary}
-\benedikt{Figure out at what q we can attack the scheme. Probably needs to use negative coefficients and such.}
-\end{comment}
 
 
 \section{Transparent Preprocessing SNARKs via Polynomial IOPs}\label{sec:polyiop}
