@@ -48,7 +48,7 @@
 \begin{abstract} 
 We construct a new polynomial commitment scheme for multivariate polynomials over finite fields, with public-coin evaluation proofs that have logarithmic communication in the degree of the polynomial. The techniques are reminiscent of \emph{Diophantine Arguments of Knowledge} (Lipmaa, Asiacrypt'03), leveraging integer representations of polynomials and groups of unknown order. Security is shown from falsifiable assumptions that hold in generic groups. Moreover, the scheme does not require a trusted setup if instantiated with class groups. We apply this new cryptographic compiler to algebraic linear IOPs in order to obtain doubly-efficient public-coin IPs with succinct communication and witness-extended emulation for any NP relation. Allowing for linear preprocessing, the online verifier's work is logarithmic in the circuit complexity of the relation.
 
-Concretely, compiling a QAP-based IOP results in quadratic prover time, but we obtain quasi-linear prover time when compiling instead the IOP employed in Sonic (Maller \emph{et. al.}, CCS 2019) based on bivariate Laurent polynomials. Applying the Fiat-Shamir transform in the random oracle model results in a transparent preprocessing zk-SNARK system with quasi-linear prover time, logarithmic proof size, and logarithmic verification time for arbitrary circuits, which we call \textsf{\textbf{Supersonic}}. This is the first zk-SNARK without trusted setup with only logarithmic proof sizes and verification time.\alan{The STARK proof system also qualifies for that description, as do the CS proofs of Micali and Lai-Malavolta.} 
+Concretely, compiling a QAP-based IOP results in quadratic prover time, but we obtain quasi-linear prover time when compiling instead the IOP employed in Sonic\cite{Sonic} based on bivariate Laurent polynomials. Applying the Fiat-Shamir transform in the random oracle model results in a transparent preprocessing zk-SNARK system with quasi-linear prover time, logarithmic proof size, and logarithmic verification time for arbitrary circuits, which we call \textsf{\textbf{Supersonic}}. This is the first zk-SNARK without trusted setup with only logarithmic proof sizes and verification time.\alan{The STARK proof system also qualifies for that description, as do the CS proofs of Micali and Lai-Malavolta.} 
 
 \end{abstract} 
 
@@ -579,7 +579,7 @@ The prover splits $f(X)$ into $f_L(X)$ and $f_R(X)$ such that $f(X) = f_L(X)+X^{
 
 If the prover wants to show, in addition to the previous, that $f(z)=y\bmod p$, then he can simply provide $y_L=f_L(z)\bmod p$ and $y_R=f_R(z)\bmod p$ and show that $y_L + z^{d'+1} \cdot y_R \bmod p=y$. Note that the verifier can compute $y' = f'(z) = \alpha \cdot y_L + y_R \bmod p$ from $y_L$ and $y_R$.
 
-The proof recursively repeats this reduction by using $f'(X),z,y'$ and $d'$ as the input. In the final step, the prover simply sends the constant polynomial $f$ and the verifier can check that $f \equiv y \bmod p$. Note that $|f|< (\frac{p}{2})^{\log_2(d+1)+1}$ so an integer encoding of $f_0$ requires at most $\lceil \log_2(d+1) \cdot \log_2(p)\rceil$ bits.
+The proof recursively repeats this reduction by using $f'(X),z,y'$ and $d'$ as the input. In the final step, the prover simply sends the constant polynomial $f$ and the verifier can check that $f \equiv y \bmod p$. Note that $|f|< (\frac{p}{2})^{\log_2(d+1)+1}$ so an integer encoding of $f_0$ requires at most $\lceil \log_2(d+1) \cdot \log_2(p)\rceil$ bits. 
 
 Using the integer encoding (with a sufficiently large $q=O(p^{\log(d)})$) and exponentiation in groups of unknown order as the commitments to these integers, we can derive an efficient $\eval$ protocol with logarithmic communication. To achieve verifier efficiency we need to build an efficient check that $f(X) = f_L(X) + X^{d'+1} f_R(X)$ given committed $f(X), f_L(X)$ and $f_R(X)$. Concretely, the verifier checks that $\gr{C} = \gr{C}_L \gr{C}_R^{q^{d'+1}}$ for $\gr{C}=\gr{g}^{f(q)}$, $\gr{C}_L=\gr{g}^{f_L(q)}$ and $\gr{C}_R=\gr{g}^{f_R(q)}$.
 
@@ -818,7 +818,7 @@ The bound on $q$ for correctness (Lemma \ref{lem:correctness}) is $O((\frac{p}{2
 
 
 \subsection{Optimizations and Performance}
-\label{subsec:optimiztion}
+\label{subsec:optimization}
 We present several ideas for optimizing the performance of the $\pro{Eval}$ protocol.
 
 \paragraph{Precomputation.} The prover has to compute powers of $\gr{g}$ as large as $q^d$. While this can be done in linear time, this expense can be shifted to a preprocessing phase in which all elements $\gr{g}^{q^i}, i \in \{1, \ldots, d_{\it max}\}$ are computed. Since for coefficient $|f_i|\leq -\frac{p-1}{2}$ this allows the computation of $g^{f(q)}$ in $O(\lambda d)$ group operations as opposed to $O(\lambda \log(d) d)$.
@@ -970,6 +970,23 @@ For the $y=\sum_{i=0}^{(d+1)^n-1 } \hat{f}_{i} (\prod_{j=1}^n  z_j^{\lceil i/(d+
 
 \section{Transparent Preprocessing SNARKs via Polynomial IOPs}\label{sec:polyiop}
 \input{lineariop}
+
+\section{Evaluation}
+We now evaluate \textsf{\textbf{Supersonic}} the compiled trust-less setup SNARK built on the polynomial IOPs from Sonic\cite{Sonic} and Plonk\cite{Plonk} and compiled using our new polynomial commitment scheme.
+As explained in Section \ref{subsec:optimization} the commitment scheme has several batching properties. It is possible to evaluate $k$ polynomials of degree at most $d$ using only $2$ group elements and $(k+1)$ field elements. To take advantage of this we delay the evaluation until the last step of the protocol (see Section \ref{subsec:compiling}). We present the proof size for both the compilation of Sonic and Plonk. We use 1200 bits as the size of the class group and $\lambda=120$. This leads to proof sizes of $11KB$ for Sonic and $7.8$KB using Plonk for circuits with a million gates.
+\begin{mdframed}
+
+	
+\begin{tabular}{l|l|l|l|l}
+Poly-IOP &Polynomials  & \eval{} at& $|SNARK|$&$n=2^{20}$ \\
+\hline
+
+ Sonic\cite{Sonic}& 12 in $\crs$+ 15 & $8$  & $(15+2\log_2(n))\GG$ &11.3 KB \\
+ & & & $+(27+9\log_2(n))\ZZ_p$ &  \\
+  Plonk\cite{Plonk}& $4$ in $\crs$ + 6 & $2$& $6+2\log_2(3n)\GG$& 7.8 KB\\
+  & & & + $(10+3\log_2(3n))$
+	\end{tabular}
+\end{mdframed}
 
 \section{Conclusion}
 
