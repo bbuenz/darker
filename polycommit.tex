@@ -937,7 +937,8 @@ We can therefore use Lemma~\ref{lem:poe} to replace all \textsf{PoE} executions 
 	
 	$\mathcal{X}_{\pro{MultiEval}}$ takes the entire transcript tree and invokes the univariate extractor on input $\gr{C}$ to extract either a degree $(d+1)^n-1$ polynomial univariate polynomial $\hat{f}(X)$ or an element of known order or a fractional root of $\gr{g}$. The extracted polynomial has coefficients bounded by $b=\frac{p-1}{2}(\frac{p^2-1}{2})^{n
 	cdot \lceil\log_2(d+1)\rceil}$. Since $q>2b$ decoding and extraction succeeds. Further using $f(X_1,\dots,X_n)\gets\dec_{Multi}(\hat{f}(q),n,d)$ we can extract an $n$-variate polynomial of degree $d$ in each variable. 
-	%It remains to show that $f(z_1,\dots,z_n)=y$. Lemma~\ref{lem:strongtofractional}
+It remains to show that $f(z_1,\dots,z_n)=y$. Lemma~\ref{lem:strongtofractional} which proofs the soundness of each individual extraction step does not require the evaluation point $z$ to be the same in each round. This shows that the extracted evaluation of $f(X_1,\dots,X_n)$ follows exactly the honest provers evaluation.
+For the $y=\sum_{i=0}^{(d+1)^n-1 } \hat{f}_{i} (\prod_{j=1}^n  z_j^{\lceil i/(d+1)^j\rceil \bmod d+1 }) $, where $\hat{f}_i$ are the coefficients of the encoded univariate degree $(d+1)^n-1$. The decoding sets $\hat{f}_i$ to be the coefficient of $\prod_{j=1}^n  X_j^{\lceil i/(d+1)^j\rceil \bmod d+1 }$ which shows that $y=f(z_1,\dots,z_n)$.
 	
 	Under the Strong RSA Assumption and the Adaptive Root Assumption the probability that the polynomial time adversary can produce an element of known order or a fractional root of $\gr{g}$ is negligible. This shows that the multivariate polynomial commitment scheme has witness extended emulation.
 \end{proof}
