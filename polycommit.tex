@@ -929,7 +929,10 @@ For the $y=\sum_{i=0}^{(d+1)^n-1 } \hat{f}_{i} (\prod_{j=1}^n  z_j^{\lceil i/(d+
 
 \section{Evaluation}
 We now evaluate \textsf{\textbf{Supersonic}} the compiled trust-less setup SNARK built on the polynomial IOPs from Sonic\cite{Sonic} and Plonk\cite{PLONK} and compiled using our new polynomial commitment scheme.
-As explained in Section \ref{subsec:optimization} the commitment scheme has several batching properties. It is possible to evaluate $k$ polynomials of degree at most $d$ using only $2$ group elements and $(k+1)$ field elements. To take advantage of this we delay the evaluation until the last step of the protocol (see Section \ref{subsec:compiling}). We present the proof size for both the compilation of Sonic and Plonk. We use 1200 bits as the size of the class group and $\lambda=120$. This leads to proof sizes of $11KB$ for Sonic and $7.8$KB using Plonk for circuits with a million gates.
+As explained in Section \ref{subsec:optimization} the commitment scheme has several batching properties. It is possible to evaluate $k$ polynomials of degree at most $d$ using only $2$ group elements and $(k+1)$ field elements. To take advantage of this we delay the evaluation until the last step of the protocol (see Section \ref{subsec:compiling}). We present the proof size for both the compilation of Sonic and Plonk. We use 1200 bits as the size of the class group (\cite{PKC/BucHam01}) and $\lambda=120$. This leads to proof sizes of $11KB$ for Sonic and $8.4$KB using Plonk for circuits with a million gates. Using 2048-bit RSA groups the proof sizes become $17KB$ and $13.6KB$ respectively. 
+
+The comparison is slightly off as for Sonic this is multiplication gates and for Plonk these are both multiplication and addition gates. A more careful analysis is therefore necessary but this shows that there exists polynomial-IOPs that can be compiled to roughly $10-20$-KB SNARKs using the DARK polynomial commitment scheme. This stands in contrast to STARKs which achieve proofs of $600$KB for computation of similar complexity\cite{C:BBHR19}.
+
 \begin{mdframed}
 
 	
@@ -939,11 +942,13 @@ Poly-IOP &Polynomials  & \eval{} at& $|SNARK|$&$n=2^{20}$ \\
 
  Sonic\cite{Sonic}& 12 in $\crs$+ 15 & $8$  & $(15+2\log_2(n))\GG$ &11.3 KB \\
  & & & $+(27+9\log_2(n))\ZZ_p$ &  \\
-  Plonk\cite{PLONK}& $4$ in $\crs$ + 6 & $2$& $6+2\log_2(3n)\GG$& 7.8 KB\\
+  Plonk\cite{PLONK}& $4$ in $\crs$ + 6 & $2$& $6+2\log_2(3n)\GG$& 8.4 KB\\
   & & & + $(10+3\log_2(3n))$
 	\end{tabular}
 \end{mdframed}
-
+\paragraph{Prover and Verifier cost}
+With pre-computation the prover time consists of a linear number of group operations. The verifier time is dominated by 3 $\lambda$-bit exponentiations in each round, 1 for combining $\gr{C}_L$ and $\gr{C}_R$ and two for verifying the \textsf{PoE}. In the final round the verifier does another $\log(d)\lambda$-bit exponentiation which could also be outsourced to the prover using yet another $\textsf{PoE}$. The total verifier time consists therefore of roughly an exponentiation of $3 \log_2(d+1) \lambda$ group operations. 
+Using $10\mu s$ per group operation (estimated using OpenSSL's 2048-bit RSA implementation), this gives us for $\lambda=120$ and $d=2^{20}$ a verification time of around 72$\mu s$. 
 \section{Conclusion}
 
 The compilation of a SNARK for general purpose computations is generally divisible into three phases. First is \emph{arithmetization}, in which the computation is expressed as a satisfaction problem over some algebra. Second is \emph{information-theoretic compilation}, in which the algebraic problem is transformed into an interactive protocol for proving satisfiability or knowledge of witness for the algebraic claim. The third and last step is \emph{cryptographic compilation}, in which information-theoretical and ideal components in the information-theoretical protocol are replaced by cryptographic components, thereby realizing the abstract object at the cost of computational security. 
