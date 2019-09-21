@@ -170,12 +170,12 @@ The Fractional Root Assumption reduces to the Order Assumption (and therefore to
 \end{proof}
 
 \paragraph{Groups of unknown order.}
-We consider three candidate groups of unknown order. Each has its own upsides and downsides.
+We consider two candidate groups of unknown order. Both have their own upsides and downsides.
 
 \textit{RSA Group.} In the multiplicative group $\ZZ_n^*$ of integers modulo a product $n=p\cdot q$ of large primes $p$ and $q$, computing the order of the group is as hard as factoring $n$. The Order Assumption does not hold for $\ZZ_n^*$ because $-1 \in \ZZ_n^*$ can be easily computed and has order two. This can be resolved though by working instead in the quotient group $\ZZ_n^* / \langle-1\rangle \cong \mathrm{QR}_n$. %Additionally if $n$ is the product of strong primes, \emph{i.e.}, $\frac{p-1}{2}$ and $\frac{q-1}{2}$ are primes, then $\mathrm{QR}_n$ does not contain elements of low order\cite{JC:FisSch00,C:HofKil09}. In this group, the Order Assumption and the Strong RSA Assumption are equivalent to the hardness of factoring $n$.\alan{citation needed}
 The downside of using an RSA group, or more precisely, the group of quadratic residues modulo an RSA modulus, is that this modulus cannot be generated from public coins without exposing the order, and therefore has to come from a trusted setup.
 
-\textit{UFO Group.} An alternative to RSA groups that still uses similar arithmetic is the multiplicative group of integers $\ZZ_n^*$ modulo a large random modulus $n$, called an \emph{UnFactorizable Object (UFO)}~\cite{conf/icics/Sander99}. This modulus is chosen to be so large so that with overwhelming probability its factorization contains two primes large enough to guarantee the targeted security level. As a result, elements of this group are hundreds of thousands of bits in size for reasonable security levels, compared to just thousands of bits for RSA group elements. The upside though is that the unfactorizable object $n$ can be sampled with public randomness, and therefore requires no trusted setup.
+%\textit{UFO Group.} An alternative to RSA groups that still uses similar arithmetic is the multiplicative group of integers $\ZZ_n^*$ modulo a large random modulus $n$, called an \emph{UnFactorizable Object (UFO)}~\cite{conf/icics/Sander99}. This modulus is chosen to be so large so that with overwhelming probability its factorization contains two primes large enough to guarantee the targeted security level. As a result, elements of this group are hundreds of thousands of bits in size for reasonable security levels, compared to just thousands of bits for RSA group elements. The upside though is that the unfactorizable object $n$ can be sampled with public randomness, and therefore requires no trusted setup.
 
 \textit{Class Group.} The class group of an imaginary quadratic order is defined as the quotient group of fractional ideals by principal ideals of an order of a number field $\mathbb{Q}(\sqrt{\Delta})$, with ideal multiplication. A class group $\mathcal{C}\ell(\Delta)$ is fully defined by its discriminant $\Delta$, which needs to satisfy only public constraints such as $\Delta \equiv 1 \bmod 4$ and $-\Delta$ must be prime. As a result, $\Delta$ can be generated from public coins, thus obviating the need for a trusted setup. A group element can be represented by two integers strictly smaller (in absolute value) than $-\Delta$, which in turn is on the same order of magnitude as RSA group elements for a similar security level.  We refer the reader to Buchmann and Hamdy's survey~\cite{PKC/BucHam01} or to Michael Straka's accessible blog post~\cite{web/Stra19} for more details.
 
@@ -460,14 +460,14 @@ assuming the Adaptive Root Assumption (Assumption \ref{assum:adaptiveroot}) hold
 \label{sec:encoding}
 At the heart of our protocol is an encoding of integer polynomials with bounded coefficients as integers with useful homomorphic properties. To extend the encoding to polynomials over an odd prime field $\mathbb{F}_p$, we first lift them to the ring of polynomials over the integers by selecting representatives from $\{-\frac{p-1}{2}, \ldots, \frac{p-1}{2}\}$ for each coefficient. The lifted polynomial has bounded integer coefficients and can hence be mapped into the integers.
 
-the set $B_{b}:=\{x \in \ZZ \, | \, \vert x \vert  \leq b\}$ of integers with absolute value less than or equal to $b$. In a slight abuse of notation we write $B_{b}[X]\subset \mathbb{Z}[X]$ as the set of integer polynomials with bounded coefficients. 
+the set $\ZZ(b):=\{x \in \ZZ \, | \, \vert x \vert  \leq b\}$ of integers with absolute value less than or equal to $b$. In a slight abuse of notation we write $\ZZ(b)[X]\subset \mathbb{Z}[X]$ as the set of integer polynomials with bounded coefficients. 
 
 \paragraph{Encoding}
-For a ``large'' integer $q$, the map $\mathsf{Enc} : \mathbb{Z}[X] \rightarrow \mathbb{Z}, \, p(X) \mapsto p(q)$ is a unique encoding of polynomials with coefficients bounded by $b<q/2$ in absolute value. Specifically, this map is injective for the domain $B_{b<q/2}[X]$, and it maps to the alphabet $\mathbb{Z}$. 
+For a ``large'' integer $q$, the map $\mathsf{Enc} : \mathbb{Z}[X] \rightarrow \mathbb{Z}, \, p(X) \mapsto p(q)$ is a unique encoding of polynomials with coefficients bounded by $b<q/2$ in absolute value. Specifically, this map is injective for the domain $\ZZ(b)[X]$ with $b<q/2$, and it maps to the alphabet $\mathbb{Z}$. 
 \paragraph{Decoding}
 Decoding works as follows. Define the partial sum $S_k := \sum_{i=0}^k f_i q^i$ with $S_{-1} := 0$ and observe that when $(S_k \bmod q^{k+1}) > q^{k+1}/2$ then $S_k < 0$ whereas when $(S_k \bmod q^{k+1}) < q^{k+1}/2$ then $S_k \geq 0$. 
 So when decoding $y \in \mathbb{Z}$, we can get $S_k$ for any $k$ by setting $S_k$ to $y \bmod q^{k+1}$ if $y \bmod q^{k+1}$ is less than $\frac{q^{k+1}}{2}$ or to $q^{k+1}- (y \bmod q^{k+1})$ otherwise.
-Two consecutive partial sums yield a coefficient of $f(X)$: $f_k = \frac{S_{k} - S_{k-1}}{q^{k}} \in B_{b}$. These operations give rise to the following algorithm.\\
+Two consecutive partial sums yield a coefficient of $f(X)$: $f_k = \frac{S_{k} - S_{k-1}}{q^{k}} \in \ZZ(b)$. These operations give rise to the following algorithm.\\
 \begin{minipage}{\textwidth}
 \begin{mdframed}
 \begin{flushleft}
@@ -486,25 +486,25 @@ Two consecutive partial sums yield a coefficient of $f(X)$: $f_k = \frac{S_{k} -
 \end{minipage}
 
 \begin{fact}
-	The encoding scheme is uniquely decodable for polynomials in $B_{b}[X]$ if $b<q/2$.
+	The encoding scheme is uniquely decodable for polynomials in $\ZZ(b)[X]$ if $b<q/2$.
 \end{fact}
 The fact follows from $f(q)\in \ZZ$ being a unique integer representation of polynomials with coefficients bounded in absolute value by $b$ such that $b<q/2$. In particular for any partial sum $S_i$ we have $|S_i|<\frac{q^{i+1}}{2}$. From this it follows that $S_i-S_{k-i}=f_i \cdot q^i$.  
 
-Note that the encoding has limited homomorphic properties: $\enc(g(X))+\enc(h(X))=\enc(g(X)+h(X))$ if $g(X)+h(X)\in B_{b}$, \emph{i.e.}, if all its coefficients are less than $q/2$ in absolute value. This constraint is satisfied for example if the coefficients of $g$ and $h$ are less than $q/4$ in magnitude. Additionally, $\enc(g(X))\cdot \enc(h(X))=\enc(g(X)\cdot h(X))$ if $g(X)\cdot h(X)\in B_{b}$.
+Note that the encoding has limited homomorphic properties: $\enc(g(X))+\enc(h(X))=\enc(g(X)+h(X))$ if $g(X)+h(X)\in \ZZ(b)$, \emph{i.e.}, if all its coefficients are less than $q/2$ in absolute value. This constraint is satisfied for example if the coefficients of $g$ and $h$ are less than $q/4$ in magnitude. Additionally, $\enc(g(X))\cdot \enc(h(X))=\enc(g(X)\cdot h(X))$ if $g(X)\cdot h(X)\in \ZZ(b)$.
 
 \paragraph{Encoding of dyadic rational polynomials.}
 In class groups there exists an algorithm to compute square roots of any element originally described by Gauß (modern description by Bosma and Stevenhagen~\cite{jtn/BosSte96}). As a result, in class groups an adversary can also commit to \defn{dyadic rationals} $\mathbb{D}:=\{\frac{x}{2^k} : \ x \in \ZZ \wedge k \in \NN\}$, in addition to integers. When using class groups we therefore need to extend the encoding scheme accordingly. 
 
 The encoding map is identical, except lifted to the dyadic rationals: $\mathsf{Enc} : \mathbb{D}[X] \rightarrow \mathbb{D}, \, g(X) \mapsto g(q)$. The main difference with respect to the integer encoding scheme will be that decoding works for dyadic rationals where \emph{both the numerator and the denominator are bounded}. Let $N \in \NN$ be a bound on the absolute value of the numerator and $2^D\in \NN$ be a bound on the value of the denominator, and let $Q(N, D) :=\{\frac{x}{2^a} \in \mathbb{D} : \ |x|\leq N \wedge a \leq D\}$ denote the set of such bounded dyadic rationals. The encoding scheme is uniquely decodable if $N \cdot 2^a < q/2$.
  
-Note that denominator of $g(q)$ is bounded by $2^D$. To decode such a dyadic rational, compute the integer $y \gets g(q) \cdot 2^{D}\in \ZZ$  and use the decoding algorithm described above to decode a polynomial $f(X)$ in $B_{q/2}[X]$. From $f(X)$ one derives the polynomial  $g(X) \gets \frac{f(X)}{2^D} \in Q(N, \frac{q}{2^D})[X]$ through division. If the integer polynomial encoding is uniquely decodable, then so is the scheme for dyadic rational polynomials. If $q$ is a power of $2$, then an adversary can encode Laurent polynomials, \emph{i.e.}, polynomials where some terms have negative powers. In order to disallow negative powers, $q$ must be odd.
+Note that denominator of $g(q)$ is bounded by $2^D$. To decode such a dyadic rational, compute the integer $y \gets g(q) \cdot 2^{D}\in \ZZ$  and use the decoding algorithm described above to decode a polynomial $f(X)$ in $\ZZ(q/2)[X]$. From $f(X)$ one derives the polynomial  $g(X) \gets \frac{f(X)}{2^D} \in Q(N, \frac{q}{2^D})[X]$ through division. If the integer polynomial encoding is uniquely decodable, then so is the scheme for dyadic rational polynomials. If $q$ is a power of $2$, then an adversary can encode Laurent polynomials, \emph{i.e.}, polynomials where some terms have negative powers. In order to disallow negative powers, $q$ must be odd.
 
 \subsection{Polynomial Commitment}
 
 We now present our main technical contribution: a polynomial commitment scheme with an efficient evaluation protocol based on a group of unknown order $\GG$. For polynomials of degree $d=\poly$ the evaluation protocol uses $1+\lceil\log_2(d+1)\rceil$ rounds and $O(\log(d))$ communication and verifier work.
 
 Exponentiation in groups of unknown order is a succinct and homomorphic cryptographic commitments to an integer.
-Using the integer encoding of polynomials, or their encoding as dyadic rationals, above we can simply commit to a polynomial $f(X)$ with bounded coefficients by computing $\gr{g}^{f(q)} \in \GG$. Every polynomial in $\ZZ_p[X]$ naturally maps to an integer polynomial with coefficients in $B_{\frac{p-1}{2}}$. The commitment scheme, therefore, supports committing to polynomials in $\ZZ_p[X]$ for $p \leq q$. Interestingly, neither $p$ nor the degree $d$ need to be specified in the setup. As long as $q$ and ``big enough'' they can be freely chosen.\alan{Todo: make this observation elsewhere.} %In class groups there is an efficient algorithm to compute square roots, and as a result, a prover can also commit to dyadic rationals. Since every dyadic rational corresponds to a unique element in $\ZZ_p$ we can simply extend the encoding to work for polynomials with bounded dyadic rational coefficients. The only difference is that we require $q$ to be odd such that the prover cannot commit to polynomials with negative powers. We will discuss the relationship between $p$, $d$ and $q$ in more detail later but first we describe the setup, commitment and opening algorithms:
+Using the integer encoding of polynomials, or their encoding as dyadic rationals, above we can simply commit to a polynomial $f(X)$ with bounded coefficients by computing $\gr{g}^{f(q)} \in \GG$. Every polynomial in $\ZZ_p[X]$ naturally maps to an integer polynomial with coefficients in $\ZZ(\frac{p-1}{2})$. The commitment scheme, therefore, supports committing to polynomials in $\ZZ_p[X]$ for $p \leq q$. Interestingly, neither $p$ nor the degree $d$ need to be specified in the setup. As long as $q$ and ``big enough'' they can be freely chosen.\alan{Todo: make this observation elsewhere.} %In class groups there is an efficient algorithm to compute square roots, and as a result, a prover can also commit to dyadic rationals. Since every dyadic rational corresponds to a unique element in $\ZZ_p$ we can simply extend the encoding to work for polynomials with bounded dyadic rational coefficients. The only difference is that we require $q$ to be odd such that the prover cannot commit to polynomials with negative powers. We will discuss the relationship between $p$, $d$ and $q$ in more detail later but first we describe the setup, commitment and opening algorithms:
 
 
 \begin{mdframed}[userdefinedwidth=\textwidth]
@@ -519,16 +519,16 @@ Using the integer encoding of polynomials, or their encoding as dyadic rationals
 			\item Pick a sufficiently large and odd $q\in \NN$ (See discussion above)
 			\item $\pcreturn \params = (\secpar,\GG,\gr{g},p,q)$
 		\end{enumerate}
-	$\pro{Commit}(\crs;f(X) \in B_{p}[X]):$ \pccomment{$f(X)\equiv \bar{f}(X) \mod p$ for  $\bar{f}(X)\in \ZZ_p[X]$}
+	$\pro{Commit}(\crs;f(X) \in \ZZ(p)[X]):$ \pccomment{$f(X)\equiv \bar{f}(X) \mod p$ for  $\bar{f}(X)\in \ZZ_p[X]$}
 		\begin{enumerate}[nolistsep]
 			\item $\gr{C} \gets \gr{g}^{f(q)}$
 			\item $\pcreturn (\gr{C};f(X))$
 		\end{enumerate}
-	$\pro{Open}(\crs,\gr{C}f(X)):$ \pccomment{$f(X) \in B_{b}[X]\subset\mathbb{Z}[X]$ for $b<q/2$}
+	$\pro{Open}(\crs,\gr{C}f(X)):$ \pccomment{$f(X) \in \ZZ(b)[X]\subset\mathbb{Z}[X]$ for $b<q/2$}
 		\begin{enumerate}[nolistsep]
 		    \item \prover sends $f(X)$ to \verifier.
 		   % 				\item \verifier checks that $\bar{f}(X) = f(X) \mod p$
-		    \item \verifier checks that $f(X)\in B_{b}[X]$ and $b<q/2$
+		    \item \verifier checks that $f(X)\in \ZZ(b)[X]$ and $b<q/2$
 			\item \verifier checks that $\gr{g}^{f(q)} = \gr{C}$ \pccomment{Can be outsourced using $\textsf{PoE}(\gr{g},\gr{C},f(q))$}
 			\item \pcif all checks pass \textbf{then} \pcreturn $1$ \textbf{else} \pcreturn $0$
 		\end{enumerate}
@@ -570,11 +570,11 @@ Informal information theoretic $\eval$ protocol: $\prover$ and $\verifier$ have 
 			$\pro{Eval}(\crs, \gr{C}\in \GG, z\in \ZZ_p, y\in \ZZ_p, d \in \NN; \bar{f}(X)\in \ZZ_p[X]) :$ \pccomment{$\bar{f}(X) = \sum_{i=0}^d \bar{f}_i X^i$}
 			\begin{enumerate}[nolistsep]
 			\item \prover computes $f_i \in [-\frac{p-1}{2},\frac{p-1}{2}]$ such that $f_i\equiv \bar{f}_i\bmod p$ for all $i\in[0,d]$.
-			\item \prover computes $f(X)\gets \sum_{i=0}^d f_i \cdot X^{i}\in B_p[X]\subset \ZZ[X]$
+			\item \prover computes $f(X)\gets \sum_{i=0}^d f_i \cdot X^{i}\in \ZZ(p)[X]\subset \ZZ[X]$
 			\item \prover and \verifier run $\pro{EvalBounded}(\params,\gr{C},z,y,d,p;f(X))$
 		    \end{enumerate}
 		    		\vspace{1em}
-		$\pro{EvalBounded}(\crs,\gr{C}\in \GG,z\in \ZZ_p,y\in \ZZ_p,d\in \NN,b\in \ZZ;f(X)\in B_{b}[X])$		
+		$\pro{EvalBounded}(\crs,\gr{C}\in \GG,z\in \ZZ_p,y\in \ZZ_p,d\in \NN,b\in \ZZ;f(X)\in \ZZ(b)[X])$		
 	    \begin{enumerate}[nolistsep]
         \item \pcif $d=0$:
         \item \label{line:basestart}\pcind[1] \prover sends $f(X)\in \ZZ$ to the verifier. \pccomment{$f=f(X)$ is a constant}
@@ -622,14 +622,14 @@ It is also possible to transform the interactive $\eval$ scheme into one with HV
 \end{lemma}
 \begin{proof}
 In order to ensure correctness we must ensure that $b< q/2$ and that $|f|\leq b$. To show this we show that in each recursion step the honest prover's witness polynomial has coefficients bounded by $b$ and has degree $d$. 
-We argue inductively that for each recursive call of $\pro{EvalBounded}$ the following constraints on the inputs are satisfied: The degree of $f(X)$ is bounded by $d$. $\gr{C}$ encodes the polynomial, \emph{i.e.}, $\gr{C}=\gr{g}^{f(q)}$ and $f(X)\in B_b$. Also $f(z) = y\bmod p$.
+We argue inductively that for each recursive call of $\pro{EvalBounded}$ the following constraints on the inputs are satisfied: The degree of $f(X)$ is bounded by $d$. $\gr{C}$ encodes the polynomial, \emph{i.e.}, $\gr{C}=\gr{g}^{f(q)}$ and $f(X)\in \ZZ(b)$. Also $f(z) = y\bmod p$.
 
-Initially, during the execution of $\eval$, the prover maps the coefficients of a polynomial $\bar{f}(X)\in \ZZ_p$ to an integer polynomial $f(X)$ with coefficients in $B_{\frac{p+1}{2}}$ and degree at most $d$ such that $\gr{C}=\gr{g}^{f(q)}$. Additionally $f(z)\bmod p=\bar{f}(z)=y$.
+Initially, during the execution of $\eval$, the prover maps the coefficients of a polynomial $\bar{f}(X)\in \ZZ_p$ to an integer polynomial $f(X)$ with coefficients in $\ZZ(\frac{p+1}{2})$ and degree at most $d$ such that $\gr{C}=\gr{g}^{f(q)}$. Additionally $f(z)\bmod p=\bar{f}(z)=y$.
 
  In a recursion steps where $d+1$ is odd, $f'(X)=X\cdot f(X)$ is a polynomial of degree $d+1$ such that $\gr{C}'=\gr{C}^q=\gr{g}^{q\cdot f(q)}=\gr{g}^{f'(X)}$ and the bound $b$ is unchanged as are the coefficients. Also, $f'(z)\bmod p = z \cdot f(z) \bmod p=z\cdot y\bmod p = y' \bmod p$. If $d+1$ is odd, then in the next step $d+1$ must be even.
  
  If $d+1$ is even then, $\prover$ computes $f_L(X)$ and $f_R(X)$ such that $f_L(X)+X^{\frac{d+1}{2}} f_R(X)=f(X)$. Consequently $f(z) \bmod p=f_L(z)+ z^{\frac{d+1}{2}} f_R(z)\bmod p=y_L+z^{\frac{d+1}{2}}  y_R\bmod p =y$. The \textsf{PoE} protocol has perfect correctness so $\gr{g}^{f_L(q)+q^{\frac{d+1}{2}} f_R(X)}=\gr{C}_L\gr{C}_R^{(q^{\frac{d+1}{2}})}=\gr{C}$.
- Finally $f'(X)=\alpha f_L(X) + f_R(X)\in B_{\frac{p+1}{2}\cdot b}$ is a degree $d$ polynomial with coefficients bounded in absolute value by $(\frac{p+1}{2})\cdot b$. This is precisely the value of $b'$ the input to the next call of $\pro{EvalBounded}$. The value $y'$ is also correct:
+ Finally $f'(X)=\alpha f_L(X) + f_R(X)\in \ZZ(\frac{p+1}{2}\cdot b)$ is a degree $d$ polynomial with coefficients bounded in absolute value by $(\frac{p+1}{2})\cdot b$. This is precisely the value of $b'$ the input to the next call of $\pro{EvalBounded}$. The value $y'$ is also correct:
 $f'(z)\bmod p=\alpha f_L(z) +f_R(z) \bmod p= \alpha y_L +y_R\bmod p=y'$
  
  There are exactly $\lceil\log_2(d+1)\rceil$ recursion steps with even $d+1$. In the final recursion step we therefore have $b=\frac{p-1}{2}(\frac{p+1}{2})^{\lceil\log_2(d+1)\rceil}$ and as such the requirement that $q/2>\frac{p-1}{2}(\frac{p+1}{2})^{\lceil\log_2(d+1)\rceil}$. 
@@ -637,10 +637,10 @@ $f'(z)\bmod p=\alpha f_L(z) +f_R(z) \bmod p= \alpha y_L +y_R\bmod p=y'$
 \end{proof} 
  
 \begin{lemma}
-	The polynomial commitment scheme is binding for polynomials in $B_b[X]$ for $b<q/2$ if either the Order Assumption or the Strong RSA Assumption hold.
+	The polynomial commitment scheme is binding for polynomials in $\ZZ(b)[X]$ for $b<q/2$ if either the Order Assumption or the Strong RSA Assumption hold.
 \end{lemma}
 \begin{proof}
-    Assume that there is an adversary that breaks the binding property of the scheme. Specifically, assume that some probabilistic polynomial time algorithm $\adv$ takes as input $\params$ and outputs $\gr{C} \in \GG, f(X) \in B_{b}[X], f'(X)\in B_{b}[X]$ such that with non-negligble probability $\pro{Open}(\params, \gr{C}, \bar{f}(X), f(X)) = \pro{Open}(\params, \gr{C}, \bar{f'}(X), f'(X)) = 1$ and $\bar{f}(X) \neq \bar{f'}(X)$. We proceed to show that this implies a violation of the Order Assumption~(Assumption \ref{assum:order}) and the Strong RSA Assumption~(Assumption \ref{assum:strongRSA}). The assumptions are incomparable so we show that either suffices to achieve the binding property of the commitment scheme.
+    Assume that there is an adversary that breaks the binding property of the scheme. Specifically, assume that some probabilistic polynomial time algorithm $\adv$ takes as input $\params$ and outputs $\gr{C} \in \GG, f(X) \in \ZZ(b)[X], f'(X)\in \ZZ(b)[X]$ such that with non-negligble probability $\pro{Open}(\params, \gr{C}, \bar{f}(X), f(X)) = \pro{Open}(\params, \gr{C}, \bar{f'}(X), f'(X)) = 1$ and $\bar{f}(X) \neq \bar{f'}(X)$. We proceed to show that this implies a violation of the Order Assumption~(Assumption \ref{assum:order}) and the Strong RSA Assumption~(Assumption \ref{assum:strongRSA}). The assumptions are incomparable so we show that either suffices to achieve the binding property of the commitment scheme.
     
 	If $f(X)\neq f'(X)$ and $q/2>b$ then $f(q)\neq f'(q)\in \ZZ$. Since $\gr{g}^{f(q)}=\gr{g}^{f'(q)}=\gr{C}$ we have that $\gr{g}^{f(q)-f'(q)}=1$. This directly breaks the Order Assumption and we can also create an adversary $\adv_{RSA}$ that breaks the Strong RSA Assumption. To do so the $\adv_{RSA}$ picks an odd prime $\ell$ that is co-prime with $f(q)-f'(q)$ and computes $\gr{u}\gets \gr{g}^{\ell^{-1} \bmod (f(q)-f'(q))}$ as the $\ell$th root of $\gr{g}$.
 \end{proof}
@@ -683,8 +683,8 @@ Then we will show that in groups in which taking square roots is easy we can ext
 \begin{lemma}[Combining for integer witnesses]
 \label{lem:intrandomcombine}
 	For $\GG \gets \ggen(\lambda)$, and $\gr{g}\sample \GG$. 
-	Let $(z,\gr{C}_L,\gr{C}_R,y_L,y_R,\alpha,f,y)$ and  $(z,\gr{C}_L,\gr{C}_R,y_L,y_R,\alpha',f',y')$ be two transcripts such that $\gr{g}^{f}=\gr{C}_L^{\alpha}\gr{C}_R$ and $\gr{g}^{f'}=\gr{C}_L^{\alpha'}\gr{C}_R$ for group elements $\gr{C}_L,\gr{C}_R \in \GG$, and integers $\alpha,\alpha' \in  [-\frac{p-1}{2},\frac{p-1}{2}]$, $\alpha\neq \alpha'$. Further let $f,f'\in \ZZ$ be such that $f(X)\gets\dec(f)$ and $f'(X)\gets\dec(f')$ are degree $d$ bounded polynomials with coefficients bounded by $b$, \emph{i.e.}, $f(X),f'(X)\in B_{b}[X]\subset \ZZ[X]$. And finally let $y=f(z)\bmod p$ and $y'=f'(z)\bmod p$.
-	 Then there exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either (1) $y_L,y_R\in \ZZ_p,f_L(X),f_R(X)\in B_{(p-1) \cdot b}[X]$  such that $f_L(z)=y_L\bmod p$ and $f_R(z)=y_R \bmod p$ or (2) an element in $\GG$ of known order or (3) a fractional root of $\gr{g}$.
+	Let $(z,\gr{C}_L,\gr{C}_R,y_L,y_R,\alpha,f,y)$ and  $(z,\gr{C}_L,\gr{C}_R,y_L,y_R,\alpha',f',y')$ be two transcripts such that $\gr{g}^{f}=\gr{C}_L^{\alpha}\gr{C}_R$ and $\gr{g}^{f'}=\gr{C}_L^{\alpha'}\gr{C}_R$ for group elements $\gr{C}_L,\gr{C}_R \in \GG$, and integers $\alpha,\alpha' \in  [-\frac{p-1}{2},\frac{p-1}{2}]$, $\alpha\neq \alpha'$. Further let $f,f'\in \ZZ$ be such that $f(X)\gets\dec(f)$ and $f'(X)\gets\dec(f')$ are degree $d$ bounded polynomials with coefficients bounded by $b$, \emph{i.e.}, $f(X),f'(X)\in \ZZ(b)[X]\subset \ZZ[X]$. And finally let $y=f(z)\bmod p$ and $y'=f'(z)\bmod p$.
+	 Then there exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either (1) $y_L,y_R\in \ZZ_p,f_L(X),f_R(X)\in \ZZ((p-1) \cdot b)[X]$  such that $f_L(z)=y_L\bmod p$ and $f_R(z)=y_R \bmod p$ or (2) an element in $\GG$ of known order or (3) a fractional root of $\gr{g}$.
 \end{lemma}
 \begin{proof}
 	Using the transcripts we $\Delta_\alpha\gets\alpha-\alpha'$ and $\Delta_f\gets f-f'$ such that $\gr{C}_{L}^{\Delta_\alpha}=\gr{g}^{\Delta_f}$. 
@@ -695,7 +695,7 @@ Then we will show that in groups in which taking square roots is easy we can ext
 Additionally $\gr{C}_R=\gr{g}^{f_R}$ for $f_R\gets f-\alpha \cdot f_L$.
 
 We now compute the corresponding polynomials $f_L(X)\gets \dec(f_L)$ and $f_R(X)\gets \dec(f_R)$.
-Now if the coefficients $f_i$ and $f'_i\in [-b,b]$ and $\alpha,\alpha' \in [-\frac{p-1}{2},\frac{p-1}{2}]$ then by the triangle inequality we have that for the $i$th coefficient of $f_L(X)$, $f_{L,i}\in [-2b,2b]$. Additionally we have $f_{R,i}=\frac{f_i'\alpha-f_i \alpha'}{\Delta_\alpha}$. Using the triangle inequality again we have that $f_{R,i} \in [-(p-1) \cdot b, (p-1) \cdot b]$. For an odd prime $p$, $(p-1)\cdot p\geq 2b$. This gives us $f_L(X),f_R(X)\in B_{(p-1) \cdot b}$
+Now if the coefficients $f_i$ and $f'_i\in [-b,b]$ and $\alpha,\alpha' \in [-\frac{p-1}{2},\frac{p-1}{2}]$ then by the triangle inequality we have that for the $i$th coefficient of $f_L(X)$, $f_{L,i}\in [-2b,2b]$. Additionally we have $f_{R,i}=\frac{f_i'\alpha-f_i \alpha'}{\Delta_\alpha}$. Using the triangle inequality again we have that $f_{R,i} \in [-(p-1) \cdot b, (p-1) \cdot b]$. For an odd prime $p$, $(p-1)\cdot p\geq 2b$. This gives us $f_L(X),f_R(X)\in \ZZ({(p-1) \cdot b})$
 
 Let $y_L=\frac{y-y'}{\Delta_\alpha} \bmod p=\frac{f(z)-f'(z)}{\Delta \alpha} \bmod p$ and $y_R= y-\alpha\frac{y-y'}{\Delta_\alpha} \bmod p$. Since $f_L(X)=\frac{f(X)-f'(X)}{\Delta \alpha}$ this shows that $y_L=f_L(z)\bmod p$ and $y_R=f_R(z)\bmod p$.
 %The actual bound on f_{R,i} is b*(p-2)
@@ -704,9 +704,8 @@ Let $y_L=\frac{y-y'}{\Delta_\alpha} \bmod p=\frac{f(z)-f'(z)}{\Delta \alpha} \bm
 
 %PROOF FOR DYADIC RATIONALS
 \begin{lemma}[Forking for dyadic rational witnesses]
-	For $\GG \gets \ggen(\lambda)$, and $\gr{g}\sample \GG$. 
-	Let $(\gr{C}_L,\gr{C}_R,\alpha,f)$ and  $(\gr{C}_L,\gr{C}_R,\alpha',f')$ be two transcripts such that $\gr{g}^{f}=\gr{C}_L^{\alpha}\gr{C}_R$ and $\gr{g}^{f'}=\gr{C}_L^{\alpha'}\gr{C}_R$ for group elements $\gr{C}_L,\gr{C}_R \in \GG$, and integers $\alpha,\alpha' \in  [-\frac{p-1}{2},\frac{p-1}{2}]$, $\alpha\neq \alpha'$. Further let $f,f'\in \mathbb{D}$ be such that $f(X)\gets\dec(f)$ and $f'(X)\gets\dec(f')$ are degree $d$ bounded polynomials with dyadic rational coefficients bounded by $N$ in the numerator and $2^D$ in the denominator, \emph{i.e.}, $f(X),f'(X)\in Q(N, D)[X]\subset \mathbb{D}[X]$.
-	 There exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either $f_L(X),f_R(X)\in Q(N, (p-1)D)[X]$ or an element in $\GG$ of known order, or an $\ell$th root of $\gr{g}$ for some $\ell$ containing an odd factor.
+Let $\tr$ and $\tr'$ be two transcripts as specified in Lemma \ref{lem:intrandomcombine} with the difference that $f,f'\in \mathbb{D}$ are dyadic rationals such that $f(X)\gets \dec(f)$ and $f'(X)\gets \dec(f')$ are degree $d$ bounded dyadic rational polynomials with coefficients' numerators bounded by $N$ and denominators bounded by $D$, i.e. $f(X),f'(X)\in\mathbb{D}(N,D)$.
+Then assuming that there exists a PPT algorithm for taking square roots in $\GG$, there exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either (1) $y_L,y_R\in \ZZ_p,f_L(X),f_R(X)\in \mathbb{D}(N\cdot (p-1),D\cdot (p-1))[X]$  such that $f_L(z)=y_L\bmod p$ and $f_R(z)=y_R \bmod p$ or (2) an element in $\GG$ of known order or (3) a dyadic rational root of $\gr{g}$.
 \end{lemma}
 \begin{proof}
 \benedikt{write proof (Very similar to Lemma \ref{lem:intrandomcombine}, perhaps move lemma}
@@ -728,13 +727,13 @@ In particular we construct an extractor $\mathcal{X}$ that given transcripts wit
 Using Lemma \ref{lemma:poe_security} and under the Adaptive Root Assumption, it suffices to consider an extractor $\mathcal{X}$ that works on transcripts of $\eval'$ were all $\textsf{PoE}$s prove true statements. That is $\gr{C}_L\gr{C}_R^{q^{d'+1}}=\gr{C}$ on all transcripts.
 
 %Now consider the case where $\gr{C}_L \gr{C}_R^{(q^{d'+1})}= \gr{C}$ for all executions. 
-Given a tree of $\eval'$ transcripts, the extractor $\mathcal{X}$ recursively either extracts the encoding of an integer polynomial $f(X)\in B_b[X]\subset \ZZ[X]$ with bounded coefficients or a break of the Order Assumption or the Fractional Root Assumption. 
+Given a tree of $\eval'$ transcripts, the extractor $\mathcal{X}$ recursively either extracts the encoding of an integer polynomial $f(X)\in \ZZ(b)[X]\subset \ZZ[X]$ with bounded coefficients or a break of the Order Assumption or the Fractional Root Assumption. 
 In order to break the Order Assumption we instantiate the adversary $\adv_{\textsf{Ord}}$ with the description of the group $\GG$. We also instantiate the fractional root adversary $\adv_{\textsf{FR}}$ with $\GG$ and $\gr{g}$ as encoded in $\params$.
 
 Given the tree of transcripts as specified in the general forking lemma (Lemma \ref{lem:forking})  with branching factor $2$ at each level, \emph{i.e.}, $2$ different challenges, we will extract a witness at each node of the tree given witnesses for both nodes' children. Each level corresponds to a separate invocation to $\pro{EvalBounded}'$. We denote the input to $\pro{Eval}'$ without subscripts, \emph{i.e.}, $\gr{C},z,y,d;f(X)$, and the input to $\pro{EvalBounded}'$ with a subscript indicating the round, \emph{e.g.}, $d_0=d$, $\gr{C}_0=\gr{C}$ and $d_{\lceil \log_2(d)\rceil }=0,\gr{C}_{\lceil \log_2(d+1)\rceil }=\gr{g}^{f}$, \emph{etc}. For the witness polynomials we use superscripts and parentheses, \emph{i.e.}, $f^{(i)}(X)$ to avoid confusion with the notation for coefficients.  
 %We let $\alpha$ and $\alpha'$ denote the two distinct challenges at each node of the transcript tree. We use $'$ to denote the proof elements and witnesses corresponding to the $\alpha'$ challenge, \emph{e.g.}, $\gr{C}_i'$.
 
-In each round the extracted witness is an integer polynomial $f^{(i)}(X)\in \ZZ[X]$ such that $\gr{g}^{f^{(i)}(q)}=\gr{C}_i$ and such that the coefficients are bounded, \emph{i.e.}, all $f^{(i)}(X)$ are in $B_{b_i}[X]$. The degree of $f^{(i)}(X)$ is at most $d_i$ and $f(z) \equiv y \bmod p$. Note that for odd primes $p$ and integer $z$, $f(z)\bmod p$ is always defined.
+In each round the extracted witness is an integer polynomial $f^{(i)}(X)\in \ZZ[X]$ such that $\gr{g}^{f^{(i)}(q)}=\gr{C}_i$ and such that the coefficients are bounded, \emph{i.e.}, all $f^{(i)}(X)$ are in $\ZZ(b_i)[X]$. The degree of $f^{(i)}(X)$ is at most $d_i$ and $f(z) \equiv y \bmod p$. Note that for odd primes $p$ and integer $z$, $f(z)\bmod p$ is always defined.
 
 We extract starting from the leafs of the tree, \emph{i.e.}, $d_{\lceil \log_2(d)\rceil}=0$. From the transcript we can directly extract the constant integer polynomial $f(X)=f \in \ZZ$ such that $\vert f \vert \leq(p-1) (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$, $y=f \mod p$, $f(X)=y\in \ZZ_p[X]$ and $\gr{g}^{f}=\gr{C}$ as the witness.
 
@@ -749,7 +748,7 @@ This yields $f^{(i)}(X)=f_{L}^{(i)}(X)+X^{\frac{d_i+1}{2}} f_{R}^{(i)}(X)$ a pol
 Note that the application of Lemma~\ref{lem:intrandomcombine} requires that $q/2$ is greater than the magnitude of each of $f^{(i)}$'s coefficient. We will show that this is the case. \alan{How does this translate to the dyadic case?}
 
 The check on $f$ ensures that $|f|\leq b=\frac{(p-1)}{2} (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$. 
-Lemma \ref{lem:forking} in each invocation guarantees that the extracted parent polynomial has coefficients at most $(p-1)$ times larger than the coefficients of the children's polynomials. Given that the transcript tree has depth $\lceil \log_2(d+1)\rceil$ we get that the final extracted polynomial $f_0(X)\in B_b[X]$ has coefficients bounded by $b= \frac{p-1}{2}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$.
+Lemma \ref{lem:forking} in each invocation guarantees that the extracted parent polynomial has coefficients at most $(p-1)$ times larger than the coefficients of the children's polynomials. Given that the transcript tree has depth $\lceil \log_2(d+1)\rceil$ we get that the final extracted polynomial $f_0(X)\in \ZZ(b)[X]$ has coefficients bounded by $b= \frac{p-1}{2}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$.
 Therefore, $q$ needs to be large enough such that $f_0(X)$ is uniquely decodable, \emph{i.e.}, $q>2\cdot b=(p-1)(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$.
 
 We can successfully extract either a witness or a fractional root or an element of known order from any tree of valid transcripts of $\eval'$.
@@ -839,7 +838,7 @@ We show how to build the extractor $\mathcal{E}_\mathsf{join}$ for $\prover_\mat
 The polynomial commitment scheme is highly flexible. For example it does not specify a prime field $\ZZ_p$ or a degree $d$ in the setup. It instead commits to an integer polynomial with bounded coefficients. That integer polynomial can be evaluated modulo arbitrary primes which are exponential in the security parameter $\lambda$ as the soundness error is proportional to its inverse.
 Note that $q$ also needs large enough such that the scheme is secure for the given prime $p$ and degree $d$ (see Theorem \ref{thm:polycommitsecurity}). The second condition, however, can be relaxed. A careful analysis shows that the challenges $\alpha$ just need to be sampled from an exponential space, e.g. $[-2^{\lambda},2^{\lambda}]$. So as long as $q>2^{\lambda 2\lceil \log_2(d+1)\rceil+1}$ for RSA groups or  $q>2^{\lambda 3\lceil \log_2(d+1)\rceil+1}$ for Class groups one can evaluate degree $d$ polynomial with coefficients bounded by $2^\lambda$ over any prime field.
 
-Additionally the proof elements $\gr{C}_L$, $\gr{C}_R \in \GG$ are independent from the field over which the polynomial is evaluated. This means that it is possible to evaluate a committed polynomial $f(X) \in B_b$ over two separate fields $\ZZ_{p}$ and $\ZZ_{p'}$ in parallel using only $2\log(d+1)$ group elements. 
+Additionally the proof elements $\gr{C}_L$, $\gr{C}_R \in \GG$ are independent from the field over which the polynomial is evaluated. This means that it is possible to evaluate a committed polynomial $f(X) \in \ZZ(b)$ over two separate fields $\ZZ_{p}$ and $\ZZ_{p'}$ in parallel using only $2\log(d+1)$ group elements. 
 
 %This property can be used to efficiently evaluate the polynomial modulo a large integer $m$ by choosing multiple $\lambda$ bit primes $p_1,\dots p_k$ such that $\prod_{i=1}^k p_i\geq m$ and using the Chinese Remainder Theorem to simulate the evaluation modulo $m$.
 \benedikt{\@ Alan: This probably needs a pass but I need to write some other sections first.}
@@ -888,7 +887,7 @@ Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_n)\in \ZZ$ is an encoding of the multi
 			\item Pick a sufficiently large and odd $q\in \NN$ \pccomment{$q=O_\lambda(p^{n \cdot \log(d)})$}
 			\item $\pcreturn \params = (\secpar,\GG,\gr{g},p,q)$
 		\end{enumerate}
-	$\pro{MultiCommit}(\crs;f(X_1,\dots,X_n) \in B_{p}^n[X]\subset \ZZ[X]):$ 		\begin{enumerate}[nolistsep]
+	$\pro{MultiCommit}(\crs;f(X_1,\dots,X_n) \in ZZ(p)^n[X]\subset \ZZ[X]):$ 		\begin{enumerate}[nolistsep]
 			\item $d\gets \deg(f)$\pccomment{For simplicity assume $f(X_1,\dots,X_n)$ has degree $d$ in each variable}
 			\item $q_i\gets q^{(d+1)^{i-1}}$ for each $i\in [1,n]$
 			\item $\gr{C} \gets \gr{g}^{f(q_1,\dots,q_n)}$
