@@ -938,7 +938,7 @@ For the $y=\sum_{i=0}^{(d+1)^n-1 } \hat{f}_{i} (\prod_{j=1}^n  z_j^{\lceil i/(d+
 \input{lineariop}
 
 \section{Evaluation}
-We now evaluate \textsf{\textbf{Supersonic}} the compiled trust-less setup SNARK built on the polynomial IOPs from Sonic\cite{Sonic} and Plonk\cite{Plonk} and compiled using our new polynomial commitment scheme.
+We now evaluate \textsf{\textbf{Supersonic}} the compiled trust-less setup SNARK built on the polynomial IOPs from Sonic\cite{Sonic} and Plonk\cite{PLONK} and compiled using our new polynomial commitment scheme.
 As explained in Section \ref{subsec:optimization} the commitment scheme has several batching properties. It is possible to evaluate $k$ polynomials of degree at most $d$ using only $2$ group elements and $(k+1)$ field elements. To take advantage of this we delay the evaluation until the last step of the protocol (see Section \ref{subsec:compiling}). We present the proof size for both the compilation of Sonic and Plonk. We use 1200 bits as the size of the class group and $\lambda=120$. This leads to proof sizes of $11KB$ for Sonic and $7.8$KB using Plonk for circuits with a million gates.
 \begin{mdframed}
 
@@ -949,7 +949,7 @@ Poly-IOP &Polynomials  & \eval{} at& $|SNARK|$&$n=2^{20}$ \\
 
  Sonic\cite{Sonic}& 12 in $\crs$+ 15 & $8$  & $(15+2\log_2(n))\GG$ &11.3 KB \\
  & & & $+(27+9\log_2(n))\ZZ_p$ &  \\
-  Plonk\cite{Plonk}& $4$ in $\crs$ + 6 & $2$& $6+2\log_2(3n)\GG$& 7.8 KB\\
+  Plonk\cite{PLONK}& $4$ in $\crs$ + 6 & $2$& $6+2\log_2(3n)\GG$& 7.8 KB\\
   & & & + $(10+3\log_2(3n))$
 	\end{tabular}
 \end{mdframed}
