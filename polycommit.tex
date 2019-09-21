@@ -10,11 +10,13 @@
 \usepackage[normalem]{ulem}
 \usepackage{comment}
 \usepackage{hyperref}
+\usepackage{draftwatermark}
 \usepackage[legalpaper, margin=1.5in]{geometry}
 \usepackage{thmtools}
 \usepackage{thm-restate}
 \declaretheorem[name=Theorem]{theorem}
-%Theorems
+
+%Theorems
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
 %\newtheorem{theorem}{Theorem}
@@ -24,7 +26,7 @@
 \newtheorem{corollary}{Corollary}
 
 \newif\ifcomments
-\commentstrue
+%\commentstrue
 
 
 \ifcomments
@@ -949,6 +951,10 @@ Poly-IOP &Polynomials  & \eval{} at& $|SNARK|$&$n=2^{20}$ \\
 \paragraph{Prover and Verifier cost}
 With pre-computation the prover time consists of a linear number of group operations. The verifier time is dominated by 3 $\lambda$-bit exponentiations in each round, 1 for combining $\gr{C}_L$ and $\gr{C}_R$ and two for verifying the \textsf{PoE}. In the final round the verifier does another $\log(d)\lambda$-bit exponentiation which could also be outsourced to the prover using yet another $\textsf{PoE}$. The total verifier time consists therefore of roughly an exponentiation of $3 \log_2(d+1) \lambda$ group operations. 
 Using $10\mu s$ per group operation (estimated using OpenSSL's 2048-bit RSA implementation), this gives us for $\lambda=120$ and $d=2^{20}$ a verification time of around 72$\mu s$. 
+
+
+\begin{comment}
+
 \section{Conclusion}
 
 The compilation of a SNARK for general purpose computations is generally divisible into three phases. First is \emph{arithmetization}, in which the computation is expressed as a satisfaction problem over some algebra. Second is \emph{information-theoretic compilation}, in which the algebraic problem is transformed into an interactive protocol for proving satisfiability or knowledge of witness for the algebraic claim. The third and last step is \emph{cryptographic compilation}, in which information-theoretical and ideal components in the information-theoretical protocol are replaced by cryptographic components, thereby realizing the abstract object at the cost of computational security. 
@@ -960,6 +966,7 @@ The polynomial commitment scheme presented by this paper highlights the need for
 By design, the IOP formalisms make abstraction of the cryptographic assumptions used in the layer underneath. As a result, the IOP formalisms fail to capture fully the expressive power of Diophantine Complexity. An interesting question left open by this work is the potential of algebraic IOPs where the proofs represent integers rather than polynomials or vectors over a finite field. An associated question is the search for alternative algebras that naturally commit to integers --- not just alternative groups of unknown order which, while an interesting research project, admit Shor's quantum order finding algorithm~\cite{conf/focs/Shor94} and therefore necessarily fail to provide post-quantum security. The converse is yet another interesting open question: is it possible to instantiate Polynomial IOPs or polynomial commitment schemes with other algebras and hard problems, beyond groups of unknown order and Merklte trees of Reed-Solomon codes --- for instance, from elliptic curve groups and based on the hardness of the discrete logarithm, or based on post-quantum hard problems that are more expressive than generic hash functions.
 
 The cryptographic hardness assumptions underlying the security of SNARK constructions are rarely falsifiable, and this seems to be a by-product of the cryptographic compilation process. In powers-of-alpha type constructions the unfalsifiable hardness assumption is inherently algebraic. In contrast, the hardness assumption of groups of unknown order \emph{are} falsifiable; it is only the Fiat-Shamir heuristic for $\mathsf{polylog}$-many round protocols that is unfalsifiable because it is only provably secure in the random oracle model; a security reduction of such heuristics to standard assumptions is as yet unavailable.
+\end{comment}
 
 % * nevertheless, polynomial commitment schemes do not necessarily correspond integer relations; it's just that integer relations are powerful enough to do that also --- what other things can they do beyond polynomial commitments?
  
