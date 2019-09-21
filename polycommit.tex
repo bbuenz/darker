@@ -11,11 +11,13 @@
 \usepackage{comment}
 \usepackage{hyperref}
 \usepackage[legalpaper, margin=1.5in]{geometry}
-
-%Theorems
+\usepackage{thmtools}
+\usepackage{thm-restate}
+\declaretheorem[name=Theorem]{theorem}
+%Theorems
 \theoremstyle{definition}
 \newtheorem{definition}{Definition}
-\newtheorem{theorem}{Theorem}
+%\newtheorem{theorem}{Theorem}
 \newtheorem{lemma}{Lemma}
 \newtheorem{assumption}{Assumption}
 \newtheorem{fact}{Fact}
@@ -79,7 +81,7 @@ The \defn{Strong RSA Assumption} sates that no efficient adversary can compute a
     \end{array}\right] \leq \negl \enspace .
 \]
 \end{assumption} 
-We note that some definitions of the Strong RSA Assumption additionally require that $\ell$ be an odd prime~\cite{EC:BarPfi97}. Our definition is stronger and says that all roots are difficult.
+We note that some definitions of the Strong RSA Assumption additionally require that $\ell$ be an odd prime~\cite{EC:BarPfi97}. Our definition is stronger a stronger assumption which states that all roots are difficult.
 \begin{assumption}[Adaptive Root Assumption]
 \label{assum:adaptiveroot}
 We say that the \defn{Adaptive Root Assumption} holds for $\ggen$ if 
@@ -135,8 +137,11 @@ The first assumption states that computing the order for \emph{any} element is h
 	\end{proof}
 	
 	
-In addition to the previous assumptions, we define the Fractional Root Assumption, which states that for random group elements $\gr{g}$ it is hard to find a tuple $(\gr{u}\in \GG,\alpha\in \ZZ,\beta\in \ZZ)$ such that $\gr{u}^{\beta}=\gr{g}^{\alpha}$, unless $\frac{\alpha}{\beta}$ is an dyadic rational, \emph{i.e.}, a rational whose denominator is a power of $2$. In RSA groups the assumption is also conjectured to hold if $\frac{\alpha}{\beta}$ is restricted to be an integer. We say that $(\gr{u},\alpha,\beta)$ is a \emph{fractional root} of $\gr{g}$.
-%Shoup\cite{CCS:CraSho99} showed that for the unknown order group of quadratic residues in $\ZZ_n$, where $n$ is the composite of two strong primes, that the Fractional Root Assumption reduces to just the Strong RSA Assumption.
+In addition to the previous assumptions, we define the Fractional Root Assumption, which states that for random group elements $\gr{g}$ it is hard to find a tuple $(\gr{u}\in \GG,\alpha\in \ZZ,\beta\in \ZZ)$ such that $\gr{u}^{\beta}=\gr{g}^{\alpha}$. 
+We say that $(\gr{u},\alpha,\beta)$ is a \emph{fractional root} of $\gr{g}$.
+%unless $\frac{\alpha}{\beta}$ is an dyadic rational, \emph{i.e.}, a rational whose denominator is a power of $2$
+%In RSA groups the assumption is also conjectured to hold if $\frac{\alpha}{\beta}$ is restricted to be an integer. 
+Shoup\cite{CCS:CraSho99} showed that for the unknown order group of quadratic residues in $\ZZ_n$, where $n$ is the composite of two strong primes, that the Fractional Root Assumption reduces to just the Strong RSA Assumption.
 
 \begin{assumption}[Fractional Root Assumption]
 \label{assum:fracroot}
@@ -197,9 +202,9 @@ The \defn{Dyadic Strong RSA Assumption} sates that no efficient adversary can co
 \end{assumption} 
 
 We also state a weakened version of the fraction root assumption which again allows an adversary to compute power of two roots.
-\begin{assumption}[Dyadic Rational Root Assumption]
+\begin{assumption}[Non-Dyadic Root Assumption]
 \label{assum:dyadicfracroot}
-The \defn{Dyadic Rational Root Assumption} holds for $\ggen$ if for any efficient adversary $\adv$:
+The \defn{Non-Dyadic Root Assumption} holds for $\ggen$ if for any efficient adversary $\adv$:
 \[        
                 \Pr\left[\gr{u}^\beta = \gr{g}^{\alpha} \wedge \frac{\beta}{\gcd(\alpha,\beta)}\neq 2^k,  k \in \NN   : 
                 \begin{array}{l} 
@@ -215,9 +220,10 @@ The \defn{Dyadic Rational Root Assumption} holds for $\ggen$ if for any efficien
 \end{assumption}
 
 \begin{lemma}
-	The Adaptive Root Assumption and the dyadic Strong RSA Assumption imply the dyadic rational root assumption.
+\label{lem:dyadicstrongtorational}
+	The Adaptive Root Assumption and the Dyadic Strong RSA Assumption imply the Non-Dyadic Root Assumption.
 \end{lemma}
-The proof of the Lemma is nearly identical to the proof of Lemma \ref{lem:strongtofractional}. The only difference is that the computed root of $\gr{g}$ is not a power of $2$ and thus breaks the dyadic Strong RSA Assumption.
+The proof of the Lemma is nearly identical to the proof of Lemma \ref{lem:strongtofractional}. The only difference is that the computed root of $\gr{g}$ is not a power of $2$ and thus breaks the Dyadic Strong RSA Assumption.
 
 \subsection{Interactive Arguments of Knowledge}
 Interactive arguments are \emph{interactive proofs}~\cite{GolMicRac89} in which security holds only against a computationally bounded prover. In an interactive argument for a relation $\mathcal{R}$, the prover convinces the verifier that it ``knows" a witness $w$ for a statement $x$ such that $(x, w) \in \mathcal{R}$. The standard definition of \emph{proofs of knowledge} (PoK) by Bellare and Goldreich~\cite{C:BelGol92} is based on the existence of an extractor machine $E$ that has oracle access to a malicious prover $P^*$, and if $P^*$ would cause the verifier to accept on input $X$ with high probability then $E$ outputs $w$ such that $(X, w) \in \mathcal{R}$ (with overwhelming probability). $E$ runs in expected polynomial time. This definition quantifies the success of $E$ over all inputs $x$, which unfortunately is problematic in the case of interactive  \emph{arguments},.
@@ -493,18 +499,19 @@ The fact follows from $f(q)\in \ZZ$ being a unique integer representation of pol
 Note that the encoding has limited homomorphic properties: $\enc(g(X))+\enc(h(X))=\enc(g(X)+h(X))$ if $g(X)+h(X)\in \ZZ(b)$, \emph{i.e.}, if all its coefficients are less than $q/2$ in absolute value. This constraint is satisfied for example if the coefficients of $g$ and $h$ are less than $q/4$ in magnitude. Additionally, $\enc(g(X))\cdot \enc(h(X))=\enc(g(X)\cdot h(X))$ if $g(X)\cdot h(X)\in \ZZ(b)$.
 
 \paragraph{Encoding of dyadic rational polynomials.}
-In class groups there exists an algorithm to compute square roots of any element originally described by Gauß (modern description by Bosma and Stevenhagen~\cite{jtn/BosSte96}). As a result, in class groups an adversary can also commit to \defn{dyadic rationals} $\mathbb{D}:=\{\frac{x}{2^k} : \ x \in \ZZ \wedge k \in \NN\}$, in addition to integers. When using class groups we therefore need to extend the encoding scheme accordingly. 
+In class groups there exists an algorithm to compute square roots of any element originally described by Gauß (modern description by Bosma and Stevenhagen~\cite{jtn/BosSte96}). As a result, in class groups an adversary can also commit to \defn{dyadic rationals} $\mathbb{D}:=\{\frac{x}{2^k} : \ x \in \ZZ \wedge k \in \NN\}\subset \QQ$, in addition to integers. When using class groups we therefore need to extend the encoding scheme accordingly. 
 
-The encoding map is identical, except lifted to the dyadic rationals: $\mathsf{Enc} : \mathbb{D}[X] \rightarrow \mathbb{D}, \, g(X) \mapsto g(q)$. The main difference with respect to the integer encoding scheme will be that decoding works for dyadic rationals where \emph{both the numerator and the denominator are bounded}. Let $N \in \NN$ be a bound on the absolute value of the numerator and $2^D\in \NN$ be a bound on the value of the denominator, and let $Q(N, D) :=\{\frac{x}{2^a} \in \mathbb{D} : \ |x|\leq N \wedge a \leq D\}$ denote the set of such bounded dyadic rationals. The encoding scheme is uniquely decodable if $N \cdot 2^a < q/2$.
+The encoding map is identical, except lifted to the dyadic rationals: $\mathsf{Enc} : \mathbb{D}[X] \rightarrow \mathbb{D}, \, g(X) \mapsto g(q)$. The main difference with respect to the integer encoding scheme will be that decoding works for dyadic rationals where \emph{both the numerator and the denominator are bounded}. Let $N \in \NN$ be a bound on the absolute value of the numerator and $2^D\in \NN$ be a bound on the value of the denominator, and let $\mathbb{D}(N, D) :=\{\frac{x}{2^a} \in \mathbb{D} : \ |x|\leq N \wedge 2^a \leq D\}$ denote the set of such bounded dyadic rationals. The encoding scheme is uniquely decodable if $N \cdot 2^a < q/2$.
  
-Note that denominator of $g(q)$ is bounded by $2^D$. To decode such a dyadic rational, compute the integer $y \gets g(q) \cdot 2^{D}\in \ZZ$  and use the decoding algorithm described above to decode a polynomial $f(X)$ in $\ZZ(q/2)[X]$. From $f(X)$ one derives the polynomial  $g(X) \gets \frac{f(X)}{2^D} \in Q(N, \frac{q}{2^D})[X]$ through division. If the integer polynomial encoding is uniquely decodable, then so is the scheme for dyadic rational polynomials. If $q$ is a power of $2$, then an adversary can encode Laurent polynomials, \emph{i.e.}, polynomials where some terms have negative powers. In order to disallow negative powers, $q$ must be odd.
+Note that denominator of $g(q)$ is bounded by $2^{\lfloor\log_2(D)\rfloor}$, $D$ rounded down to the next power of $2$. To decode such a dyadic rational, compute the integer $y \gets g(q) \cdot 2^{\lfloor\log_2(D)\rfloor}\in \ZZ$  and use the decoding algorithm described above to decode a polynomial $f(X)$ in $\ZZ(q/2)[X]$. From $f(X)$ one derives the polynomial  $g(X) \gets \frac{f(X)}{2^{\lfloor\log_2(D)\rfloor}} \in \mathbb{D}(\lceil q/(2D)\rceil, 2^{\lfloor\log_2(D)\rfloor})[X]$ through division. If the integer polynomial encoding is uniquely decodable, then so is the scheme for dyadic rational polynomials. If $q$ is a power of $2$, then an adversary can encode Laurent polynomials, \emph{i.e.}, polynomials where some terms have negative powers. In order to disallow negative powers, $q$ must be odd.
 
 \subsection{Polynomial Commitment}
 
 We now present our main technical contribution: a polynomial commitment scheme with an efficient evaluation protocol based on a group of unknown order $\GG$. For polynomials of degree $d=\poly$ the evaluation protocol uses $1+\lceil\log_2(d+1)\rceil$ rounds and $O(\log(d))$ communication and verifier work.
 
 Exponentiation in groups of unknown order is a succinct and homomorphic cryptographic commitments to an integer.
-Using the integer encoding of polynomials, or their encoding as dyadic rationals, above we can simply commit to a polynomial $f(X)$ with bounded coefficients by computing $\gr{g}^{f(q)} \in \GG$. Every polynomial in $\ZZ_p[X]$ naturally maps to an integer polynomial with coefficients in $\ZZ(\frac{p-1}{2})$. The commitment scheme, therefore, supports committing to polynomials in $\ZZ_p[X]$ for $p \leq q$. Interestingly, neither $p$ nor the degree $d$ need to be specified in the setup. As long as $q$ and ``big enough'' they can be freely chosen.\alan{Todo: make this observation elsewhere.} %In class groups there is an efficient algorithm to compute square roots, and as a result, a prover can also commit to dyadic rationals. Since every dyadic rational corresponds to a unique element in $\ZZ_p$ we can simply extend the encoding to work for polynomials with bounded dyadic rational coefficients. The only difference is that we require $q$ to be odd such that the prover cannot commit to polynomials with negative powers. We will discuss the relationship between $p$, $d$ and $q$ in more detail later but first we describe the setup, commitment and opening algorithms:
+Using the integer encoding of polynomials, or their encoding as dyadic rationals, above we can simply commit to a polynomial $f(X)$ with bounded coefficients by computing $\gr{g}^{f(q)} \in \GG$. Every polynomial in $\ZZ_p[X]$ naturally maps to an integer polynomial with coefficients in $\ZZ(\frac{p-1}{2})$. The commitment scheme, therefore, supports committing to polynomials in $\ZZ_p[X]$ for $p \leq q$. Interestingly, neither $p$ nor the degree $d$ need to be specified in the setup. As long as $q$ and ``big enough'' they can be freely chosen.
+%\alan{Todo: make this observation elsewhere.} %In class groups there is an efficient algorithm to compute square roots, and as a result, a prover can also commit to dyadic rationals. Since every dyadic rational corresponds to a unique element in $\ZZ_p$ we can simply extend the encoding to work for polynomials with bounded dyadic rational coefficients. The only difference is that we require $q$ to be odd such that the prover cannot commit to polynomials with negative powers. We will discuss the relationship between $p$, $d$ and $q$ in more detail later but first we describe the setup, commitment and opening algorithms:
 
 
 \begin{mdframed}[userdefinedwidth=\textwidth]
@@ -687,7 +694,7 @@ Then we will show that in groups in which taking square roots is easy we can ext
 	 Then there exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either (1) $y_L,y_R\in \ZZ_p,f_L(X),f_R(X)\in \ZZ((p-1) \cdot b)[X]$  such that $f_L(z)=y_L\bmod p$ and $f_R(z)=y_R \bmod p$ or (2) an element in $\GG$ of known order or (3) a fractional root of $\gr{g}$.
 \end{lemma}
 \begin{proof}
-	Using the transcripts we $\Delta_\alpha\gets\alpha-\alpha'$ and $\Delta_f\gets f-f'$ such that $\gr{C}_{L}^{\Delta_\alpha}=\gr{g}^{\Delta_f}$. 
+	Using the transcripts we get $\Delta_\alpha\gets\alpha-\alpha'$ and $\Delta_f\gets f-f'$ such that $\gr{C}_{L}^{\Delta_\alpha}=\gr{g}^{\Delta_f}$. 
  If $\frac{\Delta_f}{\Delta_\alpha}$ is not an integer then this gives us a fractional root of $\gr{g}$, that is the tuple $(\Delta_f,\Delta_\alpha,\gr{C}_{L})$.  
  If $\frac{\Delta_f}{\Delta_\alpha}$ on the other hand is an integer then we can compute $\gr{D}\gets\gr{g}^{\frac{\Delta_f}{\Delta_\alpha}}$. Either $\gr{D}=\gr{C}_{L}$ or $(\gr{D}/\gr{C}_{L})^{\Delta_\alpha}=1$, \emph{i.e.} $\gr{D}/\gr{C}_{L}$ is an element of known order.
    
@@ -695,22 +702,14 @@ Then we will show that in groups in which taking square roots is easy we can ext
 Additionally $\gr{C}_R=\gr{g}^{f_R}$ for $f_R\gets f-\alpha \cdot f_L$.
 
 We now compute the corresponding polynomials $f_L(X)\gets \dec(f_L)$ and $f_R(X)\gets \dec(f_R)$.
-Now if the coefficients $f_i$ and $f'_i\in [-b,b]$ and $\alpha,\alpha' \in [-\frac{p-1}{2},\frac{p-1}{2}]$ then by the triangle inequality we have that for the $i$th coefficient of $f_L(X)$, $f_{L,i}\in [-2b,2b]$. Additionally we have $f_{R,i}=\frac{f_i'\alpha-f_i \alpha'}{\Delta_\alpha}$. Using the triangle inequality again we have that $f_{R,i} \in [-(p-1) \cdot b, (p-1) \cdot b]$. For an odd prime $p$, $(p-1)\cdot p\geq 2b$. This gives us $f_L(X),f_R(X)\in \ZZ({(p-1) \cdot b})$
+Now if the coefficients $f_i$ and $f'_i\in [-b,b]$ and $\alpha,\alpha' \in [-\frac{p-1}{2},\frac{p-1}{2}]$ then by the triangle inequality we have that for the $i$th coefficient of $f_L(X)$, $f_{L,i}\in [-2b,2b]$. Additionally we have $f_{R,i}=\frac{f_i'\alpha-f_i \alpha'}{\Delta_\alpha}$. Using the triangle inequality again we have that $f_{R,i} \in [-(p-1) \cdot b, (p-1) \cdot b]$. For an odd prime $p$, $(p-1)\cdot p\geq 2$. The bound on $f_{R,i}$ is, therefore, greater than the bound on $f_{L,i}$. This gives us $f_L(X),f_R(X)\in \ZZ({(p-1) \cdot b})[X]$
 
 Let $y_L=\frac{y-y'}{\Delta_\alpha} \bmod p=\frac{f(z)-f'(z)}{\Delta \alpha} \bmod p$ and $y_R= y-\alpha\frac{y-y'}{\Delta_\alpha} \bmod p$. Since $f_L(X)=\frac{f(X)-f'(X)}{\Delta \alpha}$ this shows that $y_L=f_L(z)\bmod p$ and $y_R=f_R(z)\bmod p$.
 %The actual bound on f_{R,i} is b*(p-2)
 \end{proof}
 
 
-%PROOF FOR DYADIC RATIONALS
-\begin{lemma}[Forking for dyadic rational witnesses]
-Let $\tr$ and $\tr'$ be two transcripts as specified in Lemma \ref{lem:intrandomcombine} with the difference that $f,f'\in \mathbb{D}$ are dyadic rationals such that $f(X)\gets \dec(f)$ and $f'(X)\gets \dec(f')$ are degree $d$ bounded dyadic rational polynomials with coefficients' numerators bounded by $N$ and denominators bounded by $D$, i.e. $f(X),f'(X)\in\mathbb{D}(N,D)$.
-Then assuming that there exists a PPT algorithm for taking square roots in $\GG$, there exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either (1) $y_L,y_R\in \ZZ_p,f_L(X),f_R(X)\in \mathbb{D}(N\cdot (p-1),D\cdot (p-1))[X]$  such that $f_L(z)=y_L\bmod p$ and $f_R(z)=y_R \bmod p$ or (2) an element in $\GG$ of known order or (3) a dyadic rational root of $\gr{g}$.
-\end{lemma}
-\begin{proof}
-\benedikt{write proof (Very similar to Lemma \ref{lem:intrandomcombine}, perhaps move lemma}
-	
-\end{proof}
+
 
 We are now in a position to prove the main security statement.
 
@@ -720,7 +719,7 @@ We are now in a position to prove the main security statement.
 \end{theorem}
 
 \begin{proof}
-We will prove security by showing that given a polynomial time adversary $\adv_{\eval}$ that succeeds in convincing an honest verifier in the $\eval$ protocol on any public input with non-negligible probability we can either (1) construct an adaptive root adversary $\adv_{\textsf{AR}}$, (2) extract an element of known order, and hence break the Order Assumption, (3) extract a fractional root of $\gr{g}\in \GG$ or (4) extract the polynomial $f(X)\in \ZZ[X]$ such that $f(X)$ has degree at most $d$ and the coefficients of $f(X)$ are integers bounded by $q/2$, such that $f(q)$ is a unique encoding of $f(X)$. Additionally $\gr{g}^{f(q)}=\gr{C}$ and $f(z) \bmod p=y$. The proof will use the general forking lemma (Lemma \ref{lem:forking}) to show that the polynomial commitment scheme has witness-extended emulation.
+We will prove security by showing that given a polynomial time adversary $\adv_{\eval}$ that succeeds in convincing an honest verifier in the $\eval$ protocol on any public input with non-negligible probability we can either (1) construct an adaptive root adversary $\adv_{\textsf{AR}}$, (2) extract an element of known order, and hence break the Order Assumption, (3) extract a fractional root of $\gr{g}\in \GG$ or (4) extract the polynomial $f(X)\in \ZZ[X]$ such that $f(X)$ has degree at most $d$ and the coefficients of $f(X)$ are integers bounded by $q/2$, such that $f(q)$ is a unique encoding of $f(X)$. Additionally $\gr{g}^{f(q)}=\gr{C}$ and $f(z) \bmod p=y$. The proof will use the general forking lemma (Lemma \ref{lemma:GFL}) to show that the polynomial commitment scheme has witness-extended emulation.
 
 In particular we construct an extractor $\mathcal{X}$ that given transcripts with $2$ distinct challenges per round, \emph{i.e.}, $2^{\lceil\log_2(d+1)\rceil}<2 (d+1)$ transcripts in total, can compute either an opening to the commitment scheme, an element of known order, or a fractional root of $\gr{g}\in\GG$ as encoded in the public parameters $\params$.
 
@@ -730,7 +729,7 @@ Using Lemma \ref{lemma:poe_security} and under the Adaptive Root Assumption, it 
 Given a tree of $\eval'$ transcripts, the extractor $\mathcal{X}$ recursively either extracts the encoding of an integer polynomial $f(X)\in \ZZ(b)[X]\subset \ZZ[X]$ with bounded coefficients or a break of the Order Assumption or the Fractional Root Assumption. 
 In order to break the Order Assumption we instantiate the adversary $\adv_{\textsf{Ord}}$ with the description of the group $\GG$. We also instantiate the fractional root adversary $\adv_{\textsf{FR}}$ with $\GG$ and $\gr{g}$ as encoded in $\params$.
 
-Given the tree of transcripts as specified in the general forking lemma (Lemma \ref{lem:forking})  with branching factor $2$ at each level, \emph{i.e.}, $2$ different challenges, we will extract a witness at each node of the tree given witnesses for both nodes' children. Each level corresponds to a separate invocation to $\pro{EvalBounded}'$. We denote the input to $\pro{Eval}'$ without subscripts, \emph{i.e.}, $\gr{C},z,y,d;f(X)$, and the input to $\pro{EvalBounded}'$ with a subscript indicating the round, \emph{e.g.}, $d_0=d$, $\gr{C}_0=\gr{C}$ and $d_{\lceil \log_2(d)\rceil }=0,\gr{C}_{\lceil \log_2(d+1)\rceil }=\gr{g}^{f}$, \emph{etc}. For the witness polynomials we use superscripts and parentheses, \emph{i.e.}, $f^{(i)}(X)$ to avoid confusion with the notation for coefficients.  
+Given the tree of transcripts as specified in the general forking lemma (Lemma \ref{lemma:GFL})  with branching factor $2$ at each level, \emph{i.e.}, $2$ different challenges, we will extract a witness at each node of the tree given witnesses for both nodes' children. Each level corresponds to a separate invocation to $\pro{EvalBounded}'$. We denote the input to $\pro{Eval}'$ without subscripts, \emph{i.e.}, $\gr{C},z,y,d;f(X)$, and the input to $\pro{EvalBounded}'$ with a subscript indicating the round, \emph{e.g.}, $d_0=d$, $\gr{C}_0=\gr{C}$ and $d_{\lceil \log_2(d)\rceil }=0,\gr{C}_{\lceil \log_2(d+1)\rceil }=\gr{g}^{f}$, \emph{etc}. For the witness polynomials we use superscripts and parentheses, \emph{i.e.}, $f^{(i)}(X)$ to avoid confusion with the notation for coefficients.  
 %We let $\alpha$ and $\alpha'$ denote the two distinct challenges at each node of the transcript tree. We use $'$ to denote the proof elements and witnesses corresponding to the $\alpha'$ challenge, \emph{e.g.}, $\gr{C}_i'$.
 
 In each round the extracted witness is an integer polynomial $f^{(i)}(X)\in \ZZ[X]$ such that $\gr{g}^{f^{(i)}(q)}=\gr{C}_i$ and such that the coefficients are bounded, \emph{i.e.}, all $f^{(i)}(X)$ are in $\ZZ(b_i)[X]$. The degree of $f^{(i)}(X)$ is at most $d_i$ and $f(z) \equiv y \bmod p$. Note that for odd primes $p$ and integer $z$, $f(z)\bmod p$ is always defined.
@@ -745,34 +744,16 @@ If this is not the case then $f^{(i-1)}(q)=f^{(i)}(q)\cdot q^{-1}$ and $f^{(i)}(
 Now if $d_i+1$ is even then we can use Lemma~\ref{lem:intrandomcombine} to either extract a fractional root of $\gr{g}$, an element of known order in $\GG$ or the two bounded polynomials $f_{L}^{(i)}(X),f_{R}^{(i)}(X)$ of degree $\frac{d_i+1}{2}-1$ and $y_L=f_{L}^{(i)}(z)\bmod p$ as well as $y_R=f_{R}^{(i)}(z)\bmod p$. 
 This yields $f^{(i)}(X)=f_{L}^{(i)}(X)+X^{\frac{d_i+1}{2}} f_{R}^{(i)}(X)$ a polynomial of degree at most $d_i$ such that $\gr{C}_i=\gr{g}^{f^{(i)}(q)}$ and such that $f^{(i)}(z) \bmod p=y_L+y_R \cdot z^{\frac{d_i+1}{2}}\bmod p=  y_i$.
 
-Note that the application of Lemma~\ref{lem:intrandomcombine} requires that $q/2$ is greater than the magnitude of each of $f^{(i)}$'s coefficient. We will show that this is the case. \alan{How does this translate to the dyadic case?}
+Note that the application of Lemma~\ref{lem:intrandomcombine} requires that $q/2$ is greater than the magnitude of each of $f^{(i)}$'s coefficient. We will show that this is the case. 
+%\alan{How does this translate to the dyadic case?}
 
 The check on $f$ ensures that $|f|\leq b=\frac{(p-1)}{2} (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$. 
-Lemma \ref{lem:forking} in each invocation guarantees that the extracted parent polynomial has coefficients at most $(p-1)$ times larger than the coefficients of the children's polynomials. Given that the transcript tree has depth $\lceil \log_2(d+1)\rceil$ we get that the final extracted polynomial $f_0(X)\in \ZZ(b)[X]$ has coefficients bounded by $b= \frac{p-1}{2}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$.
+Lemma \ref{lem:intrandomcombine} in each invocation guarantees that the extracted parent polynomial has coefficients at most $(p-1)$ times larger than the coefficients of the children's polynomials. Given that the transcript tree has depth $\lceil \log_2(d+1)\rceil$ we get that the final extracted polynomial $f_0(X)\in \ZZ(b)[X]$ has coefficients bounded by $b= \frac{p-1}{2}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$.
 Therefore, $q$ needs to be large enough such that $f_0(X)$ is uniquely decodable, \emph{i.e.}, $q>2\cdot b=(p-1)(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$.
 
 We can successfully extract either a witness or a fractional root or an element of known order from any tree of valid transcripts of $\eval'$.
 Under the Fractional Root Assumption and the Order Assumption, the probability that a polynomial time adversary along with a polynomial time extractor $\mathcal{X}$ can produce such a fractional root or an element of known order is negligible. $\eval'$, therefore, has witness extended emulation and under the Adaptive Root Assumption by Lemma \ref{lemma:poe_security} so does $\eval$.
 Lemma \ref{lem:ordertoadaptive} and Lemma \ref{lem:strongtofractional} show that we can reduce the hardness assumptions to just the Adaptive Root Assumption and the Strong RSA Assumption.
-%\alan{The adversary has unlimited time to produce a nasty tree of transcripts. Computing elements of known order or fractional roots is easy if time is no issue.} 
-%This, however, only happens with negligible probability by assumption, where the probability is taken over the randomness of the setup. Finally using the forking lemma (Lemma \ref{lem:forking}) we can show that if the Strong RSA Assumption and the Adaptive Root Assumption (which in turn imply the fractional root and the Order Assumption) hold then $\eval'$ has witness extended emulation.
-
-%This establishes that $\eval'$ has witness-extended emulation. From Lemma~\ref{lemma:poe_security} it follows that $\eval$ has witness-extended emulation also.
- 
- 
-%Note that if $\frac{f^{(i)}(q)-f'^{(i)}(q)}{\alpha-\alpha'}$ is in fact a dyadic rational but not an integer then computing $D$ requires the extractor to take power of two roots. In class groups with discriminants that are prime and $7 \bmod 8$ this is always efficiently possible using an algorithm by Gauß~\cite{bosma1996computation}. In other groups of unknown order, such as $\ZZ_n^*/\{-1,1\}$ for composite $n$, it is not known how to efficiently compute square roots. This is, however, not a problem as the scheme can still be proven secure under a stronger Fractional Root Assumption where any rational root breaks the assumption. Even a dyadic rational $\frac{f^{(i)}(q)-f'^{(i)}(q)}{\alpha-\alpha'}$ would then lead to a break of the assumption.
-% Under the Order Assumption finding elements of known, bounded, order happens with negligible probability $\advantage{\textsf{Ord}}{}$.
-
-%Finally, if no bad event occurs and no assumption is broken we have $\gr{C}_{L,i-1}=\gr{g}^{f^{(i-1)}_L(q)}$ where $f^{(i-1)}_L(q)=\frac{f^{(i)}(q)-f'^{(i)}(q)}{\alpha-\alpha'}$ is a dyadic rational.  
- 
-% In that case $\gr{C}_{R,i-1}=\gr{g}^{f^{(i-1)}_R(q)}=\gr{g}^{f_{i}(q)-\alpha \cdot f^{(i-1)}_L(q)}$. The extractor has now successfully obtained $f^{(i-1)}_L(q)\in \mathbb{D}$ and $f^{(i-1)}_R(q)\in \mathbb{D}$.
- 
- %If $f^{(i)}(q)\in C_{b_n,b_d}$ and $f'^{(i)}(q)\in C_{b_n,b_d}$, \emph{i.e.} their numerators are bounded by $b_n$ in absolute value and their denominator is bounded by $2^{b_d}$. The denominator of $f^{(i-1)}_L(q)$ is at most $|\alpha-\alpha'|<p$ times $2^{b_d}$. Since $\lambda=\lceil\log_2(p)\rceil$ we can deduce that $2^{b_d+\lambda}$ is a bound on the size of the denominator of $f^{(i-1)}_L(q)$ and consequently also on $f^{(i-1)}_R(q)$
-%By triangle equality we also have that the numerator of $f^{(i-1)}_L(q)$ is at most $2\cdot b_n$. For $f^{(i-1)}_R(q)=f_{i}(q)-\alpha f^{(i-1)}_L(q)$ we get a bound of $(2 p )\cdot  b_n$. 
-%For a sufficiently large $q$ we can still decode dyadic rational polynomials $f^{(i-1)}_L(X)=\dec(f^{(i-1)}_L)(q) \in C_{b_n\cdot (p+1),b_d+\lambda}[X]$ and $f^{(i-1)}_R(X)=\dec(f^{(i-1)}_R)(q) \in C_{b_n\cdot (p+1),b_d+\lambda}[X]$. 
-%The homomorphic properties of the commitment scheme along with soundness of the $\textsf{PoE}$ ensure that $f^{(i-1)}(X)=f^{(i-1)}_L(X)+X^{d_{i}+1} f^{(i-1)}_R(X)$. 
-%Since $ \alpha f^{(i-1)}_L(z)+ f^{(i-1)}_R(z)=f_{i}(z) \equiv y_i \bmod p$ and $ y_i=\alpha y_{L,i-1}+  y_{R,i-1} \bmod p$ we can compute $f^{(i-1)}_L(z)\equiv y_{L,i-1}\bmod p$ and $f^{(i-1)}_R(z)\equiv y_{R,i-1}\bmod p$. This gives us $f^{(i-1)}(z)\equiv y_{i-1}\bmod p$ and $f^{(i-1)}(X)\in C_{b_n\cdot (p+1),b_d+\lambda}[X] $ is a valid witness.  
-
 \end{proof}
 
 %{\it Note 1.} The extractability proof shows that the extractor is successful whenever the coefficients of the prover's polynomial are bounded in absolute value by $2^ip^{\lceil \log_2(d_{\it max} + 1) \rceil+i}$ or, after the final induction step, by $2^{\lceil \log_2(d_{\it max} + 1) \rceil}p^{2\lceil \log_2(d_{\it max} + 1) \rceil}$. In other words, prover who starts with a polynomial with at least one of the coefficients outside of this range, will succeed with negligible probability. However, the proof fails to cover what happens when he selects a polynomial within this range but outside $[0;p-1]$. As per correctness, his success is only guaranteed if all coefficients lie within this last range. Additionally this growing bound supplies in turn a lower bound on $q$. The coefficients that are too large in absolute value should percolate along with the recursion, remaining outside the bounds even after multiplication by a random $\alpha$. The set of possible coefficients must therefore be a factor $2^\lambda$ larger than the bounded interval. And therefore, $q > 2^{\lambda + \lceil \log_2(d_{\it max} + 1) \rceil}p^{2\lceil \log_2(d_{\it max} + 1) \rceil}$. \alan{Is this still relevant? Feel free to drop if not.}
@@ -780,15 +761,21 @@ Lemma \ref{lem:ordertoadaptive} and Lemma \ref{lem:strongtofractional} show that
 The bound on $q$ for correctness (Lemma \ref{lem:correctness}) is $O((\frac{p}{2})^{\log(d)})$ while the bound for soundness is $O((\frac{p}{2})^{2 \log(d)})$. It is not clear whether this gap can be closed. While the soundness analysis is tight for the worst case assumption on challenges it is possible that a probabilistic analysis could give a tighter result.
 
 
+\begin{restatable}{theorem}{dyadicmain}
+\label{thm:dyadicpolysecurity}	
+Let $\ggen$ generate groups $\GG$ of unknown order such that the order of $\GG$ is odd, and there exists a PPT algorithm for taking square roots in $\GG$.
+	The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>(p-1)^{\lceil\log_2(d+1)\rceil+1}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}=O(p^{3\log(d)})$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the Adaptive Root Assumption and the Dyadic Strong RSA Assumption hold for $\ggen$.
+\end{restatable}
+The proof of theorem is nearly identical to the proof of Theorem~\ref{thm:polycommitsecurity} but the extracted polynomials are dyadic rationals and not integers. This requires the bound on $q$ to be larger by a factor of $p^{\log(d+1)}$. The proof is presented in Appendix~\ref{apx:dyadic}
 \subsection{Optimizations and Performance}
 \label{subsec:optimization}
 We present several ideas for optimizing the performance of the $\pro{Eval}$ protocol.
 
 \paragraph{Precomputation.} The prover has to compute powers of $\gr{g}$ as large as $q^d$. While this can be done in linear time, this expense can be shifted to a preprocessing phase in which all elements $\gr{g}^{q^i}, i \in \{1, \ldots, d_{\it max}\}$ are computed. Since for coefficient $|f_i|\leq -\frac{p-1}{2}$ this allows the computation of $g^{f(q)}$ in $O(\lambda d)$ group operations as opposed to $O(\lambda \log(d) d)$.
-In addition to reducing the prover's workload, this optimization enables parallelizing it. 
-The elements $\gr{g}^{q^i}$ can themselves be accompanied by non-interactive $\mathsf{PoE}$s to establish their correct computation.
+In addition to reducing the prover's workload, this optimization enables parallelizing it. The computation of the $\textsf{PoE}$ proofs can simiarly be parallelized. The prover can express each $Q$ as a power of $\gr{g}$ which enables pre-computation of powers of $\gr{g}$ and parallelism as described by \cite{EPRINT:BonBunFis18}.
+%The elements $\gr{g}^{q^i}$ can themselves be accompanied by non-interactive $\mathsf{PoE}$s to establish their correct computation.
 
-The pre-computation also enables the use of multi-exponentiation techniques \cite{pippenger1980evaluation}. Boneh et al. and Wesolowski\cite{EPRINT:BonBunFis18,EC:Wesolowski19} showed how to use these techniques to reduce the complexity of the $\textsf{PoE}$ prover. The largest $\textsf{PoE}$ exponent $q^{\frac{d+1}{2}}$ has $O(\lambda d \log(d))$ bits. Multi-exponentiation can therefore reduce the prover work to $O(\lambda d)$ instead of $O(\lambda d \log(d))$ 
+The pre-computation also enables the use of multi-exponentiation techniques \cite{pippenger1980evaluation}. Boneh et al. and Wesolowski\cite{EPRINT:BonBunFis18,EC:Wesolowski19} showed how to use these techniques to reduce the complexity of the $\textsf{PoE}$ prover. The largest $\textsf{PoE}$ exponent $q^{\frac{d+1}{2}}$ has $O(\lambda d \log(d))$ bits. Multi-exponentiation can therefore reduce the prover work to $O(\lambda d)$ instead of $O(\lambda d \log(d))$.
 
 %\paragraph{Batching $\mathsf{PoE}$s.} Instead of running each $\mathsf{PoE}$ separately in the order they occur, it is possible to postpone to the end where they can be aggregated. Boneh~\emph{et al.} provide an extension to $\mathsf{PoE}$ called $\mathsf{PoHP}$ (proof of homomorphism preimage) to accomplish exactly this task~\cite[\S A.1]{C:BonBunFis19}. Instead of transmitting $\lceil \log_2(d + 1)\rceil $ primes $\ell$, this optimization requires the transmission of only one.\benedikt{Not sure that PoHP is applicable here, PoHP has exactly one output. although this indeed a generalization for it.} 
 
@@ -846,10 +833,11 @@ Additionally the proof elements $\gr{C}_L$, $\gr{C}_R \in \GG$ are independent f
 
 \paragraph{Performance.}
 The polynomial commitment scheme has logarithmic proof size and verifier time in the degree $d$ of the committed polynomial. 
-As discussed it has highly batchable proofs and it is possible to evaluate $n$ degree $d$ polynomials at $m$ points using only $2\log_2(d+1)$ group elements and $(m+1)\log_2(d+1)$ field elements.
+As discussed it has highly batchable proofs and it is possible to evaluate $n$ degree $d$ polynomials at $m$ points using only $2\log_2(d+1)$ group elements and $(m+1)\log_2(d+1)$ field elements. Note that this means the proof size is independent of $n$ and linear in $m$ but with a small constant $(15 \log(d)$ bytes).
 We describe the performance for different settings in Table \ref{tab:performance}
-
 \begin{table} 
+
+\begin{small}
 \begin{tabular}{l|l||l|l|l}
 	Operation & $|\crs|$  & Prover & Verifier & Communication\\
 	\hline
@@ -857,14 +845,16 @@ We describe the performance for different settings in Table \ref{tab:performance
     \commit(f(X)) & $d$ $\GG$ & $O(\frac{\lambda d}{\log(d)}) \GG$ & - & $1 \GG$\\
     \eval($f(z)=y\in \ZZ_p$)  & 1 $\GG$ & $O(\lambda  \log(d) d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$2 \log(d) \ZZ_p$ \\
         \eval($f(z)=y\in \ZZ_p$)  & $d$ $\GG$ & $O(\lambda d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$2 \log(d) \ZZ_p$ \\
-    \eval($f(\boldsymbol{z})=\boldsymbol{y}\in \ZZ^k_p$)  & 1 $\GG$ & $O(\lambda \log(d)d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$(k+1) \log(d) \ZZ_p$ \\
+%    \eval($f(\boldsymbol{z})=\boldsymbol{y}\in \ZZ^k_p$)  & 1 $\GG$ & $O(\lambda \log(d)d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$(k+1) \log(d) \ZZ_p$ \\
        \eval($f(\boldsymbol{z})=\boldsymbol{y}\in \ZZ^k_p$)  & $d$ $\GG$ & $O(\lambda d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$(k+1) \log(d) \ZZ_p$ \\
-        \eval($f(z)=y, g(z)=y'\in \ZZ_p$)  & $1$ $\GG$ & $O(\lambda\log(d) d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$2 \log(d) \ZZ_p$ \\
+  %      \eval($f(z)=y, g(z)=y'\in \ZZ_p$)  & $1$ $\GG$ & $O(\lambda\log(d) d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$2 \log(d) \ZZ_p$ \\
                 \eval($f(z)=y, g(z)=y'\in \ZZ_p$)  & $d$ $\GG$ & $O(\lambda d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$2 \log(d) \ZZ_p$ \\
 
 \end{tabular}
+\end{small}
+
 \label{tab:performance}
-\caption{$\GG$ denotes the size of a group element for communication and a single group operation for computation. $\ZZ_p$ denotes the size of a field element, i.e. $\lambda$ bits.}
+\caption{$\GG$ denotes the size of a group element for communication and a single group operation for computation. $\ZZ_p$ denotes the size of a field element, i.e. $\lambda$ bits. $|\crs|$ is the size of the CRS,}
 \end{table}
 
 \subsection{Multivariate polynomial commitments}\label{sec:multivariate}
