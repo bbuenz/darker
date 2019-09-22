@@ -97,17 +97,19 @@ The following is an IOP where the prover first sends two degree $d$ univariate p
 \item Prover and verifier engage in the 1 round IOP (Section~\ref{sec:opencoefficient}) for proving that the $d$th coefficient (i.e. on term $X^d$) of $h(X)$ is equal to $a$. (The proof oracles for this subprotocol can all be sent in the first round, so this does not add an additional round). Abort and output $0$ if this fails, otherwise return 1 (accept). 
 \end{itemize}
 
-\paragraph{Knowledge extraction} If $h(X) \neq f(X) \cdot g(X)$ then the verifier's check $y_1 y_2 = y_3$ at the random point $\beta$ fails with probability $1/\FF$. The extractor directly obtains $h(X)$, and by definition the middle coefficient (i.e. on the monomial $X^d$) of $h(X)$ is the inner product $\langle \mathbf{f}, \mathbf{g}^r \rangle$. Combined with the the knowledge extraction property of the IOP for opening coefficients, it follows that this inner product is equal to $a$.  
+\paragraph{Knowledge extraction} If $h(X) \neq f(X) \cdot g(X)$ then the verifier's check $y_1 y_2 = y_3$ at the random point $\beta$ fails with probability $(|\FF| - d')/|\FF|$, where $d' = \max(\deg(h(X)),$ $\deg(f(X)\cdot{}g(X)))$. The extractor directly obtains $h(X)$, and by definition the middle coefficient (i.e. on the monomial $X^d$) of $h(X)$ is the inner product $\langle \mathbf{f}, \mathbf{g}^r \rangle$. Combined with the the knowledge extraction property of the IOP for opening coefficients, it follows that this inner product is equal to $a$.  
 %\alan{This does not work unless you flip $g(X)$.}
 
 \subsubsection{Reducing algebraic linear IOPs to polynomial IOPs} 
 \label{sec:algebraicIOP}
 \begin{lemma}\label{lem:algebraicIOPcompiler}
-Any $t$-round stateless input-oblivious algebraic IOP can be implemented with a $t+1$-round polynomial IOP. Suppose the original $\ell$-query IOP is $(\mu,d)$ algebraic with query length $(m_1,...,m_t)$ then the resulting polynomial IOP has for each $i \in [t]$: $2\ell$ degree $m_i$ univariate oracles, $\ell$ multivariate polynomials of degree $d$ and $\mu+1$ variables, $\ell$ degree $2m_i$ univariate oracles %(for inner products), 
+Any $t$-round stateless input-oblivious algebraic\alan{insert "linear"?} IOP can be implemented with a $t+1$-round polynomial IOP. Suppose the original $\ell$-query IOP is $(\mu,d)$ algebraic with query length $(m_1,...,m_t)$ then the resulting polynomial IOP has for each $i \in [t]$: $2\ell$ degree $m_i$ univariate oracles, $\ell$ multivariate polynomials of degree $d$ and $\mu+1$ variables, $\ell$ degree $2m_i$ univariate oracles %(for inner products), 
 and $2\ell$ degree $2m_i$ univariate oracles. %(for coefficient openings). 
 There is exactly one query to each oracle on a random point in $\FF$.
 \end{lemma}
 
+\alaninline{Is this the main theorem? If so, why not upgrade it from lemma to theorem? }
+\alaninline{Also, where does the description of the compiler start? The following text could achieve various things, including providing extra background before the proof is presented, it could be part of Lemma 10, or it could be the first step of the compiler.}
 
 \paragraph{Offline oracles} For each $i$th round there are $\ell$ query generation functions $P_1,...,P_\ell: \FF^\mu \rightarrow \FF^{m_i}$, where the $j$th component of $P_k(\mathbf{r}_i)$ is a $\mu$-variate degree $d$ polynomial function $p_{k,j}(\mathbf{r}_i)$. In the offline phase, the prover and verifier establish several $\mu+1$-variate degree $d$ polynomial oracles (e.g. prover sends to verifier and verifier checks each at $d+1$ points). %verifier and the verifier sends  uses $\Gamma$ to generate a commitment $c_{P_k}$ to $(p_{k,1},..., p_{k,m_i})$ as follows:
  
