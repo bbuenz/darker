@@ -16,7 +16,7 @@ All existing SNARK constructions can be viewed conceptually as consisting of an 
 
 In this section we define \emph{algebraic linear IOPs}. Recall that in a linear PCP the verifier sends query vectors $\mathbf{q} \in \FF^m$ and receives a response $\langle \proofO, \mathbf{q} \rangle$. Bitansky et. al. \cite{TCC:BCIOP13} defined a linear PCP to be \emph{algebraic} if each query vector is computed from the verifier's random coins by an arithmetic circuit of low (i.e. $poly(\lambda)$) degree. More precisely, in an algebraic degree $d$ PCP there is a query function $Q: \FF^\mu \rightarrow \FF^m$ such that each verifier query is of the form $\mathbf{q} \leftarrow Q(\mathbf{r})$, where $\mathbf{r}$ is uniformly sampled from $\FF^\mu$, and the function $Q$ is computable by a vector of $\mu$-variate polynomials of degree at most $d$. 
 
-A subclass of algebraic linear PCPs are \emph{polynomial PCPs}. A $\mu$-variate degree $d$ polynomial PCP oracle encodes a $\mu$-variate polynomial function of degree $d$, and all oracles queries return evaluations of the polynomial at points in $\FF^\mu$e. If the proof oracle is represented by the coefficient vector $\proofO \in \FF^{d^\mu}$ then its evaluation on a point in $\FF^\mu$ can be viewed as a linear query $\mathbf{q} \in \FF^{d^\mu}$ (i.e. returning $\langle \proofO, \mathbf{q} \rangle$) with each component of $\mathbf{q}$ computed by a $\mu$-variate monomial of degree at most $d$. 
+A subclass of algebraic linear PCPs are \emph{polynomial PCPs}. A $\mu$-variate degree $d$ polynomial PCP oracle encodes a $\mu$-variate polynomial function of degree $d$, and all oracles queries return evaluations of the polynomial at points in $\FF^\mu$. If the proof oracle is represented by the coefficient vector $\proofO \in \FF^{d^\mu}$ then its evaluation on a point in $\FF^\mu$ can be viewed as a linear query $\mathbf{q} \in \FF^{d^\mu}$ (i.e. returning $\langle \proofO, \mathbf{q} \rangle$) with each component of $\mathbf{q}$ computed by a $\mu$-variate monomial of degree at most $d$. 
 
 We define algebraic linear IOPs analogously to algebraic linear PCPs. To keep the syntax simple, we will only the present the definition for the case of public-coin linear IOPs. Our results will only make use of public-coin IOPs. 
 
@@ -99,21 +99,24 @@ The following is an IOP where the prover first sends two degree $d$ univariate p
 \item Prover and verifier engage in the 1 round IOP (Section~\ref{sec:opencoefficient}) for proving that the $d$th coefficient (i.e. on term $X^d$) of $h(X)$ is equal to $a$. (The proof oracles for this subprotocol can all be sent in the first round, so this does not add an additional round). Abort and output $0$ if this fails, otherwise return 1 (accept). 
 \end{itemize}
 
-\paragraph{Knowledge extraction} If $h(X) \neq f(X) \cdot g(X)$ then the verifier's check $y_1 y_2 = y_3$ at the random point $\beta$ fails with probability $1/\FF$. The extractor directly obtains $h(X)$, and by definition the middle coefficient (i.e. on the monomial $X^d$) of $h(X)$ is the inner product $\langle \mathbf{f}, \mathbf{g}^r \rangle$. Combined with the the knowledge extraction property of the IOP for opening coefficients, it follows that this inner product is equal to $a$.  
+\paragraph{Knowledge extraction} If $h(X) \neq f(X) \cdot g(X)$ then the verifier's check $y_1 y_2 = y_3$ at the random point $\beta$ fails with probability $(|\FF| - d')/|\FF|$, where $d' = \max(\deg(h(X)),$ $\deg(f(X)\cdot{}g(X)))$. The extractor directly obtains $h(X)$, and by definition the middle coefficient (i.e. on the monomial $X^d$) of $h(X)$ is the inner product $\langle \mathbf{f}, \mathbf{g}^r \rangle$. Combined with the the knowledge extraction property of the IOP for opening coefficients, it follows that this inner product is equal to $a$.  
 %\alan{This does not work unless you flip $g(X)$.}
 
 \subsubsection{Reducing algebraic linear IOPs to polynomial IOPs} 
 \label{sec:algebraicIOP}
 \begin{lemma}\label{lem:algebraicIOPcompiler}
-Any $t$-round stateless input-oblivious algebraic IOP can be implemented with a $t+1$-round polynomial IOP. Suppose the original $\ell$-query IOP is $(\mu,d)$ algebraic with query length $(m_1,...,m_t)$ then the resulting polynomial IOP has for each $i \in [t]$: $2\ell$ degree $m_i$ univariate oracles, $\ell$ multivariate polynomials of degree $d$ and $\mu+1$ variables, $\ell$ degree $2m_i$ univariate oracles %(for inner products), 
+Any $t$-round stateless input-oblivious algebraic\alan{insert "linear"?} IOP can be implemented with a $t+1$-round polynomial IOP. Suppose the original $\ell$-query IOP is $(\mu,d)$ algebraic with query length $(m_1,...,m_t)$ then the resulting polynomial IOP has for each $i \in [t]$: $2\ell$ degree $m_i$ univariate oracles, $\ell$ multivariate polynomials of degree $d$ and $\mu+1$ variables, $\ell$ degree $2m_i$ univariate oracles %(for inner products), 
 and $2\ell$ degree $2m_i$ univariate oracles. %(for coefficient openings). 
 There is exactly one query to each oracle on a random point in $\FF$.
 \end{lemma}
 
+\alaninline{Is this the main theorem? If so, why not upgrade it from lemma to theorem? A theorem like this needs a) an algorithm, either a compiler that takes the original IOP as input and outputs a new one, or a new IOP described in terms of oracle access to the original IOP; a proof of completeness and soundness. I think completeness follows from construction, but there is definitely some soundness loss!}
+\alaninline{Also, where does the description of the compiler/new IOP start? The following text could achieve various things, including providing extra background or intuition before the proof is presented, it could be part of Lemma 10, or it could be the first step of the compiler.}
+\alaninline{Also: offline oracle refers to oracles sent in the preprocessing phase? That's the most likely explanation in my reading, but I might be wrong. And if I'm right, then it might be worthwhile to make it explicit for the reader that this offline/online distinction refers to the paragraph about preprocessing earlier.}
 
-\paragraph{Offline oracles} For each $i$th round there are $\ell$ query generation functions $P_1,...,P_\ell: \FF^\mu \rightarrow \FF^{m_i}$, where the $j$th component of $P_k(\mathbf{r}_i)$ is a $\mu$-variate degree $d$ polynomial function $p_{k,j}(\mathbf{r}_i)$. In the offline phase, the prover and verifier establish several $\mu+1$-variate degree $d$ polynomial oracles (e.g. prover sends to verifier and verifier checks each at $d+1$ points). %verifier and the verifier sends  uses $\Gamma$ to generate a commitment $c_{P_k}$ to $(p_{k,1},..., p_{k,m_i})$ as follows:
+\paragraph{Offline oracles} For each $i$th round there are $\ell$ query generation functions $P_1,...,P_\ell: \FF^\mu \rightarrow \FF^{m_i}$, where the $j$th component of $P_k(\mathbf{r}_i)$ is a $\mu$-variate degree $d$ polynomial function\alan{Is there a difference between a polynomial and a polynomial function? If not, don't use the second term because the reader will wonder what the difference is.} $p_{k,j}(\mathbf{r}_i)$. In the offline phase, the prover and verifier establish several $\mu+1$-variate degree $d$ polynomial oracles (e.g. prover sends to verifier and verifier checks each at $d+1$ points). %verifier and the verifier sends  uses $\Gamma$ to generate a commitment $c_{P_k}$ to $(p_{k,1},..., p_{k,m_i})$ as follows:
  
-For each $k \in [\ell]$, the vector $(p_{k,1},...,p_{k, m_i})$ is encoded as a polynomial in $\mu + 1$ variables as follows. Let $\mathbf{X} = (X_1,...,X_\mu)$ and $Z$ denote the $(\mu+1)$'st indeterminate, then define $\tilde{P}_k(\mathbf{X}, Z) := \sum_{j=1}^{m_i} p_{k,j}(\mathbf{X}) Z^j$.
+For each $k \in [\ell]$, the vector $(p_{k,1},...,p_{k, m_i})$\alan{This is a vector of polynomials, not of scalars, correct?} is encoded as a polynomial in $\mu + 1$ variables as follows. Let $\mathbf{X} = (X_1,...,X_\mu)$ and $Z$ denote the $(\mu+1)$'st indeterminate, then define $\tilde{P}_k(\mathbf{X}, Z) := \sum_{j=1}^{m_i} p_{k,j}(\mathbf{X}) Z^j$.
 The prover and verifier establish the oracle $\tilde{P}_k$. 
 
 \paragraph{Online IOP}
@@ -121,14 +124,14 @@ The original linear IOP is modified as follows.
 
 \begin{itemize}
 
-\item Wherever the original IOP prover sends an oracle $\proofO$ of length $m_i$, the new prover sends a degree $m_i - 1$ polynomial oracle $f_\pi$ whose coefficient vector is \emph{the reverse} of $\proofO$. 
+\item Wherever the original IOP prover sends an oracle $\proofO$ of length $m_i$, the new prover sends a degree $m_i - 1$ \alan{univariate?}polynomial oracle $f_\pi$ whose coefficient vector is \emph{the reverse} of $\proofO$. 
 
-\item Wherever the original IOP makes $\ell$ queries within a round to a particular proof oracle $\proofO$, where queries are defined by query matrix $\mathbf{Q} \in \FF^{m_i \times \ell}$, consisting of column query vectors $(\mathbf{q}_1,...,\mathbf{q}_\ell)$, the new prover and verifier engage in the following interactive subprotocol for each $k \in [\ell]$: 
+\item Wherever the original IOP\alan{The prover or the verifier?} makes $\ell$ queries\alan{What if the verifier chooses the next query depending on the answers to the previous ones?} within a round to a particular proof oracle $\proofO$, where queries are defined by query matrix $\mathbf{Q} \in \FF^{m_i \times \ell}$, consisting of column query vectors $(\mathbf{q}_1,...,\mathbf{q}_\ell)$, the new prover and verifier engage in the following interactive subprotocol for each $k \in [\ell]$: \alan{What does this subprotocol accomplish?}
 
 \begin{itemize}
- \item Prover: Send an oracle for the polynomial $F_k$ whose coefficient vector is $\mathbf{q}_k$. 
+ \item Prover: Send an oracle for the polynomial $F_k$ whose coefficient vector is $\mathbf{q}_k$. \alan{How does the prover know this coefficient vector if the verifier didn't send $\mathbf{r}$ or $\mathbf{Q}$ yet?}
  
- \item Verifier: Run the original IOP verifier to get the message $\mathbf{r}$ such that $Q(\mathbf{r})$ defines the original verifier's queries in the current round. Sample uniform random $\beta \sample \FF$ and query both $F_k$ and $\tilde{P}_k$ at $\beta$ in order to check that $F_k (\beta) = \tilde{P}_k(\mathbf{r}, \beta)$. If the check fails, aborts and output 0. 
+ \item Verifier: Run the original IOP verifier to get the message $\mathbf{r}$ such that $Q(\mathbf{r})$ defines the original verifier's queries in the current round. Sample uniform random $\beta \sample \FF$ and query both $F_k$ and $\tilde{P}_k$ at $\beta$ in order to check that $F_k (\beta) = \tilde{P}_k(\mathbf{r}, \beta)$. If the check fails, aborts and output 0. \alan{$\tilde{P}_k$ is as it is defined in the offline oracles paragraph? Maybe anticipate the link or make it explicit.}
  
 % \item The prover evaluates $y_1 \leftarrow \mathbf{q}_k(\beta)$ and $y_2 \leftarrow \tilde{P}_k(\mathbf{r}_i, \beta)$ and sends these to the verifier. The verifier aborts if $y_1 \neq y_2$ and returns 0. 
 % \item Assume at this point $y = y_1 = y_2$. The prover and verifier run $\eval(\params, c_{\mathbf{q}_k}, \beta, y, m_i; \mathbf{q}_k)$ and $\eval(\params, c_{P_k}, (\mathbf{r}, \beta), y, d; \tilde{P}_k)$. If the verifier returns 0 in either subprotocol, the verifier aborts and outputs 0. 
@@ -228,7 +231,7 @@ In conclusion, if $\tr$ is accepting with non-negligible probability, then there
 \end{proof}
 
 \subsection{Concrete Instantiations} 
-We discuss three concrete examples of polynomial IOPs to which we can apply our polynomial commitment compiler. Section~\ref{sec:optimizations} discusses optimizations and performance estimates for a compilation of the polynomial IOP introduced in \textsf{Sonic}~\cite{Sonic} and improved in \textsf{PLONK}~\cite{PLONK}. 
+We discuss three concrete examples of polynomial IOPs to which we can apply our polynomial commitment compiler. Section~\ref{sec:optimizations} discusses optimizations and performance estimates for a compilation of the polynomial IOP introduced in \textsf{Sonic}~\cite{Sonic} and improved in \textsf{PLONK}~\cite{Plonk}. 
 
 \subsubsection{Sonic} 
 \textsf{Sonic} is zk-SNARK system that has a universal trusted setup, which produces a $CRS$ of $n$ group elements that can be used to prove any statement represented as arithmetic circuits with at most $n$ gates. The CRS can also be updated (e.g. to handle larger circuits, or increase the trust distribution) without re-doing the initial setup. The result in \textsf{Sonic} was not presented using the language of IOPs. Furthermore, the result also relied on a special construction of polynomial commitments (a modification of Kate et. al.~\cite{AC:KatZavGol10}) that forces the prover to commit to a Laurent polynomial with no constant term. Given our generic reduction from coefficient queries to evaluation queries (Section~\ref{sec:opencoefficient}), we re-characterize the main theorem of \textsf{Sonic} as follows: 
@@ -243,17 +246,17 @@ The number of univariate queries increased from the original $3$ in \textsf{Soni
 There exists a 5-round HVZK polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with arithmetic complexity $n$) that makes 27 queries overall to univariate degree $n$ polynomial oracles. The preprocessing verifier does $O(n)$ work to check $12$ univariate degree $n$ polynomials. 
 \end{theorem}
 
+
 The recent system \pro{PLONK} is an improvement on the underlying polynomial IOP in \pro{Sonic}, and achieves the following: 
 
-\begin{theorem} 
+\begin{theorem}[PLONK,~\cite{Plonk}] 
 There exists a 3-round HVZK polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with arithmetic complexity $n$) that makes 3 queries overall to univariate degree $3n$ polynomial oracles. Preprocessing? %The preprocessing verifier does $O(n)$ work to check $12$ univariate degree $n$ polynomials.
 \end{theorem}
 
- 
-Combining the $\pro{Sonic}$ IOP with the new transparent polynomial compiler of Section~\ref{sec:protocol} gives the following result:  
+Combining the \pro{Sonic} IOP with the new transparent polynomial compiler of Section~\ref{sec:protocol} gives the following result:  
 
 \ben{TODO: Add actual complexity for preprocessing and prover rather than quasilinear} 
-\begin{theorem} 
+\begin{theorem}
 There exists an $O(\log n)$-round public-coin interactive argument of knowledge for any NP relation of size $n$ that has $O(\log n)$ communication, $O(\log n)$ ``online" verification, quasilinear prover time, and a preprocessing step that is verifiable in quasilinear time. The argument of knowledge has witness-extended emulation assuming it is instantiated with a group $\GG$ for which the Order Assumption, the Strong RSA Assumption, and the Adaptive Root Assumption all hold. 
 \end{theorem}
 \begin{proof}
@@ -278,7 +281,7 @@ $$G(x,y,z) = A(x,y,z) F(x) + B(x, y, z) F(y) + C(x, y, z) F(y) F(z)$$
 where $A, B, C,$ and $F$ are all multilinear poylnomials. The polynomials $A, B, C$ are derived from the arithmetic circuit defining the relation $\mathcal{R}$ and are input-independent. $F$ is degree $1$ with $\log n$ variables and is derived from a particular $(x, w) \in \mathcal{R}$. For uniform circuits, the verifier can evaluate $A, B, C$ locally in $O(\log n )$ time. The LFKN sum-check protocol~\cite{FOCS:LFKN90} is applied in order to prove Expression~\ref{eqn:hypercubesum} in a $3\log n$ round polynomial IOP, where the prover's oracle consist of $Z$ and the low-degree polynomials sent in the sumcheck. Since the extra low-degree polynomials are constant size they can be read entirely by the verifier in constant time rather than via oracle access, and hence we ignore them in the total oracle count. The main result in Spartan can be summarized in our framework as follows: 
 
 \begin{theorem}[Setty19]
-There exists a $3 \log n$ round polynomial IOP for any NP relation $\mathcal{R}$ (computed by a uniform circuit with arithmetic complexity $n$) that makes three queries to a $\log n$-variate degree 1 polynomial oracle.  
+There exists a $3 \log n$ round polynomial IOP for any NP relation $\mathcal{R}$ computed by a \textbf{uniform} circuit with arithmetic complexity $n$, which makes three queries to a $\log n$-variate degree 1 polynomial oracle.  
 \end{theorem}
 
 Applying our multivariate compiler to the \textsf{Spartan} polynomial IOP we obtain an $O(\log n)$-round public-coin interactive argument of knowledge for uniform circuits of size $n$. In our multivariate scheme (Section~\ref{sec:multivariate}), the $\log n$-variate degree 1 polynomial is tranformed into a univariate polynomial of degree $n$. With only three queries overall, the communication is just $6 \log n$ group elements and $6 \log n$ field elements. 
@@ -287,7 +290,7 @@ Applying our multivariate compiler to the \textsf{Spartan} polynomial IOP we obt
 
 QAPs and R1CS constraint systems can be expressed as linear PCPs~\cite{TCC:BCIOP13,C:BCGTV13}. We review here how to express R1CS as a one round public-coin $(1, n)$ algebraic IOP. (This captures the satisfiability of any circuit with multiplicative complexity $n$, which is first translated to a system of quadratic equations over degree $n$ polynomials). Each linear query is computed by a vector of degree $n$ univariate polynomials evaluated at a random point chosen by the public-coin verifier. '
 
-\paragraph{R1CS} The language R1CS over $\FF$ contains systems of satisfiable \emph{rank-1 quadratic equations}. An R1CS instance is defined by length $m+1$ polynomial vectors $A(X)$, $B(X)$, $C(X)$ such that the $i$th components $A_i(X)$, $B_i(X)$, $C_i(X)$ are all degree $n-1$ polynomials over $\FF_p[X]$ for $i \in [0,m]$, and $A_m = B_m = C_m$ is the degree $n$ polynomial $Z(X)$ that vanishes on a specified set of $n$ points in $\FF_p$. There is a length $m-1$ witness vector $\mathbf{w}$ whose first $\ell$ components are equal to the instance $\mathbf{x} \in \FF^\ell$, and a degree $n$ ``quotient" polynomial $H(X)$, such that the following constraint equation is satisfied: 
+\paragraph{R1CS} \alan{This actually describes QAP not R1CS.} The language R1CS over $\FF$ contains systems of satisfiable \emph{rank-1 quadratic equations}. An R1CS instance is defined by length $m+1$ polynomial vectors $A(X)$, $B(X)$, $C(X)$ such that the $i$th components $A_i(X)$, $B_i(X)$, $C_i(X)$ are all degree $n-1$ polynomials over $\FF_p[X]$ for $i \in [0,m]$, and $A_m = B_m = C_m$ is the degree $n$ polynomial $Z(X)$ that vanishes on a specified set of $n$ points in $\FF_p$. There is a length $m-1$ witness vector $\mathbf{w}$ whose first $\ell$ components are equal to the instance $\mathbf{x} \in \FF^\ell$, and a degree $n$ ``quotient" polynomial $H(X)$, such that the following constraint equation is satisfied: 
 
 \begin{equation} \label{eqn:R1CS} 
 \begin{split}
@@ -297,7 +300,7 @@ QAPs and R1CS constraint systems can be expressed as linear PCPs~\cite{TCC:BCIOP
 \end{split} 
 \end{equation}
 
-\paragraph{R1CS algebraic linear PCP} Equation~\ref{eqn:R1CS} is turned into a set of linear queries by evaluating the polynomials at a random point in $\FF$. Satisfaction of the equation evaluated at a random point implies satisfaction of the polynomial equation with error at most $2n / |\FF$ by Schwartz-Zippel. Translated to an algebraic IOP, the prover sends a proof oracle $\proofO_w$ containing the vector $(1, \mathbf{w}, \delta_1, \delta_2, \delta_3)$ as well as a proof oracle $\proofO_h$ containing the coefficient vector of $H(X)$. A common proof oracle $\proofO_z$ is jointly established containing the coefficient vector of $Z(X)$. 
+\paragraph{R1CS algebraic linear PCP} Equation~\ref{eqn:R1CS} is turned into a set of linear queries by evaluating the polynomials at a random point in $\FF$. Satisfaction of the equation evaluated at a random point implies satisfaction of the polynomial equation with error at most $2n / |\FF|$ by Schwartz-Zippel. Translated to an algebraic IOP, the prover sends a proof oracle $\proofO_w$ containing the vector $(1, \mathbf{w}, \delta_1, \delta_2, \delta_3)$ as well as a proof oracle $\proofO_h$ containing the coefficient vector of $H(X)$. A common proof oracle $\proofO_z$ is jointly established containing the coefficient vector of $Z(X)$. 
 
 The verifier chooses a random point $\alpha \in \FF$ and makes four queries to $\proofO_w$, computed by the polynomial vectors $A(X), B(X), C(X)$ and $D(X) = (1, X,...,X^\ell, \mathbf{0}^{m- \ell -1})$. The verifier makes one query each to $\proofO_h$ and $\proofO_z$, which is the evaluation of $H(\alpha)$ and $Z(\alpha)$ respectively. The verifier obtains query responses $y_a, y_b, y_c, y_d, y_h, y_z$ and checks that $y_a \cdot y_b - y_c = y_h y_z$ and $y_d = \langle (1, \mathbf{x}), D(\alpha) \rangle$. 
 

@@ -183,118 +183,53 @@ In the full version of the paper.
 \end{proof}
 \fi 
 
-
-\section{Protocols for Proving Permutations}
-
-\subsection{Flip}\label{apx:reverse}
-
-The following protocol establishes that two commitments, $c_a$ and $c_b$ represent polynomials $f_a, f_b \in \ZZ_p$ (or vectors, for that matter) whose coefficients are flipped. Specifically, that $f_a = \sum_{i=0}^{d}f_i X^i$ for some coefficients $f_i$, and $f_b = \sum_{i=0}^df_ix^{d-i}$ for the same coefficients $f_i$.
-Protocol:
-\begin{itemize}
-    \item Common knowledge: $c_a, c_b \in \mathbb{G}$.
-    \item Verifier chooses $z \sample \ZZ_p \backslash \{0\}$ and sends it to Prover.
-    \item Prover and Verifier engage in proofs of correct evaluation producing $f_a(z)$ and $f_b(z^{-1})$, matching $c_a$ and $c_b$, respectively.
-    \item Verifier checks that $f_a(z) \stackrel{?}{=} z^d f_b(z^{-1})$.
-\end{itemize}
-
-To see why it works, observe that $f_a(X) = X^df_b(X^{-1})$ and we can test this equation probabilistically by choosing a random $z \in \mathbb{F}_p \backslash \{0\}$ to evaluate $f_a$ and $f_b$ in. If $f_a$ is indeed the flipping of $f_b$ then the polynomial $F = f_a(X) - X^df_b(X^{-1})$ is identically zero; but otherwise it has at most $d$ zeros, and so the inequality will be exposed with overwhelming probability $(p-1-d)/(p-1)$.
-
-\subsection{Rotation}
-
-A similar observation gives rise to a proof of correct rotation. If $f(X) = \sum_{i=0}^d f_i X^i \in \mathbb{F}_p$ and $p(X) = \sum_{i=0}^d f_{i+r \, \mathsf{mod} \, d+1} X^i \in \mathbb{F}_p$ are polynomials consisting of the same coefficients but rotated by $r$ positions, then $p(X) = X^r f(X) \, \mathsf{mod} \, X^r - 1$ in all points. More explicitly, $p(X) = X^r f(X) + k(X) (X^r - 1)$ for some $k(X) \in \mathbb{F}_p$. The verifier can test this relation probabilistically.
-
-\begin{itemize}
-    \item Common knowledge: $c_f, c_p \in \mathbb{G}$ --- commitments to $f(X)$ and $p(X)$, respectively. Secret knowledge for the prover $f(X), p(X)$.
-    \item Prover computes $k(X) = (p(X) - X^r f(X)) / X^r - 1$ and sends the commitment $c_k = g^{\hat{k}(q)}$ to it to Verifier.
-    \item Verifier chooses a random point $z \sample \mathbb{F}_p$ and sends it to Prover.
-    \item Prover and Verifier engage in proofs of correct evaluation for $f(z)$, $p(z)$, and $k(z)$.
-    \item Verifier checks that $z^r f(z) + k(z) (z^r-1) = p(z)$.
-\end{itemize}
-
-\subsection{Generic Permutation}
-
-The following protocol establishes that two polynomial commitments have the same coefficients but permuted according to a known permutation $\sigma : \{0,\ldots,d\} \rightarrow \{0,\ldots,d\}$. Specifically, $c_f$ is a commitment to $f(X) = \sum_{i=0}^d f_i X^i$ and $c_p$ is a commitment to $p(X) = \sum_{i=0}^d f_{\sigma(i)} X^i$. The proof makes use of the relation $p(X) = X^{\sigma(0)} f(X^{d+1}) - d(X)$ where $d(X) = \sum_{i=1}^d f_i (X^{i(d+1) + \sigma(0)} - X^{\sigma(i)})$. As $d(X)$ relies on the coefficients of $f(X)$, it is important to establish that $d(X)$ is correctly formed.
-
-\begin{itemize}
-    \item Common knowledge: $c_f, c_p, \sigma$ -- commitment to $f(X)$, commitment to $p(X)$, and permutation of coefficients.
-    \item Secret knowledge for Prover: $f(X), p(X) \in \mathbb{F}_p$.
-    \item Prover computes $n = \hat{f}(q^{d^2})$ and sends $c_n = g^n$ to Verifier.
-    \item Prover and Verifier run an inner product protocol between $c_n$ and $(q^{di})_{i=0}^d$, and again between the result and $(q^i)_{i=0}^d$. This establishes that $n$ has the same coefficients as $c_f$ but spaced differently.
-    \item Prover and Verifier run an inner product protocol between $c_n$ and $(q^{(i(d+1) + \sigma(0)} - q^{\sigma(i)})_{i=0}^d$ to compute $c_d$, the commitment to $d(X)$ that is well-formed wrt. $f(X)$.
-    \item Verifier chooses a random point $z \sample \mathbb{F}_p$.
-    \item Prover and Verifier engage in proofs of correct evaluation for $f(z), p(z), d(z)$.
-    \item Verifier checks that $p(z) = z^{\sigma(0)} f(z^{d+1}) - d(z)$.
-\end{itemize}
-
-
-\subsection{Reversed Coefficients}
-
-It is quite straightforward to show that two commitments represent polynomials with the same coefficients but in reverse order. Suppose $f(X) = \sum_{i=0}^d f_i X^i$ and $\bar{f}(X) = \sum_{i=0}^d f_{d-i}X^i$ are two polynomials with the same coefficients but in reverse order. Then the relation $\bar{f}(X) = X^d \cdot f(X^{-1})$ holds for all $X \in \mathbb{Z}_p \backslash \{0\}$. This relation can be tested probabilistically by choosing a random $z \sample \mathbb{Z}_p \backslash \{0\}$ and opening the evaluations $f(z)$ and $\bar{f}(z)$. This observation gives rise to the protocol $\pro{Reverse}(\params, \gr{C}_f, \gr{C}_{\bar{f}}; f(X)) \rightarrow b \in \{0,1\}$ which proves that $\gr{C}_f$ and $\gr{C}_{\bar{f}}$ are indeed commitments to polynomials with the same coefficients but in reverse order.
-
-\begin{figure}[!htp]
-\noindent\begin{mdframed}[userdefinedwidth=\textwidth]
-\begin{minipage}{\textwidth}
-	\begin{flushleft}
-	$\pro{Reverse}(\params, \gr{C}_{f}, \gr{C}_{\bar{f}}; {f}(X)):$ \pccomment{$\gr{C}_f = \gr{g}^{\sum f_i q^i}$ whereas $\gr{C}_{\bar{f}} = \gr{g}^{\sum f_{d-i} q^i}$}
-		\begin{enumerate}[nolistsep]
-		    \item $\verifier$ samples $z \sample \mathbb{Z}_p \backslash \{0\}$ and sends $z$ to $\prover$
-		    \item $\prover$ computes $y \leftarrow f(z)$ and $\bar{y} \leftarrow \bar{f}(z^{-1})$ and sends $(y, \bar{y})$ to $\verifier$
-		    \item $\prover$ and $\verifier$ run $\pro{Eval}(\gr{C}_f, z, y, d; f(X))$ and $\pro{Eval}(\gr{C}_{\bar{f}}, z, \bar{y}, d; \bar{f}(X))$ \pccomment{$\bar{f}(X) = \sum_i f_{d-i} X^i$}
-		    \item $\verifier$ checks that $y = z^d \bar{y}$
-		    \item \pcif{}all checks pass \textbf{then} \textbf{return} 1 \textbf{else} \textbf{return} 0
-		\end{enumerate}
-	\end{flushleft}
-\end{minipage}
-\end{mdframed}
-\end{figure}
-
-\begin{lemma}
-    The protocol $\pro{Reverse}$ is an argument of knowledge for the relation 
-    \[
-        \mathcal{R}_\mathsf{Rev}(\params) = \left\{
-            \langle ( \gr{C}_f, \gr{C}_{\bar{f}} ), (\mathbf{f}, r_f, r_{\bar{f}})\rangle \ : \ \begin{array}{l}
-                \mathbf{f} \in \mathbb{Z}_p^d \\
-                \pro{Open}(\params, \gr{C}_f, \sum_{i=0}^d f_i X^i, r_f) = 1 \\
-                \pro{Open}(\params, \gr{C}_{\bar{f}}, \sum_{i=0}^d f_{d-i} X^i, r_{\bar{f}}) = 1 
-            \end{array}
-        \right\} \enspace .
-    \]
+\section{Proof of Theorem~\ref{thm:dyadicpolysecurity}}
+\label{apx:dyadic}
+We begin by stating and proving the combining lemma, (Lemma~\ref{lem:intrandomcombine}) for dyadic rational witnesses.
+%PROOF FOR DYADIC RATIONALS
+\begin{lemma}[Combining for Dyadic Rational Witnesses]
+\ref{lem:dyadiccombining}
+Let $\tr$ and $\tr'$ be two transcripts as specified in Lemma \ref{lem:intrandomcombine} with the difference that $f,f'\in \mathbb{D}$ are dyadic rationals such that $f(X)\gets \dec(f)$ and $f'(X)\gets \dec(f')$ are degree $d$ bounded dyadic rational polynomials with coefficients' numerators bounded by $N$ and denominators bounded by $D$, i.e. $f(X),f'(X)\in\mathbb{D}(N,D)$.
+Assume that there exists a PPT algorithm for taking square roots of any element in $\GG$ and that the order of $\GG$ is odd, then there exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either (1) $y_L,y_R\in \ZZ_p,f_L(X),f_R(X)\in \mathbb{D}(N\cdot (p-1),D\cdot (p-1))[X]$  such that $f_L(z)=y_L\bmod p$ and $f_R(z)=y_R \bmod p$ or (2) an element in $\GG$ of known order or (3) a non-dyadic root of $\gr{g}$.
 \end{lemma}
-
 \begin{proof}
-Full version / appendix.
+The proof follows a similar structure to the proof of Lemma~\ref{lem:intrandomcombine}. 
+		
+	Using the transcripts we get $\Delta_\alpha\gets\alpha-\alpha'$ and $\Delta_f\gets f-f'$ such that $\gr{C}_{L}^{\Delta_\alpha}=\gr{g}^{\Delta_f}$. 
+ If $\frac{\Delta_f}{\Delta_\alpha}$ is not a dyadic rational then this gives us a non-dyadic root of $\gr{g}$, that is the tuple $(\Delta_f,\Delta_\alpha,\gr{C}_{L})$.  
+ If $\frac{\Delta_f}{\Delta_\alpha}$ on the other hand is a dyadic rational then we can compute $\gr{D}\gets\gr{g}^{\frac{\Delta_f}{\Delta_\alpha}}$. This may requires taking a power of $2$ root. By assumption the group order is odd, so every element has a square root and there exists an efficient algorithm for taking square roots. This implies that taking higher power of $2$ roots is also efficient.
+  
+  Now either $\gr{D} = \gr{C}_L=\gr{g}^{f_L}$ or we can extract an element of known order. Additionally $\gr{C}_R=\gr{g}^{f_R}$ for $f_R\gets f-\alpha \cdot f_L$.
+
+ We now compute the corresponding polynomials $f_L(X)\gets \dec(f_L)$ and $f_R(X)\gets \dec(f_R)$.
+Now if the coefficients $f_i$ and $f'_i\in \mathbb{D}(N,D)$ and $\alpha,\alpha' \in [-\frac{p-1}{2},\frac{p-1}{2}]$ then by the triangle inequality we have that for the numberator of the $i$th coefficient of $f_L(X)$ is between $[-2N,2N]$. The denominator grows by at most $p-1$. The bound on the denominators is therefore $D\cdot (p-1)$. Additionally we have $f_{R,i}=\frac{f_i'\alpha-f_i \alpha'}{\Delta_\alpha}$. Using the triangle inequality again we have that the numerator of $f_{R,i} \in [-(p-1) \cdot N, (p-1) \cdot N]$. The denominator is bounded by $D\cdot (p-1)$. This gives us $f_L(X),f_R(X)\in \mathbb{D}((p-1) \cdot N,D\cdot (p-1))[X]$
+
+Finally $y_L=f_L(z)$ and $y_R=f_R(z)$ as in Lemma~\ref{lem:intrandomcombine}. It is important that $2$ is co-prime with the odd prime $p$ such that each dyadic rational can be mapped to a field element.
+
+\end{proof}
+We now restate the theorem for the security of the protocol with dyadic rational witnesses in groups where taking square roots is easy.
+\dyadicmain*
+\begin{proof}
+The proof largely follows the same structure of the proof of Theorem~\ref{thm:polycommitsecurity}.
+	
+We will prove security by showing that we can extract a dyadic rational polynomial $f(X)\in \\mathbb{Z}[X]$ such that $f(X)$ has degree at most $d$ and the coefficients of $f(X)$ are dyadic rationals such that the product of the numerator and denominator is bounded by $q/2$. This ensures that $f(q)$ is a unique encoding of $f(X)$. Additionally $\gr{g}^{f(q)}=\gr{C}$ and $f(z) \bmod p=y$. The proof will use the general forking lemma (Lemma \ref{lemma:GFL}) to show that the polynomial commitment scheme has witness-extended emulation. 
+
+We use the same extractor $\mathcal{X}$ as in Theorem \ref{thm:polycommitsecurity} with one key distinction. 
+For $d+1$ odd we invoke the extractor described by Lemma~\ref{lem:dyadiccomining} instead of Lemma~\ref{lem:intrandomcombine}. 
+This means that at every tree level either bounded dyadic rational witness polynomials are extracted or an element of known order or a non-dyadic root of $\gr{g}$. By assumption the ladder two cases happen only with negligible probability.
+
+We, therefore, now need to compute a bound on the size of the extracted polynomial. 
+The check on $f$ ensures that $f\in \ZZ$ and that $|f|\leq b=\frac{(p-1)}{2} (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$. We can write $f\in\mathbb{D}(\frac{(p-1)}{2} (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil},1)$. By \ref{lem:intrandomcombine} both the numerator and the denominator grow by at most a factor $p-1$ in every round.
+Given that the transcript tree has depth $\lceil \log_2(d+1)\rceil$ we get that the final extracted polynomial $f_0(X)\in \mathbb{D}(N,D)[X]$ has coefficients with numerators bounded by $N= \frac{p-1}{2}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$ and denominators bounded by $D=(p-1)^{\lceil \log_2(d+1)\rceil}$
+
+$q$ needs to be large enough such that $f_0(X)$ is uniquely decodable, \emph{i.e.}, $q>2\cdot N\cdot b=(p-1)^{\lceil \log_2(d+1)\rceil+1}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$.
+
+This shows that we can successfully extract either a witness or a non-dyadic root or an element of known order from any tree of valid transcripts.
+Under the Non-Dyadic Root Assumption and the Order Assumption, the probability that a polynomial time adversary along with a polynomial time extractor $\mathcal{X}$ can produce such a non-dyadic root or an element of known order is negligible. $\eval'$, therefore, has witness extended emulation and under the Adaptive Root Assumption by Lemma \ref{lemma:poe_security} so does $\eval$.
+Lemma \ref{lem:ordertoadaptive} and Lemma \ref{lem:dyadicstrongtorational} show that we can reduce the hardness assumptions to just the Adaptive Root Assumption and the Dyadic Strong RSA Assumption.
 \end{proof}
 
 
-\section{Zero Knowledge Polynomial Commitment} \label{apx:zeroknowledge}
-
-This section sketches how to make the polynomial commitment scheme zero knowledge. 
-
-\paragraph{Commit} Let $g_1 \sample \GG$ be a random base distinct from $g$. 
-The hiding polynomial commitment is $C \leftarrow g^{f(q)}g_1^r$ for $r \sample [-2^\lambda, 2^\lambda]$. 
-
-\paragraph{Open} The opening of the entire polynomial is the same, but additionally gives the blinding factor $r$. 
-
-\paragraph{Eval}
-
-\begin{itemize}
-\item In each recursive step we commit to polynomials $f_0$ and $f_1$ using the same hiding commitment scheme, where $f_0 + f_1 q^{d/2} = f$ as integer polynomials. 
-
-\item Note that if $C_0 = g^{f_0(q)}g_1^{r_0}$ and $C_1 = g^{f_1(q)} g_1^{r_1}$ then $C_0 \cdot C_1^{q^{d/2}} = C \cdot g_1^{r'}$ where $r' = r_0 + q^{d/2} r_1$. The prover can give a non-interactive zk proof of this relation to the verifier using a sigma protocol. E.g., the prover provides $C_1' = C_1^{q^{d/2}}$ with a PoE, and then a zk-PoKE of $r'$ such that $g_1^{r'} = C_0 C_1' / C$. 
-
-\item We could then recurse on $C_0^\alpha C_1$ which commits to $\alpha f_0 + f_1$ with the blinding factor $\alpha r_0 + r_1$. BUT we are not done yet, see next bullet point... 
-
-\item The remaining problem is that the evaluation protocol opens $y_0 = f_0(z) \bmod p$ and $y_1 = f_1(z) \bmod p$, which is not zero knowledge. We need $y_0, y_1$ to be independently distributed subject to the constraint $y_0 + z^{d/2} y_1 = y \bmod p$, which the verifier checks. 
-
-A solution is to modify $f_0$ and $f_1$ by adding constant terms $\alpha, \beta$ to each that cancel, i.e. $\alpha + z^{d/2} \beta = 0 \bmod p$, where $\alpha$ is uniformly distributed in $\ZZ_p$. This way the polynomials $f_0' = f_0 + \alpha$ and $f_1' = f_1 + \beta$ satisfy the relation $f_0'(z) + z^{d/2}f_1'(z) = f(z) \bmod p$. We end up revealing $y_0' = y_0 + \alpha \bmod p$ and $y_1' = y_1 + \beta \bmod p$, which is uniformly distributed in $\ZZ_p$ subject to $y_0' + y_1' = y \bmod p$. 
-
-Finally, the prover needs to convince the verifier that it modified the $C_0$ and $C_1$ commitments appropriately. (It could not simply choose $f_0'$ and $f_1'$ in the first step because $f_0' + q^{d/2} f_1' \neq f$ as integer polynomials). 
-
-However, the solution is still simple. The prover creates hiding commitments $C_\alpha$ to $\alpha$ and $C_\beta$ to $\beta$ and provides a zero-knowledge proof that $C_\alpha C_\beta ^{z^{d/2}}$ is a commitment to an integer multiple of $p$. This can be done efficiently through a combination of PoE and a PoKE. (Given $g^a$, to prove that $a = 0 \bmod p$ it suffices to provide $Q$ such that $Q^p = g^a$ and a PoKE for $Q$ base g. This can be made zero knowledge w/ the standard tricks). 
-
-The protocol then proceeds on modified commitments $C_0' = C_0 C_\alpha$ and $C_1' = C_1 C_\beta$.
-
-\end{itemize}
 
 
 
@@ -308,89 +243,6 @@ The protocol then proceeds on modified commitments $C_0' = C_0 C_\alpha$ and $C_
 
 
 
-
-\begin{comment}
-\section{Vector Commitment}
-
-\subsection{Commitment Scheme}
-
-In the following we denote by $(a_i)_{i=0}^{d-1} \in \ZZ_p^{d}$ a vector of prime field elements. The vector commitment scheme is given by the following algorithms.
-\begin{itemize}
-\item $\mathsf{vcom} : \ZZ_p^d \rightarrow \mathbb{G} \, , \quad (a_i)_{i=0}^{d-1} \mapsto g^{\sum_{i=0}^{d-1} a_iq^i} \enspace .$
-\item $\mathsf{vopen} : \mathbb{G} \times \mathbb{Z} \rightarrow \ZZ_p^d \cup \{\bot\} \, , $
-\item[] $\phantom{\mathsf{vopen} :} (C, z = \sum_{i=0}^{d-1} z_iq^i) \mapsto \left\lbrace \begin{array}{ll}
-(z_i \, \mathsf{mod} \, p)_{i=0}^{d-1} & \textnormal{\bf if } g^z = C \\
-\quad \textnormal{where all } z_i \in \{0,\ldots,q-1\} & \\
-\bot & \textnormal{\bf otherwise.}
-\end{array} \right.$ 
-\end{itemize}
-
-Note: somewhat homomorphic properties: multiplication by constant, additivity. As long as coefficients don't overflow.
-
-\subsection{Coordinate Extraction}
-
-The following protocol enables the prover to extract a commitment to the $i$th component of the vector. Both Prover and Verifier know $i, g, C$. Only the prover knows an integer $z$ such that $g^z = C$ and corresponding to a vector $(a_j)_{j=0}^{d-1}$.
-\begin{itemize}
-\item Prover computes (or already knows) the $q$-ary expansion of $z$, \emph{i.e.}, $(z_j)_{j=0}^{d-1}$ such that $\sum_{j=0}^{d-1} z_j q^j = z$ and all $z_j \in \{0,\ldots, q-1\}$. He then sends to Verifier:
-\begin{itemize}
-\item $C_l = g^{\sum_{j=0}^{i-1} z_jq^j}, C_i = g^{z_i}, C_r = g^{\sum_{j=i+1}^{d-1} z_j q^{j-i-1}}$
-\item $C_i^{q^i}, C_r^{q^{i+1}}$
-\end{itemize}
-\item Prover and Verifier run a proof of correct exponentiation to establish that $C_m^{q^i}, C_r^{q^{i+1}}$ were computed correctly.
-\item Verifier checks that $C_l \times C_i^{q^i} \times C_r^{q^{i+1}} \stackrel{?}{=} C$ and aborts if false.
-\item Prover and Verifier run a range proof to establish that the discrete logarithm of $C_l$ base $g$ is within the range $\{0, \ldots, q^i-1\}$.
-\end{itemize}
-
-Correctness, soundness, etc. (todo)
-
-\subsection{Inner Product}
-\label{section:inner_product}
-
-The following protocol enables the prover to extract a commitment to the inner product $\mathbf{a}^\mathsf{T} \mathbf{s}$, where $\mathbf{a} = (a_i)_{i=0}^{d-1}$ is the vector to which $C$ is a commitment. The vector $\mathbf{s} \in \ZZ_p^d$ is known to the verifier in the basic protocol, but later on we show how to hide this vector and simultaneously reduce the verifier's running time.
-\begin{itemize}
-\item Prover and Verifier flip $\mathbf{s}$ to obtain $\bar{\mathbf{s}} = (s_{d-1-i})_{i=0}^{d-1}$ and the matching integer encoding $z_{\bar{\mathbf{s}}} = \sum_{i=0}^{d-1} s_{d-1-i} q^i$.
-\item Prover computes $C^{z_{\bar{\mathbf{s}}}}$ and sends this value to the verifier.
-\item Prover and Verifier engage in a proof of correct exponentiation.
-\item Prover and Verifier extract a commitment to coordinate $d$, which is exactly $\sum_{i=0}^{d-1} a_is_i$ modulo $p$.
-\end{itemize}
-
-Correctness, soundness, etc. (todo) Special attention for coefficient size.
-
-Note that the Verifier must process all of $z_{\bar{\mathbf{s}}}$ in order to verify the exponentiation, which in particular is linear in $d$. However, it is possible to reduce this complexity and simultaneously hide the value of $z_{\bar{\mathbf{s}}}$. To do this, the prover must have committed to $z_{\bar{\mathbf{s}}}$ by sending $g^{z_{\bar{\mathbf{s}}}}$ (possibly with respect to a different base). At this point, a batched proof of knowledge of exponent establishes that the discrete logarithms of $C^{z_{\bar{\mathbf{s}}}}$ base $C$ and of $g^{z_{\bar{\mathbf{s}}}}$ base $g$ are equal.
-
-\section{Illustration: QAP-based SNARK}
-
-The next protocol describes an efficiently verifiable proof system for rank-one constraint satisfaction problems. Specifically, we start from a list of $m$ constraints of the form
-\begin{equation} \label{equation:r1cs}
-    \mathbf{a_i}^\mathsf{T} \mathbf{s} \times \mathbf{b}_i^\mathsf{T} \mathbf{s} = \mathbf{c_i}^\mathsf{T} \mathbf{s} \enspace ,
-\end{equation}
-where $\mathbf{s} \in \ZZ_p^n$ is the secret witness and the $m$ triples $(\mathbf{a_i}, \mathbf{b_i}, \mathbf{c_i})_{i=0}^{m-1} \in \ZZ_p^{3 \times m \times n}$ are the known parameters that define the constraints. Furthermore, $s_0 = 1$.
-
-Translate this to a quadratic arithmetic program (QAP) by selecting $m$ arbitrary but different elements $\{e_0, \ldots, e_{m-1}\} \subset \ZZ_p$ and defining $\mathbf{a}(X) \in \ZZ^n[X]$ such that $\mathbf{a}(e_i) = \mathbf{a_i}$, and similarly for $\mathbf{b}(X)$ and $\mathbf{c}(X)$. Furthermore, set $h(X) = \prod_{i=0}^{m-1} (X-e_i)$. Then Equation~\ref{equation:r1cs} becomes
-\begin{equation} \label{equation:qap_modular}
-    \mathbf{a}(X)^\mathsf{T}\mathbf{s} \times \mathbf{b}(X)^\mathsf{T}\mathbf{s} \equiv \mathbf{c}(X)^\mathsf{T}\mathbf{s} \,\, \mathsf{mod} \,\, h(X) \enspace .
-\end{equation}
-Moreover, a prover knowledgeable of $\mathbf{s}$ can produce another polynomial $t(X)$ such that
-\begin{equation} \label{equation:qap_explicit}
-    \mathbf{a}(X)^\mathsf{T}\mathbf{s} \times \mathbf{b}(X)^\mathsf{T}\mathbf{s} = \mathbf{c}(X)^\mathsf{T}\mathbf{s} + t(X) \times h(X) \enspace .
-\end{equation}
-
-The proof establishes that the prover knows a vector $\mathbf{s}$ and a polynomial $h(X)$ such that Equation~\ref{equation:qap_explicit} is satisfied. Specifically:
-\begin{itemize}
-    \item Common input to Prover and Verifier: $A = \mathsf{vcom}(\mathbf{a}(X))$, $B = \mathsf{vcom}(\mathbf{b}(X))$, $C = \mathsf{vcom}(\mathbf{c}(X))$, $H = \mathsf{com}(h(X))$, and $D = \mathsf{vcom}((1 \, 0 \, \cdots \, 0)^\mathsf{T})$.
-    \item Prover produces commitments $A_\mathbf{s} = \mathsf{com}(\mathbf{a}(X)^\mathsf{T} \mathbf{s})$, and similarly for $B_\mathbf{s}, C_\mathbf{s}$ with the inner product protocol of Section~\ref{section:inner_product}. Additionally, $D_\mathbf{s}$ is computed. All four inner product protocols are performed simultaneously, thereby establishing that the $\mathbf{s}$ used is the same in all four cases.
-    \item Prover opens $D_\mathbf{s}$ to $1$, showing that $s_0$ is $1$.
-    \item Prover multiplies $t(X)$ into $H$, thereby obtaining $H_t = \mathsf{com}(t(X) \times h(X))$.
-    \item Prover and Verifier run a proof of knowledge of exponent.
-    \item Prover multiplies $\mathbf{b}(X)^\mathsf{T} \mathbf{s}$ into $A_\mathbf{s}$, thereby obtaining $A_{\mathbf{s}B\mathbf{s}} = \mathsf{com}(\mathbf{a}(X)^\mathsf{T} \mathbf{s} \times \mathbf{b}(X)^\mathsf{T} \mathbf{s})$.
-    \item Prover and Verifier run a proof of equal discrete logarithms showing that $A_{\mathbf{s}B\mathbf{s}}$ is to $A_\mathbf{s}$ as $B$ is to $g$.
-    \item Verifier selects a random point, $z \sample \ZZ_p$ and sends it to the prover.
-    \item Prover and Verifier compute the weighted commitment $K = A_{\mathbf{s}B\mathbf{s}} \times C^{-1} \times H_T^{-1} = \mathsf{com}(\mathbf{a}(X)^\mathsf{T} \mathsf{s} \times \mathbf{b}(X)^\mathsf{T} \mathbf{s} - \mathbf{c}(X)^\mathsf{T} \mathbf{s} - h(X) \times t(X)) = \mathsf{com}(k(X))$
-    \item Prover and Verifier run an evaluation proof establishing that $k(z) = 0$.
-\end{itemize}
-
-Note: we need to pay special attention to the size of the coefficients of $\mathbf{s}$ and of $t(X)$ are not too big. It is possible that the random selection of $z$ makes the prover who cheats by choosing larger coefficients overwhelmingly unlikely to succeed. Alternatively, we can devise a proof of small coefficients or something like that.
-\end{comment}
 
 
 
