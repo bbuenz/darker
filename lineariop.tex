@@ -124,7 +124,7 @@ The original linear IOP is modified as follows.
 
 \item Wherever the original IOP prover sends an oracle $\proofO$ of length $m_i$, the new prover sends a degree $m_i - 1$ \alan{univariate?}polynomial oracle $f_\pi$ whose coefficient vector is \emph{the reverse} of $\proofO$. 
 
-\item Wherever the original IOP makes $\ell$ queries within a round to a particular proof oracle $\proofO$, where queries are defined by query matrix $\mathbf{Q} \in \FF^{m_i \times \ell}$, consisting of column query vectors $(\mathbf{q}_1,...,\mathbf{q}_\ell)$, the new prover and verifier engage in the following interactive subprotocol for each $k \in [\ell]$: 
+\item Wherever the original IOP\alan{The prover or the verifier?} makes $\ell$ queries within a round to a particular proof oracle $\proofO$, where queries are defined by query matrix $\mathbf{Q} \in \FF^{m_i \times \ell}$, consisting of column query vectors $(\mathbf{q}_1,...,\mathbf{q}_\ell)$, the new prover and verifier engage in the following interactive subprotocol for each $k \in [\ell]$: \alan{What does this subprotocol accomplish?}
 
 \begin{itemize}
  \item Prover: Send an oracle for the polynomial $F_k$ whose coefficient vector is $\mathbf{q}_k$. 
