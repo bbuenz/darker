@@ -110,6 +110,7 @@ There is exactly one query to each oracle on a random point in $\FF$.
 
 \alaninline{Is this the main theorem? If so, why not upgrade it from lemma to theorem? }
 \alaninline{Also, where does the description of the compiler start? The following text could achieve various things, including providing extra background before the proof is presented, it could be part of Lemma 10, or it could be the first step of the compiler.}
+\alaninline{Also: offline oracle refers to oracles sent in the preprocessing phase? That's the most likely explanation in my reading, but I might be wrong. And if I'm right, then it might be worthwhile to make it explicit for the reader that this offline/online distinction refers to the paragraph about preprocessing earlier.}
 
 \paragraph{Offline oracles} For each $i$th round there are $\ell$ query generation functions $P_1,...,P_\ell: \FF^\mu \rightarrow \FF^{m_i}$, where the $j$th component of $P_k(\mathbf{r}_i)$ is a $\mu$-variate degree $d$ polynomial function $p_{k,j}(\mathbf{r}_i)$. In the offline phase, the prover and verifier establish several $\mu+1$-variate degree $d$ polynomial oracles (e.g. prover sends to verifier and verifier checks each at $d+1$ points). %verifier and the verifier sends  uses $\Gamma$ to generate a commitment $c_{P_k}$ to $(p_{k,1},..., p_{k,m_i})$ as follows:
  
@@ -121,7 +122,7 @@ The original linear IOP is modified as follows.
 
 \begin{itemize}
 
-\item Wherever the original IOP prover sends an oracle $\proofO$ of length $m_i$, the new prover sends a degree $m_i - 1$ polynomial oracle $f_\pi$ whose coefficient vector is \emph{the reverse} of $\proofO$. 
+\item Wherever the original IOP prover sends an oracle $\proofO$ of length $m_i$, the new prover sends a degree $m_i - 1$ \alan{univariate?}polynomial oracle $f_\pi$ whose coefficient vector is \emph{the reverse} of $\proofO$. 
 
 \item Wherever the original IOP makes $\ell$ queries within a round to a particular proof oracle $\proofO$, where queries are defined by query matrix $\mathbf{Q} \in \FF^{m_i \times \ell}$, consisting of column query vectors $(\mathbf{q}_1,...,\mathbf{q}_\ell)$, the new prover and verifier engage in the following interactive subprotocol for each $k \in [\ell]$: 
 
