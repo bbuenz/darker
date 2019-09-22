@@ -463,6 +463,18 @@ assuming the Adaptive Root Assumption (Assumption \ref{assum:adaptiveroot}) hold
 
 \section{Polynomial Commitments from Groups of Unknown Order}
 \label{sec:protocol}
+\subsection{Overview}
+\begin{mdframed}
+Informal information theoretic $\eval$ protocol: $\prover$ and $\verifier$ have homomorphic oracle access to an integer $f(q)$ denoted by $[[f(q)]]$. $\prover$  has a degree $d$ polynomial $f(X)$ as a witness. Statement: $f(z)\bmod p=y$
+	\begin{itemize}[nolistsep]
+		\item Prover computes degree $d'=\frac{d+1}{2}-1$ polynomial $f_L(X)$ and $f_R(X)$ such that $f_L(X)+C^{d'+1}f_R(X)$
+		\item Prover sends $[[f_L(q)]]$ and $[[f_R(q)]]$ as well as $y_L\gets f_L(z)\bmod p$ and $y_R\gets f_R(z)\bmod p$.
+		\item Verifier checks $[[f_L(q)]]+q^{d'+1}[[f_R(q)]]=[[f(q)]]$ and $y_L+z^{d'+1} y_R =y$.
+		\item Prover and Verifier recurse on $[[f'(q)]]=\alpha [[f_L(q)]]+[[f_R(q)]]$ for the statement $f'(z)=\alpha y_L +y_R \bmod p$ for a random challenge $\alpha$.
+		\item When the degree $d=0$ the $\prover$ sends the constant $f$ to $\verifier$
+		\item $\verifier$ checks that $f$ is a small constant and that $f$ is equivalent to the oracle value. Additionally it checks that $f\bmod p =y$
+	\end{itemize}
+\end{mdframed}
 
 \subsection{Polynomial Encoding}
 \label{sec:encoding}
@@ -562,17 +574,6 @@ Fortunately, Wesolowski~\cite{EC:Wesolowski19} and Pietrzak~\cite{EPRINT:Pietrza
 We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pro{EvalBounded} which additionally allows the specification of a bound on the size of the coefficients (other than $p$).  This can be particularly useful if commitments were homomorphically combined prior to the execution of $\pro{EvalBounded}$. Recall that any homomorphic operation increases the bound on the size of the coefficients.
 
 %This intuitive description omits special care afforded to the case where the degree of the polynomial is not one less than a power of two. To take care of this, the left polynomial is guaranteed to have odd degree (unless in the last step when it is zero), and the right half polynomial $f_R(X)$ is shifted to the right by one digit whenever its degree is even. The evaluation $y_R$ and commitment $\gr{C}_R$ are adapted accordingly.
-\begin{mdframed}
-Informal information theoretic $\eval$ protocol: $\prover$ and $\verifier$ have homomorphic oracle access to an integer $f(q)$ denoted by $[[f(q)]]$. $\prover$  has a degree $d$ polynomial $f(X)$ as a witness. Statement: $f(z)\bmod p=y$
-	\begin{itemize}[nolistsep]
-		\item Prover computes degree $d'=\frac{d+1}{2}-1$ polynomial $f_L(X)$ and $f_R(X)$ such that $f_L(X)+C^{d'+1}f_R(X)$
-		\item Prover sends $[[f_L(q)]]$ and $[[f_R(q)]]$ as well as $y_L\gets f_L(z)\bmod p$ and $y_R\gets f_R(z)\bmod p$.
-		\item Verifier checks $[[f_L(q)]]+q^{d'+1}[[f_R(q)]]=[[f(q)]]$ and $y_L+z^{d'+1} y_R =y$.
-		\item Prover and Verifier recurse on $[[f'(q)]]=\alpha [[f_L(q)]]+[[f_R(q)]]$ for the statement $f'(z)=\alpha y_L +y_R \bmod p$ for a random challenge $\alpha$.
-		\item When the degree $d=0$ the $\prover$ sends the constant $f$ to $\verifier$
-		\item $\verifier$ checks that $f$ is a small constant and that $f$ is equivalent to the oracle value. Additionally it checks that $f\bmod p =y$
-	\end{itemize}
-\end{mdframed}
 
 \begin{mdframed}
 \begin{minipage}{\textwidth}
@@ -804,7 +805,6 @@ This is significantly more efficient than independent executions of the protocol
 \paragraph{Joining $\mathsf{Eval}$s.} While the polynomial commitment scheme might be useful in a standalone context, it is certainly useful as a primitive tool applied in multiple places in a SNARK construction. In such cases, the scheme's homomorphic properties enable another reduction of the bandwidth cost. Instead of proving $k$ evaluations of $k$ polynomials, it suffices to state $k$ evaluation claims and proceed to prove one evaluation of a random linear combination of the $k$ polynomials, with the random weights being supplied by the verifier. If the points $z$ in which the evaluations are queried, are different, then the batched protocol must account for different $(y_i, y_{L,i}, y_{R,i})$ tuples in every round, one for each point $z_i$. The communication cost scales linearly with the number of distinct evaluation points, but the amortization technique remains concretely effective as the group elements dominates the communication cost for a single standalone protocol. This optimization is important enough to warrant its own security proof. Correctness is immediate (after accounting for a larger bound), so we focus on knowledge-soundness.
 
 
-\begin{theorem}
     Let $(\prover_\mathsf{orig}, \verifier_\mathsf{orig})$ be a proof system where $k$ polynomial commitments are evaluated using $\eval$; specifically, $\pro{EvalBounded}(\gr{c}_i, z_i, y_i, d_i, b_i; f_i(X))$ for $i \in [k]$. Let $(\prover_\mathsf{join}, \verifier_\mathsf{join})$ be the same proof system but with the following changes: \begin{itemize} \itemsep0pt
         \item the invocations of $\pro{EvalBounded}$ are dropped;
         \item an instruction is added at the end: \verifier sends $\boldsymbol{\alpha} \sample [-\frac{p-1}{2}; \frac{p-1}{2}]^k$ to \prover;
@@ -949,14 +949,17 @@ Poly-IOP &Polynomials  & \eval{} at& $|SNARK|$&$n=2^{20}$ \\
   & & & + $(10+3\log_2(3n))$
 	\end{tabular}
 \end{mdframed}
-\caption{Proof size for $\textsf{\textbf{SuperSonic}}$. Column 2 says how many polynomials are committed to in the CRS and how many are sent by the prover. Column 3 states the number of evaluation points. The proof size calculation uses $|\ZZ_p|=120$ and $|\GG|=1200$ for $n=2^{20}$ gates.}
+\caption{Proof size for $\textsf{\textbf{SuperSonic}}$. Column 2 says how many polynomials are committed to in the CRS (offline oracles) and how many are sent by the prover (online oracles). Column 3 states the number of evaluation points. The proof size calculation uses $|\ZZ_p|=120$ and $|\GG|=1200$ for $n=2^{20}$ gates.}
 \label{tab:proofsize}
 \end{table}
 \paragraph{Prover and Verifier cost}
-With pre-computation the prover time consists of a linear number of group operations. The main prover cost consist of committing to the polynomials $f_L(q)$ and $f_R(q)$ in each round and performing the $\textsf{PoE}(\gr{C}_R,\gr{C}/\gr{C}_L,q^{d'+1})$. Using pre-computation, i.e. computing $\gr{g}^{q^i}$ for all $i$ and multi-exponentiation the commitment can be produced in $O_\lambda(\frac{d}{\log(d)})$ group operations. The same techniques can be used to reduce the $\textsf{PoE}$ time to 
+%With pre-computation the prover time consists of a linear number of group operations. 
+The main prover cost for the \textsf{\textbf{SuperSonic}} consist of producing the commitments to the polynomial oracles and producing the single combined $\eval$ proof.
+Producing the eval proof consists of producing commitments to the polynomials $f_L(q)$ and $f_R(q)$ in each round and performing the $\textsf{PoE}(\gr{C}_R,\gr{C}/\gr{C}_L,q^{d'+1})$. Using pre-computation, i.e. computing $\gr{g}^{q^i}$ for all $i$ and multi-exponentiation the commitments can be produced in $O_\lambda(\frac{d}{\log(d)})$ group operations. The same techniques can be used to reduce the number of group operations for the $\textsf{PoE}$s to $O_\lambda(d)$. The total number of group operations are, therefore, linear in the maximum degree of the polynomial oracles and the number of online oracles. Interestingly the number of offline oracles hardly impacts the prover time and proof size.
  
- The verifier time is dominated by 3 $\lambda$-bit exponentiations in each round, 1 for combining $\gr{C}_L$ and $\gr{C}_R$ and two for verifying the \textsf{PoE}. In the final round the verifier does another $\log(d)\lambda$-bit exponentiation which could also be outsourced to the prover using yet another $\textsf{PoE}$. The total verifier time consists therefore of roughly an exponentiation of $3 \log_2(d+1) \lambda$ group operations. 
-Using $10\mu s$ per group operation (estimated using OpenSSL's 2048-bit RSA implementation), this gives us for $\lambda=120$ and $d=2^{20}$ a verification time of around 72$\mu s$. 
+ The verifier time is dominated by the group operations in the single combined $\eval$ protocol.
+It consists of 3 $\lambda$-bit exponentiations in each round, 1 for combining $\gr{C}_L$ and $\gr{C}_R$ and two for verifying the \textsf{PoE}. In the final round the verifier does another $\log(d)\lambda$-bit exponentiation which could also be outsourced to the prover using yet another $\textsf{PoE}$. The total verifier time consists therefore of roughly an exponentiation of $3 \log_2(d+1) \lambda$ group operations. 
+Using $10\mu s$ per group operation (estimated using OpenSSL's 2048-bit RSA implementation), this gives us for $\lambda=120$ and $n=2^{20}$ a verification time of around 72$\mu s$. 
 
 
 \begin{comment}
