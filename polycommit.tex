@@ -46,7 +46,7 @@
 \date{}
 
 \begin{document}
-\title{Transparent SNARKs from DARK Arguments}
+\title{Transparent SNARKs from DARK Compilers}
 \maketitle
 
 \begin{abstract} 
@@ -533,7 +533,7 @@ The prover splits $f(X)$ into $f_L(X)$ and $f_R(X)$ such that $f(X) = f_L(X) + X
 
 The proof recursively repeats this reduction by using $f'(X),z,y'$ and $d'$ as the input. In the final step, $f(X) = f$ is a constant and the verifier checks that $f \equiv y \bmod p$. Note that $|f| <  (\frac{p}{2})^{\log_2(d+1)+1}$ so a representation of $f$ requires at most $\lceil \log_2(d+1) \cdot \log_2(p)\rceil$ bits.
 
-The purpose of the commitment function is to bind the prover to one particular polynomial for every commitment. To this end, the verifier must be in possession of a commitment 
+The purpose of the commitment function is to bind the prover to one particular polynomial for every commitment held by the verifier. In particular, at the start of every recursion step, the verifier is in possession of a commitment $[\![f(q)]\!]$ to $f(q)$. The prover provides commitments $[\![f_L(q)]\!]$ and $[\![f_R(q)]\!]$, and the verifier checks their soundness homomorphically via $[\![f(q)]\!] = [\![f_L(q)]\!] + q^{d'+1} \times [\![f_R(q)]\!]$.
 
 \subsection{Concrete Polynomial Commitment Scheme}
 
