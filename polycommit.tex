@@ -581,7 +581,7 @@ We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pr
 			\begin{enumerate}[nolistsep]
 			\item \prover computes $f_i \in [-\frac{p-1}{2},\frac{p-1}{2}]$ such that $f_i\equiv \bar{f}_i\bmod p$ for all $i\in[0,d]$.
 			\item \prover computes $f(X)\gets \sum_{i=0}^d f_i \cdot X^{i}\in \ZZ(p)[X]\subset \ZZ[X]$
-			\item \prover and \verifier run $\pro{EvalBounded}(\params,\gr{C},z,y,d,p;f(X))$
+			\item \prover and \verifier run $\pro{EvalBounded}(\params,\gr{C},z,y,d,\frac{p-1}{2};f(X))$
 		    \end{enumerate}
 		    		\vspace{1em}
 		$\pro{EvalBounded}(\crs,\gr{C}\in \GG,z\in \ZZ_p,y\in \ZZ_p,d\in \NN,b\in \ZZ;f(X)\in \ZZ(b)[X])$		
@@ -604,7 +604,7 @@ We now present the full $\eval$ protocol below. $\eval$ uses as a subroutine \pr
         \item \pcind[1] \prover computes $f_L(X) \gets \sum\limits_{i=0}^{d'} f_i \cdot X^i$ and $f_R(X)\gets\sum\limits_{i=0}^{d'} f_{d'+1+i}\cdot X^{i}$
         \item \pcind[1] \prover computes $y_L\gets f_L(z) \bmod p$ and $y_R\gets f_R(z)\bmod p$
         \item \pcind[1] \prover computes $\gr{C}_L \gets \gr{g}^{f_L(q)}$ and $\gr{C}_R \gets \gr{g}^{f_R(q)}$
-        \item \pcind[1] \prover sends $y_L,y_R, \gr{C}_L, \gr{C}_R$ to \verifier. \pccomment{See Section \ref{subsec:optimiztion} for an optimization}
+        \item \pcind[1] \prover sends $y_L,y_R, \gr{C}_L, \gr{C}_R$ to \verifier. \pccomment{See Section \ref{subsec:optimization} for an optimization}
         \item \pcind[1] \verifier checks that $y=y_L+z^{d'+1}\cdot y_R \bmod p$, outputs $0$ if check fails.
         \item \pcind[1] \label{line:PoE} \prover and \verifier run $\pro{PoE}(\gr{C}_R, \gr{C}/\gr{C}_L, q^{d'+1})$\pccomment{Showing that $\gr{C}_L\gr{C}_R^{(q^{d'+1})}=\gr{C}$}
         \item \pcind[1] \verifier samples $\alpha \sample [-\frac{p-1}{2},\frac{p-1}{2}]$ and sends it to \prover
@@ -634,7 +634,7 @@ It is also possible to transform the interactive $\eval$ scheme into one with HV
 In order to ensure correctness we must ensure that $b< q/2$ and that $|f|\leq b$. To show this we show that in each recursion step the honest prover's witness polynomial has coefficients bounded by $b$ and has degree $d$. 
 We argue inductively that for each recursive call of $\pro{EvalBounded}$ the following constraints on the inputs are satisfied: The degree of $f(X)$ is bounded by $d$. $\gr{C}$ encodes the polynomial, \emph{i.e.}, $\gr{C}=\gr{g}^{f(q)}$ and $f(X)\in \ZZ(b)$. Also $f(z) = y\bmod p$.
 
-Initially, during the execution of $\eval$, the prover maps the coefficients of a polynomial $\bar{f}(X)\in \ZZ_p$ to an integer polynomial $f(X)$ with coefficients in $\ZZ(\frac{p+1}{2})$ and degree at most $d$ such that $\gr{C}=\gr{g}^{f(q)}$. Additionally $f(z)\bmod p=\bar{f}(z)=y$.
+Initially, during the execution of $\eval$, the prover maps the coefficients of a polynomial $\bar{f}(X)\in \ZZ_p$ to an integer polynomial $f(X)$ with coefficients in $\ZZ(\frac{p-1}{2})$ and degree at most $d$ such that $\gr{C}=\gr{g}^{f(q)}$. Additionally $f(z)\bmod p=\bar{f}(z)=y$.
 
  In a recursion steps where $d+1$ is odd, $f'(X)=X\cdot f(X)$ is a polynomial of degree $d+1$ such that $\gr{C}'=\gr{C}^q=\gr{g}^{q\cdot f(q)}=\gr{g}^{f'(X)}$ and the bound $b$ is unchanged as are the coefficients. Also, $f'(z)\bmod p = z \cdot f(z) \bmod p=z\cdot y\bmod p = y' \bmod p$. If $d+1$ is odd, then in the next step $d+1$ must be even.
  
@@ -804,15 +804,22 @@ This is significantly more efficient than independent executions of the protocol
 
 \paragraph{Joining $\mathsf{Eval}$s.} While the polynomial commitment scheme might be useful in a standalone context, it is certainly useful as a primitive tool applied in multiple places in a SNARK construction. In such cases, the scheme's homomorphic properties enable another reduction of the bandwidth cost. Instead of proving $k$ evaluations of $k$ polynomials, it suffices to state $k$ evaluation claims and proceed to prove one evaluation of a random linear combination of the $k$ polynomials, with the random weights being supplied by the verifier. If the points $z$ in which the evaluations are queried, are different, then the batched protocol must account for different $(y_i, y_{L,i}, y_{R,i})$ tuples in every round, one for each point $z_i$. The communication cost scales linearly with the number of distinct evaluation points, but the amortization technique remains concretely effective as the group elements dominates the communication cost for a single standalone protocol. This optimization is important enough to warrant its own security proof. Correctness is immediate (after accounting for a larger bound), so we focus on knowledge-soundness.
 
+$\mathcal{R}_{\pro{JoinedEval}} = \left\{ \langle(\crs,\gr{C}_1, \gr{C}_2 \in \GG, z,y_1,y_2 \in \ZZ_p,b,d \in \NN), f_1(X),f_2(X) \in \ZZ(b)[X] \rangle \ : \ f_1(z)=y_1 \bmod p\wedge f_2(z)=y_2 \bmod p\wedge  \gr{C}_1=\gr{g}^{f_1(q)}\wedge \gr{C}_2=f_2(q) \wedge \deg(f_1)\leq d \wedge \deg(f_2)\leq d \right\}$.
 
-    Let $(\prover_\mathsf{orig}, \verifier_\mathsf{orig})$ be a proof system where $k$ polynomial commitments are evaluated using $\eval$; specifically, $\pro{EvalBounded}(\gr{c}_i, z_i, y_i, d_i, b_i; f_i(X))$ for $i \in [k]$. Let $(\prover_\mathsf{join}, \verifier_\mathsf{join})$ be the same proof system but with the following changes: \begin{itemize} \itemsep0pt
-        \item the invocations of $\pro{EvalBounded}$ are dropped;
-        \item an instruction is added at the end: \verifier sends $\boldsymbol{\alpha} \sample [-\frac{p-1}{2}; \frac{p-1}{2}]^k$ to \prover;
-        \item an instruction is added at the end: \\
-        $\pro{EvalBounded}(\prod_{i=1}^k (\gr{c}_i^{\alpha_i})^{q^{D-d_i}}, \boldsymbol{z}, \boldsymbol{y}, D, pb; \sum_{i=0}^k \alpha_i X^{D-d_i} f_i(X))$, \\
-        where $D = \max_i d_i, \boldsymbol{z} = (z_1, \ldots, z_k)$, and $\boldsymbol{y} = (y_1', \ldots, y_k')$, where ${y'}_j = \sum_{i=0}^k \alpha_i f_i(z_j)$.
-    \end{itemize}
-    Then $(\prover_\mathsf{join}, \verifier_\mathsf{join})$ has witness-extended emulation for the relation $\mathcal{R}$ if $(\prover_\mathsf{orig}, \verifier_\mathsf{orig})$ has witness-extended emulation for the relation $\mathcal{R}$.
+\begin{mdframed}
+	$\pro{JoinedEval}(\crs, \gr{C}_1,\gr{C}_2\in \GG, z\in \ZZ_p, y_1,y_2\in \ZZ_p, d \in \NN; f_1(X),f_2(X)\in \ZZ(\frac{p-1}{2})[X]) :$ \\
+%	Statement: $f_1(z)=y_1\bmod p \wedge f_2(z)=y_2\bmod p \wedge \gr{g}^{f_1(q)}=\gr{C}_1$ and $\gr{g}^{f_2(q)}=\gr{C}_2$
+Statment: $(\crs,\gr{C}_1,\gr{C}_2,z,y_1,y_2,b,d)\in \mathcal{R}_{\pro{JoinedEval}}$
+			\begin{enumerate}[nolistsep]
+        \item \verifier samples $\alpha \sample [-\frac{p-1}{2},\frac{p-1}{2}]$ and sends it to \prover
+			\item \prover and \verifier compute $\gr{C}'\gets \gr{C}_1^{\alpha}\gr{C}_2$ and $y'\gets \alpha \cdot y_1 +y_2 \bmod p$
+			\item \prover computes $f'(X)\gets \alpha f_1(X) +f_2(X)$
+			\item \prover and \verifier run $\pro{EvalBounded}(\params,\gr{C}',z,y',d,\frac{p-1}{2}^2;f(X))$
+		    \end{enumerate}
+\end{mdframed}
+
+\begin{theorem}
+The protocol $\pro{JoinedEval}$ is an interactive argument for the relation $\mathcal{R}_{\pro{JoinedEval}}$ and has perfect completeness and witness extended emulation if $q>$
 \end{theorem}
 \alan{todo: Analyze bound on $q$ in light of lemma 9.}
 \begin{proof}
@@ -845,18 +852,19 @@ We describe the performance for different settings in Table \ref{tab:performance
 	\hline
     \commit(f(X)) & 1 $\GG$ & $O(\lambda d\log(d))\GG$ & - & $1 \GG$\\
     \commit(f(X)) & $d$ $\GG$ & $O(\frac{\lambda d}{\log(d)}) \GG$ & - & $1 \GG$\\
-    \eval($f(z)=y\in \ZZ_p$)  & 1 $\GG$ & $O(\lambda  \log(d) d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$2 \log(d) \ZZ_p$ \\
-        \eval($f(z)=y\in \ZZ_p$)  & $d$ $\GG$ & $O(\lambda d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$2 \log(d) \ZZ_p$ \\
+    $f(z)=y\in \ZZ_p$  & 1 $\GG$ & $O(\lambda  \log(d) d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$2 \log(d) \ZZ_p$ \\
+      $f(z)=y\in \ZZ_p$  & $d$ $\GG$ & $O(\lambda d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$2 \log(d) \ZZ_p$ \\
 %    \eval($f(\boldsymbol{z})=\boldsymbol{y}\in \ZZ^k_p$)  & 1 $\GG$ & $O(\lambda \log(d)d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$(k+1) \log(d) \ZZ_p$ \\
-       \eval($f(\boldsymbol{z})=\boldsymbol{y}\in \ZZ^k_p$)  & $d$ $\GG$ & $O(\lambda d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$(k+1) \log(d) \ZZ_p$ \\
+       $f(\boldsymbol{z})=\boldsymbol{y}\in \ZZ^k_p$  & $d$ $\GG$ & $O(\lambda d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$(k+1) \log(d) \ZZ_p$ \\
   %      \eval($f(z)=y, g(z)=y'\in \ZZ_p$)  & $1$ $\GG$ & $O(\lambda\log(d) d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$2 \log(d) \ZZ_p$ \\
-                \eval($f(z)=y, g(z)=y'\in \ZZ_p$)  & $d$ $\GG$ & $O(\lambda d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$2 \log(d) \ZZ_p$ \\
+                $f(z)=y, g(z)=y'\in \ZZ_p$  & $d$ $\GG$ & $O(\lambda d)\GG$ & $O(\lambda \log(d))\GG$ & $2 \log(d) \GG$ +$2 \log(d) \ZZ_p$ \\
 
 \end{tabular}
 \end{small}
 
+\caption{$\GG$ denotes the size of a group element for communication and a single group operation for computation. $\ZZ_p$ denotes the size of a field element, i.e. $\lambda$ bits. $|\crs|$ is the size of the CRS, and $d$ the degree of the polynomial. Rows 3-6 are for $\eval$ proofs of different statements.}
 \label{tab:performance}
-\caption{$\GG$ denotes the size of a group element for communication and a single group operation for computation. $\ZZ_p$ denotes the size of a field element, i.e. $\lambda$ bits. $|\crs|$ is the size of the CRS,}
+
 \end{table}
 
 \subsection{Multivariate polynomial commitments}\label{sec:multivariate}
@@ -879,7 +887,7 @@ Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_n)\in \ZZ$ is an encoding of the multi
 			\item Pick a sufficiently large and odd $q\in \NN$ \pccomment{$q=O_\lambda(p^{n \cdot \log(d)})$}
 			\item $\pcreturn \params = (\secpar,\GG,\gr{g},p,q)$
 		\end{enumerate}
-	$\pro{MultiCommit}(\crs;f(X_1,\dots,X_n) \in ZZ(p)^n[X]\subset \ZZ[X]):$ 		\begin{enumerate}[nolistsep]
+	$\pro{MultiCommit}(\crs;f(X_1,\dots,X_n) \in \ZZ(\frac{p-1}{2})^n[X]\subset \ZZ[X]):$ 		\begin{enumerate}[nolistsep]
 			\item $d\gets \deg(f)$\pccomment{For simplicity assume $f(X_1,\dots,X_n)$ has degree $d$ in each variable}
 			\item $q_i\gets q^{(d+1)^{i-1}}$ for each $i\in [1,n]$
 			\item $\gr{C} \gets \gr{g}^{f(q_1,\dots,q_n)}$
@@ -891,7 +899,7 @@ Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_n)\in \ZZ$ is an encoding of the multi
  
  \begin{mdframed}
 \begin{minipage}{\textwidth}
-			$\pro{MultiEval}(\crs, \gr{C}\in \GG, \boldsymbol{z}\in \ZZ_n,y \in \ZZ_p, d,n,b \in \NN; f(X_1,\dots,X_n)\in \ZZ_p^n[X]) :$ 			\begin{enumerate}[nolistsep]
+			$\pro{MultiEval}(\crs, \gr{C}\in \GG, \boldsymbol{z}\in \ZZ_n,y \in \ZZ_p, d,n,b \in \NN; f(X_1,\dots,X_n)\in \ZZ(b)^n[X]) :$ 			\begin{enumerate}[nolistsep]
 			\item \pcif{n=1} 
 			\item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\params,\gr{C},z_1,y,d,b,x;f(X_1))$ 
 			\item \pcelse
