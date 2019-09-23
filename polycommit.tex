@@ -713,16 +713,7 @@ Let $y_L=\frac{y-y'}{\Delta_\alpha} \bmod p=\frac{f(z)-f'(z)}{\Delta \alpha} \bm
 \end{proof}
 
 
-%PROOF FOR DYADIC RATIONALS
-\begin{lemma}[Forking for dyadic rational witnesses]
-	For $\GG \gets \ggen(\lambda)$, and $\gr{g}\sample \GG$. 
-	Let $(\gr{C}_L,\gr{C}_R,\alpha,f)$ and  $(\gr{C}_L,\gr{C}_R,\alpha',f')$ be two transcripts such that $\gr{g}^{f}=\gr{C}_L^{\alpha}\gr{C}_R$ and $\gr{g}^{f'}=\gr{C}_L^{\alpha'}\gr{C}_R$ for group elements $\gr{C}_L,\gr{C}_R \in \GG$, and integers $\alpha,\alpha' \in  [-\frac{p-1}{2},\frac{p-1}{2}]$, $\alpha\neq \alpha'$. Further let $f,f'\in \mathbb{D}$ be such that $f(X)\gets\dec(f)$ and $f'(X)\gets\dec(f')$ are degree $d$ bounded polynomials with dyadic rational coefficients bounded by $N$ in the numerator and $2^D$ in the denominator, \emph{i.e.}, $f(X),f'(X)\in Q(N, D)[X]\subset \mathbb{D}[X]$.
-	 There exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either $f_L(X),f_R(X)\in Q(N, (p-1)D)[X]$ or an element in $\GG$ of known order, or an $\ell$th root of $\gr{g}$ for some $\ell$ containing an odd factor.
-\end{lemma}
-\begin{proof}
-\benedikt{Very similar to Lemma \ref{lem:intrandomcombine}}
-	
-\end{proof}
+
 
 We are now in a position to prove the main security statement.
 
@@ -815,9 +806,24 @@ The protocol and the security proof extend naturally to the evaluation in a vect
 
 This is significantly more efficient than independent executions of the protocol as the encoding of group elements is usually much larger than the encoding of elements in $\ZZ_p$. Using the optimization above, the marginal cost with respect to $k$ of the protocol is a single element in $\ZZ_p$. If $\lambda=\lceil\log_2(p)\rceil$ is $120$, then this means evaluating the polynomial at an additional point increases the proof size by only $15\log(d+1)$ bytes.
 
-\paragraph{Joining $\mathsf{Eval}$s.} While the polynomial commitment scheme might be useful in a standalone context, it is certainly useful as a primitive tool applied in multiple places in a SNARK construction. In such cases, the scheme's homomorphic properties enable another reduction of the bandwidth cost. Instead of proving $k$ evaluations of $k$ polynomials, it suffices to state $k$ evaluation claims and proceed to prove one evaluation of a random linear combination of the $k$ polynomials, with the random weights being supplied by the verifier. If the points $z$ in which the evaluations are queried, are different, then the batched protocol must account for different $(y_i, y_{L,i}, y_{R,i})$ tuples in every round, one for each point $z_i$. The communication cost scales linearly with the number of distinct evaluation points, but the amortization technique remains concretely effective as the group elements dominates the communication cost for a single standalone protocol. This optimization is important enough to warrant its own security proof. Correctness is immediate (after accounting for a larger bound), so we focus on knowledge-soundness.
+\paragraph{Joining $\mathsf{Eval}$s.} 
+In many applications such as when compiling polynomial IOPs to SNARKs (Section~\ref{sec:polyiop}) multiple polynomial commitments need to be evaluated at the same point $z$. 
+This can be done efficiently by taking a random linear combination of the polynomials and evaluating that combination at $z$. The prover simply sends the evaluations of the individual polynomials and then a single evaluation proof for the combined polynomials. The communication cost for evaluating $m$ polynomials at $1$ point is still linear in $m$ but only because the evaluation of each polynomial at the point is being sent. The size of the eval proof, however, is independent of $m$. 
+Taking a random linear combination slightly increases the bound on $q$ as is shown in Theorem~\ref{thm:joined} which is presented below.
 
-$\mathcal{R}_{\pro{JoinedEval}} = \left\{ \langle(\crs,\gr{C}_1, \gr{C}_2 \in \GG, z,y_1,y_2 \in \ZZ_p,b,d \in \NN), f_1(X),f_2(X) \in \ZZ(b)[X] \rangle \ : \ f_1(z)=y_1 \bmod p\wedge f_2(z)=y_2 \bmod p\wedge  \gr{C}_1=\gr{g}^{f_1(q)}\wedge \gr{C}_2=f_2(q) \wedge \deg(f_1)\leq d \wedge \deg(f_2)\leq d \right\}$.
+\begin{multline*}
+	\mathcal{R_\textsf{JoinedEval}}(\params) = \{
+\langle (\gr{C}_1,\gr{C}_2\in \GG, z, y_1,y_2 \in \ZZ_p,d\in \NN), (f_1(X), f_2(X)) \in \ZZ(b)[X] \rangle
+: \\
+\begin{array}{l} 
+(\gr{C}_1,z,y_1,d) \in \mathcal{R_\textsf{Eval}}(\params) \text{ and } (\gr{C}_2,z,y_2,d) \in \mathcal{R_\textsf{Eval}}(\params)
+\end{array}
+\}
+\end{multline*}
+
+
+
+
 
 \begin{mdframed}
 	$\pro{JoinedEval}(\crs, \gr{C}_1,\gr{C}_2\in \GG, z\in \ZZ_p, y_1,y_2\in \ZZ_p, d \in \NN; f_1(X),f_2(X)\in \ZZ(\frac{p-1}{2})[X]) :$ \\
@@ -827,18 +833,20 @@ Statment: $(\crs,\gr{C}_1,\gr{C}_2,z,y_1,y_2,b,d)\in \mathcal{R}_{\pro{JoinedEva
         \item \verifier samples $\alpha \sample [-\frac{p-1}{2},\frac{p-1}{2}]$ and sends it to \prover
 			\item \prover and \verifier compute $\gr{C}'\gets \gr{C}_1^{\alpha}\gr{C}_2$ and $y'\gets \alpha \cdot y_1 +y_2 \bmod p$
 			\item \prover computes $f'(X)\gets \alpha f_1(X) +f_2(X)$
-			\item \prover and \verifier run $\pro{EvalBounded}(\params,\gr{C}',z,y',d,\frac{p-1}{2}^2;f(X))$
+			\item \prover and \verifier run $\pro{EvalBounded}(\params,\gr{C}',z,y',d,\frac{p^2-1}{4};f(X))$
 		    \end{enumerate}
 \end{mdframed}
 
 \begin{theorem}
-The protocol $\pro{JoinedEval}$ is an interactive argument for the relation $\mathcal{R}_{\pro{JoinedEval}}$ and has perfect completeness and witness extended emulation if $q>$
+\label{thm:joined}
+The protocol $\pro{JoinedEval}$ is an interactive argument for the relation $\mathcal{R}_{\pro{JoinedEval}}$ and has perfect completeness and witness extended emulation if the Strong RSA and Order Assumption hold for $\ggen$ and if $q>(p-1)(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil+1}$
 \end{theorem}
-\alan{todo: Analyze bound on $q$ in light of lemma 9.}
-\begin{proof}
-We show how to build the extractor $\mathcal{E}_\mathsf{join}$ for $\prover_\mathsf{join}^*$, given black-box access to an extractor $\mathcal{E}_\mathsf{orig}$ and a prover $\prover^*$ attempting to prove a statement $x$. The extractor $\mathcal{E}_\mathsf{join}$ obtains the polynomial $f(X) = \sum_{i=0}^k \alpha_i X^{D-d_i} f_i(X)$ by from the extractor $\mathcal{E}_\pro{Eval}$, and repeating this process for $k$ different $\boldsymbol{\alpha}$'s yields the individual polynomials $f_i(X)$. With the knowledge of these individual polynomials, $\mathcal{E}_\mathsf{join}$ can now generate transcripts for the individual evaluations of $f_i(X)$ occurring in the original protocol. This enables $\mathcal{E}_\mathsf{join}$ to provide $\mathcal{E}_\mathsf{orig}$ with transcripts that are indistinguishable from authentic ones. As a result, $\mathcal{E}_\mathsf{orig}$ will output a transcript-witness pair $(\mathsf{tr}_\mathsf{orig}, w)$. The extractor $\mathcal{E}_\mathsf{join}$ outputs one of the transcripts it provided to $\mathcal{E}_\mathsf{orig}$ in addition to the witnes it received from $\mathcal{E}_\mathsf{orig}$. By the assumption about $\mathcal{E}_\mathsf{orig}$, $w$ is a valid witness: $(x,w) \in \mathcal{R}$.
-\end{proof}
+Correctness is immediate and witness extended emulation requires a single application of Lemma~\ref{lem:intrandomcombine} which leads to an updated bound on $q$. In general $q$ needs to be $\frac{p^2-1}{2}$ larger for any random linear combination that is taken with $\alpha \in [-\frac{p-1}{2},\frac{p-1}{2}]$. For class groups Lemma~\ref{lem:dyadiccombining} is used and the lower bound on $q$ grows by a factor of $(p-1)^2\frac{p+1}{2}\leq p^3$. 
 
+We can additionally combine this optimization with the previous optimization of evaluating a single polynomial at different points. This allows us to evaluate $m$ polynomials at $k$ points with very little overhead. 
+The prover groups the polynomials by evaluation points and first takes linear combinations of the polynomials with the same evaluation point and computes $y_1$ to $y_k$ using the same linear combinations. Then it takes another combination of the joined polynomials. In each round of the $\eval$ protocol the prover sends $y_{L,1}$ through $y_{L,k}$, i.e. one field element per evaluation point and computes $y_{R,1}$ through $y_{R,k}$. In the final step the prover sends $f$ and the verifier can check whether the final $y$ values are all equal to $f\bmod p$.
+ This enables an $\eval$ proof of $m$, degree $d$ polynomials at $k$ points using only $2\log_2(d+1)$ group elements and $(1+k)\log_2(d+1)$ field elements.
+ 
 %to a non-falsiable  but we do advise against this option. The reason for this advice is two-fold. First, in a SNARK compilation process where the commitment scheme is used as a primitive, zero-knowledge is typically added at the end anyway and it suffices to have a primitive that does not provide zero-knowledge on it own.
 %Second, the natural way to add zero-knowledge is via a Pedersen-like commitment function $f(X) \mapsto \gr{g}^{f(q)}\gr{h}^r$, where $\gr{g}, \gr{h}$ are both random group elements and where $r \sample [0; 2^\lambda]$ is a randomizer with enough entropy.
 %The scheme's homomorphism translates naturally to $\eval$ protocol and the only change the protocol needs is in the last step where $\gr{g}^f\gr{h}^{r'}$ must be opened to $f \bmod p$ and \emph{should not leak any other information}.
@@ -854,7 +862,7 @@ Additionally the proof elements $\gr{C}_L$, $\gr{C}_R \in \GG$ are independent f
 
 \paragraph{Performance.}
 The polynomial commitment scheme has logarithmic proof size and verifier time in the degree $d$ of the committed polynomial. 
-As discussed it has highly batchable proofs and it is possible to evaluate $n$ degree $d$ polynomials at $m$ points using only $2\log_2(d+1)$ group elements and $(m+1)\log_2(d+1)$ field elements. Note that this means the proof size is independent of $n$ and linear in $m$ but with a small constant $(15 \log(d)$ bytes).
+As discussed it has highly batchable proofs and it is possible to evaluate $n$ degree $d$ polynomials at $k$ points using only $2\log_2(d+1)$ group elements and $(k+1)\log_2(d+1)$ field elements. Note that this means the proof size is independent of $n$ and linear in $k$ but with a small constant $(15 \log(d)$ bytes).
 We describe the performance for different settings in Table \ref{tab:performance}
 \begin{table} 
 
@@ -881,11 +889,11 @@ We describe the performance for different settings in Table \ref{tab:performance
 
 \subsection{Multivariate polynomial commitments}\label{sec:multivariate}
 
-We can extend our polynomial commitment scheme to multivariate polynomials. The idea is simply to use higher degrees of $q$ to encode the polynomial. The protocol is linear in the number of variables and logarithmic in the total degree of the polynomial. For simplicity we only present a protocol for $n$-variate polynomials where the degree in each variable is $d$. The protocol naturally extends to different degrees per variable.
+We can extend our polynomial commitment scheme to multivariate polynomials. The idea is simply to use higher degrees of $q$ to encode the polynomial. The protocol is linear in the number of variables and logarithmic in the total degree of the polynomial. For simplicity we only present a protocol for $\mu$-variate polynomials where the degree in each variable is $d$. The protocol naturally extends to different degrees per variable.
 \paragraph{Encoding}
-Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_n)\in \ZZ$ is an encoding of the multivariate polynomial $f(X_1,\dots,X_n)$ with maximum degree $d$. We use $\dec_{Multi}(f(q),n,d)$ to denote the decoding of an $n$-variate polynomial with degree exactly $d$ in each variable. The decoding algorithm simply uses the univariate decoding algorithm described in Section \ref{sec:encoding} to decode a univariate polynomial $\hat{h}(X)$ of degree $(d+1)^n-1$. From this it is easy to compute the $n$-variate polynomial $f(X_1,\dots,X_n)$ of degree $d$ by assigning the coefficients of $X^{(d+1)^i}$ to the variable $X_i$.
+Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_\mu)\in \ZZ$ is an encoding of the multivariate polynomial $f(X_1,\dots,X_\mu)$ with maximum degree $d$. We use $\dec_{Multi}(f(q),\mu,d)$ to denote the decoding of an $\mu$-variate polynomial with degree exactly $d$ in each variable. The decoding algorithm simply uses the univariate decoding algorithm described in Section \ref{sec:encoding} to decode a univariate polynomial $\hat{h}(X)$ of degree $(d+1)^{\mu}-1$. From this it is easy to compute the $\mu$-variate polynomial $f(X_1,\dots,X_\mu)$ of degree $d$ by assigning the coefficients of $X^{(d+1)^i}$ to the variable $X_i$.
 \paragraph{Protocols}
- Using this encoding we can naturally derive the multi-variate commitment scheme and $\eval$ protocol. The $\eval$ protocol computes the univariate polynomials $f(q_1,\dots,q_{n-1},X_n)$ and then uses the univariate eval protocol to reduce the claim from a claim about an $n$-variate polynomial to one about an $n-1$-variate one. At the final step the prover opens the now constant polynomial and the verifier can check the claim. For a bivariate (say $X$ and $Y$) cubic polynomial the protocol would first reduce the degree of $X$ to $0$ in two rounds of interaction and then reduce the degree of $Y$ using another two rounds.
+ Using this encoding we can naturally derive the multi-variate commitment scheme and $\eval$ protocol. The $\eval$ protocol computes the univariate polynomials $f(q_1,\dots,q_{\mu-1},X_\mu)$ and then uses the univariate eval protocol to reduce the claim from a claim about an $\mu$-variate polynomial to one about an $\mu-1$-variate one. At the final step the prover opens the now constant polynomial and the verifier can check the claim. For a bivariate (say $X$ and $Y$) cubic polynomial the protocol would first reduce the degree of $X$ to $0$ in two rounds of interaction and then reduce the degree of $Y$ using another two rounds.
  
  \begin{mdframed}[userdefinedwidth=\textwidth]
 \begin{minipage}{\textwidth}
@@ -896,14 +904,14 @@ Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_n)\in \ZZ$ is an encoding of the multi
 			\item $ \gr{g} \sample \GG$
 			%\item $q \gets 2^k$ such that $q > (d+1) \cdot 2\cdot p^{\log_2(d+1)+1} $
 			\item Pick a prime $p\in \NN$ such that $\lceil\log_2(p)\rceil=\lambda$.
-			\item Pick a sufficiently large and odd $q\in \NN$ \pccomment{$q=O_\lambda(p^{n \cdot \log(d)})$}
+			\item Pick a sufficiently large and odd $q\in \NN$ \pccomment{$q=O_\lambda(p^{\mu \cdot \log(d)})$}
 			\item $\pcreturn \params = (\secpar,\GG,\gr{g},p,q)$
 		\end{enumerate}
-	$\pro{MultiCommit}(\crs;f(X_1,\dots,X_n) \in \ZZ(\frac{p-1}{2})^n[X]\subset \ZZ[X]):$ 		\begin{enumerate}[nolistsep]
+	$\pro{MultiCommit}(\crs;f(X_1,\dots,X_\mu) \in \ZZ^\mu(\frac{p-1}{2})[X]\subset \ZZ^\mu[X]):$ 		\begin{enumerate}[nolistsep]
 			\item $d\gets \deg(f)$\pccomment{For simplicity assume $f(X_1,\dots,X_n)$ has degree $d$ in each variable}
-			\item $q_i\gets q^{(d+1)^{i-1}}$ for each $i\in [1,n]$
-			\item $\gr{C} \gets \gr{g}^{f(q_1,\dots,q_n)}$
-			\item $\pcreturn (\gr{C};f(X_1,\dots,X_n))$
+			\item $q_i\gets q^{(d+1)^{i-1}}$ for each $i\in [1,\mu]$
+			\item $\gr{C} \gets \gr{g}^{f(q_1,\dots,q_\mu)}$
+			\item $\pcreturn (\gr{C};f(X_1,\dots,X_\mu))$
 		\end{enumerate}
 			\end{flushleft}
 \end{minipage}
@@ -911,34 +919,34 @@ Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_n)\in \ZZ$ is an encoding of the multi
  
  \begin{mdframed}
 \begin{minipage}{\textwidth}
-			$\pro{MultiEval}(\crs, \gr{C}\in \GG, \boldsymbol{z}\in \ZZ_n,y \in \ZZ_p, d,n,b \in \NN; f(X_1,\dots,X_n)\in \ZZ(b)^n[X]) :$ 			\begin{enumerate}[nolistsep]
-			\item \pcif{n=1} 
+			$\pro{MultiEval}(\crs, \gr{C}\in \GG, \boldsymbol{z}\in \ZZ^\mu_p,y \in \ZZ_p, d,\mu,b \in \NN; f(X_1,\dots,X_\mu)\in \ZZ^\mu(b)[X]) :$ 			\begin{enumerate}[nolistsep]
+			\item \pcif{$\mu=1$} 
 			\item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\params,\gr{C},z_1,y,d,b,x;f(X_1))$ 
 			\item \pcelse
-			\item \pcind[1] Let $\hat{f}(X_n)\gets f(q_1,\dots,q_{n-1},X_n)$
-			\item \pcind[1] Let $\crs_n \gets \{\lambda,\GG,\gr{g},p,q_n\}$
-			\item \pcind[1] \prover and \verifier run the univariate $\pro{EvalBounded}(\params_n,\gr{C},z_n,y,d,q_n;\hat{f}(X))$
-			\item \pcind[2] except: when $d=0$, $f$ is not sent; instead the protocol returns its input at this point, \emph{i.e.}, $(\gr{C}',y',b')$ along with the prover's witness $f'(X_1,\dots,X_{n-1})=\dec(f,n-1,d)$ (Lines~\ref{line:basestart}-\ref{line:baseend} of $\pro{EvalBounded}$). 
-			\item \pcind[1]$\boldsymbol{z}'\gets (z_1,\dots,z_{n-1})\in \ZZ_p^{n-1}$
-			\item \pcind[1]\prover and \verifier run $\pro{MultiEval}(\crs,C',\boldsymbol{z}',y',d,n-1,b';f')$
+			\item \pcind[1] Let $\hat{f}(X_\mu)\gets f(q_1,\dots,q_{\mu-1},X_\mu)$
+			\item \pcind[1] Let $\crs_\mu \gets \{\lambda,\GG,\gr{g},p,q_\mu\}$
+			\item \pcind[1] \prover and \verifier run the univariate $\pro{EvalBounded}(\params_\mu,\gr{C},z_\mu,y,d,q_\mu;\hat{f}(X))$
+			\item \pcind[2] except: when $d=0$, $f$ is not sent; instead the protocol returns its input at this point, \emph{i.e.}, $(\gr{C}',y',b')$ along with the prover's witness $f'(X_1,\dots,X_{\mu-1})=\dec_{Multi}(f,\mu-1,d)$ (Lines~\ref{line:basestart}-\ref{line:baseend} of $\pro{EvalBounded}$). 
+			\item \pcind[1]$\boldsymbol{z}'\gets (z_1,\dots,z_{\mu-1})\in \ZZ_p^{\mu-1}$
+			\item \pcind[1]\prover and \verifier run $\pro{MultiEval}(\crs,C',\boldsymbol{z}',y',d,\mu-1,b';f')$
 		    \end{enumerate}
       \end{minipage}
 \end{mdframed}
 \begin{theorem}[Multivariate Eval]
-	The polynomial commitment scheme for multi-variate polynomials consisting of protocols $(\pro{MultiSetup},\pro{MultiCommit},\pro{MultiEval})$ has perfect correctness and witness extended emulation if the Adaptive Root Assumption and the strong RSA Assumption hold for $\ggen$ for $n$-variate polynomials of degree $d$ and if $d^n=\poly$ if $q>(p-1)^{n\cdot \lceil \log_2(d+1)\rceil+1}(\frac{p+1}{2})^{n \cdot \lceil \log_2(d+1)\rceil}$.
+	The polynomial commitment scheme for multi-variate polynomials consisting of protocols $(\pro{MultiSetup},\pro{MultiCommit},\pro{MultiEval})$ has perfect correctness and witness extended emulation if the Adaptive Root Assumption and the strong RSA Assumption hold for $\ggen$ for $\mu$-variate polynomials of degree $d$ and if $d^\mu=\poly$ if $q>(p-1)^{\mu\cdot \lceil \log_2(d+1)\rceil+1}(\frac{p+1}{2})^{\mu \cdot \lceil \log_2(d+1)\rceil}$.
 \end{theorem}
 \begin{proof}
 	Perfect correctness follows from the correctness of the univariate scheme and the fact that the bounds $b$ are appropriately updated and remain less than $q/2$.
 	
-	To show witness extended emulation we use the forking lemma (Lemma \ref{lemma:GFL}) and build a polynomial time extractor algorithm $\mathcal{X}_{\pro{MultiEval}}$ that given a binary tree of transcripts of depth $n \cdot\lceil\log(d+1)\rceil$, extracts a witness. Each node corresponds to a different challenge $\alpha$ as described in the forking lemma. The tree consists of $n^{\lceil\log(d+1)\rceil}=\poly$ transcripts. 
+	To show witness extended emulation we use the forking lemma (Lemma \ref{lemma:GFL}) and build a polynomial time extractor algorithm $\mathcal{X}_{\pro{MultiEval}}$ that given a binary tree of transcripts of depth $\mu \cdot\lceil\log(d+1)\rceil$, extracts a witness. Each node corresponds to a different challenge $\alpha$ as described in the forking lemma. The tree consists of $\mu^{\lceil\log(d+1)\rceil}=\poly$ transcripts. 
 We can therefore use Lemma~\ref{lem:poe} to replace all \textsf{PoE} executions with direct verification checks that $\gr{C}_L\gr{C}_R^{q^{d'+1}}=\gr{C}$. The lemma focusses on the univariate \pro{Eval} protocol but works identically for the multivariate protocol. The probability that an adversary can create any accepting transcript for which the $\textsf{PoE}$ can't be replaced by a direct check is negligible under the Adaptive Root Assumption.
 
 	We now use the extractor $\mathcal{X}_{\pro{Eval'}}$ described in the proof of Theorem~\ref{thm:polycommitsecurity} to build $\mathcal{X}_{\pro{MultiEval}}$. 
 	
-	$\mathcal{X}_{\pro{MultiEval}}$ takes the entire transcript tree and invokes the univariate extractor on input $\gr{C}$ to extract either a degree $(d+1)^n-1$ polynomial univariate polynomial $\hat{f}(X)$ or an element of known order or a fractional root of $\gr{g}$. The extracted polynomial has coefficients bounded by $b=\frac{p-1}{2}(\frac{p^2-1}{2})^{n
-	cdot \lceil\log_2(d+1)\rceil}$. Since $q>2b$ decoding and extraction succeeds. Further using $f(X_1,\dots,X_n)\gets\dec_{Multi}(\hat{f}(q),n,d)$ we can extract an $n$-variate polynomial of degree $d$ in each variable. 
-It remains to show that $f(z_1,\dots,z_n)=y$. Lemma~\ref{lem:strongtofractional} which proofs the soundness of each individual extraction step does not require the evaluation point $z$ to be the same in each round. This shows that the extracted evaluation of $f(X_1,\dots,X_n)$ follows exactly the honest provers evaluation.
-For the $y=\sum_{i=0}^{(d+1)^n-1 } \hat{f}_{i} (\prod_{j=1}^n  z_j^{\lceil i/(d+1)^j\rceil \bmod d+1 }) $, where $\hat{f}_i$ are the coefficients of the encoded univariate degree $(d+1)^n-1$. The decoding sets $\hat{f}_i$ to be the coefficient of $\prod_{j=1}^n  X_j^{\lceil i/(d+1)^j\rceil \bmod d+1 }$ which shows that $y=f(z_1,\dots,z_n)$.
+	$\mathcal{X}_{\pro{MultiEval}}$ takes the entire transcript tree and invokes the univariate extractor on input $\gr{C}$ to extract either a degree $(d+1)^\mu-1$ polynomial univariate polynomial $\hat{f}(X)$ or an element of known order or a fractional root of $\gr{g}$. The extracted polynomial has coefficients bounded by $b=\frac{p-1}{2}(\frac{p^2-1}{2})^{\mu
+	\cdot \lceil\log_2(d+1)\rceil}$. Since $q>2b$ decoding and extraction succeeds. Further using $f(X_1,\dots,X_n)\gets\dec_{Multi}(\hat{f}(q),\mu,d)$ we can extract an $\mu$-variate polynomial of degree $d$ in each variable. 
+It remains to show that $f(z_1,\dots,z_\mu)=y$. Lemma~\ref{lem:strongtofractional} which proofs the soundness of each individual extraction step does not require the evaluation point $z$ to be the same in each round. This shows that the extracted evaluation of $f(X_1,\dots,X_\mu)$ follows exactly the honest provers evaluation.
+For the $y=\sum_{i=0}^{(d+1)^\mu-1 } \hat{f}_{i} (\prod_{j=1}^\mu  z_j^{\lceil i/(d+1)^j\rceil \bmod d+1 }) $, where $\hat{f}_i$ are the coefficients of the encoded univariate degree $(d+1)^\mu-1$. The decoding sets $\hat{f}_i$ to be the coefficient of $\prod_{j=1}^\mu  X_j^{\lceil i/(d+1)^j\rceil \bmod d+1 }$ which shows that $y=f(z_1,\dots,z_\mu)$.
 	
 	Under the Strong RSA Assumption and the Adaptive Root Assumption the probability that the polynomial time adversary can produce an element of known order or a fractional root of $\gr{g}$ is negligible. This shows that the multivariate polynomial commitment scheme has witness extended emulation.
 \end{proof}

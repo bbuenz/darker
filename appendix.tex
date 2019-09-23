@@ -188,7 +188,7 @@ In the full version of the paper.
 We begin by stating and proving the combining lemma, (Lemma~\ref{lem:intrandomcombine}) for dyadic rational witnesses.
 %PROOF FOR DYADIC RATIONALS
 \begin{lemma}[Combining for Dyadic Rational Witnesses]
-\ref{lem:dyadiccombining}
+\label{lem:dyadiccombining}
 Let $\tr$ and $\tr'$ be two transcripts as specified in Lemma \ref{lem:intrandomcombine} with the difference that $f,f'\in \mathbb{D}$ are dyadic rationals such that $f(X)\gets \dec(f)$ and $f'(X)\gets \dec(f')$ are degree $d$ bounded dyadic rational polynomials with coefficients' numerators bounded by $N$ and denominators bounded by $D$, i.e. $f(X),f'(X)\in\mathbb{D}(N,D)$.
 Assume that there exists a PPT algorithm for taking square roots of any element in $\GG$ and that the order of $\GG$ is odd, then there exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either (1) $y_L,y_R\in \ZZ_p,f_L(X),f_R(X)\in \mathbb{D}(N\cdot (p-1),D\cdot (p-1))[X]$  such that $f_L(z)=y_L\bmod p$ and $f_R(z)=y_R \bmod p$ or (2) an element in $\GG$ of known order or (3) a non-dyadic root of $\gr{g}$.
 \end{lemma}
@@ -215,7 +215,7 @@ The proof largely follows the same structure of the proof of Theorem~\ref{thm:po
 We will prove security by showing that we can extract a dyadic rational polynomial $f(X)\in \\mathbb{Z}[X]$ such that $f(X)$ has degree at most $d$ and the coefficients of $f(X)$ are dyadic rationals such that the product of the numerator and denominator is bounded by $q/2$. This ensures that $f(q)$ is a unique encoding of $f(X)$. Additionally $\gr{g}^{f(q)}=\gr{C}$ and $f(z) \bmod p=y$. The proof will use the general forking lemma (Lemma \ref{lemma:GFL}) to show that the polynomial commitment scheme has witness-extended emulation. 
 
 We use the same extractor $\mathcal{X}$ as in Theorem \ref{thm:polycommitsecurity} with one key distinction. 
-For $d+1$ odd we invoke the extractor described by Lemma~\ref{lem:dyadiccomining} instead of Lemma~\ref{lem:intrandomcombine}. 
+For $d+1$ odd we invoke the extractor described by Lemma~\ref{lem:dyadiccombining} instead of Lemma~\ref{lem:intrandomcombine}. 
 This means that at every tree level either bounded dyadic rational witness polynomials are extracted or an element of known order or a non-dyadic root of $\gr{g}$. By assumption the ladder two cases happen only with negligible probability.
 
 We, therefore, now need to compute a bound on the size of the extracted polynomial. 
