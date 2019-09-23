@@ -533,7 +533,7 @@ The prover splits $f(X)$ into $f_L(X)$ and $f_R(X)$ such that $f(X) = f_L(X) + X
 
 The proof recursively repeats this reduction by using $f'(X),z,y'$ and $d'$ as the input. In the final step, $f(X) = f$ is a constant and the verifier checks that $f \equiv y \bmod p$. Note that $|f| <  (\frac{p}{2})^{\log_2(d+1)+1}$ so a representation of $f$ requires at most $\lceil \log_2(d+1) \cdot \log_2(p)\rceil$ bits.
 
-The purpose of the commitment function is to bind the prover to one par
+The purpose of the commitment function is to bind the prover to one particular polynomial for every commitment. To this end, the verifier must be in possession of a commitment 
 
 \subsection{Concrete Polynomial Commitment Scheme}
 
