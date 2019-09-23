@@ -473,7 +473,7 @@ At the heart of our protocol is an encoding of integer polynomials with bounded 
 We write $\ZZ(b):=\{x \in \ZZ \, | \, \vert x \vert  \leq b\}$ as the set of integers with absolute value less than or equal to $b$. In a slight abuse of notation we write $\ZZ(b)[X]\subset \mathbb{Z}[X]$ as the set of integer polynomials with bounded coefficients. 
 
 \paragraph{Encoding}
-For a ``large'' integer $q$, the map $\mathsf{Enc} : \mathbb{Z}((q-1)/2)[X] \rightarrow \mathbb{Z}, \, p(X) \mapsto p(q)$ is an injective map from the domain of polynomials with bounded coefficients to the integers. This means the map can be used as encoding of polynomials in the domain $\ZZ(b)[X]$ with $b<q/2$.
+For a ``large'' integer $q$, the map $\mathsf{Enc} : \mathbb{Z}((q-1)/2)[X] \rightarrow \mathbb{Z}, \, f(X) \mapsto f(q)$ is an injective map from the domain of polynomials with bounded coefficients to the integers. This means the map can be used as encoding of polynomials in the domain $\ZZ(b)[X]$ with $b<q/2$.
 \paragraph{Decoding}
 Decoding works as follows. Define the partial sum $S_k := \sum_{i=0}^k f_i q^i$ with $S_{-1} := 0$ and observe that when $(S_k \bmod q^{k+1}) > q^{k+1}/2$ then $S_k < 0$ whereas when $(S_k \bmod q^{k+1}) < q^{k+1}/2$ then $S_k \geq 0$. 
 So when decoding $y \in \mathbb{Z}$, we can get $S_k$ for any $k$ by setting $S_k$ to $y \bmod q^{k+1}$ if $y \bmod q^{k+1}$ is less than $\frac{q^{k+1}}{2}$ or to $q^{k+1}- (y \bmod q^{k+1})$ otherwise.
@@ -527,7 +527,59 @@ The prover splits $f(X)$ into $f_L(X)$ and $f_R(X)$ such that $f(X) = f_L(X) + X
 
 The proof recursively repeats this reduction by using $f'(X),z,y'$ and $d'$ as the input. In the final step, $f(X) = f$ is a constant and the verifier checks that $f=y$.% $f \equiv y \bmod p$. Note that $|f| <  (\frac{p}{2})^{\log_2(d+1)+1}$ so a representation of $f$ requires at most $\lceil \log_2(d+1) \cdot \log_2(p)\rceil$ bits.
 
-The commitment function binds the prover to one particular polynomial for every commitment held by the verifier. In particular, at the start of every recursion step, the verifier is in possession of a commitment $[\![f(X)]\!]$ to $f(X)$. The prover provides commitments $[\![f_L(X)]\!]$ and $[\![f_R(X)]\!]$, and the verifier checks their soundness homomorphically via $[\![f(X)]\!] = [\![f_L(X)]\!] + X^{d'+1} \! \times \! [\![f_R(X)]\!]$. From these commitments, the verifier can also compute the commitment to $f'(X)$ homomorphically, via $[\![f'(X)]\!] = \alpha \! \times \! [\![f_L(X)]\!] + [\![f_R(X)]\!]$. In the last step, the verifier checks that the constant polynomial $f$ matches the commitment by computing $[\![f]\!]$ outright. These operations give rise to the following informal pseudocode description of the \eval protocol.
+The commitment function binds the prover to one particular polynomial for every commitment held by the verifier. In particular, at the start of every recursion step, the verifier is in possession of a commitment $[\![f(X)]\!]$ to $f(X)$. The prover provides commitments $[\![f_L(X)]\!]$ and $[\![f_R(X)]\!]$, and the verifier checks their soundness homomorphically via $[\![f(X)]\!] = [\![f_L(X)]\!] + X^{d'+1} \! \times \! [\![f_R(X)]\!]$. From these commitments, the verifier can also compute the commitment to $f'(X)$ homomorphically, via $[\![f'(X)]\!] = \alpha \! \times \! [\![f_L(X)]\!] + [\![f_R(X)]\!]$. In the last step, the verifier checks that the constant polynomial $f$ matches the commitment by computing $[\![f]\!]$ outright. These operations give rise to the following informal, diagrammatic description of the \eval protocol.
+
+\begin{figure}[!ht]
+\begin{mdframed}[userdefinedwidth=\textwidth]
+\newcommand{\dollar}{\$}
+\begin{minipage}{\textwidth}
+	\begin{flushleft}
+	$\pro{Eval}([\![f(X)]\!], z, y, d; f(X)):$
+		\begin{itemize}[nolistsep]
+			\item \textbf{if} $d > 0$ \textbf{then:}
+		 	\begin{tikzpicture}
+			\node[] (prover) at (-5, 0) {\prover};
+			\node[] (verifier) at (5, 0) {\verifier};
+			\node[anchor=north west] (prover computes) at (prover.south west) {\begin{tabular}{l}
+				split $f(X)$ into $f_L(X)$ and $f_R(X)$ \\
+				s.t. $f(X) = f_L(X) + X^{d'+1}f_R(X)$ \\
+				compute $y_L \gets f_L(z)$ and $y_R \gets f_R(z)$
+			\end{tabular}};
+			\draw[->] (-4, -2.7) -- (4, -2.7) node[above, midway] {$y_L, y_R, [\![f_L(X)]\!], [\![f_R(X)]\!]$};
+			\node[anchor=north west, xshift=-2.5cm, yshift=-2.5cm] (verifier checks) at (verifier.south west) {\begin{tabular}{l}
+			check $[\![f(X)]\!] =$ \\
+			 $[\![f_L(X)]\!] + X^{d'+1}[\![f_R(X)]\!]$ \\
+			check $y = y_L + z^{d'+1}y_R$ \\
+			sample $\alpha \xleftarrow{\dollar} \mathbb{Z}_p$
+			\end{tabular}};
+			\draw[->] (4, -5.5) -- (-4, -5.5) node[above, midway] {$\alpha$};
+			\node[anchor=north west, yshift=-0.5cm] (verifier updates) at (verifier checks.south west) {\begin{tabular}{l}
+				compute $y' \gets \alpha y_L + y_R$ \\
+				compute $[\![f'(X)]\!] \gets$ \\
+				$\alpha \times [\![f_L(X)]\!] + [\![f_R(X)]\!]$
+			\end{tabular}};
+			\node[anchor=north west, yshift=-4cm] (prover updates) at (prover computes.south west) {compute $f'(X) \gets \alpha f_L(X) + f_R(X)$};
+			\draw[<->] (4, -8) -- (-4, -8) node[above, midway] {run $\eval([\![f'(X)]\!], z, y', d'; f'(X))$};
+			\end{tikzpicture}
+			\item[]
+			\item \textbf{if} $d = 0$ \textbf{then:}
+			\item[] \begin{tikzpicture}
+			\node[] (prover) at (-5, 0) {\prover};
+			\node[] (verifier) at (5, 0) {\verifier};
+			\draw[->] (-4, -1) -- (4, -1) node[above, midway] {$f = f(X)$};
+			\node[anchor=north west, xshift=-2.5cm, yshift=-1cm] (verifier checks) at (verifier.south west) {\begin{tabular}{l}
+				check $f \in \mathbb{Z}_p$ and $f = y$ \\
+				and $[\![f]\!] = [\![f(X)]\!]$
+			\end{tabular}};
+			\end{tikzpicture}
+		\end{itemize}
+		\end{flushleft}
+\end{minipage}
+\end{mdframed}
+\end{figure}
+
+\begin{comment}
+These operations give rise to the following informal pseudocode description of the \eval protocol.
 \begin{mdframed}
 Information-theoretic $\eval$ protocol, informal. \\
 Common knowledge: $[\![f(X)]\!], y, z, d$ \\
@@ -545,10 +597,13 @@ Statement: $y = f(z) \bmod p$ and $\deg(f(X)) = d$
 		\item \pcind[1] $\verifier$ checks that $f$ is a small constant, that $[\![\cdot]\!]$ evaluated in $f$ equals $[\![f]\!]$, and that $y = f \bmod p$
 	\end{itemize}
 \end{mdframed}
+\end{comment}
 
 \subsection{Concrete Polynomial Commitment Scheme}
 
-The last step in the presentation of the commitment scheme is to instantiate the abstract homomorphic hash function $[\![ \cdot ]\!]$. To this end we sample a group of unknown order $\mathbb{G}$, and sample a random element $\gr{g}$ from this group. Then $[\![z]\!]$ corresponds to raising $\gr{g}^z$, $\cdot + \cdot$ corresponds to the group operation, and $\cdot \times \cdot$ corresponds to exponentiation. All these operations can be computed locally. The $\setup, \pro{commit}$ and $\open$ functionalities are presented formally below. Note that the scheme is parameterized by $p$ and $q$; these values are determined by the context and independently of $\setup$.
+The last step in the presentation of the commitment scheme is to instantiate the abstract homomorphic hash function $[\![ \cdot ]\!]$. To this end we sample a group of unknown order $\mathbb{G}$, and sample a random element $\gr{g}$ from this group. Next, we identify polynomials with integers via their integer encoding, which provides us with a ``large enough'' integer $q$. Then $[\![f(X)]\!]$ corresponds to $\gr{g}^{f(q)}$, $\cdot + \cdot$ corresponds to the group operation, and $\cdot \times \cdot$ corresponds to exponentiation. All these operations can be computed locally. This commitment function inherits the homomorphic properties of the integer encoding for a limited number of additions and multiplications-by-constant. To maintain consistency between the prover's polynomials and the verifier's commitments, the prover computes on his polynomials without performing reduction modulo $p$.
+
+The $\setup, \pro{commit}$ and $\open$ functionalities are presented formally below. Note that the scheme is parameterized by $p$ and $q$; these values are determined by the context and independently of $\setup$.
 
 %We now present our main technical contribution: a polynomial commitment scheme with an efficient evaluation protocol based on a group of unknown order $\GG$. For polynomials of degree $d=\poly$ the evaluation protocol uses $1+\lceil\log_2(d+1)\rceil$ rounds and $O(\log(d))$ communication and verifier work.
 
@@ -596,11 +651,11 @@ The last step in the presentation of the commitment scheme is to instantiate the
 
 %The proof recursively repeats this reduction by using $f'(X),z,y'$ and $d'$ as the input. In the final step, the prover simply sends the constant polynomial $f$ and the verifier can check that $f \equiv y \bmod p$. Note that $|f|< (\frac{p}{2})^{\log_2(d+1)+1}$ so an integer encoding of $f_0$ requires at most $\lceil \log_2(d+1) \cdot \log_2(p)\rceil$ bits. 
 
-To instantiate the information-theoretic evaluation protocol, one starts with the situation in which the verifier possesses a commitment to $f(X)$ in the form of $\gr{C} = \gr{g}^{f(q)}$. The prover commits to $f_L(X)$ and $f_R(X)$ by sending $\gr{C}_L$ and $\gr{C}_R$. The verifier checks that $\gr{C} = \gr{C}_L \cdot \gr{C}_R^{q^{d'+1}}$ and proceeds in the next step with the commitment $\gr{C}' = \gr{C}_L^\alpha \cdot \gr{C}_R$ to $f'(X)$. This instantiation produces an $\eval$ protocol with logarithmic communication. However, naïvely checking that $f(X) = f_L(X) + X^{d'+1} f_R(X)$ based on the commitments $\gr{C}, \gr{C}_L$ and $\gr{C}_R$ is inefficient because the bit-size of the exponent $q^{d'+1}$ is linear in $d$.
+To instantiate the information-theoretic evaluation protocol, one starts with the situation in which the verifier possesses a commitment to $f(X)$ in the form of $\gr{C} = \gr{g}^{f(q)}$. The prover commits to $f_L(X)$ and $f_R(X)$ by sending $\gr{C}_L$ and $\gr{C}_R$. The verifier checks that $\gr{C} = \gr{C}_L \cdot \gr{C}_R^{q^{d'+1}}$ and proceeds in the next step with the commitment $\gr{C}' = \gr{C}_L^\alpha \cdot \gr{C}_R$ to $f'(X)$. This instantiation produces an $\eval$ protocol with logarithmic communication. However, naïvely checking that $f(X) = f_L(X) + X^{d'+1} f_R(X)$ based on the commitments $\gr{C}, \gr{C}_L$ and $\gr{C}_R$ is inefficient because the bit-size of the exponent $q^{d'+1}$ huge.
 
 Fortunately, Wesolowski~\cite{EC:Wesolowski19} and Pietrzak~\cite{EPRINT:Pietrzak18b} provide efficient proofs of exponentiations (\textsf{PoE}) to solve a similar problem in the context of verifiable delay functions~\cite{C:BBBF18}. Specifically, the prover provides the verifier with both the input and the output of the exponentiation, and after some interaction the verifier only needs to perform exponentiations with small exponents to verify the statement's correctness. Wesolowski's \textsf{PoE} is public coin, has constant communication and verification time, and is thus particularly well-suited here.
 
-Moving towards a formal presentation, it remains to specify some points we previously glossed over. First, if $d+1$ is not a power of 2, then we make a distinction between whether it is odd or even. If it is even, the recursion proceeds as normal for one step. If it is odd, then the polynomial is shifted by one digit --- specifically, $f'(X) = X f(X)$ and the protocol proceeds to prove that $f'(X)$ has degree bounded by $d' = d+1$ and evaluates to $y' = zy$ in $z$. The verifier obtains the matching commitment $\gr{C}'$ by raising $\gr{C}$ to the power $q$, or by outsourcing this task to the prover with a $\mathsf{PoE}$. Second, as the protocol proceeds the coefficients of $f(X)$ grow larger and larger, but eventually they have to be tested against some bound because coefficients that are \emph{too large} should be rejected. To take these growing coefficients into account we invoke a subroutine $\pro{EvalBounded}$, which takes an additional argument $b$ and which proves, in addition to what $\pro{Eval}$ proves, that all coefficients $f_i$ of $f(X)$ satisfy $|f_i| \leq b$. This subroutine is particularly useful if commitments were homomorphically combined prior to the execution of $\pro{EvalBounded}$. We now present the full, formal $\eval$ protocol below.
+Moving towards a formal presentation, it remains to specify some points we previously glossed over. First, if $d+1$ is not a power of 2, then we make a distinction between whether it is odd or even. If it is even, the recursion proceeds as normal for one step. If it is odd, then the polynomial is shifted by one digit --- specifically, $f'(X) = X f(X)$ and the protocol proceeds to prove that $f'(X)$ has degree bounded by $d' = d+1$ and evaluates to $y' = zy$ in $z$. The verifier obtains the matching commitment $\gr{C}'$ by raising $\gr{C}$ to the power $q$, or by outsourcing this task to the prover with a $\mathsf{PoE}$. Second, as the protocol proceeds the coefficients of $f(X)$ grow larger and larger, but eventually they have to be tested against some bound because coefficients that are \emph{too large} should be rejected. To take these growing coefficients into account we invoke a subroutine $\pro{EvalBounded}$, which takes an additional argument $b$ and which proves, in addition to what $\pro{Eval}$ proves, that all coefficients $f_i$ of $f(X)$ satisfy $|f_i| \leq b$. This subroutine is particularly useful if commitments were homomorphically combined prior to the execution of $\pro{EvalBounded}$. Additionally, the growth of these coefficients determines a lower bound on $q$. We now present the full, formal $\eval$ protocol below.
 
 \begin{mdframed}
 \begin{minipage}{\textwidth}
