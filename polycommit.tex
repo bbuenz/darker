@@ -50,9 +50,10 @@
 \maketitle
 
 \begin{abstract} 
-We construct a new polynomial commitment scheme for multivariate polynomials over finite fields, with public-coin evaluation proofs that have logarithmic communication in the degree of the polynomial. The techniques are reminiscent of \emph{Diophantine Arguments of Knowledge} (Lipmaa, Asiacrypt'03), leveraging integer representations of polynomials and groups of unknown order. Security is shown from falsifiable assumptions that hold in generic groups. Moreover, the scheme does not require a trusted setup if instantiated with class groups. We apply this new cryptographic compiler to algebraic linear IOPs in order to obtain doubly-efficient public-coin IPs with succinct communication and witness-extended emulation for any NP relation. Allowing for linear preprocessing, the online verifier's work is logarithmic in the circuit complexity of the relation.
+We construct a new polynomial commitment scheme for multivariate polynomials over finite fields, with public-coin evaluation proofs that have logarithmic communication in the degree of the polynomial. The techniques are reminiscent of \emph{Diophantine Arguments of Knowledge} (Lipmaa, Asiacrypt'03), leveraging integer representations of polynomials and groups of unknown order. Security is shown from falsifiable assumptions that hold in generic groups. Moreover, the scheme does not require a trusted setup if instantiated with class groups. We apply this new cryptographic compiler to a restricted class of algebraic linear IOPs in order to obtain doubly-efficient public-coin IPs with succinct communication and witness-extended emulation for any NP relation. Allowing for linear preprocessing, the online verifier's work is logarithmic in the circuit complexity of the relation.
 
-Concretely, compiling a QAP-based IOP results in quadratic prover time, but we obtain quasi-linear prover time when compiling instead the IOP employed in Sonic\cite{Sonic} based on bivariate Laurent polynomials. Applying the Fiat-Shamir transform in the random oracle model results in a transparent preprocessing zk-SNARK system with quasi-linear prover time, logarithmic proof size, and logarithmic verification time for arbitrary circuits, which we call \textsf{\textbf{Supersonic}}. This is the first zk-SNARK without trusted setup with only logarithmic proof sizes and verification time.%\alan{The STARK proof system also qualifies for that description, as do the CS proofs of Micali and Lai-Malavolta.} 
+Concretely, we obtain quasi-linear prover time when compiling the IOP employed in Sonic\cite{Sonic} based on bivariate Laurent polynomials. Applying the Fiat-Shamir transform in the random oracle model results in a transparent SNARK system with quasi-linear preprocessing, quasi-linear (online) prover time, logarithmic proof size, and logarithmic (online) verification time for arbitrary circuits. We also obtain zk-SNARKs by applying a hiding/zero-knowledge variant of our polynomial commitment scheme, which is secure in the generic group model. This is the first transparent zk-SNARK (i.e. without trusted setup) that has both a practical prover time as well as strictly \emph{logarithmic} proof size and verification time. We call our system \textsf{\textbf{Supersonic}}.
+%\alan{The STARK proof system also qualifies for that description, as do the CS proofs of Micali and Lai-Malavolta.} 
 
 \end{abstract} 
 
@@ -66,7 +67,7 @@ Concretely, compiling a QAP-based IOP results in quadratic prover time, but we o
 The cryptographic compilers make extensive use of groups of unknown order, \emph{i.e.}, groups for which the order cannot be computed efficiently.
 Concretely, we require groups for which two specific hardness assumptions hold.
 First the Strong RSA Assumption~\cite{CCS:CraSho99} which roughly states that it is hard to take \emph{arbitrary} roots of \emph{random} elements. Secondly, the much newer Adaptive Root Assumption\cite{EC:Wesolowski19} which is the dual of the Strong RSA Assumption and states that it is hard to take \emph{random} roots of \emph{arbitrary} group elements. 
-Both of these assumption hold in generic groups of unknown order~\cite{genericunknown,C:BonBunFis19}, i.e. there are no efficient algorithms that only have black-box access to the group but are able to break these assumptions. 
+Both of these assumption hold in generic groups of unknown order~\cite{EC:DamKop02,C:BonBunFis19}, i.e. there are no efficient algorithms that only have black-box access to the group but are able to break these assumptions. 
 It is an open research problem to show whether one of these assumption implies the other.
 
 \begin{assumption}[Strong RSA Assumption]
@@ -273,7 +274,6 @@ Let $(P, V)$ denote a pair of PPT interactive algorithms and $\textsf{Setup}$ de
 The interactive argument is called \textbf{public-coin} if all the verifier's messages are uniformly random values, independent of all prior messages and the setup parameters $\params$. 
 We next recall the definition of witness-extended emulation for interactive arguments, which is a form of knowledge extraction.  
 
-\alan{I would drop the $\textsf{Setup}$ algorithm from the following definition as it is not part of the argument system $(\prover, \verifier)$.}
 \begin{definition}[Witness-extended emulation~\cite{EC:GroIsh08}]\label{def:wee}
 Given a public-coin interactive argument tuple $(\textsf{Setup}, P, V)$ and arbitrary prover algorithm $P^*$, let $\textsf{Record}(P^*, \params, x, \st)$ denote the message transcript between $P^*$ and $V$ on shared input $x$, initial prover state $\st$, and $\params$ generated by $\textsf{Setup}$. Furthermore, let $E^{\textsf{Record}(P^*, \params, x, \st)}$ denote an machine $E$ with a transcript oracle for this interaction that can be rewound to any round and run again on fresh verifier randomness. The tuple $(\textsf{Setup}, P, V)$ has witness-extended emulation if for every deterministic polynomial time $P^*$ there exists an expected polynomial time emulator $E$ such that for all non-uniform polynomial time adversaries $\mathcal{A}$ the following condition holds: 
 \[
@@ -311,16 +311,17 @@ Given a public-coin interactive argument tuple $(\textsf{Setup}, P, V)$ and arbi
 Consider a public-coin interactive argument with $r$ rounds and verifier challenges sampled from an exponentially large message space. An \textbf{$\mathbf{(n_1,...,n_r)}$-tree of accepting transcripts} for the interactive argument on input $x$ is defined as follows. The root of the tree is labelled with the statement $x$. The tree has $r$ depth. Each node at depth $i < r$ has $n_i$ children, and each child is labelled with a distinct value for the $i$th challenge. An edge from a parent node to a child node is labelled with a message from prover to verifier. Every path from the root to a leaf corresponds to an accepting transcript, hence there are $\prod_{i=1}^r n_i$ distinct accepting transcripts overall. 
 
 %\begin{lemma}[Forking lemma~\cite{EC:BCCGP16}] 
-%\label{lem:forking}
+%\label{lemma:GFL}
 %Let $(\textsf{Setup}, P, V)$ be an $r$-round public-coin interactive protocol for $\mathcal{R}$. Let $\mathcal{X}$ be a PPT algorithm that given any $(n_1,...,n_r)$-tree of accepting transcripts for the statement $x$, with $n_i \geq 1$ for all $i$, outputs $w$ such that $(x, w) \in \mathcal{R}$ in expected polynomial time. Assuming $\prod_{i=1}^r n_i \leq \poly$, the interactive argument $(\textsf{Setup}, P, V)$ has witness-extended emulation. 
 %\end{lemma}
 \begin{lemma}[Generalized Forking Lemma~\cite{EC:BCCGP16}] \label{lemma:GFL}
 Let $(\prover, \verifier)$ be an $r$-round public-coin interactive argument system for a relation $\mathcal{R}$. Let $\mathcal{T}$ be a tree-finder algorithm that, given access to a $\pro{Record}(\cdots)$ oracle with rewinding capability, runs in polynomial time and outputs an $({n_1}, \ldots, {n_r})$-tree of accepting transcripts with overwhelming probability. Let $\mathcal{X}$ be an extractor algorithm that, given access to $\mathcal{T}$'s output, runs in polynomial time and outputs a witness $w$ for the statement $x$ with overwhelming probability. Then $(\prover, \verifier)$ has witness-extended emulation.
 \end{lemma}
 
-We note that our phrasing of the Generalized Forking Lemma differs from that of Bootle~\emph{et al.}, which does not mention a tree-finder $\mathcal{T}$ and requires that the extractor $\mathcal{X}$ have success probability one. Nevertheless, the present statement, while weaker, follows directly from the proof of Bootle~\emph{et al.}
+We note that our phrasing of the Generalized Forking Lemma differs from that of Bootle~\emph{et al.}, which does not mention a tree-finder $\mathcal{T}$ and requires that the extractor $\mathcal{X}$ have success probability one. Nevertheless, the present statement follows directly from the proof of Bootle~\emph{et al.}
 
-\paragraph{Zero knowledge} We recall the definition of \emph{honest verifier zero-knowledge} (HVZK) for interactive proofs. HVZK only considers simulating the view of a verifier that follows the protocol honestly. The Fiat-Shamir transform compiles public-coin proofs that have HVZK into non-interactive proofs that have statistical zero-knowledge (for malicious verifiers). \ben{TODO: cite appropriate works, Bellare-Rogaway, more recent for more than constant round} 
+\paragraph{Zero knowledge} We recall the definition of \emph{honest verifier zero-knowledge} (HVZK) for interactive proofs. HVZK only considers simulating the view of a verifier that follows the protocol honestly. The Fiat-Shamir transform compiles public-coin proofs that have HVZK into non-interactive proofs that have statistical zero-knowledge (for malicious verifiers). 
+%\ben{TODO: cite appropriate works, Bellare-Rogaway, more recent for more than constant round} 
 
 \begin{definition}[HVZK for interactive arguments]
 Let $\textsf{View}_{\langle P(x, w), V(x) \rangle}$ denote the view of the verifier in an interactive protocol described in Definition~\ref{def:argument} on common input $x$ and prover witness input $w$. The interactive protocol has $\delta$-statistical honest verifier zero-knowledge if there exists a probabilistic polynomial time algorithm $S$ such that for every $(x, w) \in \mathcal{R}$, the distribution $S(x)$ is $\delta$-close to $\textsf{View}_{\langle P(x, w), V(x) \rangle}$ (as distributions over the randomness of $P$ and $V$).
@@ -524,9 +525,9 @@ Note that denominator of $g(q)$ is bounded by $2^{\lfloor\log_2(D)\rfloor}$, $D$
 We now present our main technical contribution: a polynomial commitment scheme with an efficient evaluation protocol based on a group of unknown order $\GG$. For polynomials of degree $d=\poly$ the evaluation protocol uses $1+\lceil\log_2(d+1)\rceil$ rounds and $O(\log(d))$ communication and verifier work.
 
 Exponentiation in groups of unknown order is a succinct and homomorphic cryptographic commitments to an integer.
-Using the integer encoding of polynomials, or their encoding as dyadic rationals, above we can simply commit to a polynomial $f(X)$ with bounded coefficients by computing $\gr{g}^{f(q)} \in \GG$. Every polynomial in $\ZZ_p[X]$ naturally maps to an integer polynomial with coefficients in $\ZZ(\frac{p-1}{2})$. The commitment scheme, therefore, supports committing to polynomials in $\ZZ_p[X]$ for $p \leq q$. Interestingly, neither $p$ nor the degree $d$ need to be specified in the setup. As long as $q$ and ``big enough'' they can be freely chosen.
-%\alan{Todo: make this observation elsewhere.} %In class groups there is an efficient algorithm to compute square roots, and as a result, a prover can also commit to dyadic rationals. Since every dyadic rational corresponds to a unique element in $\ZZ_p$ we can simply extend the encoding to work for polynomials with bounded dyadic rational coefficients. The only difference is that we require $q$ to be odd such that the prover cannot commit to polynomials with negative powers. We will discuss the relationship between $p$, $d$ and $q$ in more detail later but first we describe the setup, commitment and opening algorithms:
+Using the integer encoding of polynomials, or their encoding as dyadic rationals, above we can simply commit to a polynomial $f(X)$ with bounded coefficients by computing $\gr{g}^{f(q)} \in \GG$. Every polynomial in $\ZZ_p[X]$ naturally maps to an integer polynomial with coefficients in $B_{\frac{p-1}{2}}$. The commitment scheme, therefore, supports committing to polynomials in $\ZZ_p[X]$ for $p \leq q$. Interestingly, neither $p$ nor the degree $d$ need to be specified in the setup. 
 
+%As long as $q$ and ``big enough'' they can be freely chosen.\alan{Todo: make this observation elsewhere.} %In class groups there is an efficient algorithm to compute square roots, and as a result, a prover can also commit to dyadic rationals. Since every dyadic rational corresponds to a unique element in $\ZZ_p$ we can simply extend the encoding to work for polynomials with bounded dyadic rational coefficients. The only difference is that we require $q$ to be odd such that the prover cannot commit to polynomials with negative powers. We will discuss the relationship between $p$, $d$ and $q$ in more detail later but first we describe the setup, commitment and opening algorithms:
 
 \begin{mdframed}[userdefinedwidth=\textwidth]
 \begin{minipage}{\textwidth}
@@ -712,7 +713,16 @@ Let $y_L=\frac{y-y'}{\Delta_\alpha} \bmod p=\frac{f(z)-f'(z)}{\Delta \alpha} \bm
 \end{proof}
 
 
-
+%PROOF FOR DYADIC RATIONALS
+\begin{lemma}[Forking for dyadic rational witnesses]
+	For $\GG \gets \ggen(\lambda)$, and $\gr{g}\sample \GG$. 
+	Let $(\gr{C}_L,\gr{C}_R,\alpha,f)$ and  $(\gr{C}_L,\gr{C}_R,\alpha',f')$ be two transcripts such that $\gr{g}^{f}=\gr{C}_L^{\alpha}\gr{C}_R$ and $\gr{g}^{f'}=\gr{C}_L^{\alpha'}\gr{C}_R$ for group elements $\gr{C}_L,\gr{C}_R \in \GG$, and integers $\alpha,\alpha' \in  [-\frac{p-1}{2},\frac{p-1}{2}]$, $\alpha\neq \alpha'$. Further let $f,f'\in \mathbb{D}$ be such that $f(X)\gets\dec(f)$ and $f'(X)\gets\dec(f')$ are degree $d$ bounded polynomials with dyadic rational coefficients bounded by $N$ in the numerator and $2^D$ in the denominator, \emph{i.e.}, $f(X),f'(X)\in Q(N, D)[X]\subset \mathbb{D}[X]$.
+	 There exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either $f_L(X),f_R(X)\in Q(N, (p-1)D)[X]$ or an element in $\GG$ of known order, or an $\ell$th root of $\gr{g}$ for some $\ell$ containing an odd factor.
+\end{lemma}
+\begin{proof}
+\benedikt{Very similar to Lemma \ref{lem:intrandomcombine}}
+	
+\end{proof}
 
 We are now in a position to prove the main security statement.
 
@@ -751,16 +761,19 @@ Note that the application of Lemma~\ref{lem:intrandomcombine} requires that $q/2
 %\alan{How does this translate to the dyadic case?}
 
 The check on $f$ ensures that $|f|\leq b=\frac{(p-1)}{2} (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$. 
+
 Lemma \ref{lem:intrandomcombine} in each invocation guarantees that the extracted parent polynomial has coefficients at most $(p-1)$ times larger than the coefficients of the children's polynomials. Given that the transcript tree has depth $\lceil \log_2(d+1)\rceil$ we get that the final extracted polynomial $f_0(X)\in \ZZ(b)[X]$ has coefficients bounded by $b= \frac{p-1}{2}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$.
+
 Therefore, $q$ needs to be large enough such that $f_0(X)$ is uniquely decodable, \emph{i.e.}, $q>2\cdot b=(p-1)(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$.
 
 We can successfully extract either a witness or a fractional root or an element of known order from any tree of valid transcripts of $\eval'$.
 Under the Fractional Root Assumption and the Order Assumption, the probability that a polynomial time adversary along with a polynomial time extractor $\mathcal{X}$ can produce such a fractional root or an element of known order is negligible. $\eval'$, therefore, has witness extended emulation and under the Adaptive Root Assumption by Lemma \ref{lemma:poe_security} so does $\eval$.
 Lemma \ref{lem:ordertoadaptive} and Lemma \ref{lem:strongtofractional} show that we can reduce the hardness assumptions to just the Adaptive Root Assumption and the Strong RSA Assumption.
+
 \end{proof}
 
 %{\it Note 1.} The extractability proof shows that the extractor is successful whenever the coefficients of the prover's polynomial are bounded in absolute value by $2^ip^{\lceil \log_2(d_{\it max} + 1) \rceil+i}$ or, after the final induction step, by $2^{\lceil \log_2(d_{\it max} + 1) \rceil}p^{2\lceil \log_2(d_{\it max} + 1) \rceil}$. In other words, prover who starts with a polynomial with at least one of the coefficients outside of this range, will succeed with negligible probability. However, the proof fails to cover what happens when he selects a polynomial within this range but outside $[0;p-1]$. As per correctness, his success is only guaranteed if all coefficients lie within this last range. Additionally this growing bound supplies in turn a lower bound on $q$. The coefficients that are too large in absolute value should percolate along with the recursion, remaining outside the bounds even after multiplication by a random $\alpha$. The set of possible coefficients must therefore be a factor $2^\lambda$ larger than the bounded interval. And therefore, $q > 2^{\lambda + \lceil \log_2(d_{\it max} + 1) \rceil}p^{2\lceil \log_2(d_{\it max} + 1) \rceil}$. \alan{Is this still relevant? Feel free to drop if not.}
-\textit{Note}
+\textit{Remark:}
 The bound on $q$ for correctness (Lemma \ref{lem:correctness}) is $O((\frac{p}{2})^{\log(d)})$ while the bound for soundness is $O((\frac{p}{2})^{2 \log(d)})$. It is not clear whether this gap can be closed. While the soundness analysis is tight for the worst case assumption on challenges it is possible that a probabilistic analysis could give a tighter result.
 
 
@@ -769,7 +782,7 @@ The bound on $q$ for correctness (Lemma \ref{lem:correctness}) is $O((\frac{p}{2
 Let $\ggen$ generate groups $\GG$ of unknown order such that the order of $\GG$ is odd, and there exists a PPT algorithm for taking square roots in $\GG$.
 	The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>(p-1)^{\lceil\log_2(d+1)\rceil+1}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}=O(p^{3\log(d)})$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the Adaptive Root Assumption and the Dyadic Strong RSA Assumption hold for $\ggen$.
 \end{restatable}
-The proof of theorem is nearly identical to the proof of Theorem~\ref{thm:polycommitsecurity} but the extracted polynomials are dyadic rationals and not integers. This requires the bound on $q$ to be larger by a factor of $p^{\log(d+1)}$. The proof is presented in Appendix~\ref{apx:dyadic}
+The proof of Theorem~\ref{thm:dyadicpolysecurity} is nearly identical to the proof of Theorem~\ref{thm:polycommitsecurity} but the extracted polynomials are dyadic rationals and not integers. This requires the bound on $q$ to be larger by a factor of $p^{\log(d+1)}$. The proof is presented in Appendix~\ref{apx:dyadic}
 \subsection{Optimizations and Performance}
 \label{subsec:optimization}
 We present several ideas for optimizing the performance of the $\pro{Eval}$ protocol.
@@ -837,7 +850,6 @@ Note that $q$ also needs large enough such that the scheme is secure for the giv
 Additionally the proof elements $\gr{C}_L$, $\gr{C}_R \in \GG$ are independent from the field over which the polynomial is evaluated. This means that it is possible to evaluate a committed polynomial $f(X) \in \ZZ(b)$ over two separate fields $\ZZ_{p}$ and $\ZZ_{p'}$ in parallel using only $2\log(d+1)$ group elements. 
 
 %This property can be used to efficiently evaluate the polynomial modulo a large integer $m$ by choosing multiple $\lambda$ bit primes $p_1,\dots p_k$ such that $\prod_{i=1}^k p_i\geq m$ and using the Chinese Remainder Theorem to simulate the evaluation modulo $m$.
-\benedikt{\@ Alan: This probably needs a pass but I need to write some other sections first.}
 
 
 \paragraph{Performance.}
@@ -934,26 +946,27 @@ For the $y=\sum_{i=0}^{(d+1)^n-1 } \hat{f}_{i} (\prod_{j=1}^n  z_j^{\lceil i/(d+
 
 
 
-\section{Transparent Preprocessing SNARKs via Polynomial IOPs}\label{sec:polyiop}
+\section{Transparent SNARKs via Polynomial IOPs}\label{sec:polyiop}
 \input{lineariop}
 
 \section{Evaluation}
-We now evaluate \textsf{\textbf{Supersonic}} the compiled trust-less setup SNARK built on the polynomial IOPs from Sonic\cite{Sonic} and Plonk\cite{PLONK} and compiled using our new polynomial commitment scheme.
+We now evaluate \textsf{\textbf{Supersonic}} the compiled trust-less setup SNARK built on the polynomial IOPs from Sonic\cite{Sonic} and Plonk\cite{Plonk} and compiled using our new polynomial commitment scheme.
 As explained in Section \ref{subsec:optimization} the commitment scheme has several batching properties. It is possible to evaluate $k$ polynomials of degree at most $d$ using only $2$ group elements and $(k+1)$ field elements. To take advantage of this we delay the evaluation until the last step of the protocol (see Section \ref{subsec:compiling}). We present the proof size for both the compilation of Sonic and Plonk in Table~\ref{tab:proofsize}. We use 1200 bits as the size of the class group (\cite{PKC/BucHam01}) and $\lambda=120$. This leads to proof sizes of $11KB$ for Sonic and $8.4$KB using Plonk for circuits with a million gates. Using 2048-bit RSA groups the proof sizes become $17KB$ and $13.6KB$ respectively. 
 
 The comparison is slightly off as for Sonic this is multiplication gates and for Plonk these are both multiplication and addition gates. A more careful analysis is therefore necessary but this shows that there exists polynomial-IOPs that can be compiled to roughly $10-20$-KB SNARKs using the DARK polynomial commitment scheme. This stands in contrast to STARKs which achieve proofs of $600$KB for computation of similar complexity\cite{C:BBHR19}. 
 
 \begin{table}
+
 \begin{mdframed}
 
-	
+
 \begin{tabular}{l|l|l|l|l}
 Poly-IOP &Polynomials  & \eval{} at& $|SNARK|$&$n=2^{20}$ \\
 \hline
 
- Sonic\cite{Sonic}& 12 in $\crs$+ 15 & $8$  & $(15+2\log_2(n))\GG$ &11.3 KB \\
+ Sonic\cite{Sonic}& 12 in $\crs$+ 15 & $27$  & $(15+2\log_2(n))\GG$ &11.3 KB \\
  & & & $+(27+9\log_2(n))\ZZ_p$ &  \\
-  Plonk\cite{PLONK}& $4$ in $\crs$ + 6 & $2$& $6+2\log_2(3n)\GG$& 8.4 KB\\
+  Plonk\cite{Plonk}& $4$ in $\crs$ + 6 & $2$& $6+2\log_2(3n)\GG$& 8.4 KB\\
   & & & + $(10+3\log_2(3n))$
 	\end{tabular}
 \end{mdframed}
@@ -970,8 +983,8 @@ It consists of 3 $\lambda$-bit exponentiations in each round, 1 for combining $\
 Using $10\mu s$ per group operation (estimated using OpenSSL's 2048-bit RSA implementation), this gives us for $\lambda=120$ and $n=2^{20}$ a verification time of around 72$\mu s$. 
 
 
-\begin{comment}
 
+\begin{comment} 
 \section{Conclusion}
 
 The compilation of a SNARK for general purpose computations is generally divisible into three phases. First is \emph{arithmetization}, in which the computation is expressed as a satisfaction problem over some algebra. Second is \emph{information-theoretic compilation}, in which the algebraic problem is transformed into an interactive protocol for proving satisfiability or knowledge of witness for the algebraic claim. The third and last step is \emph{cryptographic compilation}, in which information-theoretical and ideal components in the information-theoretical protocol are replaced by cryptographic components, thereby realizing the abstract object at the cost of computational security. 
