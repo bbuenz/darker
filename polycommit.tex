@@ -518,7 +518,7 @@ Let $[\![ \cdot ]\!] : \mathbb{Z}_p[X] \rightarrow \mathbb{S}$ be a homomorphic 
     \item a \emph{linear homomorphism}: $a \times [\![f(X)]\!] + b \times [\![g(X)]\!] = [\![af(X) + bg(X)]\!]$; and
     \item a \emph{monomial homomorphism}: $X^d \times [\![f(X)]\!] = [\![X^d f(X)]\!]$.
 \end{itemize}
-For now, assume both prover and verifier have oracle access to the function $[\![\cdot]\!]$ and to the operations $ \cdot \times \cdot$ and $\cdot + \cdot$. (Later on, we will instantiate this commitment function using of unknown order and using the integer encoding of polynomials.)
+For now, assume both prover and verifier have oracle access to the function $[\![\cdot]\!]$ and to the operations $ \cdot \times \cdot$ and $\cdot + \cdot$. (Later on, we will instantiate this commitment function using groups of unknown order and the integer encoding of polynomials.)
 
 %With this homomorphic commitment function and with the integer encoding scheme of the previous subsection, we construct a commitment function to polynomials that sends $\mathbb{Z}_p \rightarrow \mathbb{S}, f(X) \mapsto [\![f(q)]\!]$. This commitment function inherits the homomorphic properties of the integer encoding for a limited number of additions and multiplications-by-constant. With this commitment function we are in a position to present the abstract evaluation protocol.
 
@@ -534,7 +534,7 @@ The commitment function binds the prover to one particular polynomial for every 
 \newcommand{\dollar}{\$}
 \begin{minipage}{\textwidth}
 	\begin{flushleft}
-	$\pro{Eval}([\![f(X)]\!], z, y, d; f(X)):$
+	(Information-theoretic-)$\pro{Eval}([\![f(X)]\!], z, y, d; f(X)):$
 		\begin{itemize}[nolistsep]
 			\item \textbf{if} $d > 0$ \textbf{then:}
 		 	\begin{tikzpicture}
@@ -601,9 +601,9 @@ Statement: $y = f(z) \bmod p$ and $\deg(f(X)) = d$
 
 \subsection{Concrete Polynomial Commitment Scheme}
 
-The last step in the presentation of the commitment scheme is to instantiate the abstract homomorphic hash function $[\![ \cdot ]\!]$. To this end we sample a group of unknown order $\mathbb{G}$, and sample a random element $\gr{g}$ from this group. Next, we identify polynomials with integers via their integer encoding, which provides us with a ``large enough'' integer $q$. Then $[\![f(X)]\!]$ corresponds to $\gr{g}^{f(q)}$, $\cdot + \cdot$ corresponds to the group operation, and $\cdot \times \cdot$ corresponds to exponentiation. All these operations can be computed locally. This commitment function inherits the homomorphic properties of the integer encoding for a limited number of additions and multiplications-by-constant. To maintain consistency between the prover's polynomials and the verifier's commitments, the prover computes on his polynomials without performing reduction modulo $p$.
+We now instantiate the abstract homomorphic commitment function $[\![ \cdot ]\!]$. To this end we sample a group of unknown order $\mathbb{G}$, and sample a random element $\gr{g}$ from this group. Next, we identify polynomials with integers via their integer encoding, which provides us with a ``large enough'' integer $q$. Then $[\![f(X)]\!]$ corresponds to $\gr{g}^{f(q)}$. This commitment function inherits the homomorphic properties of the integer encoding for a limited number of additions and multiplications-by-constant. In particular, the linear homomorphism comes from the group operation along with small exponents, and the monomial homomorphism for $X^d$ is achieved by raising the group element to the power $q^{d}$. To maintain consistency between the prover's polynomials and the verifier's commitments, the prover computes on his polynomials without performing reduction modulo $p$.
 
-The $\setup, \pro{commit}$ and $\open$ functionalities are presented formally below. Note that the scheme is parameterized by $p$ and $q$; these values are determined by the context and independently of $\setup$.
+The $\setup, \pro{Commit}$ and $\open$ functionalities are presented formally below. Note that the scheme is parameterized by $p$ and $q$; these values are determined by the context and independently of $\setup$.
 
 %We now present our main technical contribution: a polynomial commitment scheme with an efficient evaluation protocol based on a group of unknown order $\GG$. For polynomials of degree $d=\poly$ the evaluation protocol uses $1+\lceil\log_2(d+1)\rceil$ rounds and $O(\log(d))$ communication and verifier work.
 
@@ -651,7 +651,7 @@ The $\setup, \pro{commit}$ and $\open$ functionalities are presented formally be
 
 %The proof recursively repeats this reduction by using $f'(X),z,y'$ and $d'$ as the input. In the final step, the prover simply sends the constant polynomial $f$ and the verifier can check that $f \equiv y \bmod p$. Note that $|f|< (\frac{p}{2})^{\log_2(d+1)+1}$ so an integer encoding of $f_0$ requires at most $\lceil \log_2(d+1) \cdot \log_2(p)\rceil$ bits. 
 
-To instantiate the information-theoretic evaluation protocol, one starts with the situation in which the verifier possesses a commitment to $f(X)$ in the form of $\gr{C} = \gr{g}^{f(q)}$. The prover commits to $f_L(X)$ and $f_R(X)$ by sending $\gr{C}_L$ and $\gr{C}_R$. The verifier checks that $\gr{C} = \gr{C}_L \cdot \gr{C}_R^{q^{d'+1}}$ and proceeds in the next step with the commitment $\gr{C}' = \gr{C}_L^\alpha \cdot \gr{C}_R$ to $f'(X)$. This instantiation produces an $\eval$ protocol with logarithmic communication. However, naïvely checking that $f(X) = f_L(X) + X^{d'+1} f_R(X)$ based on the commitments $\gr{C}, \gr{C}_L$ and $\gr{C}_R$ is inefficient because the bit-size of the exponent $q^{d'+1}$ huge.
+For the conc evaluation protocol, one starts with the situation in which the verifier possesses a commitment to $f(X)$ in the form of $\gr{C} = \gr{g}^{f(q)}$. The prover commits to $f_L(X)$ and $f_R(X)$ by sending $\gr{C}_L$ and $\gr{C}_R$. The verifier checks that $\gr{C} = \gr{C}_L \cdot \gr{C}_R^{q^{d'+1}}$ and proceeds in the next step with the commitment $\gr{C}' = \gr{C}_L^\alpha \cdot \gr{C}_R$ to $f'(X)$. This instantiation produces an $\eval$ protocol with logarithmic communication. However, naïvely checking that $f(X) = f_L(X) + X^{d'+1} f_R(X)$ based on the commitments $\gr{C}, \gr{C}_L$ and $\gr{C}_R$ is inefficient because the bit-size of the exponent $q^{d'+1}$ is huge.
 
 Fortunately, Wesolowski~\cite{EC:Wesolowski19} and Pietrzak~\cite{EPRINT:Pietrzak18b} provide efficient proofs of exponentiations (\textsf{PoE}) to solve a similar problem in the context of verifiable delay functions~\cite{C:BBBF18}. Specifically, the prover provides the verifier with both the input and the output of the exponentiation, and after some interaction the verifier only needs to perform exponentiations with small exponents to verify the statement's correctness. Wesolowski's \textsf{PoE} is public coin, has constant communication and verification time, and is thus particularly well-suited here.
 
