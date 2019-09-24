@@ -12,9 +12,9 @@ It is an open research problem to show whether one of these assumption implies t
 
 
 \label{assum:strongRSA}
-The \defn{Strong RSA Assumption} sates that no efficient adversary can compute any root of a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
+The \defn{r-Strong RSA Assumption} sates that no efficient adversary can at most compute $r$th roots a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
 \[
-    \Pr\left[\gr{u}^\ell = \gr{g} \,\wedge \ell>1:
+    \Pr\left[\gr{u}^\ell = \gr{g} \,\wedge \ell \neq r^k, k \in \NN:
     \begin{array}{l}
          \GG \leftarrow \ggen(\lambda)  \\
          \gr{g} \sample \GG \\
@@ -53,8 +53,7 @@ More precisely, for all efficient $(\adv_0,\adv_1)$:
 We additionally use two more assumptions, however both of them reduce to the Strong RSA and the Adaptive Root Assumptions.
 
 The first assumption states that computing the order for \emph{any} element is hard. It reduces to the Adaptive Root Assumption. Interestingly, it doesn't necessarily hold for all candidate groups of unknown order as we explain below. In particular it is important to exclude elements of known order such as $-1$ from the candidate unknown order group $\ZZ_n$.
-%As explained below this assumption does not hold in 
-%In $\ZZ_n$ for composite $n$, the element $-1\in \ZZ_n$ has known order $2$. For other candidate groups such as class groups with fundamental discriminants or $\ZZ_n/\{-1,1\}$ we have no efficient algorithms for computing elements of known order. We note that if $n=p\cdot q$ for strong primes $p$ and $q$ and we operate in the group of quadratic residues of $\ZZ_n$ then the Order Assumption reduces to the Strong RSA Assumption.\benedikt{Suitable citation}
+
 \begin{assumption}[Order Assumption]
 \label{assum:order}
 	The Order Assumption holds for $\ggen$ if for any efficient adversary $\adv$:
@@ -84,11 +83,11 @@ We say that $(\gr{u},\alpha,\beta)$ is a \emph{fractional root} of $\gr{g}$.
 %In RSA groups the assumption is also conjectured to hold if $\frac{\alpha}{\beta}$ is restricted to be an integer. 
 Shoup\cite{CCS:CraSho99} showed that for the unknown order group of quadratic residues in $\ZZ_n$, where $n$ is the composite of two strong primes, that the Fractional Root Assumption reduces to just the Strong RSA Assumption.
 
-\begin{assumption}[Fractional Root Assumption]
+\begin{assumption}[$r$-Fractional Root Assumption]
 \label{assum:fracroot}
-The Fractional Root Assumption holds for $\ggen$ if for any efficient adversary $\adv$:
+The \defn{$r$-Fractional Root Assumption} holds for $\ggen$ if taking $r$th root is easy for any efficient adversary $\adv$:
 \[        
-                \Pr\left[\gr{u}^\beta = \gr{g}^{\alpha} \wedge \frac{\beta}{\gcd(\alpha,\beta)}\neq 2^k,  k \in \NN   : 
+                \Pr\left[\gr{u}^\beta = \gr{g}^{\alpha} \wedge \frac{\beta}{\gcd(\alpha,\beta)}\neq r^k,  k \in \NN   : 
                 \begin{array}{l} 
                       \GG \sample \ggen(\lambda) \\ 
                       \gr{g} \sample \GG \\
@@ -103,7 +102,7 @@ The Fractional Root Assumption holds for $\ggen$ if for any efficient adversary 
 The Fractional Root Assumption reduces to the Order Assumption (and therefore to the Adaptive Root Assumption) and the Strong RSA Assumption.
 \begin{lemma}
 \label{lem:strongtofractional}
-	The Adaptive Root Assumption and the Strong RSA Assumption imply the Fractional Root Assumption.
+	The Adaptive Root Assumption and the $r$-Strong RSA Assumption imply the $r$-Fractional Root Assumption.
 \end{lemma}
 \begin{proof}
 	Given an adversary $\adv_{\textsf{FR}}$ that succeeds in breaking the Fractional Root Assumption for $\ggen$ we can construct either an adversary $\adv_{RSA}$ for the Strong RSA Assumption or an adversary $\adv_{\textsf{Ord}}$ that breaks the Order Assumption for $\ggen$. As shown in Lemma \ref{lem:ordertoadaptive} the Order Assumption reduces to the Adaptive Root Assumption with overwhelming probability. 
