@@ -190,19 +190,19 @@ We begin by stating and proving the combining lemma, (Lemma~\ref{lem:intrandomco
 \begin{lemma}[Combining for Dyadic Rational Witnesses]
 \label{lem:dyadiccombining}
 Let $\tr$ and $\tr'$ be two transcripts as specified in Lemma \ref{lem:intrandomcombine} with the difference that $f,f'\in \mathbb{D}$ are dyadic rationals such that $f(X)\gets \dec(f)$ and $f'(X)\gets \dec(f')$ are degree $d$ bounded dyadic rational polynomials with coefficients' numerators bounded by $N$ and denominators bounded by $D$, i.e. $f(X),f'(X)\in\mathbb{D}(N,D)$.
-Assume that there exists a PPT algorithm for taking square roots of any element in $\GG$ and that the order of $\GG$ is odd, then there exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either (1) $y_L,y_R\in \ZZ_p,f_L(X),f_R(X)\in \mathbb{D}(N\cdot (p-1),D\cdot (p-1))[X]$  such that $f_L(z)=y_L\bmod p$ and $f_R(z)=y_R \bmod p$ or (2) an element in $\GG$ of known order or (3) a non-dyadic root of $\gr{g}$.
+Assume that there exists a PPT algorithm for taking square roots of any element in $\GG$ and that the order of $\GG$ is odd, then there exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either (1) $y_L,y_R\in \ZZ_p,f_L(X),f_R(X)\in \mathbb{D}(N\cdot (p-1),D\cdot (p-1))[X]$  such that $f_L(z)=y_L\bmod p$ and $f_R(z)=y_R \bmod p$ or (2) an element in $\GG$ of known order or (3) a non-power of $2$ fractional root of $\gr{g}$.
 \end{lemma}
 \begin{proof}
 The proof follows a similar structure to the proof of Lemma~\ref{lem:intrandomcombine}. 
 		
 	Using the transcripts we get $\Delta_\alpha\gets\alpha-\alpha'$ and $\Delta_f\gets f-f'$ such that $\gr{C}_{L}^{\Delta_\alpha}=\gr{g}^{\Delta_f}$. 
- If $\frac{\Delta_f}{\Delta_\alpha}$ is not a dyadic rational then this gives us a non-dyadic root of $\gr{g}$, that is the tuple $(\Delta_f,\Delta_\alpha,\gr{C}_{L})$.  
+ If $\frac{\Delta_f}{\Delta_\alpha}$ is not a dyadic rational then this gives us a non-power of $2$ fractional root of $\gr{g}$ root of $\gr{g}$, that is the tuple $(\Delta_f,\Delta_\alpha,\gr{C}_{L})$.  
  If $\frac{\Delta_f}{\Delta_\alpha}$ on the other hand is a dyadic rational then we can compute $\gr{D}\gets\gr{g}^{\frac{\Delta_f}{\Delta_\alpha}}$. This may requires taking a power of $2$ root. By assumption the group order is odd, so every element has a square root and there exists an efficient algorithm for taking square roots. This implies that taking higher power of $2$ roots is also efficient.
   
   Now either $\gr{D} = \gr{C}_L=\gr{g}^{f_L}$ or we can extract an element of known order. Additionally $\gr{C}_R=\gr{g}^{f_R}$ for $f_R\gets f-\alpha \cdot f_L$.
 
  We now compute the corresponding polynomials $f_L(X)\gets \dec(f_L)$ and $f_R(X)\gets \dec(f_R)$.
-Now if the coefficients $f_i$ and $f'_i\in \mathbb{D}(N,D)$ and $\alpha,\alpha' \in [-\frac{p-1}{2},\frac{p-1}{2}]$ then by the triangle inequality we have that for the numberator of the $i$th coefficient of $f_L(X)$ is between $[-2N,2N]$. The denominator grows by at most $p-1$. The bound on the denominators is therefore $D\cdot (p-1)$. Additionally we have $f_{R,i}=\frac{f_i'\alpha-f_i \alpha'}{\Delta_\alpha}$. Using the triangle inequality again we have that the numerator of $f_{R,i} \in [-(p-1) \cdot N, (p-1) \cdot N]$. The denominator is bounded by $D\cdot (p-1)$. This gives us $f_L(X),f_R(X)\in \mathbb{D}((p-1) \cdot N,D\cdot (p-1))[X]$
+Now if the coefficients $f_i$ and $f'_i\in \mathbb{D}(N,D)$ and $\alpha,\alpha' \in [-\frac{p-1}{2},\frac{p-1}{2}]$ then by the triangle inequality we have that for the numerator of the $i$th coefficient of $f_L(X)$ is between $[-2N,2N]$. The denominator grows by at most $p-1$. The bound on the denominators is therefore $D\cdot (p-1)$. Additionally we have $f_{R,i}=\frac{f_i'\alpha-f_i \alpha'}{\Delta_\alpha}$. Using the triangle inequality again we have that the numerator of $f_{R,i} \in [-(p-1) \cdot N, (p-1) \cdot N]$. The denominator is bounded by $D\cdot (p-1)$. This gives us $f_L(X),f_R(X)\in \mathbb{D}((p-1) \cdot N,D\cdot (p-1))[X]$
 
 Finally $y_L=f_L(z)$ and $y_R=f_R(z)$ as in Lemma~\ref{lem:intrandomcombine}. It is important that $2$ is co-prime with the odd prime $p$ such that each dyadic rational can be mapped to a field element.
 
@@ -216,7 +216,7 @@ We will prove security by showing that we can extract a dyadic rational polynomi
 
 We use the same extractor $\mathcal{X}$ as in Theorem \ref{thm:polycommitsecurity} with one key distinction. 
 For $d+1$ odd we invoke the extractor described by Lemma~\ref{lem:dyadiccombining} instead of Lemma~\ref{lem:intrandomcombine}. 
-This means that at every tree level either bounded dyadic rational witness polynomials are extracted or an element of known order or a non-dyadic root of $\gr{g}$. By assumption the ladder two cases happen only with negligible probability.
+This means that at every tree level either bounded dyadic rational witness polynomials are extracted or an element of known order or a non-power of $2$ fractional root of $\gr{g}$. By assumption the ladder two cases happen only with negligible probability.
 
 We, therefore, now need to compute a bound on the size of the extracted polynomial. 
 The check on $f$ ensures that $f\in \ZZ$ and that $|f|\leq b=\frac{(p-1)}{2} (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$. We can write $f\in\mathbb{D}(\frac{(p-1)}{2} (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil},1)$. By \ref{lem:intrandomcombine} both the numerator and the denominator grow by at most a factor $p-1$ in every round.
@@ -224,9 +224,9 @@ Given that the transcript tree has depth $\lceil \log_2(d+1)\rceil$ we get that 
 
 $q$ needs to be large enough such that $f_0(X)$ is uniquely decodable, \emph{i.e.}, $q>2\cdot N\cdot b=(p-1)^{\lceil \log_2(d+1)\rceil+1}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$.
 
-This shows that we can successfully extract either a witness or a non-dyadic root or an element of known order from any tree of valid transcripts.
-Under the Non-Dyadic Root Assumption and the Order Assumption, the probability that a polynomial time adversary along with a polynomial time extractor $\mathcal{X}$ can produce such a non-dyadic root or an element of known order is negligible. $\eval'$, therefore, has witness extended emulation and under the Adaptive Root Assumption by Lemma \ref{lemma:poe_security} so does $\eval$.
-Lemma \ref{lem:ordertoadaptive} and Lemma \ref{lem:dyadicstrongtorational} show that we can reduce the hardness assumptions to just the Adaptive Root Assumption and the Dyadic Strong RSA Assumption.
+This shows that we can successfully extract either a witness or a non-power of $2$ fractional root or an element of known order from any tree of valid transcripts.
+Under the $2$-Fractional Root Assumption and the Order Assumption, the probability that a polynomial time adversary along with a polynomial time extractor $\mathcal{X}$ can produce such a a  non-power of $2$ fractional root or an element of known order is negligible. $\eval'$, therefore, has witness extended emulation and under the Adaptive Root Assumption by Lemma \ref{lemma:poe_security} so does $\eval$.
+Lemma \ref{lem:ordertoadaptive} and Lemma \ref{lem:strongtofractional} show that we can reduce the hardness assumptions to just the Adaptive Root Assumption and the  $2$-Strong RSA Assumption.
 \end{proof}
 
 

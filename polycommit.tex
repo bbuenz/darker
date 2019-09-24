@@ -481,7 +481,7 @@ The bound on $q$ for correctness (Lemma \ref{lem:correctness}) is $O((\frac{p}{2
 \begin{restatable}{theorem}{dyadicmain}
 \label{thm:dyadicpolysecurity}	
 Let $\ggen$ generate groups $\GG$ of unknown order such that the order of $\GG$ is odd, and there exists a PPT algorithm for taking square roots in $\GG$.
-	The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>(p-1)^{\lceil\log_2(d+1)\rceil+1}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}=O(p^{3\log(d)})$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the Adaptive Root Assumption and the Dyadic Strong RSA Assumption hold for $\ggen$.
+	The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>(p-1)^{\lceil\log_2(d+1)\rceil+1}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}=O(p^{3\log(d)})$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the Adaptive Root Assumption and the  $2$-Strong RSA Assumption hold for $\ggen$.
 \end{restatable}
 The proof of Theorem~\ref{thm:dyadicpolysecurity} is nearly identical to the proof of Theorem~\ref{thm:polycommitsecurity} but the extracted polynomials are dyadic rationals and not integers. This requires the bound on $q$ to be larger by a factor of $p^{\log(d+1)}$. The proof is presented in Appendix~\ref{apx:dyadic}
 \subsection{Optimizations and Performance}
