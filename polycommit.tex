@@ -63,12 +63,26 @@ Concretely, we obtain quasi-linear prover time when compiling the IOP employed i
 
 \section{Introduction}
 \input{intro} 
+\section{Technical Overview}
+%The key technical contribution is a polynomial commitment from groups of unknown order. A polynomial commitment is a short, ideally constant size, commitment to a polynomial. The commitment enables the prover to give a verifier an evaluation of the polynomial at a point along with a (possibly interactive) evaluation proof that convinces the verifier that the evaluation is correct. This protocol can be dropped into recent SNARK constructions\cite{Sonic,Plonk,Spartan,Libra} to achieve SNARKs without trusted setup.
+We now informally describe our key technical contribution, a polynomial commitment scheme with logarithmic evaluation proofs and verification time.
+The commitment is very simple and relies on four separate tools which are described below.
+\paragraph{Integer encoding of polynomials}
+Given a univariate polynomial $f(X)\in \ZZ_p[X]$ the prover first encodes the polynomial as an integer. To do this we interpret the coefficients of $f(X)$ as integers between $0$ and $p-1$ and compute $\bar{f}=f(q)\in \ZZ$ for some large integer $q\geq p-1$. This is an injective map from polynomials with bounded coefficients to integers and can be used as a unique encoding.
+As a leading example assume that $f(X)=2x^3+3x^2+4x+1 \in \ZZ_5$ and $q=10$. Then $f(q)=2341$ and can be thought of as the $q$-ary representation of the coefficients. The encoding also very useful homomorphic properties. It is additively homomorphic assuming a sufficiently large $q$. For example, let $g(X)=4x^3+1x^2+3$ such that $g(10)=4103$. Then $f(10)+g(10)=6444=(g+f)(10)$. The encoding permits homomorphic operations if the resulting polynomial has coefficients less than $q$. Conversely, the more homomorphic operations we want to permit, the larger $q$ needs to be.
+The encoding additionally permits multiplication by polynomials and especially monomials. We can compute $f(q)\cdot q^k$ which is equal to the encoding of $f(X)\cdot X^k$ or in our example $100*f(10)=234100$ which is the encoding of $2\cdot X^5+3\cdot X^4+4\cdot X^3+X^2$.
+\paragraph{Integer commitments}
+Note that the integer encoded polynomial is between $q^d$ and $q^{d+1}$, i.e. has about $d\cdot \log_2(q)$ bits. This is as large as the description of the polynomial itself. We therefore need a succinct cryptographic commitment\footnote{We, for now, consider binding-only commitments which do not hide the committed value.} of the integer which preserves the homomorphic properties of the polynomial encoding. Exponentiation in groups of unknown order, i.e. $x\in \ZZ \rightarrow \gr{C}= \gr{g}^x \in \GG$, is an appealing candidate. In these groups the order is unknown which means that the prover cannot reduce $x$ and cannot learn a different integer discrete logarithm between $\gr{g}$ and $\gr{C}$. The commitment is succinct as the size of group elements in $\GG$ such as $\gr{g}^x$ is just determined by a security parameter.  Additionally it is homomorphic as $\gr{g}^x\cdot \gr{g}^y=\gr{g}^{x+y}$ and thus preserves the homomorphic properties of the polynomial encoding as integers.
+\paragraph{Evaluation proof}
+We first describe how a prover can efficiently convince a verifier that $\gr{C}$ is a commitment to an integer polynomial of degree $d$ with bounded coefficients. The protocol uses a divide and conquer strategy. In each step we split $f(X)$ into two degree $d'=\frac{d+1}{2}-1$ polynomials $f_L(X)$ and $f_R(X)$. $f_L(X)$ contains the first $d'$ coefficients of $f(X)$ and $f_R(X)$ the second such that $f(X)=f_L(X)+X^{d'+1}f_R(X)$. The prover now commits to $f_L$ and $f_R$ by computing $\gr{C}_L\gets \gr{g}^{f_L(q)}$ and $\gr{C}_R\gets \gr{g}^{f_R(q)}$. 
+In our leading example $f_L(X)=4x+1$ and $f_R(X)=2x+3$. Note, that the verifier can quickly check consistency by checking $\gr{G}_L\gr{C}_R^{q^{d'+1}}=\gr{C}$. Now we reduce the problem to a smaller statement by taking a random linear combination between $\gr{C}_L$ and $\gr{C}_R$, i.e. $\gr{C}'=\gr{C}_L^{\alpha}\gr{C}_R=\gr{g}^{(\alpha f_L+f_R)(q)}$. Now we can recurse on $\gr{C}'$ with the statement that it commits to a degree $d'$ polynomial. After $\log_2(d+1)$ steps $\gr{C}'$ is a commitment to a constant which the prover can send to the verifier. Checking that the opning
+\benedikt{continue a bit}
+\paragraph{Outsourcing exponentiation}
 \input{preliminaries.tex}
 
 
 \section{Polynomial Commitments from Groups of Unknown Order}
 \label{sec:protocol}
-\subsection{Overview}
 
 \subsection{Polynomial Encoding}
 \label{sec:encoding}
