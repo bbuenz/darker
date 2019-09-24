@@ -404,13 +404,13 @@ Then we will show that in groups in which taking square roots is easy we can ext
 \begin{proof}
 	Using the transcripts we get $\Delta_\alpha\gets\alpha-\alpha'$ and $\Delta_f\gets f-f'$ such that $\gr{C}_{L}^{\Delta_\alpha}=\gr{g}^{\Delta_f}$. 
  If $\frac{\Delta_f}{\Delta_\alpha}$ is not an integer then this gives us a fractional root of $\gr{g}$, that is the tuple $(\Delta_f,\Delta_\alpha,\gr{C}_{L})$.  
- If $\frac{\Delta_f}{\Delta_\alpha}$ on the other hand is an integer then we can compute $\gr{D}\gets\gr{g}^{\frac{\Delta_f}{\Delta_\alpha}}$. Either $\gr{D}=\gr{C}_{L}$ or $(\gr{D}/\gr{C}_{L})^{\Delta_\alpha}=1$, \emph{i.e.} $\gr{D}/\gr{C}_{L}$ is an element of known order.
+ If $\frac{\Delta_f}{\Delta_\alpha}$ on the other hand is an integer then we can compute $\gr{D}\gets\gr{g}^{\frac{\Delta_f}{\Delta_\alpha}}$. Either $\gr{D}=\gr{C}_{L}$ or $(\gr{D}/\gr{C}_{L})^{\Delta_\alpha}=1$. In the second case, $\gr{D}/\gr{C}_{L}$ is an element of known order.
    
   Otherwise $\gr{D} = \gr{C}_L$ and we have $\gr{C}_{L}=\gr{g}^{f_L}$ where $f_L=\frac{\Delta_f}{\Delta_\alpha}$ is an integer.
 Additionally $\gr{C}_R=\gr{g}^{f_R}$ for $f_R\gets f-\alpha \cdot f_L$.
 
 We now compute the corresponding polynomials $f_L(X)\gets \dec(f_L)$ and $f_R(X)\gets \dec(f_R)$.
-Now if the coefficients $f_i$ and $f'_i\in [-b,b]$ and $\alpha,\alpha' \in [-\frac{p-1}{2},\frac{p-1}{2}]$ then by the triangle inequality we have that for the $i$th coefficient of $f_L(X)$, $f_{L,i}\in [-2b,2b]$. Additionally we have $f_{R,i}=\frac{f_i'\alpha-f_i \alpha'}{\Delta_\alpha}$. Using the triangle inequality again we have that $f_{R,i} \in [-(p-1) \cdot b, (p-1) \cdot b]$. For an odd prime $p$, $(p-1)\cdot p\geq 2$. The bound on $f_{R,i}$ is, therefore, greater than the bound on $f_{L,i}$. This gives us $f_L(X),f_R(X)\in \ZZ({(p-1) \cdot b})[X]$
+Now if for all $i$, the coefficients $f_i$ and $f'_i\in [-b,b]$ and $\alpha,\alpha' \in [-\frac{p-1}{2},\frac{p-1}{2}]$ then by the triangle inequality we have that for the $i$th coefficient of $f_L(X)$, $f_{L,i}\in [-2b,2b]$. Additionally we have $f_{R,i}=\frac{f_i'\alpha-f_i \alpha'}{\Delta_\alpha}$. Using the triangle inequality again we have that $f_{R,i} \in [-(p-1) \cdot b, (p-1) \cdot b]$. For an odd prime $p$, $(p-1)\cdot p\geq 2$. The bound on $f_{R,i}$ is, therefore, greater than the bound on $f_{L,i}$. This gives us $f_L(X),f_R(X)\in \ZZ({(p-1) \cdot b})[X]$
 
 Let $y_L=\frac{y-y'}{\Delta_\alpha} \bmod p=\frac{f(z)-f'(z)}{\Delta \alpha} \bmod p$ and $y_R= y-\alpha\frac{y-y'}{\Delta_\alpha} \bmod p$. Since $f_L(X)=\frac{f(X)-f'(X)}{\Delta \alpha}$ this shows that $y_L=f_L(z)\bmod p$ and $y_R=f_R(z)\bmod p$.
 %The actual bound on f_{R,i} is b*(p-2)
@@ -427,7 +427,7 @@ We are now in a position to prove the main security statement.
 \end{theorem}
 
 \begin{proof}
-We will prove security by showing that given a polynomial time adversary $\adv_{\eval}$ that succeeds in convincing an honest verifier in the $\eval$ protocol on any public input with non-negligible probability we can either (1) construct an adaptive root adversary $\adv_{\textsf{AR}}$, (2) extract an element of known order, and hence break the Order Assumption, (3) extract a fractional root of $\gr{g}\in \GG$ or (4) extract the polynomial $f(X)\in \ZZ[X]$ such that $f(X)$ has degree at most $d$ and the coefficients of $f(X)$ are integers bounded by $q/2$, such that $f(q)$ is a unique encoding of $f(X)$. Additionally $\gr{g}^{f(q)}=\gr{C}$ and $f(z) \bmod p=y$. The proof will use the general forking lemma (Lemma \ref{lemma:GFL}) to show that the polynomial commitment scheme has witness-extended emulation.
+We will prove security by showing that given a polynomial time adversary $\adv_{\eval}$ that succeeds in convincing an honest verifier in the $\eval$ protocol on any public input with non-negligible probability we can either (1) construct an adaptive root adversary $\adv_{\textsf{AR}}$, (2) extract an element of known order, and hence break the Order Assumption, (3) extract a fractional root of $\gr{g}\in \GG$ or (4) extract the polynomial $f(X)\in \ZZ[X]$ such that $f(X)$ has degree at most $d$ and the coefficients of $f(X)$ are integers bounded by $q/2$, such that $f(q)$ is a unique encoding of $f(X)$, $\gr{g}^{f(q)}=\gr{C}$, and $f(z) \bmod p=y$. The proof will use the general forking lemma (Lemma \ref{lemma:GFL}) to show that the polynomial commitment scheme has witness-extended emulation.
 
 In particular we construct an extractor $\mathcal{X}$ that given transcripts with $2$ distinct challenges per round, \emph{i.e.}, $2^{\lceil\log_2(d+1)\rceil}<2 (d+1)$ transcripts in total, can compute either an opening to the commitment scheme, an element of known order, or a fractional root of $\gr{g}\in\GG$ as encoded in the public parameters $\params$.
 
@@ -452,8 +452,7 @@ If this is not the case then $f^{(i-1)}(q)=f^{(i)}(q)\cdot q^{-1}$ and $f^{(i)}(
 Now if $d_i+1$ is even then we can use Lemma~\ref{lem:intrandomcombine} to either extract a fractional root of $\gr{g}$, an element of known order in $\GG$ or the two bounded polynomials $f_{L}^{(i)}(X),f_{R}^{(i)}(X)$ of degree $\frac{d_i+1}{2}-1$ and $y_L=f_{L}^{(i)}(z)\bmod p$ as well as $y_R=f_{R}^{(i)}(z)\bmod p$. 
 This yields $f^{(i)}(X)=f_{L}^{(i)}(X)+X^{\frac{d_i+1}{2}} f_{R}^{(i)}(X)$ a polynomial of degree at most $d_i$ such that $\gr{C}_i=\gr{g}^{f^{(i)}(q)}$ and such that $f^{(i)}(z) \bmod p=y_L+y_R \cdot z^{\frac{d_i+1}{2}}\bmod p=  y_i$.
 
-Note that the application of Lemma~\ref{lem:intrandomcombine} requires that $q/2$ is greater than the magnitude of each of $f^{(i)}$'s coefficient. We will show that this is the case. 
-%\alan{How does this translate to the dyadic case?}
+Note that the application of Lemma~\ref{lem:intrandomcombine} requires that $q/2$ is greater than the magnitude of each of $f^{(i)}$'s coefficient. We will show now that this is the case. 
 
 The check on $f$ ensures that $|f|\leq b=\frac{(p-1)}{2} (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$. 
 
