@@ -29,6 +29,8 @@
 \newtheorem{assumption}{Assumption}
 \newtheorem{fact}{Fact}
 %\newtheorem{corollary}{Corollary}
+\usepackage{etoolbox}
+\patchcmd{\paragraph}{\itshape}{\bfseries\boldmath}{}{}
 
 \newif\ifcomments
 \commentstrue
