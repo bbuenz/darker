@@ -1,3 +1,13 @@
+\clearpage
+\section*{\scalebox{1.25}{\appendixphrase}}
+
+\ifappendix
+\section{Hardness Assumptions in Groups of Unknown Order} \label{appendix:hardness}
+In the preliminaries we already stated the two main hardness assumptions, the $r$-Strong RSA Assumption and the Adaptive Root Assumption.
+\input{sections/hardness}
+\fi
+
+
 \section{Proof of Theorem~\ref{thm:dyadicpolysecurity}}
 \label{apx:dyadic}
 We begin by stating and proving the combining lemma, (Lemma~\ref{lem:intrandomcombine}) for dyadic rational witnesses.
@@ -51,8 +61,8 @@ Lemma \ref{lem:ordertoadaptive} and Lemma \ref{lem:strongtofractional} show that
 
 \section{Hiding Polynomial Commitment with HVZK Eval} 
 \input{sections/zk}
-\section{ZK-$\mathsf{PoKE}$}
-\input{sections/zkgroupmix}
+
+
 
 
 %%%DEPRECATED SECTIONS BELOW%%%%%%
