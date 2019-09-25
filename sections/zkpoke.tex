@@ -1,0 +1,38 @@
+In this section we revisit the security of the ZK-$\mathsf{PoKE}$ protocol of Boneh~\emph{et al.}~\cite{C:BBF19} in light of our hardness assumptions for groups of unknown order. The protocol is parameterized by a bound $B$ such that $B \gg |\mathbb{G}|$. Also, the $\mathsf{Setup}$ protocol outputs \emph{two} group elements, $\gr{g}$ and $\gr{h}$, in addition to the group $\mathbb{G}$ itself. The protocol is shown below.
+
+\begin{figure}[!htp]
+\noindent\begin{mdframed}[userdefinedwidth=\textwidth]
+\begin{minipage}{\textwidth}
+	\begin{flushleft}
+	$\pro{ZK-PoKE}(\gr{u}, \gr{w}, x):$
+	\begin{enumerate}[nolistsep]
+			\item \prover samples $k, \rho_x, \rho_k \sample [-B; B]$
+			\item \prover computes $\gr{A}_\gr{g} \gets \gr{g}^k\gr{h}^{\rho_k}$ and $\gr{A}_\gr{u} \gets \gr{u}^k$ and $\gr{Z} \gets \gr{g}^x \gr{h}^{\rho_x}$
+			\item \prover sends $(\gr{A}_\gr{g}, \gr{A}_\gr{u}, \gr{Z})$ to \verifier
+		    \item \verifier samples $c \sample [0; 2^\lambda)$ and $\ell \sample \primes$ and sends $(c, \ell)$ to \prover
+		    \item \prover computes quotients $q_x, q_\rho$ and remainder $r_x, r_\rho$ such that $k+xc = q_x\ell + r_x$ and $\rho_k + \rho_x{}c = q_\rho \ell + r_\rho$ and $r_x, r_\rho \in \{0, \ldots, \ell-1\}$
+		    \item \prover computes $\gr{Q}_\gr{g} \gets \gr{g}^{q_x}\gr{h}^{q_\rho}$ and $\gr{Q}_\gr{u} \gets \gr{u}^{q_x}$ and sends $(\gr{Q}_\gr{g}, \gr{Q}_\gr{u}, r_x, r_\rho)$ to \verifier
+		    \item \verifier checks that $r_x, r_\rho \in \{0, \ldots, \ell-1\}$
+		    \item \verifier checks that $\gr{Q}_\gr{g}^\ell\gr{g}^{r_x}\gr{h}^{r_\rho} = \gr{A}_\gr{g}\gr{Z}^c$ and $\gr{Q}_\gr{u}^\ell \gr{u}^{r_x} = \gr{A}_\gr{u} \gr{w}^c$
+		    \item \pcif{}check passes \textbf{then} \textbf{return} 1 \textbf{else} \textbf{return} 0
+		\end{enumerate}
+	\end{flushleft}
+\end{minipage}
+\end{mdframed}
+\end{figure}
+
+Completeness is immediate from construction. Boneh~\emph{et al.} already show statistical honest-verifier zero-knowledge when $\langle \gr{g} \rangle = \langle \gr{h} \rangle$ and computational honest-verifier zero-knowledge assuming subgroup indistinguishability between $\langle \gr{g} \rangle$ and $\langle \gr{h} \rangle$. Here we revisit only witness-extended emulation. Previously this property was only provable in the generic group model. We reduce this property to falsifiable assumptions in groups of unknown order.
+
+\begin{theorem}
+Under the $r$-Strong RSA Assumption and the Adaptive Root Assumption, Protocol $\mathsf{ZK-PoKE}$ is an argument of knowledge for the relation
+\[
+	\mathcal{R}_\mathsf{PoKE} = \{ \langle (\gr{u}, \gr{w}), x \rangle \ : \ \gr{u}^x = w \} \enspace .
+\]
+Specifically, it has witness-extended emulation under these hardness assumptions.
+\end{theorem}
+
+\begin{proof}
+The emulator extracts a witness by operating as follows. He queries $\pro{Record}(\cdots)$ with rewinding to obtain $4$ transcripts with the same first message $(\gr{A}_\gr{g}, \gr{A}_\gr{u}, \gr{Z})$ but different challenges $(c^{(i)}, \ell^{(i)}), i \in [4]$ and such that there are only two elements in the sets $\{c^{(i)}\}$ and $\{\ell^{(i)}\}$.
+
+In a pair of transcripts where $c^{(i)}$ has the same value, we have $\gr{Q}_\gr{g}^{\ell^{(1)}}\gr{g}^{r_x^{(1)}}\gr{h}^{r_\rho^{(1)}} = \gr{A}_\gr{g} \gr{Z}^c = \gr{Q}_\gr{g}^{\ell^{(2)}}\gr{g}^{r_x^{(2)}}\gr{h}^{r_\rho^{(2)}}$ and $\gr{Q}_\gr{u}^{\ell^{(1)}} \gr{u}^{r_x^{(1)}} = \gr{A}_\gr{u} \gr{w}^c = \gr{Q}_\gr{u}^{\ell^{(2)}}\gr{u}^{r_x^{(2)}}$. Then $(r_x^{(2)} - r_x^{(1)}, \ell^{(1)} - \ell^{(2)}, \gr{Q}_\gr{u})$ is a fractional root of $\gr{u}$ and this violates the hardness assumption if $\frac{r_x^{(2)} - r_x^{(1)}}{\gcd(r_x^{(2)} - r_x^{(1)}, \ell^{(2)} - \ell^{(1)})} \neq r^k$ for all $k \in \mathbb{N}$.
+\end{proof}
