@@ -12,7 +12,7 @@
 \usepackage{xspace}
 \usepackage[normalem]{ulem}
 \usepackage{comment}
-\usepackage{hyperref}
+%\usepackage{hyperref}
 \usepackage{url}
 %\usepackage{draftwatermark}
 %\usepackage[legalpaper, margin=1.5in]{geometry}
@@ -29,6 +29,8 @@
 \newtheorem{assumption}{Assumption}
 \newtheorem{fact}{Fact}
 %\newtheorem{corollary}{Corollary}
+\usepackage{etoolbox}
+\patchcmd{\paragraph}{\itshape}{\bfseries\boldmath}{}{}
 
 \newif\ifcomments
 \commentstrue
@@ -59,7 +61,7 @@
 \maketitle
 
 \begin{abstract} 
-We construct a new polynomial commitment scheme for univariate and multivariate polynomials over finite fields, with public-coin evaluation proofs that have logarithmic communication and verification cost in the number of coefficients of the polynomial. The techniques are reminiscent of \emph{Diophantine Arguments of Knowledge} (Lipmaa, Asiacrypt'03), leveraging integer representations of polynomials and groups of unknown order. Security is shown from the strong RSA and the adaptive root assumption. Moreover, the scheme does not require a trusted setup if instantiated with class groups. We apply this new cryptographic compiler to a restricted class of algebraic linear IOPs in order to obtain doubly-efficient public-coin IPs with succinct communication and witness-extended emulation for any NP relation. Allowing for linear preprocessing, the online verifier's work is logarithmic in the circuit complexity of the relation.
+We construct a new polynomial commitment scheme for univariate and multivariate polynomials over finite fields, with public-coin evaluation proofs that have logarithmic communication and verification cost in the number of coefficients of the polynomial. The underlying technique is a \emph{Diophantine Argument of Knowledge} (DARK), leveraging integer representations of polynomials and groups of unknown order. Security is shown from the strong RSA and the adaptive root assumption. Moreover, the scheme does not require a trusted setup if instantiated with class groups. We apply this new cryptographic compiler to a restricted class of algebraic linear IOPs in order to obtain doubly-efficient public-coin IPs with succinct communication and witness-extended emulation for any NP relation. Allowing for linear preprocessing, the online verifier's work is logarithmic in the circuit complexity of the relation. \\ 
 
 Concretely, we obtain quasi-linear prover time when compiling the IOP employed in Sonic~\cite{Sonic}. Applying the Fiat-Shamir transform in the random oracle model results in a SNARK system with quasi-linear preprocessing, quasi-linear (online) prover time, logarithmic proof size, and logarithmic (online) verification time for arbitrary circuits. Most importantly, this SNARK is \emph{transparent}: it does not require a trusted setup. We also obtain zk-SNARKs by applying a variant of our polynomial commitment scheme that is hiding and offers zero-knowledge evaluation proofs, and which is secure in the generic group model. This construction is the first transparent zk-SNARK that has both a practical prover time as well as strictly \emph{logarithmic} proof size and verification time. We call our system \textsf{\textbf{Supersonic}}.
 
@@ -97,7 +99,7 @@ By design, the IOP formalisms make abstraction of the cryptographic assumptions 
 The cryptographic hardness assumptions underlying the security of SNARK constructions are rarely falsifiable, and this seems to be a by-product of the cryptographic compilation process. In powers-of-alpha type constructions the unfalsifiable hardness assumption is inherently algebraic. In contrast, the hardness assumption of groups of unknown order \emph{are} falsifiable; it is only the Fiat-Shamir heuristic for $\mathsf{polylog}$-many round protocols that is unfalsifiable because it is only provably secure in the random oracle model; a security reduction of such heuristics to standard assumptions is as yet unavailable.
 \end{comment}
 
-\bibliographystyle{alpha}
+\bibliographystyle{plain}
   \bibliography{cryptobib/crypto,cryptobib/additional}
 
 \appendix
