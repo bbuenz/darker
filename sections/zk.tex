@@ -1,0 +1,35 @@
+This section sketches how to make the polynomial commitment scheme zero knowledge. 
+
+\paragraph{Hiding and Zero-knowledge.} Turning the polynomial commitment into a hiding scheme is easy by replacing $g^{\bar{f}(q)}$ with a Pedersen commitment to $\bar{f}(q)$ over $\GG$. The setup parameters must contain two independent generators $g, h$ for which the discrete logarithm between $g$ and $h$ is unknown. (Previously, in the non-hiding scheme, any generator would suffice). A commitment to $f \in \FF_p$ is then $g^{\bar{f}(q)} h^r$ for random $r \sample [0, 2^\lambda)$. If a trusted (or MPC) setup is acceptable then $g, h$ can be chosen such that $\langle g \rangle = \langle h \rangle$ generate the same subgroup (e.g. set $h = g^\alpha$ for large random $\alpha$). In this case the commitment is statistically hiding~\cite{AC:DamFuj02}. 
+
+The setup can be made publicly verifiable using a hash function onto the group $\GG$, i.e. a collision-resistant function $H: \{0,1\}^* \rightarrow \GG$ that behaves as a random oracle. In this case the commitment is computationally hiding under a \emph{subgroup indistinguishability assumption}, as formulated by Brakerski and Goldwasser~\cite{C:BraGol10}. A subgroup $\GG' \subseteq \GG$ is computationally indistinguishable from $\GG$ if $g' \sample \GG'$ is computationally indistinguishable from $g \sample \GG$. A sufficient assumption that would imply Pedersen commitments with the random oracle setup are computationally hiding is that for $h \sample \GG$, the subgroup $\langle h \rangle$ is indistinguishable from $\GG$. This basic subgroup indistinguishability assumption holds in generic groups of unknown order. 
+
+In class groups we need to be careful applying this subgroup indistinguishability assumption because Gauss's square root algorithm may be used to test quadratic residuosity efficiently, i.e. it is possible to distinguish the subgroup of quadratic residues from non-quadratic residues. However, the class group can be constructed such that the order is guaranteed to be odd~\cite{PKC/BucHam01}, in which case every element has a $2^n$ root for any $n \geq 0$.% For class groups, we assume the subgroup indistinguishability assumption applies in $NQR$, the subgroup of non-quadratic residues. It is easy to convert the deterministic $H$ into a PPT hash function onto $NQR$ by iterating until hitting the first quadratic non-residue (succeeding in an expected constant number of iterations). 
+
+It is also possible to transform the interactive $\eval$ scheme into one with HVZK. This transformation impacts performance as it requires sending several extra group elements per level of recursion resulting in a multiplicative increase in proof size. It also requires a stronger security assumption due to a reliance on a \emph{proof of knowledge of exponent} (PoKE) by Boneh et. al.~\cite{C:BonBunFis19}. The PoKE protocol has been proven secure in the generic group model, but does not reduce to any concrete falsifiable assumption.
+
+\paragraph{Commit} Let $g_1 \sample \GG$ be a random base distinct from $g$. 
+The hiding polynomial commitment is $C \leftarrow g^{f(q)}g_1^r$ for $r \sample [-2^\lambda, 2^\lambda]$. 
+
+\paragraph{Open} The opening of the entire polynomial is the same, but additionally gives the blinding factor $r$. 
+
+\paragraph{Eval}
+
+\begin{itemize}
+\item In each recursive step we commit to polynomials $f_0$ and $f_1$ using the same hiding commitment scheme, where $f_0 + f_1 q^{d/2} = f$ as integer polynomials. 
+
+\item Note that if $C_0 = g^{f_0(q)}g_1^{r_0}$ and $C_1 = g^{f_1(q)} g_1^{r_1}$ then $C_0 \cdot C_1^{q^{d/2}} = C \cdot g_1^{r'}$ where $r' = r_0 + q^{d/2} r_1$. The prover can give a non-interactive zk proof of this relation to the verifier using a sigma protocol. E.g., the prover provides $C_1' = C_1^{q^{d/2}}$ with a PoE, and then a zk-PoKE of $r'$ such that $g_1^{r'} = C_0 C_1' / C$. 
+
+\item We could then recurse on $C_0^\alpha C_1$ which commits to $\alpha f_0 + f_1$ with the blinding factor $\alpha r_0 + r_1$. BUT we are not done yet, see next bullet point... 
+
+\item The remaining problem is that the evaluation protocol opens $y_0 = f_0(z) \bmod p$ and $y_1 = f_1(z) \bmod p$, which is not zero knowledge. We need $y_0, y_1$ to be independently distributed subject to the constraint $y_0 + z^{d/2} y_1 = y \bmod p$, which the verifier checks. 
+
+A solution is to modify $f_0$ and $f_1$ by adding constant terms $\alpha, \beta$ to each that cancel, i.e. $\alpha + z^{d/2} \beta = 0 \bmod p$, where $\alpha$ is uniformly distributed in $\ZZ_p$. This way the polynomials $f_0' = f_0 + \alpha$ and $f_1' = f_1 + \beta$ satisfy the relation $f_0'(z) + z^{d/2}f_1'(z) = f(z) \bmod p$. We end up revealing $y_0' = y_0 + \alpha \bmod p$ and $y_1' = y_1 + \beta \bmod p$, which is uniformly distributed in $\ZZ_p$ subject to $y_0' + y_1' = y \bmod p$. 
+
+Finally, the prover needs to convince the verifier that it modified the $C_0$ and $C_1$ commitments appropriately. (It could not simply choose $f_0'$ and $f_1'$ in the first step because $f_0' + q^{d/2} f_1' \neq f$ as integer polynomials). 
+
+However, the solution is still simple. The prover creates hiding commitments $C_\alpha$ to $\alpha$ and $C_\beta$ to $\beta$ and provides a zero-knowledge proof that $C_\alpha C_\beta ^{z^{d/2}}$ is a commitment to an integer multiple of $p$. This can be done efficiently through a combination of PoE and a PoKE. (Given $g^a$, to prove that $a = 0 \bmod p$ it suffices to provide $Q$ such that $Q^p = g^a$ and a PoKE for $Q$ base g. This can be made zero knowledge w/ the standard tricks). 
+
+The protocol then proceeds on modified commitments $C_0' = C_0 C_\alpha$ and $C_1' = C_1 C_\beta$.
+
+\end{itemize}
