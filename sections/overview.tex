@@ -11,7 +11,7 @@ Note that this encoding is also additively homomorphic, assuming that $q$ is suf
 For example, let $g(X)=4X^3+1X^2+3$ such that $g(10)=4103$. Then $f(10)+g(10)=6444=(g+f)(10)$. 
 \end{comment}
 The more homomorphic operations we want to permit, the larger $q$ needs to be.
-The encoding additionally permits multiplication by polynomials (e.g. $f(q)\cdot q^k$ is equal to the encoding of $f(X)\cdot X^k$). 
+The encoding additionally permits multiplication by polynomials (for example, $f(q)\cdot q^k$ is equal to the encoding of $f(X)\cdot X^k$). 
 \begin{comment}
 Or in our example $100 \cdot f(10)=234100$ which is the encoding of $2\cdot X^5+3\cdot X^4+4\cdot X^3+X^2$.
 \end{comment}
@@ -41,7 +41,7 @@ The verifier checks that $\gr{g}^{\hat{c}} = \gr{C}'$ and also that $\hat{c} < q
 %This demonstrates that $\gr{C}'$ $f$ is a commitment to a degree $0$ polynomial and additionally, through an extraction argument, that the original $C$ committed to an integer encoding of a degree $d$ polynomial.
 
 Extending this protocol to also show that $f(z) = y$ at a provided point $z$ is simple. 
-In each round, the prover additionally sends $y_L=f_L(z)\bmod p$ and $y_R=f_R(z)\bmod p$. The verifier checks consistency with the claim, i.e. that $y_L+z^{d'+1}y_R=y$, and also computes $y' \leftarrow \alpha y_L+y_R\bmod p$ to proceed to the next round. (The recursive claim is that $\gr{C}'$ commits to $f'$ such that $f'(z) = y' \bmod p$). In the final round of recursion, evaluation of a degree $0$ polynomial is the polynomial itself: i.e. the verifier obtains a claim that $\gr{g}^{\hat{c}}$ is a commitment to $\hat{c} \equiv c \bmod p$ and checks this directly given $\hat{c}$. 
+In each round, the prover additionally sends $y_L=f_L(z)\bmod p$ and $y_R=f_R(z)\bmod p$. The verifier checks consistency with the claim, \emph{i.e.}, that $y_L+z^{d'+1}y_R=y$, and also computes $y' \leftarrow \alpha y_L+y_R\bmod p$ to proceed to the next round. (The recursive claim is that $\gr{C}'$ commits to $f'$ such that $f'(z) = y' \bmod p$). In the final round of recursion, evaluation of a degree $0$ polynomial is the polynomial itself: i.e. the verifier obtains a claim that $\gr{g}^{\hat{c}}$ is a commitment to $\hat{c} \equiv c \bmod p$ and checks this directly given $\hat{c}$. 
 %The same extraction argument shows that the evaluation claim is true, i.e. that for the extracted degree $d$ polynomial $f(X)$, $f(z)\bmod p=y$. 
 
 \paragraph{Outsourcing exponentiation for efficiency}
