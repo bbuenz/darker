@@ -1,11 +1,12 @@
-%\documentclass[runningheads]{llncs}
-\documentclass[11pt]{article}
+\documentclass[runningheads]{llncs}
+%\documentclass[11pt]{article}
 \pagestyle{plain} 
 \usepackage[operators,lambda,keys,sets,primitives,adversary,asymptotics,advantage]{cryptocode}
 \usepackage{notations}
 \usepackage{mdframed}
 \usepackage{enumitem}
-\usepackage{amsmath,amsthm,amssymb}
+%\usepackage{amsthm}
+\usepackage{amsmath,amssymb}
 \usepackage[utf8x]{inputenc}
 \usepackage[colorinlistoftodos]{todonotes}
 \usepackage{xspace}
@@ -14,19 +15,20 @@
 \usepackage{hyperref}
 \usepackage{url}
 %\usepackage{draftwatermark}
-\usepackage[legalpaper, margin=1.5in]{geometry}
-\usepackage{thmtools}
-\usepackage{thm-restate}
+%\usepackage[legalpaper, margin=1.5in]{geometry}
+%\usepackage{thmtools}
+%\usepackage{thm-restate}
 %\declaretheorem[name=Theorem]{theorem}
 
 %Theorems
-\theoremstyle{definition}
-\newtheorem{definition}{Definition}
-\newtheorem{theorem}{Theorem}
-\newtheorem{lemma}{Lemma}
+%\theoremstyle{definition}
+%\newtheorem{definition}{Definition}
+%\newtheorem{theorem}{Theorem}
+%\newtheorem{theorem*}{Theorem}
+%\newtheorem{lemma}{Lemma}
 \newtheorem{assumption}{Assumption}
 \newtheorem{fact}{Fact}
-\newtheorem{corollary}{Corollary}
+%\newtheorem{corollary}{Corollary}
 
 \newif\ifcomments
 \commentstrue
@@ -92,8 +94,6 @@ By design, the IOP formalisms make abstraction of the cryptographic assumptions 
 
 The cryptographic hardness assumptions underlying the security of SNARK constructions are rarely falsifiable, and this seems to be a by-product of the cryptographic compilation process. In powers-of-alpha type constructions the unfalsifiable hardness assumption is inherently algebraic. In contrast, the hardness assumption of groups of unknown order \emph{are} falsifiable; it is only the Fiat-Shamir heuristic for $\mathsf{polylog}$-many round protocols that is unfalsifiable because it is only provably secure in the random oracle model; a security reduction of such heuristics to standard assumptions is as yet unavailable.
 \end{comment}
-
-f 
 
 \bibliographystyle{alpha}
   \bibliography{cryptobib/crypto,cryptobib/additional}

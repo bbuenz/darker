@@ -204,11 +204,16 @@ The proof follows a similar structure to the proof of Lemma~\ref{lem:intrandomco
  We now compute the corresponding polynomials $f_L(X)\gets \dec(f_L)$ and $f_R(X)\gets \dec(f_R)$.
 Now if the coefficients $f_i$ and $f'_i\in \mathbb{D}(N,D)$ and $\alpha,\alpha' \in [-\frac{p-1}{2},\frac{p-1}{2}]$ then by the triangle inequality we have that for the numerator of the $i$th coefficient of $f_L(X)$ is between $[-2N,2N]$. The denominator grows by at most $p-1$. The bound on the denominators is therefore $D\cdot (p-1)$. Additionally we have $f_{R,i}=\frac{f_i'\alpha-f_i \alpha'}{\Delta_\alpha}$. Using the triangle inequality again we have that the numerator of $f_{R,i} \in [-(p-1) \cdot N, (p-1) \cdot N]$. The denominator is bounded by $D\cdot (p-1)$. This gives us $f_L(X),f_R(X)\in \mathbb{D}((p-1) \cdot N,D\cdot (p-1))[X]$
 
-Finally $y_L=f_L(z)$ and $y_R=f_R(z)$ as in Lemma~\ref{lem:intrandomcombine}. It is important that $2$ is co-prime with the odd prime $p$ such that each dyadic rational can be mapped to a field element.
-
+Finally $y_L=f_L(z)$ and $y_R=f_R(z)$ as in Lemma~\ref{lem:intrandomcombine}. It is important that $2$ is co-prime with the odd prime $p$ such that each dyadic rational can be mapped to a field element. \qed
 \end{proof}
+
 We now restate the theorem for the security of the protocol with dyadic rational witnesses in groups where taking square roots is easy.
-\dyadicmain*
+
+\def\thetheorem{\ref{thm:dyadicpolysecurity}}
+\begin{theorem}
+\dyadicmaintheorem
+\end{theorem}
+
 \begin{proof}
 The proof largely follows the same structure of the proof of Theorem~\ref{thm:polycommitsecurity}.
 	
