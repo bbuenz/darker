@@ -217,7 +217,7 @@ We now restate the theorem for the security of the protocol with dyadic rational
 \begin{proof}
 The proof largely follows the same structure of the proof of Theorem~\ref{thm:polycommitsecurity}.
 	
-We will prove security by showing that we can extract a dyadic rational polynomial $f(X)\in \\mathbb{Z}[X]$ such that $f(X)$ has degree at most $d$ and the coefficients of $f(X)$ are dyadic rationals such that the product of the numerator and denominator is bounded by $q/2$. This ensures that $f(q)$ is a unique encoding of $f(X)$. Additionally $\gr{g}^{f(q)}=\gr{C}$ and $f(z) \bmod p=y$. The proof will use the general forking lemma (Lemma \ref{lemma:GFL}) to show that the polynomial commitment scheme has witness-extended emulation. 
+We will prove security by showing that we can extract a dyadic rational polynomial $f(X)\in \mathbb{Z}[X]$ such that $f(X)$ has degree at most $d$ and the coefficients of $f(X)$ are dyadic rationals such that the product of the numerator and denominator is bounded by $q/2$. This ensures that $f(q)$ is a unique encoding of $f(X)$. Additionally $\gr{g}^{f(q)}=\gr{C}$ and $f(z) \bmod p=y$. The proof will use the general forking lemma (Lemma \ref{lemma:GFL}) to show that the polynomial commitment scheme has witness-extended emulation. 
 
 We use the same extractor $\mathcal{X}$ as in Theorem \ref{thm:polycommitsecurity} with one key distinction. 
 For $d+1$ odd we invoke the extractor described by Lemma~\ref{lem:dyadiccombining} instead of Lemma~\ref{lem:intrandomcombine}. 
