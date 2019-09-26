@@ -158,10 +158,10 @@ There is exactly one query to each oracle on a random point in $\FF$. The soundn
 \end{theorem}
 
 \begin{proof}
-By definition of a $(\mu, d)$ algebraic linear IOP, in each $i$th round of the IOP there are $\ell$ query generation functions $P_1,...,P_\ell: \FF^\mu \rightarrow \FF^{m_i}$, where the $j$th component of $P_k$ is a $\mu$-variate degree $d$ polynomial $p_{k,j}$. There is a public query algorithm that first derives a seed $\sigma_i \in \FF^\mu$ from the verifier's $i$th round public-coin challenge and then computes $P_k(\sigma_i)$ to generate the final query.
+By definition of a $(\mu, d)$ algebraic linear IOP, in each $i$th round of the IOP there are $\ell$ query generation functions $P_1,\ldots,P_\ell: \FF^\mu \rightarrow \FF^{m_i}$, where each $P_k$ is a vector whose $j$th component is a $\mu$-variate degree-$d$ polynomial $p_{k,j}$. There is a public query algorithm that first derives a seed $\boldsymbol{\sigma_i} \in \FF^\mu$ from the verifier's $i$th round public-coin challenge $\mathit{coins}$ and then computes $P_k(\boldsymbol{\sigma_i})$ to generate the final query.
 
 \paragraph{Preprocessed oracles} 
-For each $i$th round, the prover and verifier preprocess $(\mu+1)$-variate degree-$d$ polynomial oracles (\emph{i.e.}, the prover sends these to the verifier and the verifier checks each at $(\mu+1)d+1$ points) for the the functions $P_1,\ldots,P_\ell$. 
+For each $i$th round, the prover and verifier preprocess $(\mu+1)$-variate degree-$d$ polynomial oracles. %(\emph{i.e.}, the prover sends these to the verifier and the verifier checks each at $(\mu+1)d+1$ points) for the the functions $P_1,\ldots,P_\ell$. 
 %verifier and the verifier sends  uses $\Gamma$ to generate a commitment $c_{P_k}$ to $(p_{k,1},..., p_{k,m_i})$ as follows:
 For each $k \in [\ell]$, the vector of polynomials $P_k = (p_{k,1},\ldots,p_{k, m_i}) \in (\mathbb{F}[\mathbf{X}])^{m_i}$ with $\mathbf{X} = (X_1,\ldots,X_\mu)$ is encoded as a single polynomial in $\mu + 1$ variables as follows. Introduce a new indeterminate $Z$, and then define $\tilde{P}_k(\mathbf{X}, Z) := \sum_{j=1}^{m_i} p_{k,j}(\mathbf{X}) Z^j \in \mathbb{F}[\mathbf{X},Z]$.
 The prover and verifier establish the oracle $\tilde{P}_k$, meaning that the verifier queries this oracle on enough points to be reassured that it is correct for all points.
@@ -176,10 +176,9 @@ The original linear IOP is modified as follows.
 \item Wherever the original IOP verifier makes $\ell$ queries within a round to a particular proof oracle $\proofO$, where queries are defined by query matrix $\mathbf{Q} \in \FF^{m_i \times \ell}$, consisting of column query vectors $(\mathbf{q}_1,...,\mathbf{q}_\ell)$, the new prover and verifier engage in the following interactive subprotocol for each $k \in [\ell]$ in order to replace the $k$th linear query $\langle \proofO, \mathbf{q}_k \rangle$: 
 
 \begin{itemize}
-\item Verifier: Run the original IOP verifier to get the public-coin challenge $\mathbf{r}$ and send to the prover.
- \item Prover: Derive the query matrix $\mathbf{Q}$ from $\mathbf{r}$. Send an oracle for the polynomial $F_k$ whose coefficient vector is $\mathbf{q}_k$. %\alan{How does the prover know this coefficient vector if the verifier didn't send $\mathbf{r}$ or $\mathbf{Q}$ yet?}
- 
- \item Verifier: Derive the query seed $\sigma \in \FF^\mu$ from $\mathbf{r}$. Sample uniform random $\beta \sample \FF$ and query both $F_k$ and $\tilde{P}_k$ (the $k$th preprocessed oracle) at $\beta$ in order to check that $F_k (\beta) = \tilde{P}_k(\sigma, \beta)$. If the check fails, abort and output 0. %\alan{$\tilde{P}_k$ is as it is defined in the offline oracles paragraph? Maybe anticipate the link or make it explicit.}
+\item Verifier: Run the original IOP verifier to get the public coins $\mathit{coins}$ and send them to the prover.
+ \item Prover: Derive the query matrix $\mathbf{Q}$ from $\mathit{coins}$. Send an oracle for the polynomial $F_k$ whose coefficient vector is $\mathbf{q}_k$. 
+ \item Verifier: Derive the query seed $\boldsymbol{\sigma} \in \FF^\mu$ from $\mathit{coins}$. Sample uniform random $\beta \sample \FF$ and query both $F_k$ and $\tilde{P}_k$ (the $k$th preprocessed oracle) at $\beta$ in order to check that $F_k (\beta) = \tilde{P}_k(\boldsymbol{\sigma}, \beta)$. If the check fails, abort and output 0. %\alan{$\tilde{P}_k$ is as it is defined in the offline oracles paragraph? Maybe anticipate the link or make it explicit.}
  
 % \item The prover evaluates $y_1 \leftarrow \mathbf{q}_k(\beta)$ and $y_2 \leftarrow \tilde{P}_k(\mathbf{r}_i, \beta)$ and sends these to the verifier. The verifier aborts if $y_1 \neq y_2$ and returns 0. 
 % \item Assume at this point $y = y_1 = y_2$. The prover and verifier run $\eval(\params, c_{\mathbf{q}_k}, \beta, y, m_i; \mathbf{q}_k)$ and $\eval(\params, c_{P_k}, (\mathbf{r}, \beta), y, d; \tilde{P}_k)$. If the verifier returns 0 in either subprotocol, the verifier aborts and outputs 0. 
