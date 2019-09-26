@@ -43,7 +43,7 @@ In general, evaluating the query circuit for a linear PCP requires $\Omega(n)$ w
 This connection is also explicitly described in a recent preprint~\cite{MatterLabs}. Evaluating committed polynomials using these techniques results in an IOP with polylogarithmic communication complexity.\\
 
 For completeness, we recall the formal definition of public-coin linear IOPs. %Our results will only make use of public-coin IOPs.
-We relax the definition slightly to allow for non-uniform seed vectors. Specifically, in round $i$, the verifier's challenge $\mathit{coins}_i \in \{0,1\}^*$ is expanded into a query matrix $\mathbf{Q}_i$ in two steps. The first step generates a short query seed vector $\boldsymbol{\sigma_i} \in \mathbb{F}^\mu$, which is then mapped to via the circuit $C$ to the matrix $\mathbf{Q}_i$ in the second step. Only the circuit $C$ of the second step must have a low-degree polynomial representation for algebraic linear IOPs.
+We relax the definition slightly to allow for non-uniform seed vectors. Specifically, in round $i$, the verifier's challenge $\mathit{coins}_i \in \{0,1\}^*$ is expanded into a query matrix $\mathbf{Q}_i$ in two steps. The first step generates a short query seed matrix $\boldsymbol{\sigma_i} \in \mathbb{F}^{\mu \times \ell}$, which is then mapped to via the circuit $C$ to the matrix $\mathbf{Q}_i$ in the second step. Only the circuit $C$ of the second step must have a low-degree polynomial representation for algebraic linear IOPs.
 
 \begin{definition} [Public-coin linear IOP]
 \label{def:linearIOP}
@@ -64,7 +64,7 @@ the probability $\verifier(\textsf{st}^\verifier_t)$ returns $1$ is less than $\
 with probability greater than $\delta$ then $\mathcal{E}^{\prover^*}(x)$ outputs $w$ such that $(x, w) \in \mathcal{R}$ in expected polynomial time. $\mathcal{E}^{\prover^*}(x)$ receives the input $x$ and interacts with $\prover^*$ via rewinding, replaying with fresh verifier randomness, and recording the resulting transcripts. %sending partial transcripts and receiving $P^*$'s next output. 
 % (Although the verifier only accesses $P^*$'s output by querying a linear function oracle, $E$ reads the whole output).  \\
 
-Furthermore, a linear IOP is \textbf{stateless} if for each $i \in [t]$, $\qgen(\textsf{st}^V_{i-1}, \mathit{coins}_i) = \qgen(i, \mathit{coins}_i)$. It is \textbf{algebraic} if $\textit{coins}_i$ is mapped to $\boldsymbol{\sigma_i}$ before it is mapped to $\boldsymbol{Q}_i$, and if this second map is described by $\ell$ $\mu_i$-variate polynomial functions of degree at most $d = \poly$: $p_1, \ldots, p_\ell : \mathbb{F}^{\mu_i} \rightarrow \mathbb{F}^{m_i}$ such that for all $k \in [\ell]$, $p_k(\boldsymbol{\sigma_i}) = \mathbf{q}_{i,k}$ and where the vectos $\mathbf{q}_{i,k}$ represent the columns of $\mathbf{Q}_i$.
+Furthermore, a linear IOP is \textbf{stateless} if for each $i \in [t]$, $\qgen(\textsf{st}^V_{i-1}, \mathit{coins}_i) = \qgen(i, \mathit{coins}_i)$. It is \textbf{algebraic} if $\textit{coins}_i$ is mapped to $\boldsymbol{\sigma_i} \in \mathbb{F}^{\mu_i \times \ell}$ before it is mapped to $\boldsymbol{Q}_i \in \mathbb{F}^{m_i \times \ell}$, and if this second map is described by $\ell$ $\mu_i$-variate polynomial functions of degree at most $d = \poly$: $p_1, \ldots, p_\ell : \mathbb{F}^{\mu_i} \rightarrow \mathbb{F}^{m_i}$ such that for all $k \in [\ell]$, $p_k(\boldsymbol{\sigma_i}_k) = \mathbf{q}_{i,k}$ and where the vectos $\mathbf{q}_{i,k}$ represent the columns of $\mathbf{Q}_i$.
 
 %It is \textbf{input-oblivious} if $x$ is not included in the state passed to $Q$.
 \end{definition} 
@@ -76,7 +76,7 @@ Let $\textsf{View}_{\langle \prover(x, w), \qgen(x) \rangle}(\verifier)$ denote 
 
 %TODO
 \begin{definition}[Polynomial IOP] 
-A public-coin $(\mu, d)$ Polynomial IOP is a public-coin algebraic linear IOP where in each query-response $\ell = 1$ and the inner product $\langle \boldsymbol{\pi}_i , \mathbf{Q} \rangle$ corresponds to the evaluation of some polynomial $f \in \mathbb{F}[X_1, \ldots, X_\mu]$ of total degree at most $d$ in the seed vector $\boldsymbol{\sigma_i} \in \mathbb{F}^\mu$ from which $\mathbf{Q}$ was derived.
+A public-coin $(\mu, d)$ Polynomial IOP is a public-coin algebraic linear IOP where in each query-response the inner product $\langle \boldsymbol{\pi}_i , \mathbf{q}_{i,k} \rangle$ corresponds to the evaluation of some polynomial $f \in \mathbb{F}[X_1, \ldots, X_\mu]$ of total degree at most $d$ in the seed matrix $\boldsymbol{\sigma_i}_k \in \mathbb{F}^{\mu}$ from which $\mathbf{q}_{i,k}$ was derived.
 \end{definition}
 
 %\paragraph{Preprocessing IOP} In some IOPs the verifier and prover might jointly establish an oracle together. (For IOPS with polynomial length PCPs, the verifier may alternatively read the entire contents of the PCP the first time it is received in order to check that it is correct). 
@@ -157,12 +157,12 @@ There is exactly one query to each oracle on a random point in $\FF$. The soundn
 \end{theorem}
 
 \begin{proof}
-By definition of a $(\mu, d)$ algebraic linear IOP, in each $i$th round of the IOP there are $\ell$ query generation functions $P_1,\ldots,P_\ell: \FF^\mu \rightarrow \FF^{m_i}$, where each $P_k$ is a vector whose $j$th component is a $\mu$-variate degree-$d$ polynomial $p_{k,j}$. There is a public query algorithm that first derives a seed $\boldsymbol{\sigma_i} \in \FF^\mu$ from the verifier's $i$th round public-coin challenge $\mathit{coins}$ and then computes $P_k(\boldsymbol{\sigma_i}) = \mathbf{q}_k \in \mathbb{F}^{m_i}$ for all $k \in [\ell]$. The vectors $\mathbf{q}_k$ are the columns of the query matrix $\mathbf{Q} \in \mathbb{F}^{m_i \times \ell}$.
+By definition of a $(\mu, d)$ algebraic linear IOP, in each $i$th round of the IOP there are $\ell$ query generation functions $P_{i,1},\ldots,P_{i,\ell}: \FF^\mu \rightarrow \FF^{m_i}$, where each $P_{i,k}$ is a vector whose $j$th component is a $\mu$-variate degree-$d$ polynomial $p_{k,j}$. There is a public query algorithm that first derives a seed $\boldsymbol{\sigma_i}_k \in \FF^\mu$ from the verifier's $i$th round public-coin challenge $\mathit{coins}_i$ and then computes $P_{i,k}(\boldsymbol{\sigma_i}_k) = \mathbf{q}_{i,k} \in \mathbb{F}^{m_i}$ for all $k \in [\ell]$. The vectors $\mathbf{q}_{i,k}$ are the columns of the query matrix $\mathbf{Q}_i \in \mathbb{F}^{m_i \times \ell}$.
 
 \paragraph{Preprocessed oracles} 
 For each $i$th round, the prover and verifier preprocess $(\mu+1)$-variate degree-$d$ polynomial oracles. %(\emph{i.e.}, the prover sends these to the verifier and the verifier checks each at $(\mu+1)d+1$ points) for the the functions $P_1,\ldots,P_\ell$. 
 %verifier and the verifier sends  uses $\Gamma$ to generate a commitment $c_{P_k}$ to $(p_{k,1},..., p_{k,m_i})$ as follows:
-For each $k \in [\ell]$, the vector of polynomials $P_k = (p_{k,1},\ldots,p_{k, m_i}) \in (\mathbb{F}[\mathbf{X}])^{m_i}$ with $\mathbf{X} = (X_1,\ldots,X_\mu)$ is encoded as a single polynomial in $\mu + 1$ variables as follows. Introduce a new indeterminate $Z$, and then define $\tilde{P}_k(\mathbf{X}, Z) := \sum_{j=1}^{m_i} p_{k,j}(\mathbf{X}) Z^j \in \mathbb{F}[\mathbf{X},Z]$.
+For each $k \in [\ell]$, the vector of polynomials $P_{i,k} = (p_{k,1},\ldots,p_{k, m_i}) \in (\mathbb{F}[\mathbf{X}])^{m_i}$ with $\mathbf{X} = (X_1,\ldots,X_\mu)$ is encoded as a single polynomial in $\mu + 1$ variables as follows. Introduce a new indeterminate $Z$, and then define $\tilde{P}_k(\mathbf{X}, Z) := \sum_{j=1}^{m_i} p_{k,j}(\mathbf{X}) Z^j \in \mathbb{F}[\mathbf{X},Z]$.
 The prover and verifier establish the oracle $\tilde{P}_k$, meaning that the verifier queries this oracle on enough points to be reassured that it is correct for all points.
 
 \paragraph{The transformed IOP} 
@@ -177,7 +177,7 @@ The original linear IOP is modified as follows.
 \begin{itemize}[nolistsep]
 \item Verifier: Run the original IOP verifier to get the public-coin challenge $\mathit{coins}$ and send them to the prover.
  \item Prover: Derive the query matrix $\mathbf{Q}$ from $\mathit{coins}$. Send an oracle for the polynomial $F_k$ whose coefficient vector is $\mathbf{q}_k$. 
- \item Verifier: Derive the query seed $\boldsymbol{\sigma} \in \FF^\mu$ from $\mathit{coins}$. Sample uniform random $\beta \sample \FF$ and query both $F_k$ and $\tilde{P}_k$ (the $k$th preprocessed oracle) at $\beta$ in order to check that $F_k (\beta) = \tilde{P}_k(\boldsymbol{\sigma}, \beta)$. If the check fails, abort and output 0.
+ \item Verifier: Derive the query seed $\boldsymbol{\sigma} \in \FF^{\mu \times \ell}$ from $\mathit{coins}$. Sample uniform random $\beta \sample \FF$ and query both $F_k$ and $\tilde{P}_k$ (the $k$th preprocessed oracle) at $\beta$ in order to check that $F_k (\beta) = \tilde{P}_k(\boldsymbol{\sigma}_k, \beta)$. If the check fails, abort and output 0.
  
 % \item The prover evaluates $y_1 \leftarrow \mathbf{q}_k(\beta)$ and $y_2 \leftarrow \tilde{P}_k(\mathbf{r}_i, \beta)$ and sends these to the verifier. The verifier aborts if $y_1 \neq y_2$ and returns 0. 
 % \item Assume at this point $y = y_1 = y_2$. The prover and verifier run $\eval(\params, c_{\mathbf{q}_k}, \beta, y, m_i; \mathbf{q}_k)$ and $\eval(\params, c_{P_k}, (\mathbf{r}, \beta), y, d; \tilde{P}_k)$. If the verifier returns 0 in either subprotocol, the verifier aborts and outputs 0. 
@@ -191,11 +191,11 @@ The original linear IOP is modified as follows.
 
 If all substeps succeed, then the verifier obtains correct output of each oracle query; in other words, the responses are identical in the new and original IOP. These outputs are passed to the original verifier decision algorithm, which outputs 0 or 1.
 
-\paragraph{Soundness and completeness} If the prover is honest then the verifier receives the same exact query-response pairs $(\mathbf{q}_k, a_k)$ as the original IOP verifier and runs the same decision algorithm, and therefore the protocol inherits the completeness of the original IOP. As for soundness, an adversary who sends a polynomial oracle $F_k^*$ whose coefficient vector is \emph{not} $\mathbf{q}_k$, then since $\mathbf{q}_k = P_k(\sigma)$, the check that $F_k (\beta) = \tilde{P}_k(\sigma, \beta)$ at random $\beta$ fails with overwhelming probability by Schwartz-Zippel. Similarly, an adversary who provides an incorrect $a_k^* \neq \langle \proofO, \mathbf{q}_k \rangle$ fails the inner-product IOP with overwhelming probability.
+\paragraph{Soundness and completeness} If the prover is honest then the verifier receives the same exact query-response pairs $(\mathbf{q}_k, a_k)$ as the original IOP verifier and runs the same decision algorithm, and therefore the protocol inherits the completeness of the original IOP. As for soundness, an adversary who sends a polynomial oracle $F_k^*$ whose coefficient vector is \emph{not} $\mathbf{q}_k$, then since $\mathbf{q}_k = P_k(\boldsymbol{\sigma}_k)$, the check that $F_k (\beta) = \tilde{P}_k(\boldsymbol{\sigma}_k, \beta)$ at random $\beta$ fails with overwhelming probability by Schwartz-Zippel. Similarly, an adversary who provides an incorrect $a_k^* \neq \langle \proofO, \mathbf{q}_k \rangle$ fails the inner-product IOP with overwhelming probability.
 %On the other hand, given an adversary who sends the honest $F_k$ in each round and succeeds with probability $\epsilon$, we derive an adversary who will succeed with the same probability $\epsilon$ in the original IOP.
 Therefore, if the original IOP soundness error is $\epsilon$ then by a union bound the new soundness error is $\epsilon + \negl$. A similar composition argument follows for knowledge extraction.%  can be used to build an an adversary that that performs Therefore, any adversary who breaks soundness with non-negligible probability must send the honest $F_k$ in each query instance. It follows that this adversary can be used to build an adversary that breaks the soundness of the original IOP. 
 
-\paragraph{Round complexity} The prover and verifier can first simulate the $t$-round original IOP  on the verifier's public-coin challenges, proceeding as if all queries were answered honestly. Wherever the original IOP prover would send an oracle for the vector $\proofO$ the prover sends $f_\pi$. Then, after the verifier has sent its final public coin challenge from the original IOP, there is one more round in which the prover sends all $F_{i, k}$ for the $k$th query vector in the $i$th round and all the purported answers $a_{i, k}$ to the $k$th query in the $i$th round. The prover and verifier engage in the protocol above to prove that these answers are correct. The inner product subprotocol for each $F_{i,k}$ with $f_\pi$ can be done in parallel with the check that $F_{i,k}(\beta) = \tilde{P}_{i,k}(\mathbf{r}_i, \beta)$. Therefore, there is only one extra round. \qed   
+\paragraph{Round complexity} The prover and verifier can first simulate the $t$-round original IOP  on the verifier's public-coin challenges, proceeding as if all queries were answered honestly. Wherever the original IOP prover would send an oracle for the vector $\proofO$ the prover sends $f_\pi$. Then, after the verifier has sent its final public coin challenge from the original IOP, there is one more round in which the prover sends all $F_{i, k}$ for the $k$th query vector in the $i$th round and all the purported answers $a_{i, k}$ to the $k$th query in the $i$th round. The prover and verifier engage in the protocol above to prove that these answers are correct. The inner product subprotocol for each $F_{i,k}$ with $f_\pi$ can be done in parallel with the check that $F_{i,k}(\beta) = \tilde{P}_{i,k}(\boldsymbol{\sigma_i}_k, \beta)$. Therefore, there is only one extra round. \qed   
 \end{proof}
 
 \subsection{Compiling Polynomial IOPs} 
@@ -222,7 +222,7 @@ If $\verifier$ does not abort in any of these subprotocols, then it receives a s
 If the polynomial commitment scheme $\Gamma$ has witness-extended emulation and the $t$-round Polynomial IOP for $\mathcal{R}$ has negligible knowledge error, then $\Pi$ is a public-coin interactive argument for $\mathcal{R}$ that has witness-extended emulation. The compilation also preserves HVZK if $\Gamma$ is hiding and $\eval$ is HVZK. 
 \end{theorem}
 
-The proof is provided in \appendixphrase~\ref{sec:IOPcompilerproof}.
+The proof is provided in \appendixphrase~\ref{sec:IOPcompilerproof}. For intuition: HVZK follows from the composability of HVZK simulators. 
 
 %\ben{TODO perhaps provide some sketch here} 
 
