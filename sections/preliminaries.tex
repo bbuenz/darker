@@ -223,7 +223,9 @@ A polynomial commitment scheme is a tuple of protocols $\Gamma = (\pro{Setup}, \
     \item $\pro{Eval}(\params, c, z, y, d[, \mu]; f(X)) \rightarrow b \in \{0, 1\}$ is an interactive public-coin protocol between a PPT prover $\prover$ and verifier $\verifier$. Both $\prover$ and $\verifier$ have as input a commitment $c$, points $z, y \in R$, and a degree $d$. The prover additionally knows the opening of $c$ to a secret polynomial $f(X) \in R[X]$ with $\deg(f(X)) \leq d$. The protocol convinces the verifier that $f(z) = y$. {In a multivariate extension of polynomial commitments, the input $\mu > 1$ indicates the number of variables in the committed polynomial} and $z \in R^\mu$.
 \end{itemize}
 
-A polynomial commitment scheme is \defn{correct} if an honest committer can successfully convince the verifier of any evaluation. Specifically, if the prover is honest then for all polynomials $f(X) \in R[X]$ and all points $z \in R$,
+A polynomial commitment scheme is \defn{correct} if an honest committer can successfully convince the verifier of any evaluation. 
+\begin{comment}
+Specifically, if the prover is honest then for all polynomials $f(X) \in R[X]$ and all points $z \in R$,
 \begin{small}
 \[
     \Pr\left[b = 1 \ : \ \begin{array}{l}
@@ -235,8 +237,11 @@ A polynomial commitment scheme is \defn{correct} if an honest committer can succ
     \end{array} \right] = 1 \enspace .
 \]
 \end{small}
+\end{comment}
 
-A polynomial commitment scheme is \defn{evaluation binding} if no efficient adversary can convince the verifier that the committed polynomial $f(X)$ evaluates to different values $y_0 \neq y_1 \in R$ in the same point $z \in R$. Let $b \gets \pro{Eval}_{\langle \adv_1, \verifier\rangle}(c, z, y, d, \st)$ denote the verifier's output in an execution of this protocol with adversarial prover $\adv_1$ on public inputs $c, z, y, d$ and private adversary state $\st$. %(The adversary may or may not know a witness polynomial $f(X)$.)
+A polynomial commitment scheme is \defn{evaluation binding} if no efficient adversary can convince the verifier that the committed polynomial $f(X)$ evaluates to different values $y_0 \neq y_1 \in R$ in the same point $z \in R$. Our applications the stronger property of knowledge soundness which we define formally below.
+\begin{comment}
+	Let $b \gets \pro{Eval}_{\langle \adv_1, \verifier\rangle}(c, z, y, d, \st)$ denote the verifier's output in an execution of this protocol with adversarial prover $\adv_1$ on public inputs $c, z, y, d$ and private adversary state $\st$. %(The adversary may or may not know a witness polynomial $f(X)$.)
 Evaluation binding requires that for all probabilistic polynomial-time adversaries $\adv = (\adv_0, \adv_1)$,
 \begin{small}
 \[
@@ -252,11 +257,12 @@ Evaluation binding requires that for all probabilistic polynomial-time adversari
     \right] \leq \negl \enspace .
 \]
 \end{small}
-\end{definition}
 
 The syntax generalizes naturally to multivariate polynomial commitment schemes. Specifically, one obtains the syntax for an $\mu$-variate polynomial commitment scheme by replacing all occurrences of $X$ and $z$ by their $\mu$-dimensional vector counterparts, $\mathbf{X}$ and $\mathbf{z}$.
+\end{comment}
+\end{definition}
 
-\paragraph{Knowledge of coefficients} %In our application of polynomial commitments to the construction of arguments of knowledge, we also require the polynomial commitment to satisfy a \emph{knowledge} property. Informally, w
+\paragraph{Knowledge soundness} %In our application of polynomial commitments to the construction of arguments of knowledge, we also require the polynomial commitment to satisfy a \emph{knowledge} property. Informally, w
 We require that any successful prover in the $\eval$ protocol must \emph{know} a polynomial $f(X)$ such that $f(z) = y$ and $c$ is a commitment to $f(X)$. More formally, since $\eval$ is a public-coin interactive argument we define this knowledge property as a special case of witness-extended emulation (Definition~\ref{def:wee}). 
 
 Define the following NP relation given $\params \leftarrow \pro{Setup}(1^\lambda)$: 
