@@ -135,7 +135,7 @@ The verifier only accepts given proof oracles for polynomials $f$, $f_L$, and $f
  
 
 \subsubsection{Inner product}\label{sec:innerproduct}
-The following is an IOP where the prover first sends two degree $d$ univariate polynomial oracles $f, g$ and proves to the verifier that $\langle \mathbf{f}, \mathbf{g}^r \rangle = a$ where $\mathbf{f}, \mathbf{g}$ denote the coefficient vectors of $f, g$ respectively and $\mathbf{g}^r$ is the reverse of $\mathbf{g}$. This argument is sufficient for our application to transforming algebraic linear IOPs into Polynomial IOPs. It is also possible to prove the inner product $\langle \mathbf{f}, \mathbf{g} \rangle$ by combining this IOP together with another one that probes the relation $g(X) = X^dg^r(X^{-1})$ in a random point $z \sample \mathbb{F} \backslash \{0\}$, and thereby shows that $\mathbf{g}$ and $\mathbf{g}^r$ have the same coefficients only reversed. However, we omit this more elaborate construction for the sakes of clarity and space.
+The following is an IOP where the prover first sends two degree $d$ univariate polynomial oracles $f, g$ and proves to the verifier that $\langle \mathbf{f}, \mathbf{g}^r \rangle = a$ where $\mathbf{f}, \mathbf{g}$ denote the coefficient vectors of $f, g$ respectively and $\mathbf{g}^r$ is the reverse of $\mathbf{g}$. This argument is sufficient for our application to transforming algebraic linear IOPs into Polynomial IOPs. It is also possible to prove the inner product $\langle \mathbf{f}, \mathbf{g} \rangle$ by combining this IOP together with another one that probes the relation $g(X) = X^dg^r(X^{-1})$ in a random point $z \sample \mathbb{F} \backslash \{0\}$, and thereby shows that $\mathbf{g}$ and $\mathbf{g}^r$ have the same coefficients only reversed. However, we omit this more elaborate construction as it is not needed for any of our applications.
 
 \begin{itemize}
 \item \emph{Prover}: Sends proof oracles for $f(X)$, $g(X)$, and the degree $2d$ polynomial product $h(X) = f(X)\cdot g(X)$ to the verifier. 
@@ -252,19 +252,19 @@ There exists a 5-round HVZK Polynomial IOP with preprocessing for any NP relatio
 The recent system \pro{PLONK} is an improvement on the underlying Polynomial IOP in \pro{Sonic}, and achieves the following: 
 
 \begin{theorem}[PLONK,~\cite{Plonk}] 
-There exists a 3-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with arithmetic complexity $n$) that makes $2$ queries overall to univariate degree $3n$ polynomial oracles. Preprocessing? The preprocessing verifier does $O(n)$ work to check $6$ univariate degree $n$ polynomials.
+There exists a 3-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with arithmetic complexity $n$) that makes $2$ queries overall to univariate degree $3n$ polynomial oracles. The preprocessing verifier does $O(n)$ work to check $6$ univariate degree $n$ polynomials.
 \end{theorem}
 
 Combining the \pro{Sonic} IOP with the new transparent polynomial compiler of Section~\ref{sec:protocol} gives the following result:  
 
-\ben{TODO: Add actual complexity for preprocessing and prover rather than quasilinear} 
+%\ben{TODO: Add actual complexity for preprocessing and prover rather than quasilinear} 
 \begin{theorem}
 There exists an $O(\log n)$-round public-coin interactive argument of knowledge for any NP relation of arithmetic complexity $n$ that has $O(\log n)$ communication, $O(\log n)$ ``online" verification, quasilinear prover time, and a preprocessing step that is verifiable in quasilinear time. The argument of knowledge has witness-extended emulation assuming it is instantiated with a group $\GG$ for which the $r$-Strong RSA Assumption, and the Adaptive Root Assumption all hold. 
 \end{theorem}
 \begin{proof}
 We apply the univariate polynomial commitment scheme from Section~\ref{sec:protocol} to the 5-round Polynomial IOP from Theorem~\ref{thm:sonic}. Denote this commitment scheme by $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ 
 
-The preprocessing requires running $\pro{Commit}$ on $12$ univariate degree $n$ polynomials, which involves a quasilinear number of group operations in the group of unknown order $\GG$ determined by $\pro{Setup}$. The prover sends a constant number of proof oracles of degree $n$ to the verifier, which also takes a quasilinear number of group operations. Finally, the 27 queries are replaced with at most $27$ invocations of $\eval$, which adds $O(\log n )$ rounds and has $O(\log n)$ communication. By Theorem~\ref{thm:polycommitsecurity} ($\Gamma$ has witness extended emulation) and Lemma~\ref{lem:IOPcompiler}, the compiled interactive argument has witness-extended emulation.
+The preprocessing requires running $\pro{Commit}$ on $12$ univariate degree $n$ polynomials, which involves a quasilinear number of group operations in the group of unknown order $\GG$ determined by $\pro{Setup}$. The prover sends a constant number of proof oracles of degree $n$ to the verifier, which also takes a quasilinear number of group operations. Finally, the 27 queries are replaced with at most $27$ invocations of $\eval$, which adds $O(\log n )$ rounds and has $O(\log n)$ communication. By Theorem~\ref{thm:polycommitsecurity} ($\Gamma$ has witness extended emulation) and Theorem~\ref{thm:IOPcompiler}, the compiled interactive argument has witness-extended emulation.
 
 \end{proof}
 
