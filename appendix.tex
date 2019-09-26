@@ -498,7 +498,7 @@ As indicated in bold above, there are two kinds of events that cause $P'_O$ to a
 
 The second type of event contradicts the evaluation binding property of $\Gamma$, therefore it occurs with negligible probability. 
 
-To analyze the first type of event, let us define ``bad commitments" for a parameter $B$. We define this as a property of a message $m$ (purportedly a commitment) sent in a transcript state $\st$.
+To analyze the first type of event, let us define ``bad commitments" for a parameter $D$. We define this as a property of a message $m$ (purportedly a commitment) sent in a transcript state $\st$.
 
 \paragraph{Bounding probability of commitment extraction failure} 
 The pair $(m, \st)$ is a ``bad commitment" if there is less than a $1/D$ probability that extending the transcript between $P^*$ and $\verifier$, starting from state $\st$, will contain a successful execution of $\eval$ on $m$. This probability is over the randomness of the public-coins of $\verifier$ in the extended transcript. %have a succesful execution on (over the randomness of the public-coins) that $\pro{Record}(P^*, \params, x, \st)$ contains a successful execution of $\eval$ on $m$ on the queries defined by $\st$ and the next public coin challenge, where $\st$ is determined by running $\tr$ up until the point $m$ appears. 

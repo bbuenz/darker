@@ -222,7 +222,8 @@ If $\verifier$ does not abort in any of these subprotocols, then it receives a s
 If the polynomial commitment scheme $\Gamma$ has witness-extended emulation and the $t$-round Polynomial IOP for $\mathcal{R}$ has negligible knowledge error, then $\Pi$ is a public-coin interactive argument for $\mathcal{R}$ that has witness-extended emulation. The compilation also preserves HVZK if $\Gamma$ is hiding and $\eval$ is HVZK. 
 \end{theorem}
 
-The proof is provided in \appendixphrase~\ref{sec:IOPcompilerproof}. For intuition: HVZK follows from the composability of HVZK simulators. 
+The full proof is provided in \appendixphrase~\ref{sec:IOPcompilerproof}. 
+HVZK is shown by a straightforward composition of the simulators for $\eval$ and the original IOP simulator. The emulator $E$ works as follows. Given the IP adversary $P'$, $E$ simulates an IOP adversary $P'_O$ by using the $\eval$ emulator $E_\eval$ to extract proof oracles (\emph{i.e.}, polynomials) from any commitment that $P'$ sends and subsequently opens at an evaluation point. We argue that $P'_O$ is successful whenever $P'$ is successful, with negligible loss. (The only events that cause $P'_O$ to fail when $P'$ succeeds is if $E_\eval$ fails to extract from a successful $\eval$ or $P'$ succesfully opens a commitment inconsistently with an extracted polynomial). $E$ then runs the IOP knowledge extractor with $P'_O$ to extract a witness for the input. 
 
 %\ben{TODO perhaps provide some sketch here} 
 
