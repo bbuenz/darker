@@ -14,6 +14,7 @@ We can now use the general Cramer Damgard\cite{C:CraDam98} transform to turn the
 To do this all the prover messages are replaced by a hiding commitments and the verification checks by zero-knowledge proofs. For the polynomial commitments we use the hiding commitments described above. For the evaluations we use Pedersen commitments\cite{C:Pedersen91} in a prime order group of known order $p$. To use the Pedersen commitment we require that computing discrete logarithms is hard in these groups. 
 We use the ${UO}$ subscript for the group of unknown order and $PO$ for the prime order group, i.e. $\GG_{UO}$ and $\GG_{PO}$.
 Similarly $\commit_{UO}:\ZZ^2 \rightarrow\GG_{UO}=f(X),r \rightarrow \gr{g}^{f(q)}\gr{h}^{r}$ and $\commit_{PO}:\ZZ_p^2\rightarrow \GG_{PO}$ are the commitment functions.
+
 The transformation is as follows: 
 
 \begin{itemize}

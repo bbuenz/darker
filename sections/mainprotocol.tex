@@ -312,9 +312,10 @@ The proof of Theorem~\ref{thm:dyadicpolysecurity} is nearly identical to the pro
 \subsection{Multivariate Polynomials, Optimizations, and Performance}
 We present a multivariate variant in Appendix \ref{sec:multivariate}. The idea is simply to use higher degrees of $q$ to encode the next indeterminate. The scheme has communication complexity and verification time $O(\mu \log(d))$ for an $\mu$-variate polynomial of degree $d$. We also present several optimizations that significantly reduce the proof size, prover time and verification time (see Appendix~\ref{subsec:optimization}). 
 
+\subsection{Performance}
 The polynomial commitment scheme has logarithmic proof size and verifier time in the degree $d$ of the committed polynomial. 
-It has highly batchable proofs and it is possible to evaluate $n$ degree $d$ polynomials at $k$ points using only $2\log_2(d+1)$ group elements and $(k+1)\log_2(d+1)$ field elements (see Section \ref{subsec:optimization} of the \appendixphrase). Note that this means the proof size is independent of $n$ and linear in $k$ but with a small constant $(15 \log(d)$ bytes).
-We describe the performance for different settings in Table \ref{tab:performance}
+It has highly batchable proofs and it is possible to evaluate $n$ degree $d$ polynomials at $k$ points using only $2\log_2(d+1)$ group elements and $(k+1)\log_2(d+1)$ field elements (see Section \ref{subsec:optimization} of the \appendixphrase). Note that this means the proof size is independent of $n$ and linear in $k$ but with a small constant $(15 \log(d)$ bytes). 
+We describe the performance of our scheme for different settings in Table \ref{tab:performance}
 \begin{table} 
 
 \begin{small}
@@ -337,6 +338,7 @@ We describe the performance for different settings in Table \ref{tab:performance
 \label{tab:performance}
 
 \end{table}
+The polynomial commitment by Kate et al.\cite{AC:KatZavGol10} has evaluation proofs that consist of only a single element in a bilinear group and verification requires only a single pairing. The commitment scheme, however, requires a trusted and linear sized setup. In the multivariate setting (Appendix~\ref{sec:multivariate}) our scheme is logarithmic in the total number of coefficients, i.e. $\mu\log(d)$ for a $\mu$-variate polynomial of degree $d$. The multivariate extension of Kate et al.'s commitment scheme\cite{SP:ZGKPP17} evaluation proofs consist of $\mu$ group elements.
 
 %\subsection{Multivariate polynomial commitments}\label{sec:multivariate}
 	

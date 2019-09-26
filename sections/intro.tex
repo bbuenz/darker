@@ -11,25 +11,13 @@ Following this pragmatic interest, there has also been a surge of research focus
 are called SNARGs (``short non-interactive arguments''). 
 The proof is called an \emph{argument} because it is only sound assuming the prover is computationally bounded, \emph{i.e.}, \emph{computationally sound} as opposed to statistically sound. 
 %Succinct statistically sound proofs are unlikely to exist~\cite{CC:GolVadWig02,ICALP:Wee05}. 
-<<<<<<< HEAD
-A SNARG for NP statements is called a SNARK (``short non-interactive argument of knowledge'') if the proof also demonstrates \emph{knowledge} of the NP witness for the statement. A \emph{zk}-SNARK does not leak any information about the witness. 
+
 
 
 Currently, there are numerous constructions that achieve different tradeoffs between proof size, proof time, and verification time, but also under different \emph{trust} models as well as cryptographic assumptions. %There is a distinction between \emph{proofs} and \emph{arguments}, the latter offering soundness only against a computationally bounded prover. 
-Some constructions also achieve better efficiency by relying on a \emph{preprocessing model} in which a one-time expensive setup procedure is performed in order to generate a compact verification key \pro{VK}, which is later used to verify proof instances efficiently. 
+Some constructions also achieve better efficiency by relying on a \emph{preprocessing model} in which a one-time expensive setup procedure is performed in order to generate a compact verification key \pro{VK}, which is later used to verify proof instances efficiently.
 %More precisely, a fresh \pro{VK} must be generated for each computation that will be proven, e.g. represented as an arithmetic circuit $C$ that takes inputs $x \in \ZZ^n$ over a prime field $\ZZ$. Thereafter, succinct proofs may be generated for the evaluation of $C$ on arbitrary inputs $x$ and verified efficiently with \pro{VK}. 
-Somewhat unfortunately, the best performing proof systems to date (considering proof size and verification time) require a \emph{trusted} preprocessing. These are the pairing-based SNARKs extending from GGPR~\cite{EC:GGPR13,ES:SBVBPW13,SP:PHGR13,TCC:BCIOP13,C:BCGTV13,USENIX:BCTV14,EC:Groth16}, 
-=======
-A SNARG for NP statements is called a SNARK (``short non-interactive argument of knowledge'') if the proof also demonstrates \emph{knowledge} of the NP witness for the statment. A \emph{zk}-SNARK does not leak any information about the witness. 
-
-
-Currently, there are numerous constructions that achieve different tradeoffs between proof size, proof time, and verification time, but also under different \emph{trust} models as well as cryptographic assumptions. %There is a distinction between \emph{proofs} and \emph{arguments}, the latter offering soundness only against a computationally bounded prover. 
-Some constructions also achieve better efficiency by relying on a \emph{preprocessing model} in which a one-time expensive setup procedure is performed in order to generate a compact verification key \pro{VK}, which is later used to verify proof instances efficiently. More precisely, a fresh \pro{VK} must be generated for each computation that will be proven, e.g. represented as an arithmetic circuit $C$ that takes inputs $x \in \ZZ^n$ over a prime field $\ZZ$. Thereafter, succinct proofs may be generated for the evaluation of $C$ on arbitrary inputs $x$ and verified efficiently with \pro{VK}. 
-
-
-Somewhat unfortunately, the best performing proof systems to date (considering proof size and verification time) require a \emph{trusted} preprocessing. These are the pairing-based SNARKs extending from GGPR~\cite{EC:GGPR13,ES:SBVBPW13,TCC:BCIOP13,C:BCGTV13,EC:Groth16}
-%\cite{EC:GGPR13,ES:SBVBPW13,SP:PHGR13,TCC:BCIOP13,C:BCGTV13,USENIX:BCTV14,EC:Groth16}, 
->>>>>>> c3392adfa8a215afcf1e85e060d1af047cd43ad4
+Somewhat unfortunately, the best performing proof systems to date (considering proof size and verification time) require a \emph{trusted} preprocessing. These are the pairing-based SNARKs extending from GGPR~\cite{EC:GGPR13,ES:SBVBPW13,TCC:BCIOP13,C:BCGTV13,EC:Groth16}.
 %which have been implemented in numerous libraries~\cite{C:BCGTV13,bellman}, and even deployed in live systems including the ZCash~\cite{Zcash} cryptocurrency. T
 %The preprocessing involves secret information that must be discarded, else it provides the prover with a trapdoor that breaks the integrity of the proof system. 
 The setup can be performed via \emph{multi-party computation} (MPC) by a committee of parties, such that trust in only one of the parties is sufficient. This has been done on two occasions for the ZCash blockchain, involving elaborate ``ceremonies" to engender public trust in the process~\cite{ZcashCeremony}. 
