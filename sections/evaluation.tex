@@ -1,4 +1,4 @@
-We now evaluate \textsf{\textbf{Supersonic}} the compiled trust-less setup SNARK built on the polynomial IOPs from Sonic\cite{Sonic} and Plonk\cite{Plonk} and compiled using our new polynomial commitment scheme.
+We now evaluate \textsf{\textbf{Supersonic}} the trustless-setup SNARK built on the polynomial IOPs from Sonic\cite{Sonic} and Plonk\cite{Plonk} and compiled using our new polynomial commitment scheme.
 As explained in
 \ifappendix
 Appendix
@@ -13,17 +13,17 @@ The comparison is slightly off as for Sonic this is multiplication gates and for
 \begin{mdframed}
 
 
-\begin{tabular}{l|l|l|l|l}
-Poly-IOP &Polynomials  & \eval{} at& $|SNARK|$&$n=2^{20},\lambda=120,|\GG|=1200$ \\
+\begin{tabular}{l|c|c|c|c}
+Poly-IOP &Polynomials  & \eval{}s & $|$SNARK$|$ & $n=2^{20},\lambda=120,|\GG|=1200$ \\
 \hline
 
- \multirow{2}{*}{Sonic\cite{Sonic}} & \multirow{2}{*}{12 in $\crs$+ 15} & \multirow{2}{*}{$27$}  & $(15+2\log_2(n))\GG$ &\; \multirow{2}{*}{11.3 KB} \\
+ \multirow{2}{*}{\textsf{Sonic}~\cite{Sonic}} & \multirow{2}{*}{12 in $\crs$+ 15} & \multirow{2}{*}{$27$}  & $(15+2\log_2(n))\GG$ &\; \multirow{2}{*}{11.3 KB} \\
  & & & $+(27+9\log_2(n))\ZZ_p$ &  \\
-  \multirow{2}{*}{Plonk\cite{Plonk}} & \multirow{2}{*}{$6$ in $\crs$ + 6} & \multirow{2}{*}{$2$} & $6+2\log_2(3n)\GG$& \; \multirow{2}{*}{8.4 KB} \\
+  \multirow{2}{*}{\textsf{PLONK}~\cite{Plonk}} & \multirow{2}{*}{$6$ in $\crs$ + 6} & \multirow{2}{*}{$2$} & $6+2\log_2(3n)\GG$& \; \multirow{2}{*}{8.4 KB} \\
   & & & + $(10+3\log_2(3n))$
 	\end{tabular}
 \end{mdframed}
-\caption{Proof size for $\textsf{\textbf{Supersonic}}$. Column 2 says how many polynomials are committed to in the CRS (offline oracles) and how many are sent by the prover (online oracles). Column 3 states the number of evaluation points. The proof size calculation uses $|\ZZ_p|=120$ and $|\GG|=1200$ for $n=2^{20}$ gates.}
+\caption{Proof size for $\textsf{\textbf{Supersonic}}$. Column 2 says how many polynomials are committed to in the SRS (offline oracles) and how many are sent by the prover (online oracles). Column 3 states the number of evaluation points. The proof size calculation uses $|\ZZ_p|=120$ and $|\GG|=1200$ for $n=2^{20}$ gates.}
 \label{tab:proofsize}
 \end{table}
 \paragraph{Prover and Verifier cost}
