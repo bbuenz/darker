@@ -42,7 +42,8 @@ In general, evaluating the query circuit for a linear PCP requires $\Omega(n)$ w
 %and its improvement DEEP-FRI~\cite{ECCC:BGKS19}. 
 This connection is also explicitly described in a recent preprint~\cite{MatterLabs}. Evaluating committed polynomials using these techniques results in an IOP with polylogarithmic communication complexity.\\
 
-For completeness, we recall the formal definition of public-coin linear IOPs. Our results will only make use of public-coin IOPs. We relax the definition slightly to allow for non-uniform seed vectors. Specifically, in round $i$, the verifier's challenge $\mathit{coins}_i \in \{0,1\}^*$ is expanded into a query matrix $\mathbf{Q}_i$ in two steps. The first step generates a short query seed vector $\boldsymbol{\sigma_i} \in \mathbb{F}^\mu$, which is then mapped to via the circuit $C$ to the matrix $\mathbf{Q}_i$ in the second step. Only the circuit $C$ of the second step must have a low-degree polynomial representation for algebraic linear IOPs.
+For completeness, we recall the formal definition of public-coin linear IOPs. %Our results will only make use of public-coin IOPs.
+We relax the definition slightly to allow for non-uniform seed vectors. Specifically, in round $i$, the verifier's challenge $\mathit{coins}_i \in \{0,1\}^*$ is expanded into a query matrix $\mathbf{Q}_i$ in two steps. The first step generates a short query seed vector $\boldsymbol{\sigma_i} \in \mathbb{F}^\mu$, which is then mapped to via the circuit $C$ to the matrix $\mathbf{Q}_i$ in the second step. Only the circuit $C$ of the second step must have a low-degree polynomial representation for algebraic linear IOPs.
 
 \begin{definition} [Public-coin linear IOP]
 \label{def:linearIOP}
