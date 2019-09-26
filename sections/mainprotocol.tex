@@ -234,20 +234,9 @@ Moving towards a formal presentation, what remains is to specify some points tha
 \end{mdframed}
 
 
+\paragraph{Hiding and Zero-knowledge.} 
 
 \begin{comment}
-\paragraph{Hiding and Zero-knowledge.} 
-We can use the general Cramer Damgard\cite{C:CraDam98} transform to turn the evaluation scheme into a 
-Turning the polynomial commitment into a hiding scheme is easy by replacing $\gr{g}^{\bar{f}(q)}$ with a Pedersen commitment to $\bar{f}(q)$ over $\GG$. The setup parameters must contain two independent generators $\gr{g}, \gr{h}$ for which the discrete logarithm between $\gr{g}$ and $\gr{h}$ is unknown. %(Previously, in the non-hiding scheme, any generator would suffice).
-\paragraph{Hiding and Zero-knowledge.} Turning the polynomial commitment into a hiding scheme is easy by replacing $\gr{g}^{\bar{f}(q)}$ with a Pedersen commitment to $\bar{f}(q)$ over $\GG$. The setup parameters must contain two independent generators $\gr{g}, \gr{h}$ for which the discrete logarithm between $\gr{g}$ and $\gr{h}$ is unknown. %(Previously, in the non-hiding scheme, any generator would suffice).
-A commitment to $f \in \FF_p$ is then $\gr{g}^{\bar{f}(q)} \gr{h}^r$ for random $r \sample [0, 2^\lambda)$. If a trusted setup is acceptable then $\gr{g}, \gr{h}$ can be chosen such that $\langle \gr{g} \rangle = \langle \gr{h} \rangle$. In this case the commitment is statistically hiding~\cite{AC:DamFuj02}. 
-
-Alternatively, the setup can be made publicly verifiable using a hash function onto the group $\GG$, \emph{i.e.}, a collision-resistant function $H: \{0,1\}^* \rightarrow \GG$ that behaves as a random oracle. In this case the commitment scheme is computationally hiding under a \emph{subgroup indistinguishability assumption}, as formulated by Brakerski and Goldwasser~\cite{C:BraGol10}. % A subgroup $\GG' \subseteq \GG$ is computationally indistinguishable from $\GG$ if $\gr{g}' \sample \GG'$ is computationally indistinguishable from $\gr{g} \sample \GG$. A sufficient assumption that would imply Pedersen commitments with the random oracle setup are computationally hiding is that for $\gr{h} \sample \GG$, the subgroup $\langle \gr{h} \rangle$ is indistinguishable from $\GG$.
-This basic subgroup indistinguishability assumption holds in generic groups of unknown order. 
-
-In class groups we need to be careful applying this subgroup indistinguishability assumption because Gauss's square root algorithm may be used to test quadratic residuosity\alan{I'm not sure what quadratic residuosity in class groups means.} efficiently. As a result, it is possible to distinguish the subgroup of even order from ones of odd order. However, the class group can be constructed such that the total order is guaranteed to be odd~\cite{PKC/BucHam01}, in which case every element has a $2^n$ root for any $n \geq 0$.% For class groups, we assume the subgroup indistinguishability assumption applies in $NQR$, the subgroup of non-quadratic residues. It is easy to convert the deterministic $H$ into a PPT hash function onto $NQR$ by iterating until hitting the first quadratic non-residue (succeeding in an expected constant number of iterations). 
-
-We sketch how to use this hiding commitment scheme to transform the \eval protocol into one that is HVZK in Appendix~\ref{apx:zeroknowledge}. This transformation impacts performance as it requires sending several extra group elements per level of recursion resulting in a multiplicative increase in proof size. It also requires a stronger security assumption due to a reliance on a \emph{proof of knowledge of exponent} (PoKE) by Boneh~\emph{et al.}~\cite{C:BonBunFis19}. The PoKE protocol has been proven secure in the generic group model, but is not known to reduce to any concrete falsifiable assumption. 
 \end{comment}
 
 \subsection{Security Analysis} 
