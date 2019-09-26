@@ -158,7 +158,7 @@ There is exactly one query to each oracle on a random point in $\FF$. The soundn
 \end{theorem}
 
 \begin{proof}
-By definition of a $(\mu, d)$ algebraic linear IOP, in each $i$th round of the IOP there are $\ell$ query generation functions $P_1,\ldots,P_\ell: \FF^\mu \rightarrow \FF^{m_i}$, where each $P_k$ is a vector whose $j$th component is a $\mu$-variate degree-$d$ polynomial $p_{k,j}$. There is a public query algorithm that first derives a seed $\boldsymbol{\sigma_i} \in \FF^\mu$ from the verifier's $i$th round public-coin challenge $\mathit{coins}$ and then computes $\mathbf{q}_k \gets P_k(\boldsymbol{\sigma_i})$ for all $k \in [\ell]$. The  generates generate the query matrix $\mathbf{Q} \in \mathbb{F}^{m_i \times \ell}$.
+By definition of a $(\mu, d)$ algebraic linear IOP, in each $i$th round of the IOP there are $\ell$ query generation functions $P_1,\ldots,P_\ell: \FF^\mu \rightarrow \FF^{m_i}$, where each $P_k$ is a vector whose $j$th component is a $\mu$-variate degree-$d$ polynomial $p_{k,j}$. There is a public query algorithm that first derives a seed $\boldsymbol{\sigma_i} \in \FF^\mu$ from the verifier's $i$th round public-coin challenge $\mathit{coins}$ and then computes $\mathbf{q}_k \gets P_k(\boldsymbol{\sigma_i})$ for all $k \in [\ell]$. The vectors $\mathbf{q}_k$ make up the query matrix $\mathbf{Q} \in \mathbb{F}^{m_i \times \ell}$.
 
 \paragraph{Preprocessed oracles} 
 For each $i$th round, the prover and verifier preprocess $(\mu+1)$-variate degree-$d$ polynomial oracles. %(\emph{i.e.}, the prover sends these to the verifier and the verifier checks each at $(\mu+1)d+1$ points) for the the functions $P_1,\ldots,P_\ell$. 
