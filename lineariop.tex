@@ -145,7 +145,7 @@ The following is an IOP where the prover first sends two degree $d$ univariate p
 
 %\paragraph{Knowledge extraction}
 Via Schwartz-Zippel, if $h(X) \neq f(X) \cdot g(X)$ then the verifier's check $y_1 y_2 = y_3$ at the random point $\beta$ fails with probability at least $(|\FF| - 2d)/|\FF|$. %The extractor directly obtains $h(X)$, and by definition the middle coefficient (\emph{i.e.}, on the monomial $X^d$) of $h(X)$ is the inner product $\langle \mathbf{f}, \mathbf{g}^r \rangle$. Combined with the the knowledge extraction property of the IOP for opening coefficients, it follows that this inner product is equal to $a$.
-Observe that the middle coefficient of $h(X)$ is equal to $\sum_{i=0}^d f_i g_{d-i} = \sum_{i=0}^d f_i g^r_i = \langle \mathbf{f}, \mathbf{g^r} \rangle = a$.
+Observe that the middle coefficient of $h(X)$ is equal to $\sum_{i=0}^d f_i g_{d-i} = \sum_{i=0}^d f_i g^r_i = \langle \mathbf{f}, \mathbf{g}^r \rangle = a$.
 
 \paragraph{Reducing algebraic linear IOPs to Polynomial IOPs} 
 %The Polynomial IOP for inner products is a building block for the following theorem, which shows how to transform algebraic linear IOPs into Polynomial IOPs.
