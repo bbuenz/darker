@@ -290,7 +290,7 @@ There exists a 5-round HVZK polynomial IOP with preprocessing for any NP relatio
 The recent system \pro{PLONK} is an improvement on the underlying polynomial IOP in \pro{Sonic}, and achieves the following: 
 
 \begin{theorem}[PLONK,~\cite{Plonk}] 
-There exists a 3-round HVZK polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with arithmetic complexity $n$) that makes 3 queries overall to univariate degree $3n$ polynomial oracles. Preprocessing? %The preprocessing verifier does $O(n)$ work to check $12$ univariate degree $n$ polynomials.
+There exists a 3-round HVZK polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with arithmetic complexity $n$) that makes $2$ queries overall to univariate degree $3n$ polynomial oracles. Preprocessing? The preprocessing verifier does $O(n)$ work to check $6$ univariate degree $n$ polynomials.
 \end{theorem}
 
 Combining the \pro{Sonic} IOP with the new transparent polynomial compiler of Section~\ref{sec:protocol} gives the following result:  
