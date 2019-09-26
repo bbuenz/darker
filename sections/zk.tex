@@ -1,6 +1,6 @@
 This section sketches how to make the polynomial commitment scheme zero knowledge. 
 
-\paragraph{Hiding and Zero-knowledge.} For many applications it is important the polynomial commitment is hiding, and that the evaluation protocol is zero-knowledge, i.e. it reveals nothing about the polynomial other than the evaluation at the requested point.
+\paragraph{Hiding and Zero-knowledge.} For many applications it is important the polynomial commitment is hiding, and that the evaluation protocol is zero-knowledge, \emph{i.e.}, reveals nothing about the polynomial other than the evaluation at the requested point.
 Towards this end we construct a Pedersen commitment for groups of unknown order.
 The commitment key are two random group elements $\gr{g}$ and $\gr{h}$ with unknown discrete logarithm. If computing the logarithm is hard then the commitment is binding.
  The polynomial commitment changes such that $\gr{g}^{\bar{f}(q)}$ we get $\gr{g}^{\bar{f}(q)}\gr{h}^{r}$ for random $r \sample [0, B\cdot 2^{2\lambda}]$, where $B$ is an upper bound on the order of the unknown order group $\GG$.  
