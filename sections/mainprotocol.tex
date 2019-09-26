@@ -141,7 +141,8 @@ We now instantiate the abstract homomorphic commitment function $[\![ \cdot ]\!]
 We first lift the field polynomial $f(X)\in \ZZ_p[X]$ to an integer polynomial with bounded coefficients, i.e. $\hat{f}(X)\in \ZZ(\frac{p-1}{2})[X]$ such that $\hat{f}(X)\bmod p=f(x)$.
 We encode $\hat{f}(X)$ as an integers by evaluating them at a ``large enough'' integer $q$. Finally we use exponentiation in $\GG$ to commit to the integer. $[\![f(X)]\!]$, therefore, corresponds to $\gr{g}^{f(q)}$. This commitment function inherits the homomorphic properties of the integer encoding for a limited number of additions and multiplications-by-constant. The monomial homomorphism for $X^d$ is achieved by raising the group element to the power $q^{d}$. To maintain consistency between the prover's witness polynomials and the verifier's commitments, the prover operates on $\hat{f}(X)$ as an integer polynomial rather than reducing modulo $p$.
 
-The $\setup, \pro{Commit}$ and $\open$ functionalities are presented formally below. Note that the scheme is parameterized by $p$ and $q$; these values are determined by the context and independently of $\setup$.
+The $\setup, \pro{Commit}$ and $\open$ functionalities are presented formally below. Note that the scheme is parameterized by $p$ and $q$.
+%; these values are determined by the context and independently of $\setup$.
 
 %We now present our main technical contribution: a polynomial commitment scheme with an efficient evaluation protocol based on a group of unknown order $\GG$. For polynomials of degree $d=\poly$ the evaluation protocol uses $1+\lceil\log_2(d+1)\rceil$ rounds and $O(\log(d))$ communication and verifier work.
 
@@ -149,6 +150,15 @@ The $\setup, \pro{Commit}$ and $\open$ functionalities are presented formally be
 %Using the integer encoding of polynomials, or their encoding as dyadic rationals, above we can simply commit to a polynomial $f(X)$ with bounded coefficients by computing $\gr{g}^{f(q)} \in \GG$. Every polynomial in $\ZZ_p[X]$ naturally maps to an integer polynomial with coefficients in $B_{\frac{p-1}{2}}$. The commitment scheme, therefore, supports committing to polynomials in $\ZZ_p[X]$ for $p \leq q$. Interestingly, neither $p$ nor the degree $d$ need to be specified in the setup. 
 
 %As long as $q$ and ``big enough'' they can be freely chosen.\alan{Todo: make this observation elsewhere.} %In class groups there is an efficient algorithm to compute square roots, and as a result, a prover can also commit to dyadic rationals. Since every dyadic rational corresponds to a unique element in $\ZZ_p$ we can simply extend the encoding to work for polynomials with bounded dyadic rational coefficients. The only difference is that we require $q$ to be odd such that the prover cannot commit to polynomials with negative powers. We will discuss the relationship between $p$, $d$ and $q$ in more detail later but first we describe the setup, commitment and opening algorithms:
+
+\begin{itemize}
+\item $\pro{Setup}(1^\secpar):$ Sample $ \GG \sample \ggen(\secpar)$
+			and $ \gr{g} \sample \GG$. Return $\params = (\secpar,\GG,\gr{g}, q)$.
+\item $\pro{Commit}(\params;f(X) \in \ZZ(p)[X]):$ Compute $\gr{C} \gets \gr{g}^{f(q)}$ and return $(\gr{C};f(X))$.
+\item $\pro{Open}(\params,\gr{C}, f(X)):$ Check that $f(X)\in \ZZ(q/2)[X]$ and $\gr{g}^{f(q)} = \gr{C}$. 
+\end{itemize}
+
+\begin{comment}
 \begin{small}
 \begin{mdframed}[userdefinedwidth=\textwidth]
 \begin{minipage}{\textwidth}
@@ -180,6 +190,7 @@ The $\setup, \pro{Commit}$ and $\open$ functionalities are presented formally be
 \end{minipage}
 \end{mdframed}
 \end{small}
+\end{comment}
 %Opening the commitment can be simply done by rerunning the commitment algorithm. Additionally a proof of exponentiation (PoE) can be used to increase verifier efficiency.
 %The commitment inherits the homomorphic properties of the integer encoding. Assume that we are committing to representations of polynomials in $\ZZ_p[X]$, \emph{i.e.}, polynomials with coefficients bounded by $p$. Then the commitment scheme supports up to $\frac{q}{p}$ homomorphic additions. Equivalently, when raising a commitment to a weight $\alpha$, the size of the coefficients grows by at most a factor of $|\alpha|$. We use this property to build an efficient $\eval$ protocol. 
 
@@ -335,7 +346,7 @@ We describe the performance of our scheme for different settings in Table \ref{t
 \label{tab:performance}
 
 \end{table}
-The polynomial commitment by Kate et al.\cite{AC:KatZavGol10} has evaluation proofs that consist of only a single element in a bilinear group and verification requires only a single pairing. The commitment scheme, however, requires a trusted and linear sized setup. In the multivariate setting (Appendix~\ref{sec:multivariate}) our scheme is logarithmic in the total number of coefficients, i.e. $\mu\log(d)$ for a $\mu$-variate polynomial of degree $d$. The multivariate extension of Kate et al.'s commitment scheme\cite{SP:ZGKPP17} evaluation proofs consist of $\mu$ group elements.
+The polynomial commitment by Kate et al.\cite{AC:KatZavGol10} has evaluation proofs that consist of only a single element in a bilinear group and verification requires only a single pairing. The commitment scheme, however, requires a trusted and linear sized setup. In the multivariate setting (Appendix~\ref{sec:multivariate}) our scheme is logarithmic in the total number of coefficients, i.e. $\mu\log(d)$ for a $\mu$-variate polynomial of degree $d$. The multivariate extension of Kate et al.'s commitment scheme~\cite{SP:ZGKPP17} evaluation proofs consist of $\mu$ group elements.
 
 %\subsection{Multivariate polynomial commitments}\label{sec:multivariate}
 	
