@@ -28,8 +28,8 @@ This commitment function is also homomorphic, \emph{i.e.}, $\gr{g}^x\cdot \gr{g}
 \paragraph{3. Evaluation protocol}
 The evaluation protocol is an interactive argument to convince a verifier that $\gr{C}$ is an integer commitment to $\hat{f}(q)$ such that $f(z) = y$ at a provided point $z \in \ZZ_p$. The protocol must be \emph{evaluation binding}: it should be infeasible for the prover to succeed in arguing that $f(z) = y$ and $f(z) = y'$ for $y \neq y'$. The protocol should also be an \emph{argument of knowledge}, which informally means that any prover who succeeds at any point $x$ must ``know" the coefficients of the committed $f$. 
 
-As a warmup, we first describe how a prover can efficiently convince a verifier that $\gr{C}$ is a commitment to an integer polynomial of degree $d$ with bounded coefficients. The protocol uses a recursive strategy. 
-In each step we split $f(X)$ into two degree $d'=\frac{d+1}{2}-1$ polynomials $f_L(X)$ and $f_R(X)$. 
+As a warmup, we first describe how a prover can efficiently convince a verifier that $\gr{C}$ is a commitment to an integer polynomial of degree $d$ with bounded coefficients. Assume for now that $d=2^k-1$. The protocol uses a recursive strategy. 
+In each step we split $f(X)$ into two degree $d'=\lfloor\frac{d}{2}\rfloor$ polynomials $f_L(X)$ and $f_R(X)$. 
 The left half $f_L(X)$ contains the first $d'+1$ coefficients of $f(X)$ and the right half $f_R(X)$ the second, such that $f(X)=f_L(X)+X^{d'+1}f_R(X)$. The prover now commits to $f_L$ and $f_R$ by computing $\gr{C}_L\gets \gr{g}^{f_L(q)}$ and $\gr{C}_R\gets \gr{g}^{f_R(q)}$.
 \begin{comment}
 In our running example, $f_L(X)=4X+1$ and $f_R(X)=2X+3$. 
