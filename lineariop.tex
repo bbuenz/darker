@@ -110,7 +110,7 @@ The following is a $(1, d)$-Polynomial IOP for the statement $f_i = a$ with resp
 
 \begin{itemize}
 
-\item \emph{Prover}: Split $f(X)$ about the term $X^i$ into  $f_L(X)$ (of degree at most $i-1$) and $f_R(X)$ (of degree at most $d-i$) such that $f(X) = f_L(X) + a X^i + X^{i+1} f_R(X)$. Send polynomials $f_L(X)$ and $f_R(X)$. 
+\item \emph{Prover}: Split $f(X)$ about the term $X^i$ into  $f_L(X)$ (of degree at most $i-1$) and $f_R(X)$ (of degree at most $d-i-1$) such that $f(X) = f_L(X) + a X^i + X^{i+1} f_R(X)$. Send polynomials $f_L(X)$ and $f_R(X)$. 
 
 %The coefficients of $Compute commitments $c_R \leftarrow \pro{Commit}(\params, f_R(X))$ and $c_L \leftarrow \pro{Commit}(\params, f_L(X))$. Send $c_R$ and $c_L$ to the verifier. 
 
