@@ -40,7 +40,7 @@ In general, evaluating the query circuit for a linear PCP requires $\Omega(n)$ w
 
 \paragraph{IOPPs and Polynomial IOPs} It turns out that with multiple rounds of interaction, it is also possible to implement Polynomial IOPs with classical IOPs, namely interactive oracle proofs of proximity (IOPPs)~\cite{STOC:ReiRotRot16,TCC:BenChiSpo16}. In particular, a univariate poylnomial commitment scheme is implicit in the FRI (Fast Reed Solomon IOPP)~\cite{ICALP:BBHR18} protocol and its improvement DEEP-FRI~\cite{ECCC:BGKS19}. This connection is also explicitly described in a recent preprint~\cite{MatterLabs}. Evaluating committed polynomials using these techniques results in an IOP with polylogarithmic communication complexity.\\
 
-For completeness, we recall the formal definition of public-coin linear IOPs. Our results will only make use of public-coin IOPs. 
+For completeness, we recall the formal definition of public-coin linear IOPs. Our results will only make use of public-coin IOPs. We relax the definition slightly to allow for non-uniform seed vectors. Specifically, in round $i$, the verifier's challenge $\mathit{coins}_i \in \{0,1\}^*$ is expanded into a query matrix $\mathbf{Q}_i$ in two steps. The first step generates a short query seed vector $\boldsymbol{\sigma_i} \in \mathbb{F}^\mu$, which is then mapped to via the circuit $C$ to the matrix $\mathbf{Q}_i$ in the second step. Only the circuit $C$ of the second step must have a low-degree polynomial representation for algebraic linear IOPs.
 
 \begin{definition} [Public-coin linear IOP]
 \label{def:linearIOP}
@@ -62,7 +62,7 @@ with probability greater than $\delta$ then $\mathcal{E}^{\prover^*}(x)$ outputs
 % (Although the verifier only accesses $P^*$'s output by querying a linear function oracle, $E$ reads the whole output).  \\
 
 Furthermore, the linear IOP is \textbf{stateless} and has \textbf{degree} $d$ if for each $i \in [t]$ and $\textsf{st}^\verifier_{i-1}$ there are $\ell$ $\mu_i$-variate degree at most $d$ polynomial functions %s\footnote{A polynomial function $f:\FF^\mu \rightarrow \FF^m$ has the component-wise representation $(f_1,...,f_m)$ where each $f_i$ is a $\mu$-variate degree $d$ polynomial.}
-$p_1,\ldots,p_\ell: \FF^{\mu_i} \rightarrow \FF^{m_i}$ such that $\qgen(\textsf{st}^V_{i-1}, \mathit{coins}_i) = p_i(\boldsymbol{\sigma_i})$. The IOP is \textbf{algebraic} %for a parameter $\lambda$
+$p_1,\ldots,p_\ell: \FF^{\mu_i} \rightarrow \FF^{m_i}$ such that $\qgen(\textsf{st}^V_{i-1}, \mathit{coins}_i) = \qgen(i, \mathit{coins}_i) = p_i(\boldsymbol{\sigma_i})$. The IOP is \textbf{algebraic} %for a parameter $\lambda$
 if $d = poly(\lambda)$.
 %It is \textbf{input-oblivious} if $x$ is not included in the state passed to $Q$.
 
@@ -76,9 +76,9 @@ Let $\textsf{View}_{\langle \prover(x, w), \qgen(x) \rangle}(\verifier)$ denote 
 \end{definition}
 
 %TODO
-%\begin{definition}[Polynomial IOP] 
-%A public-coin $(\mu, d)$ Polynomial IOP is a public-coin linear IOP (Definition~\ref{def:linearIOP})
-%\end{definition}
+\begin{definition}[Polynomial IOP] 
+A public-coin $(\mu, d)$ Polynomial IOP is a public-coin algebraic linear IOP where each query-response $\langle \boldsymbol{\pi}_i , \mathbf{q}_{i} \rangle$ corresponds to the evaluation of some polynomial $f \in \mathbb{F}^\mu$ in the seed vector $\boldsymbol{\sigma_i}$.
+\end{definition}
 
 %\paragraph{Preprocessing IOP} In some IOPs the verifier and prover might jointly establish an oracle together. (For IOPS with polynomial length PCPs, the verifier may alternatively read the entire contents of the PCP the first time it is received in order to check that it is correct). 
 %There are several reasons the verifier might want to query this oracle again later instead of storing its contents locally. One reason might be to save local storage space. Another reason might be to separate the protocol into an ``offline" or ``preprocessing" phase where the prover and verifier jointly establish several oracles, and an ``online" phase where the verifier queries the oracle. This is particularly useful if the oracles can be reused for verifying many different statements, which is the case with preprocessing SNARKs for NP.  %could be separated into an ``offline" might need to check the correctness of an entire oracle after it is first sent, or equivalently jointly establish the oracle together with prover
