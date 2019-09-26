@@ -24,10 +24,9 @@ and the verifier makes $\emph{linear queries}$ to $\pi$. Specifically, the PCP g
 Bitansky \emph{et al.} \cite{TCC:BCIOP13} defined a linear PCP to be of degree $(d_Q, d_V)$ if there is an explicit circuit of degree $d_Q$ that derives the query vector from the verifier's random coins, and an explicit circuit of degree $d_V$ that computes the verifier's decision from the query responses. %(An arithmetic circuit $C: \FF^\mu \rightarrow \FF^n$ has degree $d$ and arity $\mu$ if each $i$th component of the output is computed by an $\mu$-variate polynomial $p_i: \FF^\mu \rightarrow \FF$ of degree at most $d$.)
 In a multi-query PCP, $d_Q$ refers to the maximum degree over all the independent circuits computing each query. Bitansky~\emph{et al.} called the linear PCP \emph{algebraic} for a security parameter $\lambda$ if it has degree $(\poly, \poly)$. The popular linear PCP based on \emph{Quadratic Arithmetic Programs} (QAPs) implicit in the GGPR protocol~\cite{EC:GGPR13} and follow-up works is an algebraic linear PCP with $d_Q \in O(n)$ and $d_V = 2$, where $n$ is the size of the witness.
 
-For the purposes of the present work, we are only interested in the algebraic nature of the query circuit and not the verifier's decision circuit. Of particular interest are linear PCPs where each query-and-response interaction corresponds to the evaluation of a fixed $\mu$-variate degree $d$ polynomial at a query point in $\FF^\mu$. This description is equivalent to saying that the PCP is a vector of length $n = \mu^d$ and the query circuit is the vector of all $\mu$-variate monomials of degree at most $d$ (in some canonical order) applied to a point in $\FF^\mu$. We call this a $(\mu, d)$ \emph{Polynomial PCP} and define \emph{Polynomial IOPs} analogously. As we will explain, we are interested in Polynomial PCPs where $\mu \ll n$ because we can cryptographically compile them into succinct arguments using polynomial commitments, in the same way that Merkle trees are used to compile classical (point-) IOPs. In fact, it is not important for the query point in $\FF^\mu$ to be random; it may be derived in a non-algebraic way from the verifier's random coins. Therefore, in order to view Polynomial PCPs as a special case of algebraic linear PCPs we must relax the definition: a linear PCP is $(\mu, d)$ algebraic if each query to a length $n$ oracle can be succinctly specified in $\FF^\mu$ and expanded into $\FF^n$ via a circuit $C$ of degree $d$. 
+For the purposes of the present work, we are only interested in the algebraic nature of the query circuit and not the verifier's decision circuit. Of particular interest are linear PCPs where each query-and-response interaction corresponds to the evaluation of a fixed $\mu$-variate degree $d$ polynomial at a query point in $\FF^\mu$. This description is equivalent to saying that the PCP is a vector of length $n = \mu^d$ and the query circuit is the vector of all $\mu$-variate monomials of degree at most $d$ (in some canonical order) applied to a point in $\FF^\mu$. We call this a $(\mu, d)$ \emph{Polynomial PCP} and define \emph{Polynomial IOPs} analogously. As we will explain, we are interested in Polynomial PCPs where $\mu \ll n$ because we can cryptographically compile them into succinct arguments using polynomial commitments, in the same way that Merkle trees are used to compile classical (point-) IOPs. In fact, it is not important for the query point in $\FF^\mu$ to be random; it may be derived in a non-algebraic way from the verifier's random coins. Therefore, in order to view Polynomial PCPs as a special case of algebraic linear PCPs we must relax the definition: a linear PCP is $(\mu, d)$ algebraic if each query to a length $n$ oracle can be succinctly specified in $\FF^\mu$ and expanded into $\FF^n$ via a circuit $C : \FF^\mu \rightarrow \FF^n$ of degree $d$. 
 
-
-In general, computing the query circuit for a linear PCP requires $\Omega(n)$ work. In order to reduce the verifier's complexity, a general ``bootstrapping" strategy is to use the prover to derive and apply the verifier's query, and then provide the verifier with a second PCP demonstrating that the queries to the first PCP were derived and applied correctly. It may also help to allow the verifier to perform $O(n)$ work in a one-time preprocessing stage (e.g. to check the correctness of a PCP oracle), which enables it to perform sublinear ``online" work when verifying arbitrary PCPs later. We call this a \emph{preprocessing IOP}. In fact, we will see that any $t$-round $(\mu, d)$ algebraic linear IOP can be transformed into a $t+1$-round Polynomial IOP in which the verifier preprocesses $(\mu, d)$ polynomial PCPs, at most one for each distinct query. 
+In general, evaluating the query circuit for a linear PCP requires $\Omega(n)$ work. However, a general ``bootstrapping'' technique can reduce the work for the verifier: the prover expands the verifier's random coins into a full query vector, and then provides the verifier with a second PCP demonstrating that this expansion was computed correctly. It may also help to allow the verifier to perform $O(n)$ work in a one-time preprocessing stage (for instance, to check the correctness of a PCP oracle), enabling him to perform sublinear ``online'' work when verifying arbitrary PCPs later. We call this a \emph{preprocessing IOP}. In fact, we will see that any $t$-round $(\mu, d)$ algebraic linear IOP can be transformed into a $t+1$-round Polynomial IOP in which the verifier preprocesses $(\mu, d)$ Polynomial PCPs, at most one for each distinct query. 
 
 %to be sublinear in $m$, a general strategy is to we would like to use the prover to derive the verifier's next query and provide a succinct \emph{succintly} prove   linear work. The arity and degree of the query circuit determine how easily the verifier can outsource affect how succinctly each query can be represented. Furthermore, the relevance of an algebraic query circuit is for succinctly representing the   of the Therefore, we will say that a linear PCP has degree $d$  
 
@@ -39,28 +38,33 @@ In general, computing the query circuit for a linear PCP requires $\Omega(n)$ wo
 
 %We define algebraic linear IOPs analogously to algebraic linear PCPs. 
 
-\paragraph{IOPPs and Polynomial IOPs} It turns out that with multiple rounds of interaction, it is also possible to implement Polynomial IOPs with classical IOPs, namely interactive oracle proofs of proximity (IOPPs)~\cite{STOC:ReiRotRot16,TCC:BenChiSpo16}. In particular, a univariate poylnomial commitment scheme is implicit in the DEEP-FRI protocol~\cite{ECCC:BGKS19}, an improvement of FRI (Fast Reed Solomon IOPP)~\cite{ICALP:BBHR18}. This connection is also explicitly described in a recent preprint~\cite{MatterLabs}. Evaluating committed polynomials using these techniques results in an IOP with polylogarithmic communication complexity.\\
+\paragraph{IOPPs and Polynomial IOPs} It turns out that with multiple rounds of interaction, it is also possible to implement Polynomial IOPs with classical IOPs, namely interactive oracle proofs of proximity (IOPPs)~\cite{STOC:ReiRotRot16,TCC:BenChiSpo16}. In particular, a univariate poylnomial commitment scheme is implicit in the FRI (Fast Reed Solomon IOPP)~\cite{ICALP:BBHR18} protocol and its improvement DEEP-FRI~\cite{ECCC:BGKS19}. This connection is also explicitly described in a recent preprint~\cite{MatterLabs}. Evaluating committed polynomials using these techniques results in an IOP with polylogarithmic communication complexity.\\
 
 For completeness, we recall the formal definition of public-coin linear IOPs. Our results will only make use of public-coin IOPs. 
 
 \begin{definition} [Public-coin linear IOP]
 \label{def:linearIOP}
-Let $\mathcal{R}$ be a binary relation and $\FF$ a finite field. A $t$-round $\ell$-query public-coin linear IOP for $\mathcal{R}$ over $\FF$ with soundness error $\epsilon$ and knowledge error $\delta$ and query length $\mathbf{m} = (m_1,...,m_t)$ is defined by a tuple of stateful PPT algorithms $(P, Q, V)$ that satisfy the following requirements:\\
+Let $\mathcal{R}$ be a binary relation and $\FF$ a finite field. A $t$-round $\ell$-query public-coin linear IOP for $\mathcal{R}$ over $\FF$ with soundness error $\epsilon$ and knowledge error $\delta$ and query length $\mathbf{m} = (m_1,...,m_t)$ is defined by a tuple of stateful PPT algorithms $(\prover, \qgen, \verifier)$ that satisfy the following requirements:\\
  
 \noindent \underline{Protocol syntax}. 
 %There is a prover algorithm $P$, a query algorithm $Q$, and a verification algorithm $V$. 
-For each $i$th round there is a prover state $\textsf{st}^P_i$ and a verifier state $\textsf{st}^V_i$. For any common input $x$ and $\mathcal{R}$ witness $w$, at round 0 the states are $\textsf{st}^P_0 = (x, w)$ and $\textsf{st}^V_0 = x$. 
-In the $i$th round (starting at $i = 1$) the prover outputs a single\footnote{The prover may also output more than one proof oracle per round, however this doesn't add any power since two proof oracles of the same size may be viewed as a single (concatenated) oracle of twice the length.} proof oracle $\proofO_i \leftarrow P(\textsf{st}^P_{i-1})$ in $\FF^{m_i}$ and the verifier outputs a uniformly sampled $\mathbf{r}_i \leftarrow_R \FF^{\mu_i}$. 
-This determines a query matrix $\mathbf{Q}_i \leftarrow Q(\textsf{st}^V_{i-1}, \mathbf{r}_i)$ consisting of $\ell$ column vectors in $\FF^{m_i}$, and the verifier obtains the linear oracle response $\mathbf{a}_i \leftarrow \proofO_i^\top \mathbf{Q}_i$. The updated prover state is $\textsf{st}^P_i \leftarrow (\textsf{st}^P_{i-1}, \mathbf{r}_i)$ and verifier state is $\textsf{st}^V_i \leftarrow (\textsf{st}^V_{i-1}, \mathbf{r}_i, \mathbf{a}_i)$. Finally, $V(\textsf{st}^V_t)$ returns $\textsf{Accept}$ or $\textsf{Reject}$. \\ 
+For each $i$th round there is a prover state $\textsf{st}^\prover_i$ and a verifier state $\textsf{st}^\verifier_i$. For any common input $x$ and $\mathcal{R}$ witness $w$, at round 0 the states are $\textsf{st}^\prover_0 = (x, w)$ and $\textsf{st}^\verifier_0 = x$. 
+In the $i$th round (starting at $i = 1$) the prover outputs a single\footnote{The prover may also output more than one proof oracle per round, however this doesn't add any power since two proof oracles of the same size may be viewed as a single (concatenated) oracle of twice the length.} proof oracle $\proofO_i \leftarrow \prover(\textsf{st}^P_{i-1})$ in $\FF^{m_i}$ and the verifier outputs a uniformly sampled $\mathbf{r}_i \leftarrow_R \FF^{\mu_i}$. 
+This short vector determines a query matrix $\mathbf{Q}_i \leftarrow \qgen(\textsf{st}^V_{i-1}, \mathbf{r}_i)$ such that $\mathbf{Q}_i \in \FF^{m_i \times \ell}$, and the verifier obtains the linear oracle response $\mathbf{a}_i \leftarrow \proofO_i^\top \mathbf{Q}_i$. The updated prover state is $\textsf{st}^\prover_i \leftarrow (\textsf{st}^\prover_{i-1}, \mathbf{r}_i)$ and verifier state is $\textsf{st}^\verifier_i \leftarrow (\textsf{st}^\verifier_{i-1}, \mathbf{r}_i, \mathbf{a}_i)$. Finally, $\verifier(\textsf{st}^\verifier_t)$ returns $1$ or $0$. \\ 
 
-\noindent \underline{Completeness}. For every $(x, w) \in \mathcal{R}$, following the protocol syntax above $V(\textsf{st}^V_t)$ returns $\textsf{Accept}$ with probability 1. \\
+\noindent \underline{Completeness}. For every $(x, w) \in \mathcal{R}$, if $(\prover, \qgen, \verifier)$ follow the protocol then $\verifier(\textsf{st}^V_t)$ returns $1$ with probability 1. \\
 
-\noindent \underline{Soundness}. If $(x, w) \notin \mathcal{R}$ for every $w$, then for every prover algorithm $P^*$ that outputs a linear function oracle $\proofO^*_i: \FF^{m_i} \rightarrow \FF$ in the $i$th round of the protocol initialized on $x$, the probability $V(\textsf{st}^V_t)$ returns $\textsf{Accept}$ is less than $\epsilon$. \\
+\noindent \underline{Soundness}. If $(x, w) \notin \mathcal{R}$ for every $w$, then for every prover algorithm $\prover^*$, %that outputs a linear function oracle $\proofO^*_i: \FF^{m_i} \rightarrow \FF$ in the $i$th round of the protocol initialized on $x$,
+the probability $\verifier(\textsf{st}^\verifier_t)$ returns $1$ is less than $\epsilon$. \\
 
-\noindent \underline{Knowledge}. There exists a PPT knowledge extractor $\mathcal{E}$ such that for any prover algorithm $P^*$ and every $x$, if $V(\textsf{st}^V_t)$ outputs \textsf{Accept} in its interaction with $P^*$ on input $x$ with probability greater than $\delta$ then $\mathcal{E}^{P^*}(x)$ outputs $w$ such that $(x, w) \in \mathcal{R}$ in expected polynomial time. $\mathcal{E}^{P^*}(x)$ receives the input $x$ and interacts with $P^*$ via rewinding, sending partial transcripts and receiving $P^*$'s next output. (Although the verifier only accesses $P^*$'s output by querying a linear function oracle, $E$ reads the whole output).  \\
+\noindent \underline{Knowledge}. There exists a PPT knowledge extractor $\mathcal{E}$ such that for any prover algorithm $\prover^*$ and every $x$, if $\verifier(\textsf{st}^\verifier_t)$ outputs 1% in its interaction with $P^*$ on input $x$
+with probability greater than $\delta$ then $\mathcal{E}^{\prover^*}(x)$ outputs $w$ such that $(x, w) \in \mathcal{R}$ in expected polynomial time. $\mathcal{E}^{\prover^*}(x)$ receives the input $x$ and interacts with $\prover^*$ via rewinding, replaying with fresh verifier randomness, and recording the resulting transcripts. %sending partial transcripts and receiving $P^*$'s next output. 
+% (Although the verifier only accesses $P^*$'s output by querying a linear function oracle, $E$ reads the whole output).  \\
 
-Furthermore, the linear IOP has \textbf{degree} $d$ if for each $i \in [t]$ and $\textsf{st}^V_{i-1}$ there are $\ell$ $\mu_i$-variate (at most) degree $d$ polynomial functions\footnote{A polynomial function $f:\FF^\mu \rightarrow \FF^m$ has the component-wise representation $(f_1,...,f_m)$ where each $f_i$ is a $\mu$-variate degree $d$ polynomial.}  $p_1,...,p_\ell: \FF^{\mu_i} \rightarrow \FF^{m_i}$ such that $Q(\textsf{st}^V_{i-1}, \mathbf{r}_i) = p_i(\st_{i-1}, \mathbf{r}_i)$. The IOP is \textbf{algebraic} for a parameter $\lambda$ if $d = poly(\lambda)$.
-It is \textbf{input-oblivious} if $x$ is not included in the state passed to $Q$, and is \textbf{stateless} if the only input to $Q$ in each round is the round index $i$ and $\mathbf{r}_i$.
+Furthermore, the linear IOP is \textbf{stateless} and has \textbf{degree} $d$ if for each $i \in [t]$ and $\textsf{st}^\verifier_{i-1}$ there are $\ell$ $\mu_i$-variate degree at most $d$ polynomial functions %s\footnote{A polynomial function $f:\FF^\mu \rightarrow \FF^m$ has the component-wise representation $(f_1,...,f_m)$ where each $f_i$ is a $\mu$-variate degree $d$ polynomial.}
+$p_1,\ldots,p_\ell: \FF^{\mu_i} \rightarrow \FF^{m_i}$ such that $Q(\textsf{st}^V_{i-1}, \mathbf{r}_i) = p_i(\mathbf{r}_i)$. The IOP is \textbf{algebraic} %for a parameter $\lambda$
+if $d = poly(\lambda)$.
+%It is \textbf{input-oblivious} if $x$ is not included in the state passed to $Q$.
 
 %\alan{I think an algebraic linear IOP is sufficiently important and standalone and sufficiently different from a generic linear IOP for it to have its own definition --- which can be two lines referring to linear IOPs.}
 
@@ -68,7 +72,7 @@ It is \textbf{input-oblivious} if $x$ is not included in the state passed to $Q$
 
 
 \begin{definition}[HVZK for public-coin IOPs]
-Let $\textsf{View}_{\langle P(x, w), Q(x) \rangle}(V)$ denote the view of the verifier in the $t$-round $\ell$-query interactive protocol described in Definition~\ref{def:linearIOP} on inputs $(x,w)$ with prover algorithm $P$ and query algorithm $Q$, consisting of all public-coin challenges and oracle outputs (\emph{i.e.}, equivalent to the final state $\textsf{st}^V_t$). The interactive protocol has $\delta$-statistical honest verifier zero-knowledge if there exists a probabilistic polynomial time algorithm $S$ such that for every $(x, w) \in \mathcal{R}$, the distribution $S(x)$ is $\delta$-close to $\textsf{View}_{\langle P(x, w), Q(x) \rangle}(V)$ (as distributions over the randomness of $P$ and random public-coin challenges).
+Let $\textsf{View}_{\langle \prover(x, w), \qgen(x) \rangle}(\verifier)$ denote the view of the verifier in the $t$-round $\ell$-query interactive protocol described in Definition~\ref{def:linearIOP} on inputs $(x,w)$ with prover algorithm $\prover$ and query algorithm $\qgen$, consisting of all public-coin challenges and oracle outputs (\emph{i.e.}, equivalent to the final state $\textsf{st}^\verifier_t$). The interactive protocol has $\delta$-statistical honest verifier zero-knowledge if there exists a probabilistic polynomial time algorithm $\mathcal{S}$ such that for every $(x, w) \in \mathcal{R}$, the distribution $\mathcal{S}(x)$ is $\delta$-close to $\textsf{View}_{\langle \prover(x, w), \qgen(x) \rangle}(V)$ (as distributions over the randomness of $\prover$ and random public-coin challenges).
 \end{definition}
 
 %TODO
@@ -76,7 +80,7 @@ Let $\textsf{View}_{\langle P(x, w), Q(x) \rangle}(V)$ denote the view of the ve
 %A public-coin $(\mu, d)$ Polynomial IOP is a public-coin linear IOP (Definition~\ref{def:linearIOP})
 %\end{definition}
 
-\paragraph{Preprocessing IOP} In some IOPs the verifier and prover might jointly establish an oracle together. (For IOPS with polynomial length PCPs, the verifier may alternatively read the entire contents of the PCP the first time it is received in order to check that it is correct). 
+%\paragraph{Preprocessing IOP} In some IOPs the verifier and prover might jointly establish an oracle together. (For IOPS with polynomial length PCPs, the verifier may alternatively read the entire contents of the PCP the first time it is received in order to check that it is correct). 
 %There are several reasons the verifier might want to query this oracle again later instead of storing its contents locally. One reason might be to save local storage space. Another reason might be to separate the protocol into an ``offline" or ``preprocessing" phase where the prover and verifier jointly establish several oracles, and an ``online" phase where the verifier queries the oracle. This is particularly useful if the oracles can be reused for verifying many different statements, which is the case with preprocessing SNARKs for NP.  %could be separated into an ``offline" might need to check the correctness of an entire oracle after it is first sent, or equivalently jointly establish the oracle together with prover
 
 \if 0 
@@ -93,17 +97,25 @@ One implication of these observations is that algebraic linear IOPs can be imple
 
 
 \subsection{Polynomial IOP reductions} 
-\subsubsection{Univariate polynomial coefficient queries}~\label{sec:opencoefficient} 
-For a polynomial $f \in \FF[X]$ let $f_i$ denote the $i$th coefficient. Given a polynomial PCP $f$ of at most degree $d$ with coefficient vector $(f_1,...,f_d)$, the following is a $(1, d)$-Polynomial IOP for the statement $f_i = a$. In the Polynomial IOP model each proof oracle sent to verifier is guaranteed to be a univariate polynomial of degree at most $d$; the verifier does not need to perform extra checks to ensure this.
+
+In this section we show that one can construct any algebraic linear IOP from a (multivariate) Polynomial IOP. This construction rests on two tools for univariate Polynomial IOPs that we cover first:
+\begin{itemize}
+    \item \emph{Coefficient queries.} The verifier verifies that an indicated coefficient of a Polynomial PCP has a given value.
+    \item \emph{Inner products.} The verifier verifies that the inner product of the coefficient vectors of two Polynomial PCPs equals a given value.
+\end{itemize}
+
+\subsubsection{Coefficient queries}~\label{sec:opencoefficient} 
+%For a polynomial $f \in \FF[X]$ let $f_i$ denote the $i$th coefficient. Given a Polynomial PCP $f$ of degree at most $d$ with coefficient vector $(f_1,...,f_d)$, 
+The following is a $(1, d)$-Polynomial IOP for the statement $f_i = a$ with respect to a polynomial $f(X) = \sum_{j=0}^d f_j X^j$. %In the Polynomial IOP model each proof oracle sent to verifier is guaranteed to be a univariate polynomial of degree at most $d$; the verifier does not need to perform extra checks to ensure this.
 
 \begin{itemize}
 
-\item \emph{Prover}: Split $f(X)$ about the term $X^i$ into a lower part $f_L(X)$ of degree $i -1$ and an upper part $f_R(X)$ of degree $d - i - 1$ such that $f(X) - a X^i = X^{i+1} f_R(X) + f_L(X)$. Send polynomials $f$, $f_R(X)$, and $X^{d - i + 1}f_L(X)$. 
+\item \emph{Prover}: Split $f(X)$ about the term $X^i$ into  $f_L(X)$ (of degree at most $i-1$) and $f_R(X)$ (of degree at most $d-i$) such that $f(X) = f_L(X) + a X^i + X^{i+1} f_R(X)$. Send polynomials $f_L(X)$ and $f_R(X)$. 
 
 %The coefficients of $Compute commitments $c_R \leftarrow \pro{Commit}(\params, f_R(X))$ and $c_L \leftarrow \pro{Commit}(\params, f_L(X))$. Send $c_R$ and $c_L$ to the verifier. 
 
-\item \emph{Verifier}: Sample uniform random  $\beta \leftarrow_R \FF_p$ and query for $y_R \leftarrow f_R(\beta)$, $y_L \leftarrow f_L(\beta)$, and $y \leftarrow f(\beta)$. 
-Check that $y = y_L \beta^{-d + i - 1} + \beta^{i+1} y_R - a \beta^i \bmod p$ and return $0$ (abort) if not. Otherwise output $1$ (accept). 
+\item \emph{Verifier}: Sample uniform random  $\beta \sample \FF_p$ and query for $y_L \leftarrow f_L(\beta)$, $y_R \leftarrow f_R(\beta)$, and $y \leftarrow f(\beta)$. 
+Check that $y = y_L + a \beta^i + \beta^{i+1} y_R \bmod p$ and return $0$ (abort) if not. Otherwise output $1$ (accept). 
 
 %\item \emph{Prover}: Evaluate $y_R \leftarrow f_R(\beta)$, $y_L \leftarrow f_L(\beta)$, and $y \leftarrow f(\beta)$. Send $y_R, y_L, y$ to the verifier. 
 
@@ -211,7 +223,7 @@ If the polynomial commitment scheme $\Gamma$ has witness-extended emulation and 
 \end{theorem}
 
 \begin{proof}
-The proof is provided in the Clearly Marked Supplementary Material~\ref{sec:IOPcompilerproof}.
+The proof is provided in the \appendixphrase~\ref{sec:IOPcompilerproof}.
 \end{proof} 
 \ben{TODO perhaps provide some sketch here} 
 
