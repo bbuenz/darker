@@ -27,7 +27,7 @@ In the protocol $b$ is the bound on the size of $f$ and $B$ an independent upper
  \noindent\begin{mdframed}[userdefinedwidth=\textwidth]
 \begin{minipage}{\textwidth}
 	\begin{flushleft}
-	\pro{$\Sigma$ Proof of Equality}:\\
+	\pro{$\Sigma$ Proof of Equality} for Relation: $\mathcal{R}_{EQUAL}$\\
 	Input: $\gr{C} \in \GG_{UO}, \gr{Y}\in \GG_{PO}, b,B\in \ZZ$, Witness: $f \in \ZZ(b),r_C \in \ZZ,r_Y \in \ZZ_p$\\
 	Statement: $\gr{C}=\commit_{UO}(f;r_C)$ and $\gr{Y}=\commit_{PO}(f \bmod p;r_Y)$
 	\begin{enumerate}[nolistsep]
@@ -41,8 +41,8 @@ In the protocol $b$ is the bound on the size of $f$ and $B$ an independent upper
 	\end{flushleft}
 \end{minipage}
 \end{mdframed}
- The protocol is zero-knowledge if the commitments are hiding and is an argument of knowledge in the generic group model.
+ The protocol is zero-knowledge if the commitments are hiding and is an argument of knowledge for $\mathcal{R}_{EQUAL}$.
  \paragraph{Proof sketch}
  We show that the protocol is zero-knowledge by showing that we can build an efficient simulator that can create valid looking transcripts without knowing the witness. The simulator samples a challenge $\alpha$ as well as random $s_Y$, $s_C$ and $s_f$ in the appropriate domains. Then it computes $\gr{R}_C$ and $\gr{R}_Y$ directly from the verification equations and the sampled elements. Note that $\gr{R}_C$ is a random group element in both the honest and the simulated transcripts. $\gr{R}_C$ and $\gr{R}_Y$ are computationally indistinguishable from random group elements under the subgroup indistinguishability assumption as shown in \cite{AC:DamFuj02,C:BraGol10}. This shows that the simulated transcripts are computationally indistinguishable from honestly generated transcripts.
  
- The knowledge extraction proof in the generic group model is presented in \cite{C:BonBunFis19}.
+ To show that the protocol is extractable we receive two transcripts $\tr=(\gr{R}_C,\gr{R}_Y,\alpha,s_f,s_C,s_Y)$ and $\tr'=(\gr{R}_C,\gr{R}_Y,\alpha',s_f',s_C',s_Y')$ for $\alpha \neq \alpha'$. We compute $\commit(s_f-s_f',s_C-s_C')=\gr{C}^{\alpha-\alpha'}$. Boneh et al. \cite{C:BonBunFis19} that the probability that $s_f-s_f'$ and $s_C-s_C'$  do not divide $\alpha-\alpha'$ is negligible. We therefore compute $\commit_{UO}(\frac{ s_f-s_f'}{\alpha-\alpha'}; \frac{ s_C-s_C'}{\alpha-\alpha'})=\gr{C}$. Additionally, we can compute $\commit_{PO}( \frac{ s_f-s_f'}{\alpha-\alpha'} \bmod p; \frac{ s_y-s_y'}{\alpha-\alpha'})=\gr{Y}$. This shows that $f=\frac{ s_f-s_f'}{\alpha-\alpha'} \bmod p$ is equal to $y$ mod $p$. Additionally the bound on $s_f$ gives us an upper bound on the size of $f$. Given a sufficiently large $q$ this shows that the overall polynomial commitment scheme still has witness extended emulation.
