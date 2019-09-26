@@ -6,7 +6,7 @@ Appendix
 Section
 \fi \ref{subsec:optimization} the commitment scheme has several batching properties. It is possible to evaluate $k$ polynomials of degree at most $d$ using only $2$ group elements and $(k+1)$ field elements. To take advantage of this we delay the evaluation until the last step of the protocol (see Section \ref{subsec:compiling}). We present the proof size for both the compilation of Sonic and Plonk in Table~\ref{tab:proofsize}. We use 1200 bits as the size of the class group (\cite{PKC/BucHam01}) and $\lambda=120$. This leads to proof sizes of $11KB$ for Sonic and $8.4$KB using Plonk for circuits with a million gates. Using 2048-bit RSA groups the proof sizes become $17KB$ and $13.6KB$ respectively. 
 
-The comparison is slightly off as for Sonic this is multiplication gates and for Plonk these are both multiplication and addition gates. A more careful analysis is therefore necessary but this shows that there exists polynomial-IOPs that can be compiled to roughly $10-20$-KB SNARKs using the DARK polynomial commitment scheme. This stands in contrast to STARKs which achieve proofs of $600$KB for computation of similar complexity~\cite{C:BBHR19}. 
+The comparison is slightly off as for Sonic this is multiplication gates and for Plonk these are both multiplication and addition gates. A more careful analysis is therefore necessary but this shows that there exists Polynomial IOPs that can be compiled to roughly $10-20$-KB SNARKs using the DARK polynomial commitment scheme. This stands in contrast to STARKs which achieve proofs of $600$KB for computation of similar complexity~\cite{C:BBHR19}. 
 \vspace{-1em}
 
 \begin{table}
@@ -27,7 +27,7 @@ Poly-IOP &Polynomials  & \eval{}s & $|$SNARK$|$ & $n=2^{20},\lambda=120,|\GG|=12
 \caption{Proof size for $\textsf{\textbf{Supersonic}}$. Column 2 says how many polynomials are committed to in the SRS (offline oracles) and how many are sent by the prover (online oracles). Column 3 states the number of evaluation points. The proof size calculation uses $|\ZZ_p|=120$ and $|\GG|=1200$ for $n=2^{20}$ gates.}
 \label{tab:proofsize}
 \end{table}
-\vspace{-3em}
+
 \paragraph{Prover and Verifier cost}
 %With pre-computation the prover time consists of a linear number of group operations. 
 The main prover cost for the \textsf{\textbf{Supersonic}} consist of producing the commitments to the polynomial oracles and producing the single combined $\eval$ proof.
