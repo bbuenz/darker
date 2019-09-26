@@ -77,7 +77,7 @@ Let $\textsf{View}_{\langle \prover(x, w), \qgen(x) \rangle}(\verifier)$ denote 
 
 %TODO
 \begin{definition}[Polynomial IOP] 
-A public-coin $(\mu, d)$ Polynomial IOP is a public-coin algebraic linear IOP where each query-response $\langle \boldsymbol{\pi}_i , \mathbf{Q}_{i} \rangle$ corresponds to the evaluation of some polynomial $f \in \mathbb{F}^\mu$ in the seed vector $\boldsymbol{\sigma_i}$.
+A public-coin $(\mu, d)$ Polynomial IOP is a public-coin algebraic linear IOP where in all rounds $\ell=1$ and each query-response $\langle \boldsymbol{\pi}_i , \mathbf{q}_{i} \rangle$ corresponds to the evaluation of some polynomial $f \in \mathbb{F}[X_1, \ldots, X_\mu]$ in the seed vector $\boldsymbol{\sigma_i} \in \mathbb{F}^\mu$ from which $\mathbf{q}_i$ was derived.
 \end{definition}
 
 %\paragraph{Preprocessing IOP} In some IOPs the verifier and prover might jointly establish an oracle together. (For IOPS with polynomial length PCPs, the verifier may alternatively read the entire contents of the PCP the first time it is received in order to check that it is correct). 
