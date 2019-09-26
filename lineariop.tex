@@ -246,7 +246,7 @@ The number of univariate queries increased from the original $3$ in \textsf{Soni
 If we were to compile the bivariate query directly using our multivariate commitment scheme this would result in $O(n^2)$ prover time (a bivariate polynomial with degree $n$ on each variable is converted to a univariate polynomial of degree roughly $n^2$). However, \textsf{Sonic} also provides a way to replace the bivariate polynomial with several degree $n$ univariate polynomials and more rounds of communication. 
 
 \begin{theorem}[Sonic Univariate, \cite{Sonic}]\label{thm:sonic} 
-There exists a 5-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with arithmetic complexity $n$) that makes 27 queries overall to univariate degree $n$ polynomial oracles. The preprocessing verifier does $O(n)$ work to check $12$ univariate degree $n$ polynomials. 
+There is a 5-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with arithmetic complexity $n$) that makes 27 queries overall to univariate degree $n$ polynomial oracles. The preprocessing verifier does $O(n)$ work to check $12$ univariate degree $n$ polynomials. 
 \end{theorem}
 
 The recent system \pro{PLONK} is an improvement on the underlying Polynomial IOP in \pro{Sonic}, and achieves the following: 
@@ -264,8 +264,7 @@ There exists an $O(\log n)$-round public-coin interactive argument of knowledge 
 \begin{proof}
 We apply the univariate polynomial commitment scheme from Section~\ref{sec:protocol} to the 5-round Polynomial IOP from Theorem~\ref{thm:sonic}. Denote this commitment scheme by $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ 
 
-The preprocessing requires running $\pro{Commit}$ on $12$ univariate degree $n$ polynomials, which involves a quasilinear number of group operations in the group of unknown order $\GG$ determined by $\pro{Setup}$. The prover sends a constant number of proof oracles of degree $n$ to the verifier, which also takes a quasilinear number of group operations. Finally, the 27 queries are replaced with at most $27$ invocations of $\eval$, which adds $O(\log n )$ rounds and has $O(\log n)$ communication. By Theorem~\ref{thm:polycommitsecurity} ($\Gamma$ has witness extended emulation) and Theorem~\ref{thm:IOPcompiler}, the compiled interactive argument has witness-extended emulation.
-
+The preprocessing requires running $\pro{Commit}$ on $12$ univariate degree $n$ polynomials, which involves a quasilinear number of group operations in the group of unknown order $\GG$ determined by $\pro{Setup}$. The prover sends a constant number of proof oracles of degree $n$ to the verifier, which also takes a quasilinear number of group operations. Finally, the 27 queries are replaced with at most $27$ invocations of $\eval$, which adds $O(\log n )$ rounds and has $O(\log n)$ communication. By Theorem~\ref{thm:polycommitsecurity} ($\Gamma$ has witness extended emulation) and Theorem~\ref{thm:IOPcompiler}, the compiled interactive argument has witness-extended emulation. \qed
 \end{proof}
 
 \ifappendix
