@@ -49,7 +49,7 @@ Let $\mathcal{R}$ be a binary relation and $\FF$ a finite field. A $t$-round $\e
 \noindent \underline{Protocol syntax}. 
 %There is a prover algorithm $P$, a query algorithm $Q$, and a verification algorithm $V$. 
 For each $i$th round there is a prover state $\textsf{st}^\prover_i$ and a verifier state $\textsf{st}^\verifier_i$. For any common input $x$ and $\mathcal{R}$ witness $w$, at round 0 the states are $\textsf{st}^\prover_0 = (x, w)$ and $\textsf{st}^\verifier_0 = x$. 
-In the $i$th round (starting at $i = 1$) the prover outputs a single\footnote{The prover may also output more than one proof oracle per round, however this doesn't add any power since two proof oracles of the same size may be viewed as a single (concatenated) oracle of twice the length.} proof oracle $\proofO_i \leftarrow \prover(\textsf{st}^P_{i-1})$ in $\FF^{m_i}$ and the verifier outputs a uniformly sampled string of random bits $\mathit{coins}_i \sample \{0,1\}^*$ which is expanded in two steps by the public query algorithm $\qgen$ which can take an additional argument $\textsf{st}^V_{i-1}$. First, $\mathit{coins}_i$ is mapped to the query seed $\boldsymbol{\sigma}_i \in \mathbb{F}^{\mu}$; this value is then mapped to the query matrix $\mathbf{Q} \in \mathbb{F}^{m_i \times \ell}$.
+In the $i$th round (starting at $i = 1$) the prover outputs a single\footnote{The prover may also output more than one proof oracle per round, however this doesn't add any power since two proof oracles of the same size may be viewed as a single (concatenated) oracle of twice the length.} proof oracle $\proofO_i \leftarrow \prover(\textsf{st}^P_{i-1})$ in $\FF^{m_i}$ and the verifier outputs a uniformly sampled string of random bits $\mathit{coins}_i \sample \{0,1\}^*$ which is expanded by the public query algorithm $\qgen$ which can take an additional argument $\textsf{st}^V_{i-1}$. First, $\mathit{coins}_i$ is mapped to the query seed $\boldsymbol{\sigma}_i \in \mathbb{F}^{\mu}$; this value is then mapped to the query matrix $\mathbf{Q} \in \mathbb{F}^{m_i \times \ell}$.
 The verifier obtains the linear oracle response $\mathbf{a}_i \leftarrow \proofO_i^\top \mathbf{Q}_i$. The updated prover state is $\textsf{st}^\prover_i \leftarrow (\textsf{st}^\prover_{i-1}, \mathit{coins}_i)$ and verifier state is $\textsf{st}^\verifier_i \leftarrow (\textsf{st}^\verifier_{i-1}, \mathit{coins}_i, \mathbf{a}_i)$. Finally, $\verifier(\textsf{st}^\verifier_t)$ returns $1$ or $0$. \\ 
 
 \noindent \underline{Completeness}. For every $(x, w) \in \mathcal{R}$, if $(\prover, \qgen, \verifier)$ follow the protocol then $\verifier(\textsf{st}^V_t)$ returns $1$ with probability 1. \\
@@ -61,13 +61,9 @@ the probability $\verifier(\textsf{st}^\verifier_t)$ returns $1$ is less than $\
 with probability greater than $\delta$ then $\mathcal{E}^{\prover^*}(x)$ outputs $w$ such that $(x, w) \in \mathcal{R}$ in expected polynomial time. $\mathcal{E}^{\prover^*}(x)$ receives the input $x$ and interacts with $\prover^*$ via rewinding, replaying with fresh verifier randomness, and recording the resulting transcripts. %sending partial transcripts and receiving $P^*$'s next output. 
 % (Although the verifier only accesses $P^*$'s output by querying a linear function oracle, $E$ reads the whole output).  \\
 
-Furthermore, the linear IOP is \textbf{stateless} and has \textbf{degree} $d$ if for each $i \in [t]$ and $\textsf{st}^\verifier_{i-1}$ there are $\ell$ $\mu_i$-variate degree at most $d$ polynomial functions %s\footnote{A polynomial function $f:\FF^\mu \rightarrow \FF^m$ has the component-wise representation $(f_1,...,f_m)$ where each $f_i$ is a $\mu$-variate degree $d$ polynomial.}
-$p_1,\ldots,p_\ell: \FF^{\mu_i} \rightarrow \FF^{m_i}$ such that $\qgen(\textsf{st}^V_{i-1}, \mathit{coins}_i) = \qgen(i, \mathit{coins}_i) = p_i(\boldsymbol{\sigma_i})$. The IOP is \textbf{algebraic} %for a parameter $\lambda$
-if $d = poly(\lambda)$.
+Furthermore, a linear IOP is \textbf{stateless} if for each $i \in [t]$, $\qgen(\textsf{st}^V_{i-1}, \mathit{coins}_i) = \qgen(i, \mathit{coins}_i)$. It is \textbf{algebraic} if $\textit{coins}_i$ is mapped to $\boldsymbol{\sigma_i}$ before it is mapped to $\boldsymbol{Q}_i$, and if this second map is described by $\ell$ $\mu_i$-variate polynomial functions of degree at most $d = \poly$: $p_1, \ldots, p_\ell : \mathbb{F}^{\mu_i} \rightarrow \mathbb{F}^{m_i}$ such that for all $k \in [\ell]$, $p_k(\boldsymbol{\sigma_i}) = \mathbf{q}_{i,k}$ and where the vectos $\mathbf{q}_{i,k}$ represent the columns of $\mathbf{Q}_i$.
+
 %It is \textbf{input-oblivious} if $x$ is not included in the state passed to $Q$.
-
-%\alan{I think an algebraic linear IOP is sufficiently important and standalone and sufficiently different from a generic linear IOP for it to have its own definition --- which can be two lines referring to linear IOPs.}
-
 \end{definition} 
 
 
@@ -77,7 +73,7 @@ Let $\textsf{View}_{\langle \prover(x, w), \qgen(x) \rangle}(\verifier)$ denote 
 
 %TODO
 \begin{definition}[Polynomial IOP] 
-A public-coin $(\mu, d)$ Polynomial IOP is a public-coin algebraic linear IOP where in all rounds $\ell=1$ and each query-response $\langle \boldsymbol{\pi}_i , \mathbf{q}_{i} \rangle$ corresponds to the evaluation of some polynomial $f \in \mathbb{F}[X_1, \ldots, X_\mu]$ in the seed vector $\boldsymbol{\sigma_i} \in \mathbb{F}^\mu$ from which $\mathbf{q}_i$ was derived.
+A public-coin $(\mu, d)$ Polynomial IOP is a public-coin algebraic linear IOP where in each query-response $\ell = 1$ and the inner product $\langle \boldsymbol{\pi}_i , \mathbf{Q} \rangle$ corresponds to the evaluation of some polynomial $f \in \mathbb{F}[X_1, \ldots, X_\mu]$ of total degree at most $d$ in the seed vector $\boldsymbol{\sigma_i} \in \mathbb{F}^\mu$ from which $\mathbf{Q}$ was derived.
 \end{definition}
 
 %\paragraph{Preprocessing IOP} In some IOPs the verifier and prover might jointly establish an oracle together. (For IOPS with polynomial length PCPs, the verifier may alternatively read the entire contents of the PCP the first time it is received in order to check that it is correct). 
