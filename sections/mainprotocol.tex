@@ -48,7 +48,7 @@ Before we present our concrete polynomial commitment scheme based on groups of u
 
 Let $[\![ \cdot ]\!] : \mathbb{Z}_p[X] \rightarrow \mathbb{S}$ be a homomorphic commitment function that sends polynomials over a prime field to elements of some set $\mathbb{S}$. Moreover, let $\mathbb{S}$ be equipped with operations $* + * : \mathbb{S} \times \mathbb{S} \rightarrow \mathbb{S}$ and $ * \cdot * : \mathbb{Z}_p[X] \times \mathbb{S} \rightarrow \mathbb{S}$ that accommodate two homomorphisms for $[\![ \cdot ]\!]$:
 \begin{itemize}
-    \item a \emph{linear homomorphism}: $a \cdot [\![f(X)]\!] + b \cdot [\![g(X)]\!] = [\![af(X) + bg(X)]\!]$; and
+    \item a \emph{linear homomorphism}: $a \cdot [\![f(X)]\!] + b \cdot [\![g(X)]\!] = [\![af(X) + bg(X)]\!]$
     \item a \emph{monomial homomorphism}: $X^d \cdot [\![f(X)]\!] = [\![X^d f(X)]\!]$.
 \end{itemize}
 For now, assume both prover and verifier have oracle access to the function $[\![\cdot]\!]$ and to the operations $ * \cdot *$ and $* + *$. (Later on, we will instantiate this commitment function using groups of unknown order and the integer encoding of polynomials.)
@@ -308,10 +308,14 @@ Let $\ggen$ generate groups $\GG$ of unknown order such that the order of $\GG$ 
 \end{theorem}
 The proof of Theorem~\ref{thm:dyadicpolysecurity} is nearly identical to the proof of Theorem~\ref{thm:polycommitsecurity} but the extracted polynomials are dyadic rationals and not integers. This requires the bound on $q$ to be larger by a factor of $p^{\log(d+1)}$. The proof is presented in the \appendixphrase~(\ref{apx:dyadic}).
 
+<<<<<<< HEAD
 \subsection{Multivariate Commitments and Optimizations}
 We present a multivariate variant in Appendix \ref{sec:multivariate}. The idea is simply to use higher degrees of $q$ to encode the next indeterminate. The scheme has communication complexity and verification time $O(\mu \log(d))$ for an $\mu$-variate polynomial of degree $d$. We also present several optimizations that significantly reduce the proof size, prover time and verification time (see Appendix~\ref{subsec:optimization}). 
+=======
+\subsection{Multivariate Polynomials, Optimizations, and Performance}
+We present a multivariate variant in Appendix \ref{sec:multivariate}. The scheme has communication complexity and verification time $O(\mu \log(d))$ for an $\mu$-variate polynomial of degree $d$. We also present several optimizations that significantly reduce the proof size, prover time and verification time (see Appendix~\ref{subsec:optimization}). 
+>>>>>>> c3392adfa8a215afcf1e85e060d1af047cd43ad4
 
-\subsection{Performance.}
 The polynomial commitment scheme has logarithmic proof size and verifier time in the degree $d$ of the committed polynomial. 
 It has highly batchable proofs and it is possible to evaluate $n$ degree $d$ polynomials at $k$ points using only $2\log_2(d+1)$ group elements and $(k+1)\log_2(d+1)$ field elements (see Section \ref{subsec:optimization} of the \appendixphrase). Note that this means the proof size is independent of $n$ and linear in $k$ but with a small constant $(15 \log(d)$ bytes).
 We describe the performance for different settings in Table \ref{tab:performance}

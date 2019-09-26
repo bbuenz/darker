@@ -14,24 +14,24 @@ The comparison is slightly off as for Sonic this is multiplication gates and for
 
 
 \begin{tabular}{l|l|l|l|l}
-Poly-IOP &Polynomials  & \eval{} at& $|SNARK|$&$n=2^{20}$ \\
+Poly-IOP &Polynomials  & \eval{} at& $|SNARK|$&$n=2^{20},\lambda=120,|\GG|=1200$ \\
 \hline
 
- Sonic\cite{Sonic}& 12 in $\crs$+ 15 & $27$  & $(15+2\log_2(n))\GG$ &11.3 KB \\
+ Sonic\cite{Sonic}& 12 in $\crs$+ 15 & $27$  & $(15+2\log_2(n))\GG$ &\; 11.3 KB \\
  & & & $+(27+9\log_2(n))\ZZ_p$ &  \\
-  Plonk\cite{Plonk}& $6$ in $\crs$ + 6 & $2$& $6+2\log_2(3n)\GG$& 8.4 KB\\
+  Plonk\cite{Plonk}& $6$ in $\crs$ + 6 & $2$& $6+2\log_2(3n)\GG$& \; 8.4 KB\\
   & & & + $(10+3\log_2(3n))$
 	\end{tabular}
 \end{mdframed}
-\caption{Proof size for $\textsf{\textbf{SuperSonic}}$. Column 2 says how many polynomials are committed to in the CRS (offline oracles) and how many are sent by the prover (online oracles). Column 3 states the number of evaluation points. The proof size calculation uses $|\ZZ_p|=120$ and $|\GG|=1200$ for $n=2^{20}$ gates.}
+\caption{Proof size for $\textsf{\textbf{Supersonic}}$. Column 2 says how many polynomials are committed to in the CRS (offline oracles) and how many are sent by the prover (online oracles). Column 3 states the number of evaluation points. The proof size calculation uses $|\ZZ_p|=120$ and $|\GG|=1200$ for $n=2^{20}$ gates.}
 \label{tab:proofsize}
 \end{table}
 \paragraph{Prover and Verifier cost}
 %With pre-computation the prover time consists of a linear number of group operations. 
-The main prover cost for the \textsf{\textbf{SuperSonic}} consist of producing the commitments to the polynomial oracles and producing the single combined $\eval$ proof.
+The main prover cost for the \textsf{\textbf{Supersonic}} consist of producing the commitments to the polynomial oracles and producing the single combined $\eval$ proof.
 Producing the eval proof consists of producing commitments to the polynomials $f_L(q)$ and $f_R(q)$ in each round and performing the $\textsf{PoE}(\gr{C}_R,\gr{C}/\gr{C}_L,q^{d'+1})$. Using pre-computation, i.e. computing $\gr{g}^{q^i}$ for all $i$ and multi-exponentiation the commitments can be produced in $O_\lambda(\frac{d}{\log(d)})$ group operations. The same techniques can be used to reduce the number of group operations for the $\textsf{PoE}$s to $O_\lambda(d)$. The total number of group operations are, therefore, linear in the maximum degree of the polynomial oracles and the number of online oracles. Interestingly the number of offline oracles hardly impacts the prover time and proof size.
  
  The verifier time is dominated by the group operations in the single combined $\eval$ protocol.
 It consists of 3 $\lambda$-bit exponentiations in each round, 1 for combining $\gr{C}_L$ and $\gr{C}_R$ and two for verifying the \textsf{PoE}. In the final round the verifier does another $\log(d)\lambda$-bit exponentiation which could also be outsourced to the prover using yet another $\textsf{PoE}$. The total verifier time consists therefore of roughly an exponentiation of $3 \log_2(d+1) \lambda$ group operations. 
-Using $10\mu s$ per group operation (estimated using OpenSSL's 2048-bit RSA implementation), this gives us for $\lambda=120$ and $n=2^{20}$ a verification time of around 72$ms$. 
+Using $10\mu s$ per group operation (estimated using OpenSSL's 2048-bit RSA implementation), this gives us for $\lambda=120$ and $n=2^{20}$ a verification time of around 72 $ms$. 
 
