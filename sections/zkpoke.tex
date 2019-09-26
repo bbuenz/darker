@@ -4,7 +4,8 @@ In this section we revisit the security of the ZK-$\mathsf{PoKE}$ protocol of Bo
 \noindent\begin{mdframed}[userdefinedwidth=\textwidth]
 \begin{minipage}{\textwidth}
 	\begin{flushleft}
-	$\pro{ZK-PoKE}(\gr{u}, \gr{w}, x):$
+	$\crs=\{\GG,\gr{g}\in \GG\}$\\
+	$\mathcal{R}_{DLOG}: (\gr{y} \in \GG;x \in \ZZ): \gr{g}^x=\gr{y}$
 	\begin{enumerate}[nolistsep]
 			\item \prover samples $k, \rho_x, \rho_k \sample [-B; B]$
 			\item \prover computes $\gr{A}_\gr{g} \gets \gr{g}^k\gr{h}^{\rho_k}$ and $\gr{A}_\gr{u} \gets \gr{u}^k$ and $\gr{Z} \gets \gr{g}^x \gr{h}^{\rho_x}$

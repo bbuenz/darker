@@ -1,3 +1,166 @@
+\clearpage
+\section*{\scalebox{1.25}{\appendixphrase}}
+
+\ifappendix
+%\section{Hardness Assumptions in Groups of Unknown Order} 
+\section{Security Proofs}
+\label{appendix:hardness}
+In the preliminaries we already stated the two main hardness assumptions, the $r$-Strong RSA Assumption and the Adaptive Root Assumption.
+\input{sections/hardness}
+\fi
+
+\subsection{Binding}
+\label{appendix:binding}
+\def\thelemma{\ref{lem:binding}}
+\begin{lemma}
+	\bindinglemma
+\end{lemma}
+\begin{proof}
+    Assume that there is an adversary that breaks the binding property of the scheme. Specifically, assume that some probabilistic polynomial time algorithm $\adv$ takes as input $\params$ and outputs $\gr{C} \in \GG, f(X) \in \ZZ(b)[X], f'(X)\in \ZZ(b)[X]$ such that with non-negligble probability $\pro{Open}(\params, \gr{C}, \bar{f}(X), f(X)) = \pro{Open}(\params, \gr{C}, \bar{f'}(X), f'(X)) = 1$ and $\bar{f}(X) \neq \bar{f'}(X)$. We proceed to show that this implies a violation of the Order Assumption~(Assumption \ref{assum:order}) and the Strong RSA Assumption~(Assumption \ref{assum:strongRSA}). The assumptions are incomparable so we show that either suffices to achieve the binding property of the commitment scheme.
+    
+	If $f(X)\neq f'(X)$ and $q/2>b$ then $f(q)\neq f'(q)\in \ZZ$. Since $\gr{g}^{f(q)}=\gr{g}^{f'(q)}=\gr{C}$ we have that $\gr{g}^{f(q)-f'(q)}=1$. This directly breaks the Order Assumption and we can also create an adversary $\adv_{RSA}$ that breaks the Strong RSA Assumption. To do so the $\adv_{RSA}$ picks an odd prime $\ell$ that is co-prime with $f(q)-f'(q)$ and computes $\gr{u}\gets \gr{g}^{\ell^{-1} \bmod (f(q)-f'(q))}$ as the $\ell$th root of $\gr{g}$.
+\end{proof}
+
+\subsection{Correctness}
+\label{appendix:correctness}
+
+\def\thelemma{\ref{lem:correctness}}
+\begin{lemma}
+	\correctnesslemma
+\end{lemma}
+
+\begin{proof}
+In order to ensure correctness we must ensure that $b< q/2$ and that $|f|\leq b$. To show this we show that in each recursion step the honest prover's witness polynomial has coefficients bounded by $b$ and has degree $d$. 
+We argue inductively that for each recursive call of $\pro{EvalBounded}$ the following constraints on the inputs are satisfied: The degree of $f(X)$ is bounded by $d$. $\gr{C}$ encodes the polynomial, \emph{i.e.}, $\gr{C}=\gr{g}^{f(q)}$ and $f(X)\in \ZZ(b)$. Also $f(z) = y\bmod p$.
+
+Initially, during the execution of $\eval$, the prover maps the coefficients of a polynomial $\bar{f}(X)\in \ZZ_p$ to an integer polynomial $f(X)$ with coefficients in $\ZZ(\frac{p-1}{2})$ and degree at most $d$ such that $\gr{C}=\gr{g}^{f(q)}$. Additionally $f(z)\bmod p=\bar{f}(z)=y$.
+
+ In a recursion steps where $d+1$ is odd, $f'(X)=X\cdot f(X)$ is a polynomial of degree $d+1$ such that $\gr{C}'=\gr{C}^q=\gr{g}^{q\cdot f(q)}=\gr{g}^{f'(X)}$ and the bound $b$ is unchanged as are the coefficients. Also, $f'(z)\bmod p = z \cdot f(z) \bmod p=z\cdot y\bmod p = y' \bmod p$. If $d+1$ is odd, then in the next step $d+1$ must be even.
+ 
+ If $d+1$ is even then, $\prover$ computes $f_L(X)$ and $f_R(X)$ such that $f_L(X)+X^{\frac{d+1}{2}} f_R(X)=f(X)$. Consequently $f(z) \bmod p=f_L(z)+ z^{\frac{d+1}{2}} f_R(z)\bmod p=y_L+z^{\frac{d+1}{2}}  y_R\bmod p =y$. The \textsf{PoE} protocol has perfect correctness so {$\gr{g}^{f_L(q)+q^{\frac{d+1}{2}} f_R(X)}=\gr{C}$}.
+ %\gr{C}_L\gr{C}_R^{(q^{\frac{d+1}{2}})}
+ Finally $f'(X)=\alpha f_L(X) + f_R(X)\in \ZZ(\frac{p+1}{2}\cdot b)$ is a degree $d$ polynomial with coefficients bounded in absolute value by $(\frac{p+1}{2})\cdot b$. This is precisely the value of $b'$ the input to the next call of $\pro{EvalBounded}$. The value $y'$ is also correct:
+$f'(z)\bmod p=\alpha f_L(z) +f_R(z) \bmod p= \alpha y_L +y_R\bmod p=y'$
+ 
+ There are exactly $\lceil\log_2(d+1)\rceil$ recursion steps with even $d+1$. In the final recursion step we therefore have $b=\frac{p-1}{2}(\frac{p+1}{2})^{\lceil\log_2(d+1)\rceil}$ and as such the requirement that $q/2>\frac{p-1}{2}(\frac{p+1}{2})^{\lceil\log_2(d+1)\rceil}$. 
+ So if $q>(p-1) (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$ then all verifier checks pass and the verifier outputs $1$.
+\end{proof} 
+
+
+\subsection{Proof of Theorem~\ref{thm:polycommitsecurity}}
+\label{appendix:maintheoremproof}
+
+\paragraph{Security of $\textsf{PoE}$ substitutions}
+We first begin by showing that we can safely replace all of the $\textsf{PoE}$ evaluations with direct verification checks. Concretely, under the Adaptive Root Assumption, the $\eval$ protocol is as secure as the protocol $\eval'$ in which all $\textsf{PoE}$s are replaced by direct checks. We show that the witness-extended emulation for $\eval'$ implies the same property for $\eval$. This is useful because we will later show how to can build an extractor for $\eval'$, thereby showing that the same witness-extended emulation property extends to $\eval$.
+\begin{lemma} \label{lemma:poe_security}
+Let $\eval'$ be the protocol that is identical to $\eval$ but in line \ref{line:PoE} of $\pro{EvalBounded}$ $\verifier$ directly checks $\gr{C}_L\gr{C}_R^{q^{d'+1}}=\gr{C}$ instead of using a $\textsf{PoE}$. If the Adaptive Root Assumption holds for $\ggen$, and $\eval'$ has witness-extended emulation for polynomials of degree $d=\poly$, then so does $\eval$.
+\end{lemma}
+\begin{proof}
+We show that if an extractor $E'$, as defined in Definition~\ref{def:wee}, exists for the protocol $\eval'$ then we can construct an extractor $E$ for the protocol $\eval$. Specifically, $E$ simulates $E'$ and presents it with a $\pro{Record}'(\cdots)$ oracle, while extracting the witness from its own $\pro{Record}(\cdots)$ oracle.
+
+Whenever $E'$ queries the $\pro{Record}'$ oracle, $E$ queries its $\pro{Record}$ oracle and relays the response after dropping those portions of the transcript that correspond to the $\mathsf{PoE}$ proofs. Whenever $E'$ rewinds its prover, so does $E$ rewind its prover. When $E'$ terminates by outputting a transcript-and-witness pair $(\mathsf{tr}', f(X))$, $E$ adds $\mathsf{PoE}$s into this transcript to obtain $\mathsf{tr}$ and outputs $(\mathsf{tr}, f(X))$.
+
+For each PPT adversary $(\adv,P^*)$, $E$ will receive a polynomial number of transcripts from its $\pro{Record}$ oracle. Any transcript $\tr$ of $\eval$ such that $\adv(\tr)=1$ and $\tr$ is accepting contains exactly $\lceil \log(d+1)\rceil$ $\textsf{PoE}s$ transcripts. 
+So in total $E$ sees only a polynomial number of $\textsf{PoE}$ transcripts generated by a probabilistic polynomial-time prover and verifier. By Lemma~\ref{lem:poe} under the Adaptive Root Assumption, the probability that a polynomial time adversary can break the soundness of $\textsf{PoE}$, \emph{i.e.}, convince a verifier on an instance $(\gr{C}_R,\gr{C}/\gr{C}_{L},q^{d'+1})\not\in\mathcal{R}_{\textsf{PoE}}$, is negligible. 
+Consequently, the probability that the adversary can break $\textsf{PoE}$ on \emph{any} of the polynomial number of executions of $\mathsf{PoE}$ is still negligible.
+
+This means that with overwhelming probability all transcripts are equivalent to having the verifier directly check $(\gr{C}_R,\gr{C}/\gr{C}_{L},q^{d'+1})\in\mathcal{R}_{\textsf{PoE}}$. By assumption, the witness-candidate $f(X)$ that $E'$ outputs is a valid witness if the transcript $\mathsf{tr}'$ that $E'$ also outputs is accepting. The addition of honest $\mathsf{PoE}$ transcripts to $\mathsf{tr}'$ preserves the transcript's validity. So $\mathsf{tr}$ is an accepting transcript for $\pro{Eval}$ if and only if $\mathsf{tr}'$ is an accepting transcript for $\pro{Eval}'$. Therefore, $E'$ outputs a valid witness $f(X)$ whenever $E$ outputs a valid witness. This suffices to show that $\pro{Eval}$ has witness-extended emulation if $\pro{Eval}'$ has, and if the Adaptive Root Assumption holds for $\ggen$.
+\end{proof}
+
+\paragraph{Combining statements.} The $\eval$ protocol combines two statements into one by using a random linear combination of group elements, \emph{i.e.}, $\gr{C}'\gets \gr{C}_L^{\alpha}\gr{C}_R$. We now show that this step is sound and that given the discrete logarithm for $\gr{C}'$ we can extract the discrete logarithm for $\gr{C}_L$ and $\gr{C}_R$ we also show that the we can bound the size of the discrete logarithm. We show that this statement holds in two settings. First we consider a group $\GG$ were the standard Strong RSA Assumption holds and group elements are encodings of integers. 
+%Move next part to after lemma?
+Then we will show that in groups in which taking square roots is easy we can extract dyadic rationals using the Dyadic Strong RSA Assumption.
+ %For $\GG \gets \ggen(\lambda)$, and $\gr{g}\sample \GG$. Let $(\gr{C}_L\in \GG,\gr{C}_R\in \GG,\alpha\in [0,p-1],f\in [0,b];\gr{g}^{f}=\gr{C}_L^{\alpha}\gr{C}_R)$ and  $(\gr{C}_L,\gr{C}_R,\alpha'\in [0,p-1],f'\in [0,b];\gr{g}^{f'}=\gr{C}_L^{\alpha'}\gr{C}_R)$  be two transcripts for $\alpha\neq \alpha'$.
+\begin{lemma}[Combining for integer witnesses]
+\label{lem:intrandomcombine}
+	For $\GG \gets \ggen(\lambda)$, and $\gr{g}\sample \GG$. 
+	Let $(z,\gr{C}_L,\gr{C}_R,y_L,y_R,\alpha,f,y)$ and  $(z,\gr{C}_L,\gr{C}_R,y_L,y_R,\alpha',f',y')$ be two transcripts such that $\gr{g}^{f}=\gr{C}_L^{\alpha}\gr{C}_R$ and $\gr{g}^{f'}=\gr{C}_L^{\alpha'}\gr{C}_R$ for group elements $\gr{C}_L,\gr{C}_R \in \GG$, and integers $\alpha,\alpha' \in  [-\frac{p-1}{2},\frac{p-1}{2}]$, $\alpha\neq \alpha'$. Further let $f,f'\in \ZZ$ be such that $f(X)\gets\dec(f)$ and $f'(X)\gets\dec(f')$ are degree $d$ bounded polynomials with coefficients bounded by $b$, \emph{i.e.}, $f(X),f'(X)\in \ZZ(b)[X]\subset \ZZ[X]$. And finally let $y=f(z)\bmod p$ and $y'=f'(z)\bmod p$.
+	 Then there exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either (1) $y_L,y_R\in \ZZ_p,f_L(X),f_R(X)\in \ZZ((p-1) \cdot b)[X]$  such that $f_L(z)=y_L\bmod p$ and $f_R(z)=y_R \bmod p$ or (2) an element in $\GG$ of known order or (3) a fractional root of $\gr{g}$.
+\end{lemma}
+\begin{proof}
+	Using the transcripts we get $\Delta_\alpha\gets\alpha-\alpha'$ and $\Delta_f\gets f-f'$ such that $\gr{C}_{L}^{\Delta_\alpha}=\gr{g}^{\Delta_f}$. 
+ If $\frac{\Delta_f}{\Delta_\alpha}$ is not an integer then this gives us a fractional root of $\gr{g}$, that is the tuple $(\Delta_f,\Delta_\alpha,\gr{C}_{L})$.  
+ If $\frac{\Delta_f}{\Delta_\alpha}$ on the other hand is an integer then we can compute $\gr{D}\gets\gr{g}^{\frac{\Delta_f}{\Delta_\alpha}}$. Either $\gr{D}=\gr{C}_{L}$ or $(\gr{D}/\gr{C}_{L})^{\Delta_\alpha}=1$. In the second case, $\gr{D}/\gr{C}_{L}$ is an element of known order.
+   
+  Otherwise $\gr{D} = \gr{C}_L$ and we have $\gr{C}_{L}=\gr{g}^{f_L}$ where $f_L=\frac{\Delta_f}{\Delta_\alpha}$ is an integer.
+Additionally $\gr{C}_R=\gr{g}^{f_R}$ for $f_R\gets f-\alpha \cdot f_L$.
+
+We now compute the corresponding polynomials $f_L(X)\gets \dec(f_L)$ and $f_R(X)\gets \dec(f_R)$.
+Now if for all $i$, the coefficients $f_i$ and $f'_i\in [-b,b]$ and $\alpha,\alpha' \in [-\frac{p-1}{2},\frac{p-1}{2}]$ then by the triangle inequality we have that for the $i$th coefficient of $f_L(X)$, $f_{L,i}\in [-2b,2b]$. Additionally we have $f_{R,i}=\frac{f_i'\alpha-f_i \alpha'}{\Delta_\alpha}$. Using the triangle inequality again we have that $f_{R,i} \in [-(p-1) \cdot b, (p-1) \cdot b]$. For an odd prime $p$, $(p-1)\cdot p\geq 2$. The bound on $f_{R,i}$ is, therefore, greater than the bound on $f_{L,i}$. This gives us $f_L(X),f_R(X)\in \ZZ({(p-1) \cdot b})[X]$
+
+Let $y_L=\frac{y-y'}{\Delta_\alpha} \bmod p=\frac{f(z)-f'(z)}{\Delta \alpha} \bmod p$ and $y_R= y-\alpha\frac{y-y'}{\Delta_\alpha} \bmod p$. Since $f_L(X)=\frac{f(X)-f'(X)}{\Delta \alpha}$ this shows that $y_L=f_L(z)\bmod p$ and $y_R=f_R(z)\bmod p$.
+%The actual bound on f_{R,i} is b*(p-2)
+\end{proof}
+
+\def\thetheorem{\ref{thm:polycommitsecurity}}
+\begin{theorem}
+\maintheorem
+\end{theorem}
+\input{sections/proofofmaintheorem.tex}
+
+%%%%%DYADIC
+
+
+\subsection{Proof of Theorem~\ref{thm:dyadicpolysecurity}}
+\label{apx:dyadic}
+We begin by stating and proving the combining lemma, (Lemma~\ref{lem:intrandomcombine}) for dyadic rational witnesses.
+%PROOF FOR DYADIC RATIONALS
+\begin{lemma}[Combining for Dyadic Rational Witnesses]
+\label{lem:dyadiccombining}
+Let $\tr$ and $\tr'$ be two transcripts as specified in Lemma \ref{lem:intrandomcombine} with the difference that $f,f'\in \mathbb{D}$ are dyadic rationals such that $f(X)\gets \dec(f)$ and $f'(X)\gets \dec(f')$ are degree $d$ bounded dyadic rational polynomials with coefficients' numerators bounded by $N$ and denominators bounded by $D$, i.e. $f(X),f'(X)\in\mathbb{D}(N,D)$.
+Assume that there exists a PPT algorithm for taking square roots of any element in $\GG$ and that the order of $\GG$ is odd, then there exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either (1) $y_L,y_R\in \ZZ_p,f_L(X),f_R(X)\in \mathbb{D}(N\cdot (p-1),D\cdot (p-1))[X]$  such that $f_L(z)=y_L\bmod p$ and $f_R(z)=y_R \bmod p$ or (2) an element in $\GG$ of known order or (3) a non-power of $2$ fractional root of $\gr{g}$.
+\end{lemma}
+\begin{proof}
+The proof follows a similar structure to the proof of Lemma~\ref{lem:intrandomcombine}. 
+		
+	Using the transcripts we get $\Delta_\alpha\gets\alpha-\alpha'$ and $\Delta_f\gets f-f'$ such that $\gr{C}_{L}^{\Delta_\alpha}=\gr{g}^{\Delta_f}$. 
+ If $\frac{\Delta_f}{\Delta_\alpha}$ is not a dyadic rational then this gives us a non-power of $2$ fractional root of $\gr{g}$ root of $\gr{g}$, that is the tuple $(\Delta_f,\Delta_\alpha,\gr{C}_{L})$.  
+ If $\frac{\Delta_f}{\Delta_\alpha}$ on the other hand is a dyadic rational then we can compute $\gr{D}\gets\gr{g}^{\frac{\Delta_f}{\Delta_\alpha}}$. This may requires taking a power of $2$ root. By assumption the group order is odd, so every element has a square root and there exists an efficient algorithm for taking square roots. This implies that taking higher power of $2$ roots is also efficient.
+  
+  Now either $\gr{D} = \gr{C}_L=\gr{g}^{f_L}$ or we can extract an element of known order. Additionally $\gr{C}_R=\gr{g}^{f_R}$ for $f_R\gets f-\alpha \cdot f_L$.
+
+ We now compute the corresponding polynomials $f_L(X)\gets \dec(f_L)$ and $f_R(X)\gets \dec(f_R)$.
+Now if the coefficients $f_i$ and $f'_i\in \mathbb{D}(N,D)$ and $\alpha,\alpha' \in [-\frac{p-1}{2},\frac{p-1}{2}]$ then by the triangle inequality we have that for the numerator of the $i$th coefficient of $f_L(X)$ is between $[-2N,2N]$. The denominator grows by at most $p-1$. The bound on the denominators is therefore $D\cdot (p-1)$. Additionally we have $f_{R,i}=\frac{f_i'\alpha-f_i \alpha'}{\Delta_\alpha}$. Using the triangle inequality again we have that the numerator of $f_{R,i} \in [-(p-1) \cdot N, (p-1) \cdot N]$. The denominator is bounded by $D\cdot (p-1)$. This gives us $f_L(X),f_R(X)\in \mathbb{D}((p-1) \cdot N,D\cdot (p-1))[X]$
+
+Finally $y_L=f_L(z)$ and $y_R=f_R(z)$ as in Lemma~\ref{lem:intrandomcombine}. It is important that $2$ is co-prime with the odd prime $p$ such that each dyadic rational can be mapped to a field element. \qed
+\end{proof}
+
+
+We now restate the theorem for the security of the protocol with dyadic rational witnesses in groups where taking square roots is easy.
+
+\def\thetheorem{\ref{thm:dyadicpolysecurity}}
+\begin{theorem}
+\dyadicmaintheorem
+\end{theorem}
+
+\begin{proof}
+The proof largely follows the same structure of the proof of Theorem~\ref{thm:polycommitsecurity}.
+	
+We will prove security by showing that we can extract a dyadic rational polynomial $f(X)\in \mathbb{Z}[X]$ such that $f(X)$ has degree at most $d$ and the coefficients of $f(X)$ are dyadic rationals such that the product of the numerator and denominator is bounded by $q/2$. This ensures that $f(q)$ is a unique encoding of $f(X)$. Additionally $\gr{g}^{f(q)}=\gr{C}$ and $f(z) \bmod p=y$. The proof will use the general forking lemma (Lemma \ref{lemma:GFL}) to show that the polynomial commitment scheme has witness-extended emulation. 
+
+We use the same extractor $\mathcal{X}$ as in Theorem \ref{thm:polycommitsecurity} with one key distinction. 
+For $d+1$ odd we invoke the extractor described by Lemma~\ref{lem:dyadiccombining} instead of Lemma~\ref{lem:intrandomcombine}. 
+This means that at every tree level either bounded dyadic rational witness polynomials are extracted or an element of known order or a non-power of $2$ fractional root of $\gr{g}$. By assumption the ladder two cases happen only with negligible probability.
+
+We, therefore, now need to compute a bound on the size of the extracted polynomial. 
+The check on $f$ ensures that $f\in \ZZ$ and that $|f|\leq b=\frac{(p-1)}{2} (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$. We can write $f\in\mathbb{D}(\frac{(p-1)}{2} (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil},1)$. By \ref{lem:intrandomcombine} both the numerator and the denominator grow by at most a factor $p-1$ in every round.
+Given that the transcript tree has depth $\lceil \log_2(d+1)\rceil$ we get that the final extracted polynomial $f_0(X)\in \mathbb{D}(N,D)[X]$ has coefficients with numerators bounded by $N= \frac{p-1}{2}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$ and denominators bounded by $D=(p-1)^{\lceil \log_2(d+1)\rceil}$
+
+$q$ needs to be large enough such that $f_0(X)$ is uniquely decodable, \emph{i.e.}, $q>2\cdot N\cdot b=(p-1)^{\lceil \log_2(d+1)\rceil+1}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$.
+
+This shows that we can successfully extract either a witness or a non-power of $2$ fractional root or an element of known order from any tree of valid transcripts.
+Under the $2$-Fractional Root Assumption and the Order Assumption, the probability that a polynomial time adversary along with a polynomial time extractor $\mathcal{X}$ can produce such a a  non-power of $2$ fractional root or an element of known order is negligible. $\eval'$, therefore, has witness extended emulation and under the Adaptive Root Assumption by Lemma \ref{lemma:poe_security} so does $\eval$.
+Lemma \ref{lem:ordertoadaptive} and Lemma \ref{lem:strongtofractional} show that we can reduce the hardness assumptions to just the Adaptive Root Assumption and the  $2$-Strong RSA Assumption.
+\end{proof}
+
+\section{Hiding Polynomial Commitment with HVZK Eval} 
+\input{sections/zk}
+
+
+
+
+%%%DEPRECATED SECTIONS BELOW%%%%%%
+
 \if 0 
 \section{Deprecated witness extended emulation for OpenIndex queries} 
 
@@ -183,75 +346,6 @@ In the full version of the paper.
 \end{proof}
 \fi 
 
-\section{Proof of Theorem~\ref{thm:dyadicpolysecurity}}
-\label{apx:dyadic}
-We begin by stating and proving the combining lemma, (Lemma~\ref{lem:intrandomcombine}) for dyadic rational witnesses.
-%PROOF FOR DYADIC RATIONALS
-\begin{lemma}[Combining for Dyadic Rational Witnesses]
-\label{lem:dyadiccombining}
-Let $\tr$ and $\tr'$ be two transcripts as specified in Lemma \ref{lem:intrandomcombine} with the difference that $f,f'\in \mathbb{D}$ are dyadic rationals such that $f(X)\gets \dec(f)$ and $f'(X)\gets \dec(f')$ are degree $d$ bounded dyadic rational polynomials with coefficients' numerators bounded by $N$ and denominators bounded by $D$, i.e. $f(X),f'(X)\in\mathbb{D}(N,D)$.
-Assume that there exists a PPT algorithm for taking square roots of any element in $\GG$ and that the order of $\GG$ is odd, then there exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either (1) $y_L,y_R\in \ZZ_p,f_L(X),f_R(X)\in \mathbb{D}(N\cdot (p-1),D\cdot (p-1))[X]$  such that $f_L(z)=y_L\bmod p$ and $f_R(z)=y_R \bmod p$ or (2) an element in $\GG$ of known order or (3) a non-power of $2$ fractional root of $\gr{g}$.
-\end{lemma}
-\begin{proof}
-The proof follows a similar structure to the proof of Lemma~\ref{lem:intrandomcombine}. 
-		
-	Using the transcripts we get $\Delta_\alpha\gets\alpha-\alpha'$ and $\Delta_f\gets f-f'$ such that $\gr{C}_{L}^{\Delta_\alpha}=\gr{g}^{\Delta_f}$. 
- If $\frac{\Delta_f}{\Delta_\alpha}$ is not a dyadic rational then this gives us a non-power of $2$ fractional root of $\gr{g}$ root of $\gr{g}$, that is the tuple $(\Delta_f,\Delta_\alpha,\gr{C}_{L})$.  
- If $\frac{\Delta_f}{\Delta_\alpha}$ on the other hand is a dyadic rational then we can compute $\gr{D}\gets\gr{g}^{\frac{\Delta_f}{\Delta_\alpha}}$. This may requires taking a power of $2$ root. By assumption the group order is odd, so every element has a square root and there exists an efficient algorithm for taking square roots. This implies that taking higher power of $2$ roots is also efficient.
-  
-  Now either $\gr{D} = \gr{C}_L=\gr{g}^{f_L}$ or we can extract an element of known order. Additionally $\gr{C}_R=\gr{g}^{f_R}$ for $f_R\gets f-\alpha \cdot f_L$.
-
- We now compute the corresponding polynomials $f_L(X)\gets \dec(f_L)$ and $f_R(X)\gets \dec(f_R)$.
-Now if the coefficients $f_i$ and $f'_i\in \mathbb{D}(N,D)$ and $\alpha,\alpha' \in [-\frac{p-1}{2},\frac{p-1}{2}]$ then by the triangle inequality we have that for the numerator of the $i$th coefficient of $f_L(X)$ is between $[-2N,2N]$. The denominator grows by at most $p-1$. The bound on the denominators is therefore $D\cdot (p-1)$. Additionally we have $f_{R,i}=\frac{f_i'\alpha-f_i \alpha'}{\Delta_\alpha}$. Using the triangle inequality again we have that the numerator of $f_{R,i} \in [-(p-1) \cdot N, (p-1) \cdot N]$. The denominator is bounded by $D\cdot (p-1)$. This gives us $f_L(X),f_R(X)\in \mathbb{D}((p-1) \cdot N,D\cdot (p-1))[X]$
-
-Finally $y_L=f_L(z)$ and $y_R=f_R(z)$ as in Lemma~\ref{lem:intrandomcombine}. It is important that $2$ is co-prime with the odd prime $p$ such that each dyadic rational can be mapped to a field element. \qed
-\end{proof}
-
-We now restate the theorem for the security of the protocol with dyadic rational witnesses in groups where taking square roots is easy.
-
-\def\thetheorem{\ref{thm:dyadicpolysecurity}}
-\begin{theorem}
-\dyadicmaintheorem
-\end{theorem}
-
-\begin{proof}
-The proof largely follows the same structure of the proof of Theorem~\ref{thm:polycommitsecurity}.
-	
-We will prove security by showing that we can extract a dyadic rational polynomial $f(X)\in \mathbb{Z}[X]$ such that $f(X)$ has degree at most $d$ and the coefficients of $f(X)$ are dyadic rationals such that the product of the numerator and denominator is bounded by $q/2$. This ensures that $f(q)$ is a unique encoding of $f(X)$. Additionally $\gr{g}^{f(q)}=\gr{C}$ and $f(z) \bmod p=y$. The proof will use the general forking lemma (Lemma \ref{lemma:GFL}) to show that the polynomial commitment scheme has witness-extended emulation. 
-
-We use the same extractor $\mathcal{X}$ as in Theorem \ref{thm:polycommitsecurity} with one key distinction. 
-For $d+1$ odd we invoke the extractor described by Lemma~\ref{lem:dyadiccombining} instead of Lemma~\ref{lem:intrandomcombine}. 
-This means that at every tree level either bounded dyadic rational witness polynomials are extracted or an element of known order or a non-power of $2$ fractional root of $\gr{g}$. By assumption the ladder two cases happen only with negligible probability.
-
-We, therefore, now need to compute a bound on the size of the extracted polynomial. 
-The check on $f$ ensures that $f\in \ZZ$ and that $|f|\leq b=\frac{(p-1)}{2} (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$. We can write $f\in\mathbb{D}(\frac{(p-1)}{2} (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil},1)$. By \ref{lem:intrandomcombine} both the numerator and the denominator grow by at most a factor $p-1$ in every round.
-Given that the transcript tree has depth $\lceil \log_2(d+1)\rceil$ we get that the final extracted polynomial $f_0(X)\in \mathbb{D}(N,D)[X]$ has coefficients with numerators bounded by $N= \frac{p-1}{2}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$ and denominators bounded by $D=(p-1)^{\lceil \log_2(d+1)\rceil}$
-
-$q$ needs to be large enough such that $f_0(X)$ is uniquely decodable, \emph{i.e.}, $q>2\cdot N\cdot b=(p-1)^{\lceil \log_2(d+1)\rceil+1}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$.
-
-This shows that we can successfully extract either a witness or a non-power of $2$ fractional root or an element of known order from any tree of valid transcripts.
-Under the $2$-Fractional Root Assumption and the Order Assumption, the probability that a polynomial time adversary along with a polynomial time extractor $\mathcal{X}$ can produce such a a  non-power of $2$ fractional root or an element of known order is negligible. $\eval'$, therefore, has witness extended emulation and under the Adaptive Root Assumption by Lemma \ref{lemma:poe_security} so does $\eval$.
-Lemma \ref{lem:ordertoadaptive} and Lemma \ref{lem:strongtofractional} show that we can reduce the hardness assumptions to just the Adaptive Root Assumption and the  $2$-Strong RSA Assumption.
-\end{proof}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 \if 0 %%Deprecated coefficient extraction and inner product 
 \subsection{Coefficient Extraction} \label{section:generic_coefficient_extraction}
 
@@ -362,6 +456,79 @@ Full version / appendix.
 \end{proof}
 \fi 
 
-\section{ZK-$\mathsf{PoKE}$}
+\section{Proof of Theorem~\ref{thm:IOPcompiler} (Polynomial IOP Compilation)}\label{sec:IOPcompilerproof}
+The fact that the compilation preserves HVZK is straightforward. We prove this part first and then move on to proving witness-extended emulation. 
 
-\input{sections/zkpoke}
+\paragraph{HVZK} Let $S_\eval$ denote the HVZK simulator for $\eval$ and $S_\pro{IOP}$ denote the HVZK simulator for the original polynomial IOP. We construct an HVZK simulator $S$ for the compiled interactive argument as follows. 
+$S$ begins by running $S_\pro{IOP}$ on the input $x$, which produces a series of query/response pairs to arbitrarily labeled oracles that are ``sent" from the IOP prover to the verifier. $S$ simulates the view of the honest verifier in the compiled interactive proof by replacing each distinctly labeled oracle with a fresh $\Gamma$ commitment to $0$, \emph{i.e.}, the zero polynomial over $\FF_p$. By the hiding property of $\Gamma$ this has negligible distance $\delta_0$ from the commitment sent in the real protocol.
+(It places this commitment at the location in the transcript where the commitment to this oracle would be sent in the compiled protocol).
+ For each query/response pair $(z, y)$ to an oracle, $S$ runs $S_\eval$ to simulate the view of an honest-verifier in the $\eval$ protocol opening a hiding polynomial commitment to the value $y$ at the point $z$. Let $P$ denote an upper bound on the total number of oracles sent and $Q$ denote an upper bound on the total number of queries to IOP oracles. 
+If the simulation of $S_\pro{IOP}$ has statistical distance $\delta_1$ from the real IOP verifier's view, and each simulated $\eval$ subprotocol has statistical distance $\delta_2$ to the real $\eval$ verifier's view, then the output of $S$ has statistical distance at most $P \delta_0 + \delta_1 + Q \delta_2$ from $\textsf{View}_{\langle P(x, w), V(x) \rangle}$. For $P, Q < \poly$ and $\delta_0, \delta_1, \delta_2 < \negl$ this statistical distance is negligible in $\lambda$. 
+
+\paragraph{Witness-extended emulation (knowledge)}
+
+Without loss of generality, assume the original IOP makes at least one query to each oracle sent. An oracle which is never queried can be omitted from the IOP.
+
+We denote by $\verifier$ the IP verifier for the compiled IP, and $\verifier_{O}$ the verifier for the original IOP. 
+Given a record oracle $\pro{Record}(P^*, \params, x, \st)$ for an IP prover $P^*$ that produces accepting transcripts with non-negligible probability, we build an emulator $E$ for the compiled IP. $E$ begins by constructing an IOP adversary $P'_{O}$, which succeeds also with non-negligible probability on input $x$. Every successful interaction of $P'_{O}$ with $\verifier_{O}$ on input $x$ corresponds to a successful transcript of $P^*$ with $V$ on $x$. In showing how $E$ builds $P'_{O}$ we also show how $E$ can obtain this corresponding transcript. $E$ will make use of the emulator $E_\eval$ for the commitment scheme $\Gamma$. %We will describe how this is done in the later parts of the proof. Accepting that this is true. 
+
+Finally, $E$ can use the IOP knowledge extractor $E_{\pro{IOP}}^{P'_O}(x)$ in order to output a witness for $x$ along with the corresponding transcript. 
+
+\paragraph{Constructing $P'_O$ (IOP adversary)}
+$P'_O$ runs as follows on initial state $\st_0$ and input $x$. It internally simulates the interaction of $P^*$ and $V$, using the record oracle $\pro{Record}(P^*, \params, x, \st)$. It begins by running this for the first round on state $\st_0$. For every message that $P^*$ sends in this first round, $P'_O$ continues simulation until there is an $\eval$ on this commitment. (There is guaranteed to be at least one $\eval$ on each commitment, independent of the randomness). Therefore, denoting by $E_\eval$ the extractor for the $\eval$ subprotocol between $P^*$ and $\verifier$ on a given commitment and evaluation point, the record oracle can be used to simulate $E_\eval$'s record oracle.% for each $m$ evaluated at some point determined by $V$'s challenge.
+
+For each message $m$ that $P^*$ sends to $V$ at the beginning of the first round, $P'_O$ interprets $m$ as a commitment, and attempts to extract from it a polynomial by 
+running the PPT emulator $E_\eval$, simulating its record oracle as just described. \textbf{If it fails in any extraction attempt it aborts.} 
+
+If $P'_O$ succeeds in all these extractions, then it uses these extracted polynomials as its first round proof oracles that it gives to $\verifier_O$. Upon receiving the first public-coin challenge from the IOP verifier, $P'$ uses the query function to derive the corresponding queries to each of these proof oracles. Before answering, it rewinds $P^*$ and $\verifier$ back to the point immediately after $P$ sent its first messages, and now substitutes random challenge from $\verifier_O$ in order to simulate $P^*$ and $V$ on these same queries. It checks that $P^*$'s answers are consistent with the answers it can compute on its own from the extracted polynomials. \textbf{If any answers are inconsistent, $P'_O$ aborts}. Otherwise, it sends the answers to $\verifier_O$. 
+
+At the end of this first round (assuming $P'$ has not yet aborted), $P'_O$ has stored an updated state $\st'$ for $P^*$ based on this simulation. It proceeds to the next round and repeats the same process, using the record oracle $\pro{Record}(P^*, \params, x, \st')$. Finally, if $P'$ makes it through all rounds without aborting, then it has a final state $\st_V$ for $\verifier_O$ based on its internal simulation of $P^*$ and $V$ up through the end of the last round. Finally, $\verifier_O(\st_V)$ outputs $\pro{Accept}$ or $\pro{Reject}$. %(Observe that $\verifier_O$ accepts if and only if $\verifier$ would accept in the simulated transcript with $P^*$ because they run the same decision algorithm on the final state of query/response pairs). % $1$ on $\st_V$. (This is due to the fact that the verifier in the compiled IOP runs the same final decision algorithm as the IOP verifier). 
+
+\paragraph{Analysis of $P'_O$ success probability} 
+We claim that if $\pro{Record}(P^*, \params, x, \st_0)$ outputs an accepting transcript $\tr$ with non-negligible probability, then $P'_O$ succeeds with non-negligible probability. 
+
+Observe that for any accepting $\tr$ between $P^*$ and $V$, if $P'_O$ happens to follow the same exact sequence of query/responses without ever aborting then it succeeds because $\verifier_O$ and $\verifier$ run the same decision algorithm on the final state of query/response pairs. Thus, it remains only to take a closer look at what events cause $P'_O$ to abort, and bound the fraction of accepting $\tr$ for which this occurs. 
+
+As indicated in bold above, there are two kinds of events that cause $P'_O$ to abort: 
+\begin{itemize}
+\item It fails to extract from a ``commitment" message $m$ sent by $P^*$
+\item After successfully extracting a polynomial $f$ from a commitment, $P^*$ answer queries to $f$ in a way that is inconsistent with $f$. 
+\end{itemize}
+
+The second type of event contradicts the evaluation binding property of $\Gamma$, therefore it occurs with negligible probability. 
+
+To analyze the first type of event, let us define ``bad commitments" for a parameter $B$. We define this as a property of a message $m$ (purportedly a commitment) sent in a transcript state $\st$.
+
+\paragraph{Bounding probability of commitment extraction failure} 
+The pair $(m, \st)$ is a ``bad commitment" if there is less than a $1/D$ probability that extending the transcript between $P^*$ and $\verifier$, starting from state $\st$, will contain a successful execution of $\eval$ on $m$. This probability is over the randomness of the public-coins of $\verifier$ in the extended transcript. %have a succesful execution on (over the randomness of the public-coins) that $\pro{Record}(P^*, \params, x, \st)$ contains a successful execution of $\eval$ on $m$ on the queries defined by $\st$ and the next public coin challenge, where $\st$ is determined by running $\tr$ up until the point $m$ appears. 
+
+
+Let $A(\tr)$ denote the event that a transcript $\tr$ sampled from $\pro{Record}(P^*, \params, x, \st_0)$ is accepting. Let $B(\tr)$ denote the event that $\tr$ contains a ``bad commitment" (i.e. some message $m$ sent in state $\st$ such that $\pro{Bad}(m, \st) = 1$). The conditional probability of event $A(\tr)$ conditioned on event $B(\tr)$ is less than $1/D$. To see this, fix $(m, \st)$ with $\pro{Bad}(m, \st) = 1$ and consider ``sampling" a random $\tr$ that contains $m$ at state $\st$. This is done by first choosing randomly from all partial transcripts that result in $(m, \st)$ via brute force, and then running the transcript normally from state $\st$ on random public-coins. No matter how $(m, \st)$ is chosen, the probability that this process produces an accepting transcript is by definition less than $1/D$. (The second part of the transcript following $(m, \st)$ contains at least one execution of $\eval$ on $m$ by hypothesis, and by the definition of $B(m, \st) = 1$ this execution is accepting with probability less than $1/D$).
+
+Assume that $P(A(\tr)) \geq 1/\poly$. Applying Bayes' law, %letting $A(\tr)$ denote the event that $\tr$ is accepting and $P(A(\tr)) > 1/\poly$ the a-priori probability of this event, 
+$P[B(\tr) | A(\tr)) \leq P[A(\tr) | B(\tr)] / P(A(\tr)) \leq \poly / D$. 
+In other words, at least a $1 - \poly/D$ fraction of accepting transcripts do not contain ``bad commitments". %By a union bound, in a length $L$ transcript void of bad commitments, the transcript does not contain any failed $\eval$ with probability at least $L/B$. 
+Furthermore, so long as a commitment $m$ is not ``bad", we can invoke the witness-emulation property of $\eval$ to say that the PPT $E_\Gamma$ emulator extracts a witness polynomial from each $m$ with overwhelming probability.
+
+
+Setting $D = 2 \poly$ we get that on at least a $1/2$ fraction of accepting transcripts, $P'_O$s simulation also succeeds (i.e. successfully extracts from each prover commitment message) with probability at least $1/2$. This means that $P'_O$ has a non-negligible success probability conditioned on the event that $\tr$ is an accepting transcript. 
+
+In conclusion, if $\tr$ is accepting with non-negligible probability, then there is a non-negligible probability that $P'_O$ succeeds. 
+
+
+\section{Optimizations for Polynomial Commitment Scheme}
+\label{subsec:optimization}
+\input{sections/optimization}
+\section{Multivariate Commitment Scheme}
+\label{sec:multivariate}
+
+\input{sections/multivariate}
+
+
+\ifappendix
+\section{Other Instantiations of Polynomial IOPs} \label{appendix:other_polynomial_iops}
+
+\input{sections/other_polynomial_iops}
+\fi
+
+
