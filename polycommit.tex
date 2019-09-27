@@ -1,12 +1,11 @@
-\documentclass{llncs}
-%\documentclass[11pt]{article}
+\documentclass[11pt]{article}
 \pagestyle{plain} 
 \usepackage[operators,lambda,keys,sets,primitives,adversary,asymptotics,advantage]{cryptocode}
 \usepackage{notations}
 %\usepackage{bm}
 \usepackage{mdframed}
 \usepackage{enumitem}
-%\usepackage{amsthm}
+\usepackage{amsthm}
 \usepackage{amsmath,amssymb}
 \usepackage[utf8x]{inputenc}
 \usepackage[colorinlistoftodos]{todonotes}
@@ -17,18 +16,19 @@
 %\usepackage[subtle]{savetrees}
 \usepackage[hidelinks]{hyperref}
 \usepackage{url}
+\usepackage{authblk}
 %\usepackage{draftwatermark}
-%\usepackage[legalpaper, margin=1.5in]{geometry}
+\usepackage[legalpaper, margin=1.5in]{geometry}
 %\usepackage{thmtools}
 %\usepackage{thm-restate}
 %\declaretheorem[name=Theorem]{theorem}
 
 %Theorems
-%\theoremstyle{definition}
-%\newtheorem{definition}{Definition}
-%\newtheorem{theorem}{Theorem}
-%\newtheorem{theorem*}{Theorem}
-%\newtheorem{lemma}{Lemma}
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}
+\newtheorem{theorem}{Theorem}
+\newtheorem{theorem*}{Theorem}
+\newtheorem{lemma}{Lemma}
 \newtheorem{assumption}{Assumption}
 \newtheorem{fact}{Fact}
 %\newtheorem{corollary}{Corollary}
@@ -61,10 +61,11 @@
 
 \begin{document}
 \title{Transparent SNARKs from DARK Compilers}
-\author{}
-\institute{}
-%\author{Benedikt B\"unz, Ben Fisch, Alan Szepieniec}
-%\institute{}
+ \author[1]{Benedikt B\"unz}
+ \author[1]{Ben Fisch} 
+ \author[2]{Alan Szepieniec} 
+ \affil[1]{Findora, Stanford University}
+  \affil[3]{Nervos Foundation}
 \maketitle
 
 \begin{abstract} 
@@ -106,7 +107,7 @@ By design, the IOP formalisms make abstraction of the cryptographic assumptions 
 The cryptographic hardness assumptions underlying the security of SNARK constructions are rarely falsifiable, and this seems to be a by-product of the cryptographic compilation process. In powers-of-alpha type constructions the unfalsifiable hardness assumption is inherently algebraic. In contrast, the hardness assumption of groups of unknown order \emph{are} falsifiable; it is only the Fiat-Shamir heuristic for $\mathsf{polylog}$-many round protocols that is unfalsifiable because it is only provably secure in the random oracle model; a security reduction of such heuristics to standard assumptions is as yet unavailable.
 \end{comment}
 
-\bibliographystyle{vancouver}
+\bibliographystyle{alpha}
 {\footnotesize
   \bibliography{cryptobib/abbrev3,cryptobib/crypto,cryptobib/additional}}
 
