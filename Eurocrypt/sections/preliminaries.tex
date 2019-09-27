@@ -1,0 +1,313 @@
+
+\subsection{Assumptions}
+
+The cryptographic compilers make extensive use of groups of unknown order, \emph{i.e.}, groups for which the order cannot be computed efficiently.
+Concretely, we require groups for which two specific hardness assumptions hold.
+First the Strong RSA Assumption~\cite{EC:BarPfi97} which roughly states that it is hard to take \emph{arbitrary} roots of \emph{random} elements. Secondly, the much newer Adaptive Root Assumption~\cite{EC:Wesolowski19} which is the dual of the Strong RSA Assumption and states that it is hard to take \emph{random} roots of \emph{arbitrary} group elements. 
+Both of these assumption hold in generic groups of unknown order~\cite{EC:DamKop02,C:BonBunFis19}. That is to say, there are no efficient algorithms that only have black-box access to the group but are able to break these assumptions. 
+It is an open research problem to show whether one of these assumption implies the other.
+
+\begin{assumption}[r-Strong RSA Assumption]
+
+
+\label{assum:strongRSA}
+The \defn{r-Strong RSA Assumption} sates that no efficient adversary can at most compute $r$th roots a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
+\begin{small}
+\[
+    \Pr\left[\gr{u}^\ell = \gr{g} \,\wedge \ell \neq r^k, k \in \NN:
+    \begin{array}{l}
+         \GG \leftarrow \ggen(\lambda)  \\
+         \gr{g} \sample \GG \\
+         (\gr{u}, \ell) \in \mathbb{G} \times \mathbb{N} \leftarrow \adv(\mathbb{G}, \gr{g}) \\
+    \end{array}\right] \leq \negl \enspace .
+\]
+\end{small}
+\end{assumption} 
+Our definition is a generalization of the Strong-RSA Assumption that allows the adversary to take certain roots efficiently. For $r=1$ it is identical to the standard Strong RSA Assumption and in this case we will drop the $r$. For $r=2$ the adversary is efficiently able to take square roots. In class groups of imaginary quadratic order taking square roots is easy. In $r$th order class groups taking $r$th roots is easy.
+%We note that our definition of the Strong RSA Assumption additionally require that $\ell$ be an odd prime~\cite{EC:BarPfi97}. Our definition is a stronger assumption which states that all roots are difficult.
+\begin{assumption}[Adaptive Root Assumption]
+\label{assum:adaptiveroot}
+We say that the \defn{Adaptive Root Assumption} holds for $\ggen$ if 
+there is no efficient adversary $(\adv_0,\adv_1)$ that succeeds 
+in the following task.
+First, $\adv_0$ outputs an element $\gr{w} \in \GG$ and some $\state$.
+Then, a random prime $\ell$ in $\primes$ is chosen
+and $\adv_1(\ell,\state)$ outputs $\gr{w}^{1/\ell} \in \GG$.
+More precisely, for all efficient $(\adv_0,\adv_1)$:
+\begin{small}
+\[           
+                \Pr\left[\gr{u}^\ell = \gr{w} \neq 1 \ : \ 
+                \begin{array}{l}
+                      \GG \sample \ggen(\lambda) \\ 
+                      (\gr{w},\state) \sample \adv_0(\GG) \\
+                      \ell \sample \primes \\ 
+                      \gr{u} \gets \adv_1(\ell, \state)
+                \end{array} 
+        \right] \leq \negl.
+\]
+\end{small}
+\end{assumption}
+
+\ifappendix
+%The security proofs in this paper reduce a successful adversary to a violator of the $r$-Strong RSA Assumption or the Adaptive Root Assumption. However, for those proofs it is more convenient to focus on reducing towards an intermediate assumption. To this end the \emph{Order Assumption} states that it is difficult to compute any non-trivial element of known order, and the \emph{($r$-)Fractional Root Assumption} states that no efficient adversary can find a \emph{fractional root} for a given element $\gr{g}$ --- that is, a tuple $(\alpha, \beta, \gr{u})$ such that $\gr{u}^\alpha = \gr{g}^\beta$ and $\gcd(\alpha, \beta) = 1$. We defer an exact definition of these hard problems to the \appendixphrase~(\ref{appendix:hardness}), where we also prove that they are implied by the $r$-Strong RSA Assumption and the Adaptive Root Assumption.
+\else 
+\input{sections/hardness.tex}
+\fi
+
+\paragraph{Groups of unknown order.}
+We consider two candidate groups of unknown order. Both have their own upsides and downsides.
+
+\textit{RSA Group.} In the multiplicative group $\ZZ_n^*$ of integers modulo a product $n=p\cdot q$ of large primes $p$ and $q$, computing the order of the group is as hard as factoring $n$. The Order Assumption does not hold for $\ZZ_n^*$ because $-1 \in \ZZ_n^*$ can be easily computed and has order two. This can be resolved though by working instead in the quotient group $\ZZ_n^* / \langle-1\rangle \cong \mathrm{QR}_n$. %Additionally if $n$ is the product of strong primes, \emph{i.e.}, $\frac{p-1}{2}$ and $\frac{q-1}{2}$ are primes, then $\mathrm{QR}_n$ does not contain elements of low order\cite{JC:FisSch00,C:HofKil09}. In this group, the Order Assumption and the Strong RSA Assumption are equivalent to the hardness of factoring $n$.\alan{citation needed}
+The downside of using an RSA group, or more precisely, the group of quadratic residues modulo an RSA modulus, is that this modulus cannot be generated from public coins without exposing the order, and therefore has to come from a trusted setup.
+
+%\textit{UFO Group.} An alternative to RSA groups that still uses similar arithmetic is the multiplicative group of integers $\ZZ_n^*$ modulo a large random modulus $n$, called an \emph{UnFactorizable Object (UFO)}~\cite{conf/icics/Sander99}. This modulus is chosen to be so large so that with overwhelming probability its factorization contains two primes large enough to guarantee the targeted security level. As a result, elements of this group are hundreds of thousands of bits in size for reasonable security levels, compared to just thousands of bits for RSA group elements. The upside though is that the unfactorizable object $n$ can be sampled with public randomness, and therefore requires no trusted setup.
+
+\textit{Class Group.} The class group of an imaginary quadratic order is defined as the quotient group of fractional ideals by principal ideals of an order of a number field $\mathbb{Q}(\sqrt{\Delta})$, with ideal multiplication. A class group $\mathcal{C}\ell(\Delta)$ is fully defined by its discriminant $\Delta$, which needs to satisfy only public constraints such as $\Delta \equiv 1 \bmod 4$ and $-\Delta$ must be prime. As a result, $\Delta$ can be generated from public coins, thus obviating the need for a trusted setup. A group element can be represented by two integers strictly smaller (in absolute value) than $-\Delta$, which in turn is on the same order of magnitude as RSA group elements for a similar security level.  We refer the reader to Buchmann and Hamdy's survey~\cite{PKC/BucHam01} and Straka's accessible blog post~\cite{web/Stra19} for more details.
+
+Working in $\mathcal{C}\ell(\Delta)$ does present an important difficulty: there is an efficient algorithm due to Gauss to compute square roots of arbitrary elements~\cite{jtn/BosSte96}, and by repetition, arbitrary power of two roots. As a result, class groups cannot be used to commit to integers but rather to \emph{dyadic rationals}, which are rational numbers whose denominator is a power of two.
+Additionally, the standard Strong RSA Assumption is broken if computing square roots is easy. We therefore give a weakened version of Strong RSA which is believed to still hold even if computing square roots is easy.
+
+\subsection{Interactive Arguments of Knowledge}
+Interactive arguments are \emph{interactive proofs}~\cite{STOC:GolMicRac85} in which security holds only against a computationally bounded prover. In an interactive argument of knowledge for a relation $\mathcal{R}$, the prover convinces the verifier that it ``knows'' a witness $w$ for a statement $x$ such that $(x, w) \in \mathcal{R}$. In this paper, \emph{knowledge} means that the argument has \emph{witness-extended emulation}. %The standard definition of \emph{proofs of knowledge} (PoK) by Bellare and Goldreich~\cite{C:BelGol92} is based on the existence of an extractor machine $E$ that has oracle access to a malicious prover $P^*$, and if $P^*$ would cause the verifier to accept on input $X$ with high probability then $E$ outputs $w$ such that $(X, w) \in \mathcal{R}$ (with overwhelming probability). $E$ runs in expected polynomial time. This definition quantifies the success of $E$ over all inputs $x$, which unfortunately is problematic in the case of interactive  \emph{arguments}.
+
+%To illustrate one issue, if the interactive argument relies on a \emph{structured reference string} (SRS) setup with secret trapdoor information (e.g. the factorization of an RSA modulus) then one of the inputs $x^*$ could leak the trapdoor to the prover. Any extractor should clearly fail on input $x^*$ while $P^*$ may succeed, hence the definition cannot be satisfied. This particular problem is fixed by requiring the adversary $P^*$ to generate the input $x$. If the trapdoor is exponentially hard to compute the polynomial time adversary will not be able to embed the trapdoor in $x$ except with negligible probability. (See Damg\r{a}rd and Fujisaki~\cite{AC:DamFuj02} for a broader discussion of the issues that arise when applying the standard PoK definition to interactive arguments).
+
+%\emph{Witness-extended emulation}~\cite{EC:Lindell03} strengthens the PoK notion so that the extractor outputs not only a witness but also a simulated transcript of the messages between the prover and verifier. This property is helpful for security analysis when a PoK is used as a subprotocol within a larger protocol (e.g. a PoK of a commitment opening within a NIZK for arbitrary circuits), in particularly in order to construct a simulator that needs to both obtain the adverssary's witness as well as simulate its view in the sub-protocol. Groth and Ishai~\cite{EC:GroIsh08} adapt Lindell's definition for interactive arguments of knowledge (AoK) in the SRS model. This is the AoK definition we will use in the present work.
+
+\begin{definition} [Interactive Argument]\label{def:argument}
+Let $(\prover, \verifier)$ denote a pair of PPT interactive algorithms and $\pro{Setup}$ denote a non-interactive setup algorithm that outputs public parameters $\params$ given a security parameter. Both $\prover$ and $\verifier$ have access to $\params$. Let $\langle \prover(\params, x, w), \verifier(\params, x) \rangle$ denote the output of $V$ on input $x$ after its interaction with $P$, who has witness $w$. The triple $(\pro{Setup}, \prover, \verifier)$ is called an argument for relation $\mathcal{R}$ if for all non-uniform PPT adversaries $\mathcal{A}$ the following properties hold: 
+
+\begin{itemize}
+\item \underline{Perfect Completeness}. 
+\begin{small}
+\[
+\Pr \left[
+\begin{array}{c}
+        (x, w) \not \in  \mathcal{R} \ \text{or} \\
+         \ \langle \prover(\params, x, w), \verifier(\params, x) \rangle = 1 \\
+\end{array}
+:
+\begin{array}{c}
+             \params \leftarrow \pro{Setup}(1^\lambda) \\
+             (x, w) \leftarrow \mathcal{A}(\params) \\
+\end{array} 
+\right]  = 1 
+ \]
+ \end{small}
+
+\item \underline{Computational soundness}. 
+\begin{small}
+\[
+\Pr \left[
+\begin{array}{c}
+        \forall w \ (x, w) \not\in  \mathcal{R} \ \text{and} \\ 
+         \langle \mathcal{A}(\params, x, \st), \verifier(\params, x) \rangle = 1 
+\end{array}
+:
+\begin{array}{c}
+             \params \leftarrow \textsf{Setup}(1^\lambda) \\
+             (x, \st) \leftarrow \mathcal{A}(\params) \\
+\end{array}
+        \right] \leq \negl
+\]
+\end{small}
+\end{itemize} 
+\end{definition} 
+
+%The interactive argument is called \textbf{public-coin} if all the verifier's messages are uniformly random values, independent of all prior messages and the setup parameters $\params$. 
+%We next recall the definition of witness-extended emulation for interactive arguments, which is a form of knowledge extraction.  
+
+\begin{definition}[Witness-extended emulation~\cite{EC:GroIsh08}]\label{def:wee}
+Given a public-coin interactive argument tuple $(\textsf{Setup}, \prover, \verifier)$ and arbitrary prover algorithm $\prover^*$, let $\textsf{Record}(\prover^*, \params, x, \st)$ denote the message transcript between $\prover^*$ and $\verifier$ on shared input $x$, initial prover state $\st$, and $\params$ generated by $\textsf{Setup}$. Furthermore, let $\emu^{\textsf{Record}(\prover^*, \params, x, \st)}$ denote an machine $\emu$ with a transcript oracle for this interaction that can be rewound to any round and run again on fresh verifier randomness. The tuple $(\textsf{Setup}, \prover, \verifier)$ has witness-extended emulation if for every deterministic polynomial time $\prover^*$ there exists an expected polynomial time emulator $\emu$ such that for all non-uniform polynomial time adversaries $\mathcal{A}$ the following condition holds: 
+\begin{small}
+\[
+\Pr \left[
+\mathcal{A}(\textsf{tr}) = 1
+:
+\begin{array}{c}
+             \params \leftarrow \textsf{Setup}(1^\lambda) \\
+             (x, \st) \leftarrow \mathcal{A}(\params) \\
+             \tr \leftarrow \textsf{Record}(\prover^*, \params, x, \st)
+\end{array} 
+\right] \approx
+\]
+\[
+\Pr \left[
+\begin{array}{c} 
+\mathcal{A}(\textsf{tr}) = 1 \ \text{and} \\ 
+\text{\tr~accepting} \Rightarrow \ (x, w) \in \mathcal{R}
+\end{array} 
+:
+\begin{array}{c}
+             \params \leftarrow \textsf{Setup}(1^\lambda) \\
+             (x, \st) \leftarrow \mathcal{A}(\params) \\
+(\textsf{tr}, w) \leftarrow \emu^{\textsf{Record}(\prover^*, \params, x, \st)}(\params, x)
+\end{array}
+\right]
+\]
+\end{small}
+\end{definition}
+
+\paragraph{Generalized special soundness} The following lemma due to Bootle~\emph{et al.}~\cite{EC:BCCGP16} is a helpful tool for showing that an interactive argument has witness-extended emulation. It reduces the analysis to a generalized version of special soundness. 
+
+Consider a public-coin interactive argument with $r$ rounds and verifier challenges sampled from an exponentially large message space. An \textbf{$\mathbf{(n_1,...,n_r)}$-tree of accepting transcripts} for the interactive argument on input $x$ is defined as follows. The root of the tree is labelled with the statement $x$. The tree has $r$ depth. Each node at depth $i < r$ has $n_i$ children, and each child is labelled with a distinct value for the $i$th challenge. An edge from a parent node to a child node is labelled with a message from prover to verifier. Every path from the root to a leaf corresponds to an accepting transcript, hence there are $\prod_{i=1}^r n_i$ distinct accepting transcripts overall. 
+
+%\begin{lemma}[Forking lemma~\cite{EC:BCCGP16}] 
+%\label{lemma:GFL}
+%Let $(\textsf{Setup}, P, V)$ be an $r$-round public-coin interactive protocol for $\mathcal{R}$. Let $\mathcal{X}$ be a PPT algorithm that given any $(n_1,...,n_r)$-tree of accepting transcripts for the statement $x$, with $n_i \geq 1$ for all $i$, outputs $w$ such that $(x, w) \in \mathcal{R}$ in expected polynomial time. Assuming $\prod_{i=1}^r n_i \leq \poly$, the interactive argument $(\textsf{Setup}, P, V)$ has witness-extended emulation. 
+%\end{lemma}
+\begin{lemma}[Generalized Forking Lemma~\cite{EC:BCCGP16}] \label{lemma:GFL}
+Let $(\prover, \verifier)$ be an $r$-round public-coin interactive argument system for a relation $\mathcal{R}$. Let $\mathcal{T}$ be a tree-finder algorithm that, given access to a $\pro{Record}(\cdots)$ oracle with rewinding capability, runs in polynomial time and outputs an $({n_1}, \ldots, {n_r})$-tree of accepting transcripts with overwhelming probability. Let $\mathcal{X}$ be a deterministic polynomial-time extractor algorithm that, given access to $\mathcal{T}$'s output, outputs a witness $w$ for the statement $x$ with overwhelming probability over the coins of $\mathcal{T}$. Then $(\prover, \verifier)$ has witness-extended emulation.
+\end{lemma}
+
+We note that our statement of the Generalized Forking Lemma differs from that of Bootle~\emph{et al.}, which does not mention a tree-finder $\mathcal{T}$ and which requires $\mathcal{X}$ have success probability one. The restatement is necessary to take into account adversaries $\prover^*$ for which the tree-finder $\mathcal{T}$ outputs a $({n_1}, \ldots, {n_r})$-tree of accepting transcripts with negligible but nonzero probability even when the statement $x$ has no matching witness $w$. In such cases, no extractor $\mathcal{X}$ with success probability one can exist. Intuitively, the reason why this modification is okay is because the proof constructs an emulator $\mathcal{E}$ that uses $\mathcal{X}$ as a black box. Since $\mathcal{E}$ runs in polynomial time, it cannot distinguish an always-correct $\mathcal{X}$ from an overwhelmingly correct $\mathcal{X}$. If $\mathcal{X}$ should fail, then $\mathcal{E}$ re-runs $\mathcal{T}$ and $\mathcal{X}$.
+
+%\paragraph{Zero knowledge} We recall the definition of \emph{honest verifier zero-knowledge} (HVZK) for interactive proofs. HVZK only considers simulating the view of a verifier that follows the protocol honestly. The Fiat-Shamir transform compiles public-coin proofs that have HVZK into non-interactive proofs that have statistical zero-knowledge (for malicious verifiers). 
+%\ben{TODO: cite appropriate works, Bellare-Rogaway, more recent for more than constant round} 
+
+%\begin{definition}[HVZK for interactive arguments]
+%Let $\textsf{View}_{\langle \prover(x, w), \verifier(x) \rangle}$ denote the view of the verifier in an interactive protocol described in Definition~\ref{def:argument} on common input $x$ and prover witness input $w$. The interactive protocol has $\delta$-statistical honest verifier zero-knowledge if there exists a probabilistic polynomial time algorithm $\mathcal{S}$ such that for every $(x, w) \in \mathcal{R}$, the distribution $\mathcal{S}(x)$ is $\delta$-close to $\textsf{View}_{\langle \prover(x, w), \verifier(x) \rangle}$ (as distributions over the randomness of $\prover$ and $\verifier$).
+%\end{definition}
+
+\subsection{Commitment Schemes}
+
+In defining the syntax of the various protocols, we use the following convention with respect to public values (known to both the prover and the verifier) and secret ones (known only to the prover). In any list of arguments or returned tuple $(a, b, c; d, e)$ those variables listed before the semicolon are public, and those variables listed after it are secret. When there is no secret information, the semicolon is omitted.
+
+\begin{definition}[Commitment scheme]
+A commitment scheme $\Gamma$ is a tuple $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open})$ of PPT algorithms where:
+\begin{itemize}
+    \item $\pro{Setup}(1^\lambda) \rightarrow \params$ generates public parameters $\params$;
+    \item $\pro{Commit}(\params; x) \rightarrow (c; r)$ takes a secret message $x$ and outputs a public commitment $c$ and (optionally) a secret opening hint $r$ (which might or might not be the randomness used in the computation).
+    \item $\pro{Open}(\params, c, x, r) \rightarrow b \in \{0, 1\}$ verifies the opening of commitment $c$ to the message $x$ provided with the opening hint $r$. 
+\end{itemize}
+
+A commitment scheme $\Gamma$ is \defn{binding} if for all PPT adversaries $\adv$:
+\begin{small}
+\[
+    \Pr\left[
+        b_0 = b_1 \neq 0 \, \wedge \, x_0 \neq x_1 \ : \
+        \begin{array}{l}
+             \params \gets \pro{Setup}(1^\lambda) \\
+             (c, x_0, x_1, r_0, r_1) \gets \adv(\params) \\
+             b_0 \gets \pro{Open}(\params, c, x_0, r_0) \\
+             b_1 \gets \pro{Open}(\params, c, x_1, r_1) \\
+        \end{array}
+    \right] \leq \negl \enspace 
+\]
+\end{small}
+%\ben{We don't use the hiding property so why present?} \alan{For the ZK Eval protocol, maybe. Not sure yet.}
+\begin{comment}
+A commitment scheme $\Gamma$ is \defn{hiding} if for all probabilistic polynomial time adversaries $\adv=(\adv_0,\adv_1)$,
+\[
+    \left|
+        1 - 2\Pr\left[
+            \hat{b} = b \ : \
+        \begin{array}{l}
+             \params \gets \pro{Setup}(1^\lambda) \\
+             (\state, x_0, x_1) \gets \adv_0(\params) \\
+             b \sample \{0,1\} \\
+             (\gr{C}; *) \gets \pro{Commit}(\params; x_b) \\
+             \hat{b} \gets \adv_1(\state, \gr{C})
+        \end{array}
+        \right]
+    \right| \leq \negl \enspace .
+\]
+\end{comment}
+\end{definition}
+
+We now extend the syntax to polynomial commitment schemes. The following definition generalizes that of Kate~\emph{et. al.}~\cite{AC:KatZavGol10} to allow interactive evaluation proofs. It also stipulates that the polynomial's degree be an argument to the protocol, contrary to Kate~\emph{et al.} where the degree is known and fixed.
+
+\begin{definition} (Polynomial commitment) 
+A polynomial commitment scheme is a tuple of protocols $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ where $(\pro{Setup},$ $\pro{Commit}, \pro{Open})$ is a binding commitment scheme for a message space $R[X]$ of polynomials over some ring $R$, and
+\begin{itemize}
+    \item $\pro{Eval}(\params, c, z, y, d[, \mu]; f(X)) \rightarrow b \in \{0, 1\}$ is an interactive public-coin protocol between a PPT prover $\prover$ and verifier $\verifier$. Both $\prover$ and $\verifier$ have as input a commitment $c$, points $z, y \in R$, and a degree $d$. The prover additionally knows the opening of $c$ to a secret polynomial $f(X) \in R[X]$ with $\deg(f(X)) \leq d$. The protocol convinces the verifier that $f(z) = y$. {In a multivariate extension of polynomial commitments, the input $\mu > 1$ indicates the number of variables in the committed polynomial} and $z \in R^\mu$.
+\end{itemize}
+
+A polynomial commitment scheme is \defn{correct} if an honest committer can successfully convince the verifier of any evaluation. 
+\begin{comment}
+Specifically, if the prover is honest then for all polynomials $f(X) \in R[X]$ and all points $z \in R$,
+\begin{small}
+\[
+    \Pr\left[b = 1 \ : \ \begin{array}{l}
+        \params \gets \setup(1^\lambda) \\
+        (c; r) \gets \pro{Commit}(\params, f(X)) \\
+        y \gets f(z) \\
+        d \gets \deg(f(X)) \\
+        b \gets \pro{Eval}(\params, c, z, y, d; f(X), r) \\
+    \end{array} \right] = 1 \enspace .
+\]
+\end{small}
+\end{comment}
+
+A polynomial commitment scheme is \defn{evaluation binding} if no efficient adversary can convince the verifier that the committed polynomial $f(X)$ evaluates to different values $y_0 \neq y_1 \in R$ in the same point $z \in R$. Our applications the stronger property of knowledge soundness which we define formally below.
+\begin{comment}
+	Let $b \gets \pro{Eval}_{\langle \adv_1, \verifier\rangle}(c, z, y, d, \st)$ denote the verifier's output in an execution of this protocol with adversarial prover $\adv_1$ on public inputs $c, z, y, d$ and private adversary state $\st$. %(The adversary may or may not know a witness polynomial $f(X)$.)
+Evaluation binding requires that for all probabilistic polynomial-time adversaries $\adv = (\adv_0, \adv_1)$,
+\begin{small}
+\[
+    \Pr\left[
+         b_0 = b_1 \neq 0 \, \wedge \, y_0 \neq y_1 \ 
+         : \
+       \begin{array}{l}
+            \params \gets \pro{Setup}(1^\lambda) \\
+            (c, z, y_0, y_1, d_0, d_1, \st_0, \st_1) \gets \adv_0(\params) \\
+            b_0 \gets \pro{Eval}_{\langle \adv_1, \verifier} \rangle(\params, c, z, y_0, d_0; \st_0) \\
+            b_1 \gets \pro{Eval}_{\langle \adv_1, \verifier} \rangle(\params, c, z, y_1, d_1; \st_1) \\
+        \end{array}
+    \right] \leq \negl \enspace .
+\]
+\end{small}
+
+The syntax generalizes naturally to multivariate polynomial commitment schemes. Specifically, one obtains the syntax for an $\mu$-variate polynomial commitment scheme by replacing all occurrences of $X$ and $z$ by their $\mu$-dimensional vector counterparts, $\mathbf{X}$ and $\mathbf{z}$.
+\end{comment}
+\end{definition}
+
+\paragraph{Knowledge soundness} %In our application of polynomial commitments to the construction of arguments of knowledge, we also require the polynomial commitment to satisfy a \emph{knowledge} property. Informally, w
+We require that any successful prover in the $\eval$ protocol must \emph{know} a polynomial $f(X)$ such that $f(z) = y$ and $c$ is a commitment to $f(X)$. More formally, since $\eval$ is a public-coin interactive argument we define this knowledge property as a special case of witness-extended emulation (Definition~\ref{def:wee}). 
+
+Define the following NP relation given $\params \leftarrow \pro{Setup}(1^\lambda)$: 
+\begin{small}
+\[ 
+\mathcal{R_\textsf{Eval}}(\params) = \left\{
+\langle (c, z, y, d), (f(X), r) \rangle
+: 
+\begin{array}{l} 
+f \in R[X] \ \text{and} \ \deg(f(X)) \leq d \ \text{and} \ f(z) = y \\ 
+ \text{and} \ \pro{Open}(\params, c, f(X), r) = 1 \\
+\end{array}
+\right\}
+\] 
+\end{small}
+The correctness definition above implies that if $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ is \emph{correct} then $\eval$ is a correct interactive argument for $\mathcal{R_\textsf{Eval}}(\params)$, with overwhelming probability over the randomness of $\pro{Setup}$. We say that $\Gamma$ has \textbf{witness-extended emulation} if $\eval$ has witness-extended emulation as an interactive argument for $\mathcal{R_\textsf{Eval}}(\params)$. 
+
+It is easy to see that witness-extended emulation implies evaluation binding when $(\pro{Setup}, \pro{Commit}, \pro{Open})$ is a binding commitment scheme. If the adversary succeeds in $\eval$ on both $(c, z, y_0, d_0)$ and $(c, z, y_1, d_1)$ for $y_0 \neq y_1$ or $d_0 \neq d_1$ then the emulator obtains two distinct witnesses $f(X) \neq f'(X)$ and such that $c$ is a valid commitment to both. This would contradict the binding property of the commitment scheme. 
+
+\paragraph{Opening individual coefficients} The coefficients of a committed polynomial can be revealed and checked all at once using $\pro{Open}$, however, in some cases it is useful to reveal an individual coefficient more efficiently (\emph{e.g.}, with sublinear communication). 
+There is a generic one-round protocol for this that uses $\pro{Eval}$ as a black-box, and inherits the efficiency properties of $\pro{Eval}$. We present this in Section~\ref{sec:opencoefficient}. 
+
+\paragraph{Inner product argument} Another helpful feature for polynomial commitment schemes is an inner product argument that shows for commitments $(c_1, c_2)$ to degree $d$ polynomials $(f_1, f_2)$ the inner product of their coefficient vectors $a = \langle f_1, f_2 \rangle$. We similarly show that this can be realized in one-round using polynomial commitments with black-box calls to $\pro{Eval}$. We present this in  Section~\ref{sec:innerproduct}. 
+
+\subsection{Proofs of Exponentiation}
+Wesolowski \cite{EC:Wesolowski19} introduced a simple yet powerful proof of correct exponentiation (``$\mathsf{PoE}$'') in groups of unknown order. A prover can efficiently convince a verifier that a large exponentiation in such a group was done correctly. For instance, the prover wishes to convince the verifier that $\gr{w} = \gr{u}^x$ for known group elements $\gr{u}, \gr{w} \in \mathbb{G}$ and exponent $x \in \mathbb{Z}$, and the verifier wants to verify this with much less work than performing the exponentiation. To do this, the verifier samples a large enough prime $\ell$ at random and the prover provides him with $\gr{Q} \gets \gr{u}^q$ where $q = \lfloor \frac{x}{\ell} \rfloor$. The verifier then simply computes the remainder $r \gets (x \mod \ell)$ and checks that $\gr{Q}^\ell\gr{u}^r = \gr{w}$. The protocol is an argument for the relation $\mathcal{R}_\mathsf{PoE} = \left\{ \langle(\gr{u}, \gr{w}, x), \varnothing\rangle \ : \ \gr{u}^x = \gr{w} \right\}$.
+\noindent\begin{mdframed}[userdefinedwidth=\textwidth]
+\begin{minipage}{\textwidth}
+	\begin{flushleft}
+	$\pro{PoE}(\gr{u}, \gr{w}, x):$
+	\begin{enumerate}[nolistsep]
+		    \item \verifier samples $\ell \sample \primes$ and sends $\ell$ to \prover
+		    \item \prover computes quotient $q$ and remainder $r$ such that $x = q\ell + r$ and $r \in \{0, \ldots, \ell-1\}$
+		    \item \prover computes $\gr{Q} \gets \gr{u}^q$ and sends it to \verifier
+		    \item \verifier computes $r \gets (x \mod \ell)$ and checks that $\gr{Q}^\ell\gr{u}^r = \gr{w}$
+		    \item \pcif{}check passes \textbf{then} \textbf{return} 1 \textbf{else} \textbf{return} 0
+		\end{enumerate}
+	\end{flushleft}
+\end{minipage}
+\end{mdframed}
+%Wesolowski showed that an adversary that succeeds in the $\textsf{PoE}$ protocol for statements not in $\mathcal{R}_{\textsf{PoE}}$ can compute adaptive roots in the group $\GG$.
+
+\begin{lemma}[\textsf{PoE} soundness~\cite{EC:Wesolowski19}]
+\label{lem:poe}
+\textsf{PoE} is an argument system for  Relation $\mathcal{R}_\textsf{PoE}$ with negligible soundness error,
+assuming the Adaptive Root Assumption (Assumption \ref{assum:adaptiveroot}) holds for~$\ggen$.
+\end{lemma}
+
