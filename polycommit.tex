@@ -1,4 +1,4 @@
-\documentclass[11pt]{article}
+\documentclass[12pt]{article}
 \pagestyle{plain} 
 \usepackage[operators,lambda,keys,sets,primitives,adversary,asymptotics,advantage]{cryptocode}
 \usepackage{notations}
@@ -18,7 +18,7 @@
 \usepackage{url}
 \usepackage{authblk}
 %\usepackage{draftwatermark}
-\usepackage[legalpaper, margin=1.5in]{geometry}
+\usepackage[legalpaper, margin=1in]{geometry}
 %\usepackage{thmtools}
 %\usepackage{thm-restate}
 %\declaretheorem[name=Theorem]{theorem}
@@ -71,7 +71,7 @@
 \begin{abstract} 
 We construct a new polynomial commitment scheme for univariate and multivariate polynomials over finite fields, with public-coin evaluation proofs that have logarithmic communication and verification cost in the number of coefficients of the polynomial. The underlying technique is a \emph{Diophantine Argument of Knowledge} (DARK), leveraging integer representations of polynomials and groups of unknown order. Security is shown from the strong RSA and the adaptive root assumption. Moreover, the scheme does not require a trusted setup if instantiated with class groups. We apply this new cryptographic compiler to a restricted class of algebraic linear IOPs in order to obtain doubly-efficient public-coin IPs with succinct communication and witness-extended emulation for any NP relation. Allowing for linear preprocessing, the online verifier's work is logarithmic in the circuit complexity of the relation.
 
-Concretely, we obtain quasi-linear prover time when compiling the IOP employed in Sonic (MBKM, CCS 19). Applying the Fiat-Shamir transform in the random oracle model results in a SNARK system with quasi-linear preprocessing, quasi-linear (online) prover time, logarithmic proof size, and logarithmic (online) verification time for arbitrary circuits. The SNARK is also concretely efficient with $8.4$KB proofs and $75$ms verification time for circuits with 1 million gates. Most importantly, this SNARK is \emph{transparent}: it does not require a trusted setup. We also obtain zk-SNARKs by applying a variant of our polynomial commitment scheme that is hiding and offers zero-knowledge evaluation proofs. This construction is the first transparent zk-SNARK that has both a practical prover time as well as strictly \emph{logarithmic} proof size and verification time. We call our system \textsf{\textbf{Supersonic}}.
+In particular, we obtain quasi-linear prover time when compiling the IOP employed in Sonic (MBKM, CCS 19). Applying the Fiat-Shamir transform in the random oracle model results in a SNARK system with quasi-linear preprocessing, quasi-linear (online) prover time, logarithmic proof size, and logarithmic (online) verification time for arbitrary circuits. The SNARK is also concretely efficient with $8.4$KB proofs and $75$ms verification time for circuits with 1 million gates. Most importantly, this SNARK is \emph{transparent}: it does not require a trusted setup. We also obtain zk-SNARKs by applying a variant of our polynomial commitment scheme that is hiding and offers zero-knowledge evaluation proofs. This construction is the first transparent zk-SNARK that has both a practical prover time as well as asymptotically \emph{logarithmic} proof size and verification time (concretely a $70\times$ reduction in proof size over the state-of-the-art). We call our system \textsf{\textbf{Supersonic}}.
 
 \end{abstract} 
 
