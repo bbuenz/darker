@@ -4,14 +4,14 @@
 The cryptographic compilers make extensive use of groups of unknown order, \emph{i.e.}, groups for which the order cannot be computed efficiently.
 Concretely, we require groups for which two specific hardness assumptions hold.
 First the Strong RSA Assumption~\cite{EC:BarPfi97} which roughly states that it is hard to take \emph{arbitrary} roots of \emph{random} elements. Secondly, the much newer Adaptive Root Assumption~\cite{EC:Wesolowski19} which is the dual of the Strong RSA Assumption and states that it is hard to take \emph{random} roots of \emph{arbitrary} group elements. 
-Both of these assumption hold in generic groups of unknown order~\cite{EC:DamKop02,C:BonBunFis19}. That is to say, there are no efficient algorithms that only have black-box access to the group but are able to break these assumptions. 
-It is an open research problem to show whether one of these assumption implies the other.
+Both of these assumptions hold in generic groups of unknown order~\cite{EC:DamKop02,C:BonBunFis19}. %That is to say, there are no efficient algorithms that only have black-box access to the group but are able to break these assumptions. 
+%It is an open research problem to show whether one of these assumption implies the other.
 
 \begin{assumption}[r-Strong RSA Assumption]
 
 
 \label{assum:strongRSA}
-The \defn{r-Strong RSA Assumption} sates that no efficient adversary can at most compute $r$th roots a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
+The \emph{r-Strong RSA Assumption} sates that no efficient adversary can at most compute $r$th roots a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
 \begin{small}
 \[
     \Pr\left[\gr{u}^\ell = \gr{g} \,\wedge \ell \neq r^k, k \in \NN:
@@ -23,17 +23,17 @@ The \defn{r-Strong RSA Assumption} sates that no efficient adversary can at most
 \]
 \end{small}
 \end{assumption} 
-Our definition is a generalization of the Strong-RSA Assumption that allows the adversary to take certain roots efficiently. For $r=1$ it is identical to the standard Strong RSA Assumption and in this case we will drop the $r$. For $r=2$ the adversary is efficiently able to take square roots. In class groups of imaginary quadratic order taking square roots is easy. In $r$th order class groups taking $r$th roots is easy.
+For $r=1$, out definition is identical to the standard Strong RSA Assumption. Higher values of $r$ allows the adversary to take certain roots efficiently. For $r=2$, the adversary is efficiently able to take square roots. In class groups of imaginary quadratic order taking square roots is easy. In $r$th order class groups taking $r$th roots is easy.
 %We note that our definition of the Strong RSA Assumption additionally require that $\ell$ be an odd prime~\cite{EC:BarPfi97}. Our definition is a stronger assumption which states that all roots are difficult.
 \begin{assumption}[Adaptive Root Assumption]
 \label{assum:adaptiveroot}
-We say that the \defn{Adaptive Root Assumption} holds for $\ggen$ if 
+The \emph{Adaptive Root Assumption} holds for $\ggen$ if 
 there is no efficient adversary $(\adv_0,\adv_1)$ that succeeds 
 in the following task.
 First, $\adv_0$ outputs an element $\gr{w} \in \GG$ and some $\state$.
 Then, a random prime $\ell$ in $\primes$ is chosen
 and $\adv_1(\ell,\state)$ outputs $\gr{w}^{1/\ell} \in \GG$.
-More precisely, for all efficient $(\adv_0,\adv_1)$:
+For all efficient $(\adv_0,\adv_1)$:
 \begin{small}
 \[           
                 \Pr\left[\gr{u}^\ell = \gr{w} \neq 1 \ : \ 
@@ -58,7 +58,7 @@ More precisely, for all efficient $(\adv_0,\adv_1)$:
 We consider two candidate groups of unknown order. Both have their own upsides and downsides.
 
 \textit{RSA Group.} In the multiplicative group $\ZZ_n^*$ of integers modulo a product $n=p\cdot q$ of large primes $p$ and $q$, computing the order of the group is as hard as factoring $n$. The Order Assumption does not hold for $\ZZ_n^*$ because $-1 \in \ZZ_n^*$ can be easily computed and has order two. This can be resolved though by working instead in the quotient group $\ZZ_n^* / \langle-1\rangle \cong \mathrm{QR}_n$. %Additionally if $n$ is the product of strong primes, \emph{i.e.}, $\frac{p-1}{2}$ and $\frac{q-1}{2}$ are primes, then $\mathrm{QR}_n$ does not contain elements of low order\cite{JC:FisSch00,C:HofKil09}. In this group, the Order Assumption and the Strong RSA Assumption are equivalent to the hardness of factoring $n$.\alan{citation needed}
-The downside of using an RSA group, or more precisely, the group of quadratic residues modulo an RSA modulus, is that this modulus cannot be generated from public coins without exposing the order, and therefore has to come from a trusted setup.
+The downside of using an RSA group, or more precisely, the group of quadratic residues modulo an RSA modulus, is that this modulus cannot be generated in a publicly verifiable way without exposing the order, and thus requires a trusted setup.
 
 %\textit{UFO Group.} An alternative to RSA groups that still uses similar arithmetic is the multiplicative group of integers $\ZZ_n^*$ modulo a large random modulus $n$, called an \emph{UnFactorizable Object (UFO)}~\cite{conf/icics/Sander99}. This modulus is chosen to be so large so that with overwhelming probability its factorization contains two primes large enough to guarantee the targeted security level. As a result, elements of this group are hundreds of thousands of bits in size for reasonable security levels, compared to just thousands of bits for RSA group elements. The upside though is that the unfactorizable object $n$ can be sampled with public randomness, and therefore requires no trusted setup.
 
