@@ -2,14 +2,10 @@
 This technical overview provides an informal description of our key technical contribution: a polynomial commitment scheme with logarithmic evaluation proofs and verification time.
 The commitment scheme relies on four separate tools.
 \paragraph{1. Integer encoding of polynomials}
-Given a univariate polynomial $f(X)\in \ZZ_p[X]$ the prover first encodes the polynomial as an integer. Interpreting the coefficients of $f(X)$ as integers in\footnote{The choice to represent the coefficients by integers in $[0,p)$ optimizes for clarity, but later on we will in fact choose a balanced set of representatives, \emph{i.e.}, $[-\frac{p-1}{2}; \frac{p-1}{2}]$.} $[0, p)$, define $\hat{f}(X)$ to be the \emph{integer} polynomial with these coefficients. The prover computes $\hat{f}(q)\in \ZZ$ for some large integer $q\geq p$. This an injective map from polynomials with bounded coefficients to integers and is also decodable: the coefficients of $f(q)$ can be recovered from the base-$q$ decomposition of $\hat{f}(q)$.
-\begin{comment}
-For example assume that $f(X)=2X^3+3X^2+4X+1 \in \ZZ_5[X]$ and $q=10$. Then the integer $f(q)=2341$ encodes the polynomial $f(X)$ because its coefficients appear in the $q$-ary expansion of $f(q)$.
-\end{comment}
+Given a univariate polynomial $f(X)\in \ZZ_p[X]$ the prover first encodes the polynomial as an integer. Interpreting the coefficients of $f(X)$ as integers in\footnote{The choice to represent the coefficients by integers in $[0,p)$ optimizes for clarity, but later on we will in fact choose a balanced set of representatives, \emph{i.e.}, $[-\frac{p-1}{2}; \frac{p-1}{2}]$.} $[0, p)$, define $\hat{f}(X)$ to be the \emph{integer} polynomial with these coefficients. The prover computes $\hat{f}(q)\in \ZZ$ for some large integer $q\geq p$. This an injective map from polynomials with bounded coefficients to integers and is also decodable: the coefficients of $f(q)$ can be recovered from the base-$q$ decomposition of $\hat{f}(q)$.For example assume that $f(X)=2X^3+3X^2+4X+1 \in \ZZ_5[X]$ and $q=10$. Then the integer $f(10)=2341$ encodes the polynomial $f(X)$ because its coefficients appear in the decimal expansion of $f(10)$.
+
 Note that this encoding is also additively homomorphic, assuming that $q$ is sufficiently large. 
-\begin{comment}
 For example, let $g(X)=4X^3+1X^2+3$ such that $g(10)=4103$. Then $f(10)+g(10)=6444=(g+f)(10)$. 
-\end{comment}
 The more homomorphic operations we want to permit, the larger $q$ needs to be.
 The encoding additionally permits multiplication by polynomials (for example, $f(q)\cdot q^k$ is equal to the encoding of $f(X)\cdot X^k$). 
 \begin{comment}
