@@ -1,50 +1,7 @@
+\subsection{Information-Theoretic Abstraction}
+\label{sec:abstraction}
 
-\subsection{Polynomial Encoding}
-\label{sec:encoding}
-At the heart of our protocol is an encoding of integer polynomials with bounded coefficients as integers with useful homomorphic properties. To extend the encoding to polynomials over an odd prime field $\mathbb{F}_p$, we first lift them to the ring of polynomials over the integers by selecting representatives from $[-\frac{p-1}{2},  \frac{p-1}{2}]$ for each coefficient. The lifted polynomial has bounded integer coefficients and can hence be mapped into the integers.
-
-We write $\ZZ(b):=\{x \in \ZZ \, | \, \vert x \vert  \leq b\}$ as the set of integers with absolute value less than or equal to $b$. In a slight abuse of notation we write $\ZZ(b)[X]\subset \mathbb{Z}[X]$ as the set of integer polynomials with bounded coefficients. 
-
-\paragraph{Encoding}
-For a ``large'' integer $q$, the map $\mathsf{Enc} : \mathbb{Z}((q-1)/2)[X] \rightarrow \mathbb{Z}, \, f(X) \mapsto f(q)$ is an injective map from the domain of polynomials with bounded coefficients to the integers. This means the map can be used as encoding of polynomials in the domain $\ZZ(b)[X]$ with $b<q/2$.
-\paragraph{Decoding}
-Decoding works as follows. Define the partial sum $S_k := \sum_{i=0}^k f_i q^i$ with $S_{-1} := 0$ and observe that when $(S_k \bmod q^{k+1}) > q^{k+1}/2$ then $S_k < 0$ whereas when $(S_k \bmod q^{k+1}) < q^{k+1}/2$ then $S_k \geq 0$. 
-So when decoding $y \in \mathbb{Z}$, we can get $S_k$ for any $k$ by setting $S_k$ to $y \bmod q^{k+1}$ if $y \bmod q^{k+1}$ is less than $\frac{q^{k+1}}{2}$ or to $q^{k+1}- (y \bmod q^{k+1})$ otherwise.
-Two consecutive partial sums yield a coefficient of $f(X)$: $f_k = \frac{S_{k} - S_{k-1}}{q^{k}} \in \ZZ(b)$. These operations give rise to the following algorithm.\\
-\begin{minipage}{\textwidth}
-\begin{mdframed}
-\begin{flushleft}
-	$\pro{Dec}(y \in \mathbb{Z}):$
-	\begin{enumerate}[nolistsep]
-	    \item \textbf{for each} $k$ \textbf{in} $[0, \, \lfloor \log_q(|y|)\rfloor]$ \textbf{do:}\\
-		\item \pcind[1] $S_{k-1} \gets (y \bmod q^{k})$
-		\item \pcind[1] \pcif{$S_{k-1} > q^{k}/2$} \textbf{then} $S_{k-1} \gets q^{k}-S_{k-1}$ \textbf{end if}
-		\item \pcind[1] $S_k \gets (y \bmod q^{k+1})$
-		\item \pcind[1] \pcif{$S_{k} > q^{k+1}/2$} \textbf{then} $S_{k} \gets q^{k+1}-S_{k}$ \textbf{end if}
-		\item \pcind[1] $f_k \gets (S_{k} - S_{k-1}) / q^k$
-		\item \pcreturn $f(X) = \sum_{i=0}^{\lfloor \log_q(|y|)\rfloor} f_i X^i$
-	\end{enumerate} 
-\end{flushleft}
-\end{mdframed}
-\end{minipage}
-
-\begin{fact}
-	The encoding scheme is uniquely decodable for polynomials in $\ZZ(b)[X]$ if $b<q/2$.
-\end{fact}
-The fact follows from $f(q)\in \ZZ$ being a unique integer representation of polynomials with coefficients bounded in absolute value by $b$ such that $b<q/2$. In particular for any partial sum $S_i$ we have $|S_i|<\frac{q^{i+1}}{2}$. From this it follows that $S_i-S_{k-i}=f_i \cdot q^i$.  
-
-Note that the encoding has limited homomorphic properties: $\enc(g(X))+\enc(h(X))=\enc(g(X)+h(X))$ if $g(X)+h(X)\in \ZZ(b)$, \emph{i.e.}, if all its coefficients are less than $q/2$ in absolute value. This constraint is satisfied for example if the coefficients of $g$ and $h$ are less than $q/4$ in magnitude. Additionally, $\enc(g(X))\cdot \enc(h(X))=\enc(g(X)\cdot h(X))$ if $g(X)\cdot h(X)\in \ZZ(b)$.
-
-\paragraph{Encoding of dyadic rational polynomials.}
-In class groups there exists an algorithm to compute square roots of any element originally described by Gauß (modern description by Bosma and Stevenhagen~\cite{jtn/BosSte96}). As a result, in class groups an adversary can also commit to \defn{dyadic rationals} $\mathbb{D}:=\{\frac{x}{2^k} : \ x \in \ZZ \wedge k \in \NN\}\subset \QQ$, in addition to integers. When using class groups we therefore need to extend the encoding scheme accordingly. 
-
-The encoding map is identical, except lifted to the dyadic rationals: $\mathsf{Enc} : \mathbb{D}[X] \rightarrow \mathbb{D}, \, g(X) \mapsto g(q)$. The main difference with respect to the integer encoding scheme will be that decoding works for dyadic rationals where \emph{both the numerator and the denominator are bounded}. Let $N \in \NN$ be a bound on the absolute value of the numerator and $2^D\in \NN$ be a bound on the value of the denominator, and let $\mathbb{D}(N, D) :=\{\frac{x}{2^a} \in \mathbb{D} : \ |x|\leq N \wedge 2^a \leq D\}$ denote the set of such bounded dyadic rationals. The encoding scheme is uniquely decodable if $N \cdot 2^a < q/2$.
- 
-Note that denominator of $g(q)$ is bounded by $2^{\lfloor\log_2(D)\rfloor}$, $D$ rounded down to the next power of $2$. To decode such a dyadic rational, compute the integer $y \gets g(q) \cdot 2^{\lfloor\log_2(D)\rfloor}\in \ZZ$  and use the decoding algorithm described above to decode a polynomial $f(X)$ in $\ZZ(q/2)[X]$. From $f(X)$ one derives the polynomial  $g(X) \gets \frac{f(X)}{2^{\lfloor\log_2(D)\rfloor}} \in \mathbb{D}(\lceil q/(2D)\rceil, 2^{\lfloor\log_2(D)\rfloor})[X]$ through division. If the integer polynomial encoding is uniquely decodable, then so is the scheme for dyadic rational polynomials. If $q$ is a power of $2$, then an adversary can encode Laurent polynomials, \emph{i.e.}, polynomials where some terms have negative powers. In order to disallow negative powers, $q$ must be odd.
-
-\subsection{Information-Theoretic Polynomial Commitment Scheme}
-
-Before we present our concrete polynomial commitment scheme based on groups of unknown order, we present an abstraction thereof that hides the concrete cryptographic steps. The purpose of this abstraction is two-fold: first, it provides an intuitive stepping stone from which presenting and studying the concrete cryptographic protocol is easier; and second, it opens the door to alternative cryptographic instantiations that provide the same interface but based on alternative hardness assumptions.
+Before we present our concrete polynomial commitment scheme based on groups of unknown order, we present an abstraction thereof that hides the concrete cryptographic steps. The purpose of this abstraction is two-fold: first, it provides an intuitive stepping stone from which presenting and studying the concrete cryptographic protocol is easier; and second, it opens the door to alternative cryptographic instantiations that provide the same interface but based on alternative hardness assumptions. This protocol is very similar to the underlying information theoretic protocol in FRI~\cite{ICALP:BBHR18}.
 
 Let $[\![ \cdot ]\!] : \mathbb{Z}_p[X] \rightarrow \mathbb{S}$ be a homomorphic commitment function that sends polynomials over a prime field to elements of some set $\mathbb{S}$. Moreover, let $\mathbb{S}$ be equipped with operations $* + * : \mathbb{S} \times \mathbb{S} \rightarrow \mathbb{S}$ and $ * \cdot * : \mathbb{Z}_p[X] \times \mathbb{S} \rightarrow \mathbb{S}$ that accommodate two homomorphisms for $[\![ \cdot ]\!]$:
 \begin{itemize}[nolistsep]
@@ -134,6 +91,73 @@ Statement: $y = f(z) \bmod p$ and $\deg(f(X)) = d$
 	\end{itemize}
 \end{mdframed}
 \end{comment}
+
+
+\subsection{Integer Polynomial Encoding}
+\label{sec:encoding}
+We propose using integer commitments in a group of unknown order.as a concrete instantiation of the homomorphic commitment scheme required for the abstract protocol presented in Section~\ref{sec:abstraction}. At the heart of our protocol is thus an encoding of integer polynomials with bounded coefficients as integers, which also has homomorphic properties. 
+
+In order to encode polynomials over an odd prime field $\mathbb{F}_p$, we first lift them to the ring of polynomials over the integers. In the technical overview (Section~\ref{sec:overview}) we noted that a polynomial $f \in \mathbb{F}_p[X]$ can be uniquely encoded as an integer by first mapping $f$ to an integer polynomial $\tilde{f}$ with coefficients in $[0, p)$ and then to the integer $\tilde{f}(q)$ for any $q > p$. 
+The coefficients of $f$ can be recovered via the base $q$ decomposition of $\tilde{f}(q)$. 
+This encoding is an injective mapping from polynomials in $\FF_p[X]$ of degree at most $d$ to the set $[0, q^d)$. However, this integer encoding is not homomorphic: given $f, g \in \FF_p[X]$ with coefficients greater than $p/2$ the encoding of the polynomial $h \leftarrow f + g \bmod p$, \emph{i.e.} the integer $\tilde{h}(q)$, is distinct from $\tilde{f}(q) + \tilde{g}(q)$. 
+
+In order to make the encodings homomorphic, one approach is to consider any integer $z \in [0, q^{d+1}] $ a valid encoding of $f$ as long as there exists an integer polynomial $f^* \in \ZZ[X]$ with positive coefficients less than $q$ such that $f^*(q) = z$ and $f^* \equiv f \bmod p$. Encodings are no longer unique as there are multiple ways to encode the same polynomial, but encodings are still injective: for any $z$ there is a unique polynomial $f^*$ with positive coefficients less than $q$ such that $f^*(q) = z$ and $f^* \bmod p$ uniquely fixes $f$. 
+ Now if the coefficients of $f$ and $g$ are bounded by $q/2$ then $\tilde{f} + \tilde{g} \equiv \tilde{h} \bmod p$, hence $\tilde{h}(q)$ is a valid encoding of $h$. By choosing a sufficiently large $q$ it is possible to perform several levels of homomorphic operations on encodings. 
+ 
+However, this simple change introduces a problem for the protocol in Section~\ref{sec:overview}. The commitments are never checked (i.e. opened) until the bottom level of recursion. Hence, when using integer commitments over this \emph{restricted set of valid} integer encodings, the validity of internal commitments is never verified directly. Moreover, the validity of these internal commitments cannot be infered from the commitment opened at the bottom level of recursion. The integer $f'(q)$ can be written two different ways as $\alpha f_L(q) + f_R(q)$ and $\alpha f_L^*(q) + f_R^*(q)$ for $f^*_L \not \equiv f_L \bmod p$ and $f_R^* \not \equiv f_R \bmod p$ by choosing either $f_L^*$ or $f_R^*$ with negative coefficients. To illustrate this over the degree-0 polynomials at the bottom level, set $\alpha = 1$ and let $f' = 5$, $f_L = 2$, $f_R = 3$, $f_L^* = -1$, and $f^*_R = 6$. At the previous level, the prover could have committed to integer encodings of either the polynomials $3X + 2$ or $6X - 1$. The core issue is that we cannot infer from the fact that $f'(X)$ has \emph{positive} coefficients that the provers commitments $[\![f_L(X)]\!]$ and $[\![f_R(X)]\!]$ were also to integer polynomials with \emph{positive} coefficients. 
+
+Fortunately, from the value of $f'$ we can infer a \emph{probabilistic bound} on the absolute value of the $f_L$ and $f_R$ given that $\alpha \in (-p/2, p/2)$ is sampled randomly \emph{after} the prover has committed to $f_L$ and $f_R$. If $\alpha$ were not chosen randomly by the verifier no bound would apply: knowing $\alpha$, the prover can choose large $f_L$ and $f_R$ such that $\alpha f_L + f_R$ is small. The probabilistic bound is reasoned as follows: if $f'_0 \leftarrow \alpha_0 f_L + f_R$ and $f'_1 \leftarrow \alpha_1 f_L + f_R$ such that $max(|f'_0|, |f'_1|) < q / (2p)$ for some distinct $\alpha_0 \neq \alpha_1$, then $|f_L| \geq |f'_1 - f'_0| \leq q / p$ and $|f_R| \leq |\alpha_0 f'_1 - \alpha_1 f'_0| \leq q/2$. If no such pair exists, \emph{i.e.} the bound only holds for a unique $\alpha$, then there is a negligibly small probability $1/p$ that $f'$ would have passed the bound check. 
+More generally, a bound on $||f'(X)||_\infty$ in some level of the recursion implies a probabilistic bound on $||f_L(X)||_\infty$ and $||f_R(X)||_\infty$ at the previous level. (For a polynomial $g \in \ZZ[X]$ the norm $||g||_\infty$ is the absolute value of the maximum coefficient of $g$).
+
+This leads us to the following encoding scheme. We restrict the set of \emph{valid} encodings to be integers in the range $B = (-\frac{q^{d+1}}{2}, \frac{q^{d+1}}{2})$. An integer $z \in B$ is a valid encoding of $f \in \ZZ_p[X]$ if and only if there exists $\tilde{f} \equiv f \bmod p$ such that $||\tilde{f}||_\infty < q/2$ and $\tilde{f}(q) = z$. Every $z \in B$ encodes a unique $f \in \FF_p[X]$ of degree at most $d$. (We prove this fact below). Lastly, the validity of $f'(q) \leftarrow \alpha f_L(q) + f_R(q)$ for precommitted $f_L, f_R$ implies that both $f_L(q)$ and $f_R(q)$ were also valid with overwhelming probability. 
+
+\paragraph{Encoding scheme} Let $\ZZ(b):=\{x \in \ZZ: \vert x \vert  \leq b\}$ denote the set of integers with absolute value less than or equal to $b$. Define $\ZZ(b)[X] := \{f \in \ZZ[X]: ||f||_\infty \leq b\}$, the set of integer polynomials with coefficients from $\ZZ(b)$. 
+
+\begin{itemize} 
+
+\item \textbf{Encoding.}
+For any integer $q$, the function $\mathsf{Enc} : \mathbb{Z}(b)[X] \rightarrow \mathbb{Z}$ maps $h(X) \mapsto h(q)$. A polynomial $f(X) \in \ZZ_p[X]$ is first mapped to $\ZZ(p/2)[X]$ by replacing each coefficient of $f$ with its unique integer representative from $(-p/2,p/2)$ of the same equivalence class modulo $p$.  %This means the map can be used as encoding of polynomials in the domain $\ZZ(b)[X]$ with $b<q/2$.
+
+\item \textbf{Decoding.}
+Decoding works as follows. Define the partial sum $S_k := \sum_{i=0}^k f_i q^i$ with $S_{-1} := 0$. Assuming $|f_i| < q/2$ for all $i$, observe that for any partial sum $S_k$ we have $|S_k|<\frac{q^{k+1}}{2}$. Therefore, when $S_k < 0$ then $S_k \bmod q^{k+1} > q^{k+1}/2$ and when $S_k \geq 0$ then $S_k \bmod q^{k+1} < q^{k+1}/2$. 
+This leads to a decoding strategy for recovering $S_k$ from $y \in \mathbb{Z}$. The decode algorithm sets $S_k$ to $y \bmod q^{k+1}$ if this value is less than $q^{k+1}/2$ and to $q^{k+1}- (y \bmod q^{k+1})$ otherwise.
+Two consecutive partial sums yield a coefficient of $f(X)$: $f_k = \frac{S_{k} - S_{k-1}}{q^{k}} \in \ZZ(b)$. These operations give rise to the following algorithm.\\
+
+\end{itemize}
+
+\begin{minipage}{\textwidth}
+\begin{mdframed}
+\begin{flushleft}
+	$\pro{Dec}(y \in \mathbb{Z}):$
+	\begin{enumerate}[nolistsep]
+	    \item \textbf{for each} $k$ \textbf{in} $[0, \, \lfloor \log_q(|y|)\rfloor]$ \textbf{do:}\\
+		\item \pcind[1] $S_{k-1} \gets (y \bmod q^{k})$
+		\item \pcind[1] \pcif{$S_{k-1} > q^{k}/2$} \textbf{then} $S_{k-1} \gets q^{k}-S_{k-1}$ \textbf{end if}
+		\item \pcind[1] $S_k \gets (y \bmod q^{k+1})$
+		\item \pcind[1] \pcif{$S_{k} > q^{k+1}/2$} \textbf{then} $S_{k} \gets q^{k+1}-S_{k}$ \textbf{end if}
+		\item \pcind[1] $f_k \gets (S_{k} - S_{k-1}) / q^k$
+		\item \pcreturn $f(X) = \sum_{i=0}^{\lfloor \log_q(|y|)\rfloor} f_i X^i$
+	\end{enumerate} 
+\end{flushleft}
+\end{mdframed}
+\end{minipage} \\ 
+
+\begin{fact}
+	For any integer $z \in  (-\frac{q^{d+1}}{2}, \frac{q^{d+1}}{2})$ where $q$ is odd there exists a unique integer polynomial $f \in \ZZ(\frac{q-1}{2})[X]$ of degree at most $d$ such that $\pro{Enc}(f) = z$. Thus $z$ is a valid encoding of a unique polynomial in $\ZZ_p[X]$ equivalent to $f \bmod p$. 
+\end{fact}
+\begin{proof}
+For any $f \in \ZZ(\frac{q-1}{2})[X]$ of degree at most $d$, we see $\pro{Dec}(\pro{Enc})(f) = f$. This shows that $\pro{Enc}$ is injective. The cardinality of the domain is $q^{d+1}$ and is equal to the cardinality of the image, \emph{i.e.} $2 \cdot \frac{q^{d+1} - 1}{2} + 1 = q^{d+1}$. This shows that $\pro{Enc}$ is surjective. 
+\end{proof}
+
+The encoding also has homomorphic properties. If $h(X) \leftarrow f(X) + g(X) \in \ZZ(b)[X]$ then $h(q) = f(q) + g(q)$, hence $\enc(g(X))+\enc(h(X))=\enc(g(X)+h(X))$. Additionally, if $h'(X) \leftarrow f(X) \cdot g(X) \in \ZZ(b)[X]$ then $\enc(g(X))\cdot \enc(h(X))=\enc(g(X)\cdot h(X))$.
+
+\paragraph{Encoding of dyadic rational polynomials.}
+There exists an algorithm to compute square roots of any element of a class group of imaginary quadratic order, originally described by Gauß (see Bosma and Stevenhagen for a modern description~\cite{jtn/BosSte96}). As a result, in class groups an adversary can also commit to \defn{dyadic rationals} $\mathbb{D}:=\{\frac{x}{2^k} : \ x \in \ZZ \wedge k \in \NN\}\subset \QQ$, in addition to integers. When using class groups we therefore need to modify the encoding scheme . 
+
+The encoding map is identical, except lifted to the dyadic rationals: $\mathsf{Enc} : \mathbb{D}[X] \rightarrow \mathbb{D}, \, g(X) \mapsto g(q)$. The main difference with respect to the integer encoding scheme will be that decoding works for dyadic rationals where \emph{both the numerator and the denominator are bounded}. Let $N \in \NN$ be a bound on the absolute value of the numerator and $2^D\in \NN$ be a bound on the value of the denominator, and let $\mathbb{D}(N, D) :=\{\frac{x}{2^a} \in \mathbb{D} : \ |x|\leq N \wedge 2^a \leq D\}$ denote the set of such bounded dyadic rationals. The encoding scheme is uniquely decodable if $N \cdot 2^a < q/2$.
+ 
+Note that denominator of $g(q)$ is bounded by $2^{\lfloor\log_2(D)\rfloor}$, $D$ rounded down to the next power of $2$. To decode such a dyadic rational, compute the integer $y \gets g(q) \cdot 2^{\lfloor\log_2(D)\rfloor}\in \ZZ$  and use the decoding algorithm described above to decode a polynomial $f(X)$ in $\ZZ(q/2)[X]$. From $f(X)$ one derives the polynomial  $g(X) \gets \frac{f(X)}{2^{\lfloor\log_2(D)\rfloor}} \in \mathbb{D}(\lceil q/(2D)\rceil, 2^{\lfloor\log_2(D)\rfloor})[X]$ through division. If the integer polynomial encoding is uniquely decodable, then so is the scheme for dyadic rational polynomials. If $q$ is a power of $2$, then an adversary can encode Laurent polynomials, \emph{i.e.}, polynomials where some terms have negative powers. In order to disallow negative powers, $q$ must be odd.
+
 
 \subsection{Concrete Polynomial Commitment Scheme}
 
