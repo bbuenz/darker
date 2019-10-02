@@ -1,0 +1,78 @@
+For many applications it is important that the evaluation protocol offer zero-knowledge in addition to knowledge soundness. We show here how to adapt the scheme to achieve this feature.
+
+We need to start with a commitment scheme that is \emph{hiding} in addition to binding. Recall that a commitment scheme is hiding if no adversary can compute any function of the committed message. More formally:
+
+\begin{definition}
+A commitment scheme $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open})$ is \defn{hiding} if for all probabilistic polynomial time adversaries $\adv = (\adv_0, \adv_1)$, the advantage over a random guess in distinguishing a commitment to one message from a commitment to another, is negligible in the security parameter:
+\[
+	\left| 1 - 2 \cdot \mathrm{Pr}\left[
+		\hat{b} = b \ \middle| \ 
+		\begin{array}{l}
+			\params \gets \pro{Setup}(1^\lambda) \\
+			m_0, m_1, \st \gets \adv_0(\params) \\
+			b \sample \{0,1\} \\
+			(c; r) \gets \pro{Commit}(\params, m_b) \\
+			\hat{b} \gets \adv_1(\st, c)
+		\end{array}
+	\right] \right| \leq \negl \enspace .
+\]
+\end{definition}
+
+To provide this property, simply multiply the standard commitment by a random power of $\gr{g}^{q^{d+1}}$. The exponent for this factor is chosen uniformly at random from a large space $\mathbb{Z}(B)$ whose cardinality is much larger (\emph{i.e.}, at least $\lambda$ bits larger) than $|\mathbb{G}|$. Formally, the hiding commitment algorithm is described as follows:
+\begin{itemize}
+	\item $\pro{CommitH}(f(X) \in \mathbb{Z}_p[X]) \rightarrow (\gr{C}; \hat{f}(X), d, r)$. Lift $f(X) \in \mathbb{Z}_p[X]$ to $\hat{f}(X) \in \mathbb{Z}(p)[X]$ and select random integer $r \sample \mathbb{Z}(B)$. Compute $d \gets \deg(f(X))$ and $\gr{C} \gets g^{\hat{f}(q)} \cdot \gr{g}^{q^{d+1} \cdot r}$ and return commitment $\gr{C}$ with secret opening information $\hat{f}(X), d, r$.
+\end{itemize}
+
+The factor $\gr{g}^{q^{d+1} \cdot r}$ approximates a one-time pad on $\gr{g}^{\hat{f}(q)}$. Indeed, since $B \gg |\mathbb{G}|$, the distribution of $\gr{g}^{q^{d+1} \cdot r}$ is negligibly far from uniform over $\langle\gr{g}\rangle$ if $\gr{g}$ and $\gr{g}^{q^{d+1}}$ span the same subgroups. Unfortunately, we can only guarantee that $\gr{g}^{q^{d+1}}$ spans a subgroup of $\langle \gr{g} \rangle$, and so we would have to rely on a \emph{Subgroup Indistinguishability Assumption} instead~\cite{C:BraGol10}. In order to avoid having to rely on this assumption, one must guarantee that $\langle \gr{g} \rangle = \langle \gr{g}^{q^{d+1}} \rangle$, for instance by sampling $\gr{g}' \sample \mathbb{G}$ at random and setting $\gr{g} \gets \gr{g}^{q^{d+1}}$. Relying on this hardness assumption may be an acceptable compromise (it \emph{is} a falsifiable assumption, after all); however, we omit the matching analysis in favor of simply assuming that $\langle \gr{g} \rangle = \langle \gr{g}^{q^{d+1}} \rangle$.
+
+\begin{theorem}
+The commitment scheme $\Gamma = (\pro{Setup}, \pro{CommitH}, \pro{Open})$ is statistically hiding if $B \gg |\mathbb{G}|$ and if $\langle \gr{g} \rangle = \langle \gr{g}^{q^{d+1}} \rangle$.
+\end{theorem}
+
+\begin{proof}
+Consider the modification $\pro{CommitH}'$ where $r$ is not sampled from $\mathbb{Z}(B)$ but from $\{0,\ldots,|\mathbb{G}|-1\}$. Then the factor $\gr{g}^{q^{d+1} \cdot r}$ is uniformly distributed across $\langle \gr{g} \rangle$ and thus a perfect one time pad on $\gr{g}^{\hat{f}(q)}$. So $\pro{CommitH}'$ is perfectly hiding, or in other words, any adversary's advantage in distinguishing a commitment to one chosen message from that to another, is zero.
+
+The difference in adversarial distinguishing advantages for $\pro{CommitH}$ and $\pro{CommitH}'$ is bounded by the maximum over all possible polynomials $f(X)$ of the statistical distance of $\gr{g}^{\hat{f}(q)} \cdot \gr{g}^{q^{d+1} \cdot r}$ with $r \sample \mathbb{Z}(B)$ and $\gr{g}^{\hat{f}(q)} \cdot \gr{g}^{q^{d+1} \cdot r}$ with $r \sample \{0, \ldots, |\langle{}\gr{g}\rangle|-1\}$. In turn, this statistical distance is equal to that between the distributions of $r \bmod |\langle\gr{g}\rangle|$ when $r \sample \mathbb{Z}(B)$ and the uniform distribution over $\{0, \ldots, |\langle{}\gr{g}\rangle|-1\}$.
+
+Since $B \gg |\mathbb{G}| \geq |\langle\gr{g}\rangle|$, all elements $z \in \{0, \ldots, |\langle\gr{g}\rangle|-1\}$ occur with probability either $\frac{1}{|\langle\gr{g}\rangle|} + \epsilon$ or $\frac{1}{|\langle\gr{g}\rangle|} - \eta$ where $\epsilon, \eta > 0$ and $\epsilon, \eta \sim O(\frac{1}{B})$. So the statistical distance is bounded by $|\langle\gr{g}\rangle| \cdot \max(\epsilon, \eta) \approx |\langle\gr{g}\rangle| \frac{1}{B} \leq |\langle\gr{g}\rangle| \frac{1}{|\langle\gr{g}\rangle| \cdot 2^\lambda} = 2^{-\lambda}$, which is negligible.
+\end{proof}
+
+The next question is how to adapt the \eval protocol to provide zero-knowledge. Recall the definition of honest-verifier zero-knowledge (HVZK):
+
+\begin{definition}[HVZK for interactive arguments]
+Let $\textsf{View}_{\langle \prover(x, w), \verifier(x) \rangle}$ denote the view (list of sent and received messages) of the verifier in an interactive protocol described in Definition~\ref{def:argument} on common input $x$ and prover witness input $w$. The interactive protocol has $\delta$-statistical honest verifier zero-knowledge if there exists a probabilistic polynomial time algorithm $\mathcal{S}$ such that for every $(x, w) \in \mathcal{R}$, the distribution $\mathcal{S}(x)$ is $\delta$-close to $\textsf{View}_{\langle \prover(x, w), \verifier(x) \rangle}$ (as distributions over the randomness of $\prover$ and $\verifier$).
+\end{definition}
+
+The strategy to provide an evaluation proof with zero-knowledge consists of several steps. Assume that the verifier already holds a commitment $\gr{C}_f$ and the prover holds a matching polynomial $f(X)$ of degree $d$. Furthermore, both the prover and the verifier already agree on the evaluation point $z$ and the claimed value of $f(X)$ in that point, $y = f(z)$. Let $\pro{EvalZK}$ denote the following protocol.
+\begin{itemize}
+\item The prover creates another hiding commitment $\gr{C}_g$ to a random polynomial $g(X) \sample \mathbb{Z}(P)[X]$ of degree $d$ with coefficients drawn from a somewhat larger space than $\mathbb{Z}(p)$.
+\item The prover sends the hiding commitment $\gr{C}_g$ to the verifier along with the claimed evaluation $y_g = g(z)$ and obtains a challenge $\alpha \sample \mathbb{Z}(p)$ from the verifier.
+\item The prover and verifier use $\alpha$ to compute a random linear combination polynomial $h(X) = \alpha \cdot f(X) + g(X)$, a commitment to this polynomial $\gr{C}_h = \gr{C}_f^\alpha \cdot \gr{C}_g$, and an evaluation of this polynomial in $z$: $y_h = \alpha \cdot y_f + y_g \bmod p$.
+\item Observe that the new commitment can be described as $\gr{C}_h = \gr{g}^{h(q)} \cdot \gr{g}^{q^{d+1} \cdot (\alpha \cdot r_f + r_g)}$ where $r_f$ and $r_g$ was the randomness used in the commitments to $f(X)$ and $g(X)$, respectively. The prover splits this commitment along that factorization and sends $\gr{C} = \gr{g}^{h(q)}$ and $\gr{C}^\star = \gr{g}^{q^{d+1} \cdot (\alpha \cdot r_f + r_g)}$ to the verifier. The verifier checks that $\gr{C} \cdot \gr{C}^\star = \gr{C}_h$.
+\item The prover sends $\gr{g}^{\alpha \cdot r_f + r_g}$ and then the prover and verifier run a \textsf{PoE} to establish that $\gr{C}^\star$ really is this expression raised to the power $q^{d+1}$.
+\item At this point the verifier is in possession of a non-hiding commitment $\gr{C}$ to the polynomial $h(X) = \alpha f(X) + g(X)$ of degree $d$, along with its value $y_h$ in $z$, and the prover is in possession of the polynomial $h(X)$. So they run the original \eval protocol taking into account a larger bound for the coefficients.
+\end{itemize}
+
+The intuition for zero-knowledge is that the large coefficients of $g(X)$ statistically hide the smaller coefficients of $\alpha \cdot f(X)$. As a result, the prover could in principle open $\gr{C}$ directly without leaking more than a negligible amount of information on $f(X)$. The operations performed on $f(X)$ and on $\gr{C}$ from that point onwards can only reduce the amount of information leaked, not increase it.
+
+To make this argument formal, we need to establish that for any given $\alpha \in \mathbb{Z}(p)$, the distribution $\mathcal{D}$ of $g + \alpha \cdot f$ for $f \sample \mathbb{Z}(p)$ and $g \sample \mathbb{Z}(P)$ is statistically close to the uniform distribution $\mathcal{U}$ over $\mathbb{Z}(P)$. Observe that (if $\alpha \neq 0$) the support of $\mathcal{D}$ has cardinality $P + p - 1$. Partition the support of $\mathcal{D}$ into $\mathbb{Z}(P)$ and $\mathcal{S} = \mathsf{Supp}(\mathcal{D}) \backslash \mathbb{Z}(P)$ and observe that by the law of total probability, $\mathrm{Pr}[c \in \mathbb{Z}(P)] + \mathrm{Pr}[c \in \mathcal{S}] = 1$. Moreover, the event that $c = g + \alpha \cdot f \in \mathcal{S}$ can only happen if $g$ is already close to $\mathcal{S}$. There are at most $\alpha \cdot p$ such locations. This lets us bound the probability that $c \in \mathcal{S}$ as $\mathrm{Pr}[c \in \mathcal{S}] \leq \frac{\alpha \cdot p}{P}$. There are as many events where $g$ is close to $\mathcal{S}$ but $c \in \mathbb{Z}(P)$. The remaining probability mass is uniformly distributed across $\mathbb{Z}(P-\alpha \cdot p) = \{-\frac{P-\alpha\cdot p}{2}, \ldots, \frac{P - \alpha \cdot p}{2}\}$. In summary, the statistical distance between $\mathcal{D}$ and $\mathcal{U}$ is bounded by
+\begin{flalign*}
+\mathrm{SD}(\mathcal{D}, \mathcal{U}) &\leq \frac{1}{2} \left( (P-\alpha p) \cdot \left| \frac{1 - \frac{2 \alpha p}{P}}{P - \alpha p} - \frac{1}{P} \right| + 2 \alpha p \cdot \frac{\alpha p}{P}\right) \\
+ & = \frac{1}{2} \left( (P - \alpha p) \cdot \frac{1}{P} \left| \frac{P - 2 \alpha p}{P - \alpha p} - 1 \right| + 2 \alpha p \cdot \frac{\alpha p}{P} \right) \\
+ & = \frac{1}{2} \left( (P - \alpha p) \cdot \frac{1}{P} \cdot \frac{2 \alpha p}{P - \alpha p} + 2 \cdot \frac{\alpha^2 p^2}{P} \right) \enspace .
+\end{flalign*}
+This statistical distance is negligible when $P \gg p^4$. While the negligible statistical distance holds only for a single polynomial coefficient, it translates to the entire polynomial provided that there are at most a polynomial number of coefficients.
+
+We now have the tools we need to prove HVZK.
+
+\begin{theorem}
+The protocol $\pro{EvalZK}$ has statistical honest-verifier zero-knowledge.
+\end{theorem}
+
+\begin{proof}
+We build the HVZK simulator $\mathcal{S}$ as follows. Choose a polynomial $h(X) \sample \mathbb{Z}(P)$ with coefficients uniformly random from $\mathbb{Z}(P)$, and compute $y_h \gets h(z) \bmod p$. The polynomial fixes the non-binding commitment $\gr{C}$. Choose a randomizer $R \sample \mathbb{Z}(B)$ and set $\gr{C}^\star \gets \gr{g}^{q^{d+1} \cdot R}$. At this point the simulator can run the \textsf{PoE} and \eval protocols as the honest prover would.
+
+Next, sample $\alpha \sample \mathbb{Z}(p)$ and compute $\gr{C}_g \gets \gr{C}_h \gr{C}_f^{-\alpha}$ and $y_g \gets y_h - \alpha \cdot y_f$. This provides the simulator $\mathcal{S}$ with all the elements for an accepting transcript.
+
+To see why the resulting transcript is indistinguishable from the verifier's view of an authentic execution, observe that the only elements that have a different distribution are $\gr{C}_g$, $\gr{C}_h$ and $\gr{C}$. Since $\gr{C}_g$ and $\gr{C}_h$ are hiding commitments, they are indististinguishable. That leaves $\gr{C}$, which is a deterministic, non-hiding commitment to $h(X)$. However, the point is that $h(X)$ hides $f(X)$ statistically even if $h(X)$ were released in the clear. In other words, the distinguisher can learn no more information about $f(X)$ from $\gr{C} = \gr{g}^{h(q)}$ than if he were to receive $h(X)$ instead, and that is a negligible amount already.
+\end{proof}
