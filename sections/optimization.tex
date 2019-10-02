@@ -62,7 +62,7 @@ Statement: $(\crs,\gr{C}_1,\gr{C}_2,z,y_1,y_2,b,d)\in \mathcal{R}_{\pro{JE}}$
 The protocol $\pro{JoinedEval}$ is an interactive argument for the relation $\mathcal{R}_{\pro{JE}}$ and has perfect completeness and witness extended emulation if the $r$-Strong RSA and Order Assumption hold for $\ggen$ and if $q>(p-1)(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil+1}$
 \end{theorem}
 \begin{proof}
-    Correctness is immediate and witness extended emulation requires a single application of Lemma~\ref{lem:intrandomcombine} which leads to an updated bound on $q$. In general $q$ needs to be $\frac{p^2-1}{2}$ larger for any random linear combination that is taken with $\alpha \in [-\frac{p-1}{2},\frac{p-1}{2}]$. For class groups, Lemma~\ref{lem:dyadiccombining} is used and the lower bound on $q$ grows by a factor of $(p-1)^2\frac{p+1}{2}\leq p^3$. \qed
+    Correctness is immediate and witness extended emulation requires a single application of Lemma~\ref{lem:intrandomcombine} which leads to an updated bound on $q$. In general $q$ needs to be $\frac{p^2-1}{2}$ larger for any random linear combination that is taken with $\alpha \in [-\frac{p-1}{2},\frac{p-1}{2}]$. For class groups, Lemma~\ref{lem:dyadiccombining} is used and the lower bound on $q$ grows by a factor of $(p-1)^2\frac{p+1}{2}\leq p^3$.
 \end{proof}
 
 We can additionally combine this optimization with the previous optimization of evaluating a single polynomial at different points. This allows us to evaluate $m$ polynomials at $k$ points with very little overhead. 
