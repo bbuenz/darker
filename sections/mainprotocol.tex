@@ -282,7 +282,7 @@ First, we handle the case where $d+1$ is not a power of 2.  Whenever $d+1$ is od
 	    \begin{enumerate}[nolistsep]
         \item \pcif $d=0$:
         \item \label{line:basestart}\pcind[1] \prover sends $f(X)\in \ZZ$ to the verifier. \pccomment{$f=f(X)$ is a constant}
-        \item \pcind[1] \verifier checks that $b\cdot \mu_{p,d} < q$\pccomment{$\mu_{p,d}=O(p^{\log(d)})$ is a constant}
+        \item \pcind[1] \verifier checks that $b\leq \mu_{p,d} < q$\pccomment{$\mu_{p,d}=O(p^{\log(d)})$ is a constant}
         %q/(2^{\lceil \log_2(d+1) \rceil+1} p^{2 \lceil \log_2(d+1) \rceil+1})$
         \item \pcind[1] \verifier checks that $|f|\leq b$
           \item \pcind[1] \verifier checks that $f\equiv y \bmod p$
