@@ -69,7 +69,7 @@ This means that with overwhelming probability all transcripts are equivalent to 
 
 \paragraph{Combining statements.} The $\eval$ protocol combines two statements into one by using a random linear combination of group elements, \emph{i.e.}, $\gr{C}'\gets \gr{C}_L^{\alpha}\gr{C}_R$. We now show that this step is sound and that given the discrete logarithm for $\gr{C}'$ the extractor can extract the discrete logarithm for $\gr{C}_L$ and $\gr{C}_R$ we also show that the we can bound the size of the discrete logarithm. We show that this statement holds in two settings. First we consider a group $\GG$ were the standard Strong RSA Assumption holds and group elements are encodings of integers. 
 %Move next part to after lemma?
-Then we will show that in groups in which taking square roots is easy we can extract dyadic rationals using the Dyadic Strong RSA Assumption.
+Then we will show that in groups in which taking square roots is easy we can extract dyadic rationals using the 2-Strong RSA Assumption.
  %For $\GG \gets \ggen(\lambda)$, and $\gr{g}\sample \GG$. Let $(\gr{C}_L\in \GG,\gr{C}_R\in \GG,\alpha\in [0,p-1],f\in [0,b];\gr{g}^{f}=\gr{C}_L^{\alpha}\gr{C}_R)$ and  $(\gr{C}_L,\gr{C}_R,\alpha'\in [0,p-1],f'\in [0,b];\gr{g}^{f'}=\gr{C}_L^{\alpha'}\gr{C}_R)$  be two transcripts for $\alpha\neq \alpha'$.
 \begin{lemma}[Combining for integer witnesses]
 \label{lem:intrandomcombine}
@@ -528,10 +528,10 @@ In conclusion, if $\tr$ is accepting with non-negligible probability, then there
 \input{sections/multivariate}
 
 
-\ifappendix
-\section{Other Instantiations of Polynomial IOPs} \label{appendix:other_polynomial_iops}
+%\ifappendix
+%\section{Other Instantiations of Polynomial IOPs} \label{appendix:other_polynomial_iops}
 
-\input{sections/other_polynomial_iops}
-\fi
+%\input{sections/other_polynomial_iops}
+%\fi
 
 
