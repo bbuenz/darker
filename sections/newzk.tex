@@ -1,6 +1,6 @@
 For many applications it is important that the evaluation protocol offer zero-knowledge in addition to knowledge soundness. We show here how to adapt the scheme to achieve this feature.
 
-We need to start with a commitment scheme that is \emph{hiding} in addition to binding. Recall that a commitment scheme is hiding if no adversary can compute any function of the committed message. More formally:
+We start by defining a computational \emph{hiding} property for commitment schemes.:
 
 \begin{definition}
 A commitment scheme $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open})$ is \defn{hiding} if for all probabilistic polynomial time adversaries $\adv = (\adv_0, \adv_1)$, the advantage over a random guess in distinguishing a commitment to one message from a commitment to another, is negligible in the security parameter:
@@ -20,8 +20,26 @@ A commitment scheme $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open})$ is \defn{
 
 To provide this property, simply multiply the standard commitment by a random power of $\gr{g}^{q^{d+1}}$. The exponent for this factor is chosen uniformly at random from a large space $\mathbb{Z}(B)$ whose cardinality is much larger (\emph{i.e.}, at least $\lambda$ bits larger) than $|\mathbb{G}|$. Formally, the hiding commitment algorithm is described as follows:
 \begin{itemize}
-	\item $\pro{CommitH}(f(X) \in \mathbb{Z}_p[X]) \rightarrow (\gr{C}; \hat{f}(X), d, r)$. Lift $f(X) \in \mathbb{Z}_p[X]$ to $\hat{f}(X) \in \mathbb{Z}(p)[X]$ and select random integer $r \sample \mathbb{Z}(B)$. Compute $d \gets \deg(f(X))$ and $\gr{C} \gets g^{\hat{f}(q)} \cdot \gr{g}^{q^{d+1} \cdot r}$ and return commitment $\gr{C}$ with secret opening information $\hat{f}(X), d, r$.
+	\item $\pro{CommitH}(f(X) \in \mathbb{Z}_p[X]) \rightarrow (\gr{C}; \hat{f}(X), d, r)$. Lift $f(X) \in \mathbb{Z}_p[X]$ to $\hat{f}(X) \in \mathbb{Z}(p)[X]$ and select random integer $r \sample \mathbb{Z}(B)$. Compute $d \gets \deg(f(X))$ and $\gr{C} \gets \gr{g}^{\hat{f}(q)+q^{d+1} \cdot r}$ and return commitment $\gr{C}$ with secret opening information $\hat{f}(X), d, r$.
 \end{itemize}
+ \noindent\begin{mdframed}[userdefinedwidth=\textwidth]
+\begin{minipage}{\textwidth}
+	\begin{flushleft}
+	\pro{ZK-Open}\\
+	Input: $\gr{C} \in \GG,b\in \ZZ,d$, Witness: $f(X) \ZZ(b),\alpha \in \ZZ(2^\lambda)$\\
+	Statement: $\gr{C}=\commit(f(X);\alpha),f(X) \in \ZZ(b\cdot 2^\lambda),\deg(f(X))=d$
+	\begin{enumerate}[nolistsep]
+		    \item \prover samples a random degree $d$ $k(X) \sample \ZZ(b\cdot 2^\lambda)[X]$ and $\beta \sample \ZZ(2^\lambda)$ and computes $\gr{R}\gets \commit(k(X);\beta)$.
+		    \item \prover sends $\gr{R}$ to $\verifier$
+		    \item \verifier samples random $c\in [0,2^\lambda]$ and sends it to $\prover$
+		    \item \prover computes $s(X)\gets k(X) + c \cdot f(X)$, as well as $\gamma\gets \alpha+ c\cdot \gamma$. 
+		    \item \prover sends $s(X),\gamma$ to \verifier.
+		    \item \verifier checks that $s(X) \in \ZZ(b\cdot 2^{\lambda+1})[X] $ and $\gr{R}=\commit(s(X);\gamma)$
+		    \item \pcif{}check passes \textbf{then} \textbf{return} 1 \textbf{else} \textbf{return} 0
+		\end{enumerate}
+	\end{flushleft}
+\end{minipage}
+\end{mdframed}
 
 The factor $\gr{g}^{q^{d+1} \cdot r}$ approximates a one-time pad on $\gr{g}^{\hat{f}(q)}$. Indeed, since $B \gg |\mathbb{G}|$, the distribution of $\gr{g}^{q^{d+1} \cdot r}$ is negligibly far from uniform over $\langle\gr{g}\rangle$ if $\gr{g}$ and $\gr{g}^{q^{d+1}}$ span the same subgroups. Unfortunately, we can only guarantee that $\gr{g}^{q^{d+1}}$ spans a subgroup of $\langle \gr{g} \rangle$, and so we would have to rely on a \emph{Subgroup Indistinguishability Assumption} instead~\cite{C:BraGol10}. In order to avoid having to rely on this assumption, one must guarantee that $\langle \gr{g} \rangle = \langle \gr{g}^{q^{d+1}} \rangle$, for instance by sampling $\gr{g}' \sample \mathbb{G}$ at random and setting $\gr{g} \gets \gr{g}^{q^{d+1}}$. Relying on this hardness assumption may be an acceptable compromise (it \emph{is} a falsifiable assumption, after all); however, we omit the matching analysis in favor of simply assuming that $\langle \gr{g} \rangle = \langle \gr{g}^{q^{d+1}} \rangle$.
 
@@ -74,5 +92,5 @@ We build the HVZK simulator $\mathcal{S}$ as follows. Choose a polynomial $h(X) 
 
 Next, sample $\alpha \sample \mathbb{Z}(p)$ and compute $\gr{C}_g \gets \gr{C}_h \gr{C}_f^{-\alpha}$ and $y_g \gets y_h - \alpha \cdot y_f$. This provides the simulator $\mathcal{S}$ with all the elements for an accepting transcript.
 
-To see why the resulting transcript is indistinguishable from the verifier's view of an authentic execution, observe that the only elements that have a different distribution are $\gr{C}_g$, $\gr{C}_h$ and $\gr{C}$. Since $\gr{C}_g$ and $\gr{C}_h$ are hiding commitments, they are indististinguishable. That leaves $\gr{C}$, which is a deterministic, non-hiding commitment to $h(X)$. However, the point is that $h(X)$ hides $f(X)$ statistically even if $h(X)$ were released in the clear. In other words, the distinguisher can learn no more information about $f(X)$ from $\gr{C} = \gr{g}^{h(q)}$ than if he were to receive $h(X)$ instead, and that is a negligible amount already.
+To see why the resulting transcript is indistinguishable from the verifier's view of an authentic execution, observe that the only elements that have a different distribution are $\gr{C}_g$, $\gr{C}_h$ and $\gr{C}$. Since $\gr{C}_g$ and $\gr{C}_h$ are hiding commitments, they are indistinguishable. That leaves $\gr{C}$, which is a deterministic, non-hiding commitment to $h(X)$. However, the point is that $h(X)$ hides $f(X)$ statistically even if $h(X)$ were released in the clear. In other words, the distinguisher can learn no more information about $f(X)$ from $\gr{C} = \gr{g}^{h(q)}$ than if he were to receive $h(X)$ instead, and that is a negligible amount already.
 \end{proof}
