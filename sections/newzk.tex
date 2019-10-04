@@ -1,9 +1,9 @@
 For many applications it is important that the evaluation protocol offer zero-knowledge in addition to knowledge soundness. We show here how to adapt the scheme to achieve this feature.
 
-We start by defining a computational \emph{hiding} property for commitment schemes.:
+We start by defining a computational \emph{hiding} property for commitment schemes:
 
 \begin{definition}
-A commitment scheme $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open})$ is \defn{hiding} if for all probabilistic polynomial time adversaries $\adv = (\adv_0, \adv_1)$, the advantage over a random guess in distinguishing a commitment to one message from a commitment to another, is negligible in the security parameter:
+A commitment scheme $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open})$ is \defn{hiding} if for all probabilistic polynomial time adversaries $\adv = (\adv_0, \adv_1)$, the probability of distinguishing between commitments of different is negligble:
 \[
 	\left| 1 - 2 \cdot \mathrm{Pr}\left[
 		\hat{b} = b \ \middle| \ 
@@ -18,9 +18,10 @@ A commitment scheme $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open})$ is \defn{
 \]
 \end{definition}
 
-To provide this property, simply multiply the standard commitment by a random power of $\gr{g}^{q^{d+1}}$. The exponent for this factor is chosen uniformly at random from a large space $\mathbb{Z}(B)$ whose cardinality is much larger (\emph{i.e.}, at least $\lambda$ bits larger) than $|\mathbb{G}|$. Formally, the hiding commitment algorithm is described as follows:
+\paragraph{Hiding Polynomial Commitment}
+To provide this property, simply multiply the standard commitment by a random power of $\gr{g}^{q^{d+1}}$. The exponent for this factor is chosen uniformly at random from a large space $\ZZ(B)$ whose cardinality is much larger (\emph{i.e.}, at least $\lambda$ bits larger) than $|\GG|$. Formally, the hiding commitment algorithm is described as follows:
 \begin{itemize}
-	\item $\pro{CommitH}(f(X) \in \mathbb{Z}_p[X]) \rightarrow (\gr{C}; \hat{f}(X), d, r)$. Lift $f(X) \in \mathbb{Z}_p[X]$ to $\hat{f}(X) \in \mathbb{Z}(p)[X]$ and select random integer $r \sample \mathbb{Z}(B)$. Compute $d \gets \deg(f(X))$ and $\gr{C} \gets \gr{g}^{\hat{f}(q)+q^{d+1} \cdot r}$ and return commitment $\gr{C}$ with secret opening information $\hat{f}(X), d, r$.
+	\item $\pro{CommitH}(f(X) \in \ZZ_p[X]) \rightarrow (\gr{C}; \hat{f}(X), d, r)$. Lift $f(X) \in \ZZ_p[X]$ to $\hat{f}(X) \in \mathbb{Z}(p)[X]$ and select random integer $r \sample \mathbb{Z}(B)$. Compute $d \gets \deg(f(X))$ and $\gr{C} \gets \gr{g}^{\hat{f}(q)+q^{d+1} \cdot r}$ and return commitment $\gr{C}$ with secret opening information $\hat{f}(X), d, r$.
 \end{itemize}
  \noindent\begin{mdframed}[userdefinedwidth=\textwidth]
 \begin{minipage}{\textwidth}

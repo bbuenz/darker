@@ -1,7 +1,9 @@
 \subsection{Information-Theoretic Abstraction}
 \label{sec:abstraction}
 
-Before we present our concrete polynomial commitment scheme based on groups of unknown order, we present an abstraction thereof that hides the concrete cryptographic steps. The purpose of this abstraction is two-fold: first, it provides an intuitive stepping stone from which presenting and studying the concrete cryptographic protocol is easier; and second, it opens the door to alternative cryptographic instantiations that provide the same interface but based on alternative hardness assumptions. This protocol is similar to the underlying information theoretic protocol in FRI~\cite{ICALP:BBHR18}.\alan{It's similar in that both are divide-and-recombine algorithms. But that's where the similarity stops.}
+
+Before we present our concrete polynomial commitment scheme based on groups of unknown order, we present the underlying information theoretic protocol that abstracts the concrete cryptographic instantiations. 
+The purpose of this abstraction is two-fold: first, it provides an intuitive stepping stone from which presenting and studying the concrete cryptographic protocol is easier; and second, it opens the door to alternative cryptographic instantiations that provide the same interface but based on alternative hardness assumptions. %Like the underlying information theoretic protocol in FRI~\cite{ICALP:BBHR18}, this protocol operates by recursively dividing the working polynomial into two parts and then combining the two parts with a random weight.
 
 Let $[\![ * ]\!] : \mathbb{Z}_p[X] \rightarrow \mathbb{S}$ be a homomorphic commitment function that sends polynomials over a prime field to elements of some set $\mathbb{S}$. Moreover, let $\mathbb{S}$ be equipped with operations $* + * : \mathbb{S} \times \mathbb{S} \rightarrow \mathbb{S}$ and $ * \cdot * : \mathbb{Z}_p[X] \times \mathbb{S} \rightarrow \mathbb{S}$ that accommodate two homomorphisms for $[\![ * ]\!]$:
 \begin{itemize}[nolistsep]
@@ -147,7 +149,7 @@ Two consecutive partial sums yield a coefficient of $f(X)$: $f_k = \frac{S_{k} -
 \end{mdframed}
 \end{minipage}
 \paragraph{Encoding of dyadic rational polynomials.}
-There exists an algorithm to compute square roots of any element of a class group of an imaginary quadratic order, originally described by Gauß (see Bosma and Stevenhagen for a modern description~\cite{jtn/BosSte96}). As a result, in class groups an adversary can also commit to \defn{dyadic rationals} $\mathbb{D}:=\{\frac{x}{2^k} : \ x \in \ZZ \wedge k \in \NN\}\subset \QQ$, in addition to integers. When using class groups we therefore need to modify the encoding scheme . 
+There exists an algorithm to compute square roots of any element of a class group of an imaginary quadratic order, originally described by Gauß (see Bosma and Stevenhagen for a modern description~\cite{jtn/BosSte96}). As a result, in such class groups an adversary can also commit to \defn{dyadic rationals} $\mathbb{D}:=\{\frac{x}{2^k} : \ x \in \ZZ \wedge k \in \NN\}\subset \QQ$, in addition to integers. When using class groups we therefore need to modify the encoding scheme . 
 
 The encoding map is identical, except lifted to the dyadic rationals: $\mathsf{Enc} : \mathbb{D}[X] \rightarrow \mathbb{D}, \, g(X) \mapsto g(q)$. The main difference with respect to the integer encoding scheme will be that decoding works for dyadic rationals where \emph{both the numerator and the denominator are bounded}. Let $N \in \NN$ be a bound on the absolute value of the numerator and $2^D\in \NN$ be a bound on the value of the denominator, and let $\mathbb{D}(N, D) :=\{\frac{x}{2^a} \in \mathbb{D} : \ |x|\leq N \wedge 2^a \leq D\}$ denote the set of such bounded dyadic rationals. The encoding scheme is uniquely decodable if $N \cdot 2^a < q/2$.
  
@@ -225,8 +227,20 @@ To resolve this inefficiency, we utilize a proof of exponentiation (\textsf{PoE}
 The \textsf{PoE} protocol is an argument that a large exponentiation in a group of unknown order was performed correctly. Wesolowski's \textsf{PoE}~\cite{EC:Wesolowski19} is public coin, has constant communication and verification time, and is thus particularly well-suited here.
 
 We now specify subtleties that were previously glossed over. 
-First, we handle the case where $d+1$ is not a power of 2.  Whenever $d+1$ is odd in the recursion, the polynomial is shifted by one degree --- specifically, $f'(X) = X f(X)$ and the protocol proceeds to prove that $f'(X)$ has degree bounded by $d' = d+1$ and evaluates to $y' = zy$ at $z$. The verifier obtains the matching commitment $\gr{C}'\gets\gr{C}^q$. Second, the coefficients of $f(X)$ grow by a factor of $\frac{p+1}{2}$ in every recursion step. In the final round, we need to ensure that the opened integer in fact encodes a constant polynomial. This can be done by checking that $|f|\leq \frac{p-1}{2}(\frac{p+1}{2})^{\lceil\log_2(d+1)\rceil}$. The security proof shows that $q$ needs to be even larger than this to prove extraction. If $q>p^{2\log(d)}$ (or $p^{3\log(d)}$ for groups were taking square roots is easy) then we can prove that the original committed polynomial has coefficients less than $\frac{q}{2}$.
-% but eventually they have to be tested against some bound because coefficients that are \emph{too large} should be rejected. To take these growing coefficients into account we invoke a subroutine $\pro{EvalBounded}$, which takes an additional argument $b$ and which proves, in addition to what $\pro{Eval}$ proves, that all coefficients $f_i$ of $f(X)$ satisfy $|f_i| \leq b$. This subroutine is also useful if commitments were homomorphically combined prior to the execution of $\pro{EvalBounded}$. The growth of these coefficients determines a lower bound on $q$. 
+First, we handle the case where $d+1$ is not a power of 2.  Whenever $d+1$ is odd in the recursion, the polynomial is shifted by one degree --- specifically, $f'(X) = X f(X)$ and the protocol proceeds to prove that $f'(X)$ has degree bounded by $d' = d+1$ and evaluates to $y' = zy$ at $z$. The verifier obtains the matching commitment $\gr{C}'\gets\gr{C}^q$.
+
+Second, the coefficients of $f(X)$ grow by a factor of $\frac{p+1}{2}$ in every recursion step, but eventually the transmitted constant $f$ has to be tested against some bound because if it is \emph{too large} it should be rejected. However, the function interface provides no option to specify the allowable size of coefficients. We therefore define and use a subroutine $\pro{EvalBounded}$, which takes an additional argument $b$ and which proves, in addition to what $\pro{Eval}$ proves, that all coefficients $f_i$ of $f(X)$ satisfy $|f_i| \leq b$. Importantly, $b$ grows by a factor for $\frac{p+1}{2}$ in every recursion step. This subroutine is also useful if commitments were homomorphically combined prior to the execution of $\pro{EvalBounded}$. The growth of these coefficients determines a lower bound on $q$: $q$ should be \emph{significantly} larger than $b$. Exactly which factor constitutes ``significantly'' is determined by the knowledge-soundness proof.
+
+In the final round we check that the constant $f$ satisfies $|f|\leq b$ and the protocol's correctness is guaranteed if $b = \frac{p-1}{2}(\frac{p+1}{2})^{\lceil\log_2(d+1)\rceil}$. However, $q$ needs to be even larger than this value in order for extraction to work (and hence, for the proof of witness-extended emulation to go through). In RSA groups, where computing square roots is hard, we need $q>p^{2\log(d)}$; whereas in class groups where computing square roots is easy, we need $p^{3\log(d)}$. When this condition is satisfied, we can prove that the original committed polynomial has coefficients smaller than $\frac{q}{2}$. To avoid presenting two algorithms whose only difference is the one constant, we capture this constant explicitly in the variable $\boldsymbol{\varsigma}_{p,d}$ and set its value depending on the context:
+\[
+    \boldsymbol{\varsigma}_{p, d} = \left\{
+        \begin{array}{ll}
+            p^{\,2\log_2(d+1)} & \quad \textnormal{(in RSA groups)} \\
+            p^{\,3\log_2(d+1)} & \quad \textnormal{(in class groups)}
+        \end{array}
+    \right. \enspace .
+\]
+
  We now present the full, formal $\eval$ protocol below.
 \begin{small}
 \begin{mdframed}
@@ -242,7 +256,8 @@ First, we handle the case where $d+1$ is not a power of 2.  Whenever $d+1$ is od
 	    \begin{enumerate}[nolistsep]
         \item \pcif $d=0$:
         \item \label{line:basestart}\pcind[1] \prover sends $f(X)\in \ZZ$ to the verifier. \pccomment{$f=f(X)$ is a constant}
-        \item \pcind[1] \verifier checks that $b\leq \mu_{p,d} < q$\pccomment{$\mu_{p,d}=O(p^{\log(d)})$ is a constant}
+
+        \item \pcind[1] \verifier checks that $b\cdot \boldsymbol{\varsigma}_{p,d} < q$\pccomment{$\boldsymbol{\varsigma}_{p,d}<p^3$ (see Theorem~\ref{thm:polycommitsecurity} and \ref{thm:dyadicpolysecurity}}
         %q/(2^{\lceil \log_2(d+1) \rceil+1} p^{2 \lceil \log_2(d+1) \rceil+1})$
         \item \pcind[1] \verifier checks that $|f|\leq b$
           \item \pcind[1] \verifier checks that $f\equiv y \bmod p$
@@ -294,7 +309,7 @@ The polynomial commitment scheme is correct for polynomials in $\ZZ_p[X]$ of deg
 
 
 The proofs of the previous lemmas are in Appendix~\ref{appendix:binding} and \ref{appendix:correctness}.
-We now proceed to the main security theorem, which states that the evaluation protocol has witness-extended emulation. We start with a high-level intuitive overview where we also identify potential obstacles.
+Next is the main security theorem, which states that the evaluation protocol has witness-extended emulation. We start with a high-level intuitive overview where we also identify potential obstacles.
 
 \paragraph{Proof idea.} %Consider the information theoretic version of the $\eval$ protocol, where the prover sends the integer polynomials $f_L(X)$ and $f_R(X)$ in each round but the verifier does not read them.
 The goal is to construct an extractor by recursively computing $f(X)$ from $f'(X)$. In the final round the verifier receives $f$ such that $|f| \leq b$, and therefore the extractor possesses this constant polynomial as well. Working backwards from here, the extractor uses rewinding in every step to find $f_L(X)$ and $f_R(X)$ and thereby finds $f(X) = f_L(X) + X^{d'+1}f_R(X)$.
@@ -318,26 +333,20 @@ The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most
 \begin{theorem}~\label{thm:polycommitsecurity} 
 	\maintheorem
 \end{theorem}
-The proof of the theorem which closely follows the proof idea is in \appendixphrase~\ref{appendix:maintheoremproof}.
-
-
 
 %\textit{Remark:}
 %The bound on $q$ for correctness (Lemma \ref{lem:correctness}) is $O((\frac{p}{2})^{\log(d)})$ while the bound for soundness is $O((\frac{p}{2})^{2 \log(d)})$. It is not clear whether this gap can be closed. While the soundness analysis is tight for the worst case assumption on challenges it is possible that a probabilistic analysis could give a tighter result.
 
 \newcommand{\dyadicmaintheorem}{
-Let $\ggen$ generate groups $\GG$ of unknown order such that the order of $\GG$ is odd, and there exists a PPT algorithm for taking square roots in $\GG$. The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>(p-1)^{\lceil\log_2(d+1)\rceil+1}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}=O(p^{3\log(d)})$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the Adaptive Root Assumption and the  $2$-Strong RSA Assumption hold for $\ggen$.
+Let $\ggen$ generate groups $\GG$ of unknown order such that the order of $\GG$ is odd, and such there exists a PPT algorithm for taking square roots in $\GG$. The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>(p-1)^{\lceil\log_2(d+1)\rceil+1}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}=O(p^{3\log(d)})$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the Adaptive Root Assumption and the  $2$-Strong RSA Assumption hold for $\ggen$.
 }
 \begin{theorem}
 \label{thm:dyadicpolysecurity}	
 \dyadicmaintheorem
 \end{theorem}
-The proof of Theorem~\ref{thm:dyadicpolysecurity} is nearly identical to the proof of Theorem~\ref{thm:polycommitsecurity} but the extracted polynomials are dyadic rationals and not integers. This requires the bound on $q$ to be larger by a factor of $p^{\log(d+1)}$. The proof is presented in the \appendixphrase~(\ref{apx:dyadic}).
+The proof of Theorem~\ref{thm:dyadicpolysecurity} is nearly identical to the proof of Theorem~\ref{thm:polycommitsecurity} but the extracted polynomials are polynomials over the dyadic rationals and not over the integers. This requires the bound on $q$ to be larger by a factor of $p^{\log(d+1)}$. Both proofs are presented in the \appendixphrase~(\ref{appendix:maintheoremproof} and \ref{apx:dyadic}).
 
-\ifappendix
-\subsection{Multivariate Polynomials, Optimizations, and Zero-Knowledge}
-We present a multivariate variant in Appendix \ref{sec:multivariate}. The idea is simply to use higher degrees of $q$ to encode the next indeterminate. The scheme has communication complexity and verification time $O(\mu \log(d))$ for an $\mu$-variate polynomial of degree $d$. We also present several optimizations that significantly reduce the proof size, prover time and verification time (see Appendix~\ref{subsec:optimization}). We show in Appendix~\ref{appendix:zeroknowlege} how the commitment can be made hiding and the evaluation zero-knowledge by using the Cramer-Damg\aa{}rd~\cite{C:CraDam98} transformation.
-\else
+
 \section{Optimizations for Polynomial Commitment Scheme}
 \label{subsec:optimization}
 \input{sections/optimization}
@@ -345,7 +354,6 @@ We present a multivariate variant in Appendix \ref{sec:multivariate}. The idea i
 \label{sec:multivariate}
 
 \input{sections/multivariate}
-\fi
 
 \subsection{Performance}
 The polynomial commitment scheme has logarithmic proof size and verifier time in the degree $d$ of the committed polynomial. 
@@ -373,7 +381,7 @@ We describe the performance of our scheme for different settings in Table~\ref{t
 \end{small}
 \end{table}
 
-The polynomial commitment by Kate~\emph{et al.}~\cite{AC:KatZavGol10} has evaluation proofs that consist of only a single element in a bilinear group and verification requires only a single pairing. The commitment scheme, however, requires a trusted and linear sized setup. In the multivariate setting (Appendix~\ref{sec:multivariate}) our scheme is logarithmic in the total number of coefficients, i.e. $\mu\log(d)$ for a $\mu$-variate polynomial of degree $d$. The multivariate extension of Kate~\emph{et al.}'s commitment scheme~\cite{SP:ZGKPP17} evaluation proofs consist of $\mu$ group elements.
+The polynomial commitment by Kate~\emph{et al.}~\cite{AC:KatZavGol10} has evaluation proofs that consist of only a single element in a bilinear group and verification requires only a single pairing. The commitment scheme, however, requires a trusted and linear sized setup. In the multivariate setting (Appendix~\ref{sec:multivariate}) our scheme is logarithmic in the total number of coefficients: $\mu\log(d)$ for a $\mu$-variate polynomial of degree $d$. The multivariate extension of Kate~\emph{et al.}'s commitment scheme~\cite{SP:ZGKPP17} evaluation proofs consist of $\mu$ group elements.
 
 %\subsection{Multivariate polynomial commitments}\label{sec:multivariate}
 	

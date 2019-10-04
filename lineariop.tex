@@ -96,7 +96,7 @@ and verifier state is $\textsf{st}^\verifier_i \leftarrow (\textsf{st}^\verifier
 Furthermore, a Polynomial IOP is \defn{stateless} if for each $i \in [t]$, $\mathcal{V}(\st^\verifier_{i-1}) = \mathcal{V}(i)$. It is \defn{public coin} if, additionally, the randomized computation $\mathcal{V}(i) \rightarrow \boldsymbol{\Sigma}_i$ is equivalent to the derandomized computation $\mathit{coins}_i \sample \{0,1\}^*$ followed by $\mathcal{V}(i; \mathit{coins}_i) \rightarrow \boldsymbol{\Sigma}_i$ and where $\mathit{coins}_i$ is public and $\mathcal{V}(i; \mathit{coins}_i)$ is deterministic.
 \end{definition}
 
-It should be obvious that \emph{public coin} Polynomial IOPs are a subclass of public coin algebraic linear IOPs. The inclusion breaks, however, when the public coin property is dropped. We note that in this paper we characterize the underlying information-theoretical proof system for several argument systems for generating concise proofs as Polynomial IOPs and \emph{none} of them require secret coins\footnote{To be precise: none of the captured proof systems require secret coins at the information-theoretic level; some examples do require secret coins for the cryptographic instantiation --- for instance, in the trusted setup.}. The question remains whether Polynomial IOPs that are not public coin have a compelling use case in practice.
+It should be obvious that \emph{public coin} Polynomial IOPs are a subclass of public coin algebraic linear IOPs. The inclusion breaks, however, when the public coin property is dropped. We note that in this paper we characterize the underlying information-theoretical proof system for several argument systems for generating concise proofs as Polynomial IOPs and \emph{none} of them require secret coins\footnote{To be precise: we capture some trusted-setup SNARKs in our formalism, but the secret coins involved here are the result of the cryptographic compiler and not a property of the underlying IOP.}. The question remains whether Polynomial IOPs that are not public coin, have a compelling use case in practice.
 
 \subsection{Polynomial IOP reductions} 
 
@@ -234,7 +234,7 @@ HVZK is shown by a straightforward composition of the simulators for $\eval$ and
 %We discuss concrete examples of Polynomial IOPs to which we can apply our polynomial commitment compiler.
 We consider examples of Polynomial IOPs to which this compiler can be applied: \textsf{Sonic} and its improvement \textsf{PLONK}; \textsf{Spartan}~\cite{Spartan}, and the popular QAP of Gennaro~\emph{et al.}~\cite{EC:GGPR13}. 
 \ifappendix
-To save space, the treatment of \textsf{Spartan} and QAP are deferred to Appendix~\ref{appendix:other_polynomial_iops}. We focus here on the \textsf{Sonic}/\textsf{Plonk} IOP.
+%To save space, the treatment of \textsf{Spartan} and QAP are deferred to Appendix~\ref{appendix:other_polynomial_iops}. We focus here on the \textsf{Sonic}/\textsf{PLONK} IOP.
 \fi
 %Section~\ref{sec:optimizations} discusses optimizations and performance estimates for a compilation of the Polynomial IOP introduced in \textsf{Sonic}~\cite{Sonic} and improved in \textsf{PLONK}~\cite{Plonk}. 
 
@@ -271,9 +271,9 @@ We apply the univariate polynomial commitment scheme from Section~\ref{sec:proto
 The preprocessing requires running $\pro{Commit}$ on $12$ univariate degree $n$ polynomials, which involves a quasilinear number of group operations in the group of unknown order $\GG$ determined by $\pro{Setup}$. The prover sends a constant number of proof oracles of degree $n$ to the verifier, which also takes a quasilinear number of group operations. Finally, the 27 queries are replaced with at most $27$ invocations of $\eval$, which adds $O(\log n )$ rounds and has $O(\log n)$ communication. By Theorem~\ref{thm:polycommitsecurity} ($\Gamma$ has witness extended emulation) and Theorem~\ref{thm:IOPcompiler}, the compiled interactive argument has witness-extended emulation.
 \end{proof}
 
-\ifappendix
-\else
+%\ifappendix
+%\else
 \input{sections/other_polynomial_iops}
-\fi
+%\fi
 
 
