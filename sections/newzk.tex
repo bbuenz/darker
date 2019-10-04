@@ -19,25 +19,28 @@ A commitment scheme $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open})$ is \defn{
 \end{definition}
 
 \paragraph{Hiding Polynomial Commitment}
-To provide this property, simply multiply the standard commitment by a random power of $\gr{g}^{q^{d+1}}$. The exponent for this factor is chosen uniformly at random from a large space $\ZZ(B)$ whose cardinality is much larger (\emph{i.e.}, at least $\lambda$ bits larger) than $|\GG|$. Formally, the hiding commitment algorithm is described as follows:
+We make the polynomial commitment described in Section~\ref{sec:protocol} hiding by adding a large random coefficient at degree $d+1$. Let $B\geq |\GG|$ be a publicly known upper bound on the order of $|\GG|$. We will choose the blinding coefficient between $0$ and $B\cdot 2^\lambda$. 
+
+Formally, the hiding commitment algorithm is described as follows:
 \begin{itemize}
-	\item $\pro{CommitH}(f(X) \in \ZZ_p[X]) \rightarrow (\gr{C}; \hat{f}(X), d, r)$. Lift $f(X) \in \ZZ_p[X]$ to $\hat{f}(X) \in \mathbb{Z}(p)[X]$ and select random integer $r \sample \mathbb{Z}(B)$. Compute $d \gets \deg(f(X))$ and $\gr{C} \gets \gr{g}^{\hat{f}(q)+q^{d+1} \cdot r}$ and return commitment $\gr{C}$ with secret opening information $\hat{f}(X), d, r$.
+	\item $\pro{CommitH}(f(X) \in \ZZ_p[X]) \rightarrow (\gr{C}; \hat{f}(X), d, r)$. Lift $f(X) \in \mathbb{Z}_p[X]$ to $\tilde{f}(X) \in \mathbb{Z}(\frac{p-1}{2})[X]$ and select random integer $r \sample [0,B\cdot 2^\lambda)$. Compute $d \gets \deg(f(X))$ and $\gr{C} \gets \gr{g}^{\tilde{f}(q)+q^{d+1} \cdot r}$ and return commitment $\gr{C}$ with secret opening information $\tilde{f}(X), d, r$.
 \end{itemize}
+Now using the hiding commitment scheme we can begin to define a zero-knowledge evaluation scheme
  \noindent\begin{mdframed}[userdefinedwidth=\textwidth]
 \begin{minipage}{\textwidth}
 	\begin{flushleft}
-	\pro{ZK-Open}\\
-	Input: $\gr{C} \in \GG,b\in \ZZ,d$, Witness: $f(X) \ZZ(b),\alpha \in \ZZ(2^\lambda)$\\
-	Statement: $\gr{C}=\commit(f(X);\alpha),f(X) \in \ZZ(b\cdot 2^\lambda),\deg(f(X))=d$
+	\pro{ZK-Eval}\\
+	Input: $\crs,\gr{C} \in \GG,z,y \in \ZZ_p b\in \ZZ,d$, Witness: $f(X) \ZZ(b),\alpha \in \ZZ(2^\lambda)$\\
+	Statement: $\gr{C}=\commit(f(X);\alpha),f(X) \in \ZZ(b\cdot 2^\lambda),\deg(f(X))=d, f(z)=y \bmod p$
 	\begin{enumerate}[nolistsep]
-		    \item \prover samples a random degree $d$ $k(X) \sample \ZZ(b\cdot 2^\lambda)[X]$ and $\beta \sample \ZZ(2^\lambda)$ and computes $\gr{R}\gets \commit(k(X);\beta)$.
-		    \item \prover sends $\gr{R}$ to $\verifier$
+		    \item \prover samples a random degree $d$ $k(X) \sample \ZZ(b\cdot 2^\lambda)[X]$ and $\beta \sample \ZZ(2^\lambda)$ and computes $\gr{R}\gets \commit(k(X);\beta)$ and $y'\gets k(z) \bmod p$
+		    \item \prover sends $\gr{R}$ and $y'$ to $\verifier$
 		    \item \verifier samples random $c\in [0,2^\lambda]$ and sends it to $\prover$
 		    \item \prover computes $s(X)\gets k(X) + c \cdot f(X)$, as well as $\gamma\gets \alpha+ c\cdot \gamma$. 
-		    \item \prover sends $s(X),\gamma$ to \verifier.
-		    \item \verifier checks that $s(X) \in \ZZ(b\cdot 2^{\lambda+1})[X] $ and $\gr{R}=\commit(s(X);\gamma)$
-		    \item \pcif{}check passes \textbf{then} \textbf{return} 1 \textbf{else} \textbf{return} 0
-		\end{enumerate}
+		    \item \prover sends $\gamma$ and to \verifier.
+		    \item \prover and \verifier compute $\gr{C}'\gets \gr{R}\gr{C}^c/g^{q^{d+1}\cdot \gamma}$ and $y''\gets y'+c \cdot y \bmod p$
+		    \item \prover and \verifier run $\eval(\crs,C',z,y'',d,b\cdot 2^{\lambda++1};s(X))$.
+		   		\end{enumerate}
 	\end{flushleft}
 \end{minipage}
 \end{mdframed}
