@@ -111,7 +111,7 @@ Furthermore, even if $[\![f(X)]\!]$ is a commitment to $f^*(q)$ with positive $q
 \paragraph{What about negative coefficients?} The verifier still cannot infer that $\hat{f}_L$ and $\hat{f}_R$ are both \emph{positive} integers. Moreover, if $\hat{f}_R > 0$ and $\hat{f}_L < 0$, then it is still possible that $\hat{f}_L + q \hat{f}_R > 0$, and thus that there is a distinct $g \neq f$ with positive coefficients such that $g(q) = f(q)$. For example, say $\hat{f}_R = q/2$ and $\hat{f}_L = -1$ then $\hat{f}_L + q \hat{f}_R = q^2/2 - 1$, and $\alpha \hat{f}_L + \hat{f}_R  = q/2 - \alpha > 0$ for every $\alpha \in [0,p)$. Yet, also $q^2/2 - 1 = g(q)$ for $g(X) = (q/2 - 1)X + q-1$. 
 
 Fortunately, it is a fact that if $|\hat{f}_L| < q/2$ and $|\hat{f}_R| < q/2$ then at least one coefficient of $g$ must be larger than $q/2$. In other words, if the prover had committed instead to $\hat{f}^*_L$ and $\hat{f}^*_R$ such that $g(X) = \hat{f}^*_L + X\hat{f}^*_R$ then the verifier could reject the opening of $\alpha \hat{f}^*_L + \hat{f}^*_R$ with overwhelming probability based on its size. 
-More generally, for every integer $z$ in the range $B = (-\frac{q^{d+1}}{2}, \frac{q^{d+1}}{2})$ there is a unique degree (at most) $d$ integer polynomial $h(X)$ with coefficients whose absolute values are bounded by $q/2$ such that $h(q) = z$. \emph{(We prove this elementary fact below and show how the coefficients of $h$ can be recovered efficiently from $z$)}. If the prover is committed to $h(q)$ at level $i$ of the protocol, there is a unique pair of integers polynomial $h_L$ and $h_R$ with coefficients of absolute value bounded by $q/2$ such that $h_L(q) + q^{d/2} h_R(q) = h(q)$, and if the prover recurses on any other $h_L^*$ and $h_R^*$ with larger coefficients then the verifier's bound check at the bottom level of recursion will fail with overwhelming probability. 
+More generally, for every integer $z$ in the range $B = (-\frac{q^{d+1}}{2}, \frac{q^{d+1}}{2})$ there is a unique degree (at most) $d$ integer polynomial $h(X)$ with coefficients whose absolute values are bounded by $q/2$ such that $h(q) = z$. \emph{We prove this elementary fact below and show how the coefficients of $h$ can be recovered efficiently from $z$ (\textbf{Fact~\ref{EncodingBijective})}}. If the prover is committed to $h(q)$ at level $i$ of the protocol, there is a unique pair of integers polynomial $h_L$ and $h_R$ with coefficients of absolute value bounded by $q/2$ such that $h_L(q) + q^{d/2} h_R(q) = h(q)$, and if the prover recurses on any other $h_L^*$ and $h_R^*$ with larger coefficients then the verifier's bound check at the bottom level of recursion will fail with overwhelming probability. 
 
 \paragraph{Optimization with negative coefficients} As long as the coefficients are bounded in size, the verifier cannot necessarily distinguish an adversarial prover who uses integer polynomials with some negative coefficients from one who uses strictly positive coefficients. As an optimization, we can actually allow the honest prover to encode polynomials using a mixture of negative and positive coefficients as well. Also, $\alpha$ can be chosen from $(-p/2, p/2)$, leading to a tighter bound on coefficient growth. A polynomial $f(X) \in \ZZ_p[X]$ is lifted to an integer polynomial by replacing each coefficient of $f$ with its unique integer representative from $(-p/2,p/2)$ of the same equivalence class modulo $p$. This leads us to the following encoding scheme. 
 
@@ -162,6 +162,15 @@ Two consecutive partial sums yield a coefficient of $f(X)$: $f_k = \frac{S_{k} -
 \end{flushleft}
 \end{mdframed}
 \end{minipage}
+
+\begin{fact} \label{EncodingBijective}
+Let $q$ be an odd integer. For any $z$ in the range $B = (-\frac{q^{d+1}}{2}, \frac{q^{d+1}}{2})$ there is a unique degree (at most) $d$ integer polynomial $h(X)$ in $\ZZ(\frac{q-1}{2})[X]$ such that $h(q) = z$. 
+\end{fact}
+\begin{proof}
+Given any degree (at most) $d$ integer polynomial $f \in \ZZ(\frac{q-1}{2})$, by construction we see that $\pro{Dec}(\pro{Enc}(f)) = f$. Therefore, $\pro{Enc}$ is an injective map from degree (at most) $d$ polynomials in $\ZZ(\frac{q-1}{2})[X]$ to $B$. Furthermore, the cardinality of both the domain and range of this map is $q^{d+1}$. This shows that the map is surjective. In conclusion, the map is bijective. 
+\end{proof}
+
+
 
 
 \subsection{Integer Polynomial Encoding (Benedikt's version)}
