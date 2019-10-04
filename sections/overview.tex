@@ -7,7 +7,7 @@ Given a univariate polynomial $f(X)\in \ZZ_p[X]$ the prover first encodes the po
 Note that this encoding is also additively homomorphic, assuming that $q$ is sufficiently large. 
 For example, let $g(X)=4X^3+1X^2+3$ such that $\hat{g}(10)=4103$. Then $\hat{f}(10)+\hat{g}(10)=6444=(\hat{g}+\hat{f})(10)$. 
 The more homomorphic operations we want to permit, the larger $q$ needs to be.
-The encoding additionally permits multiplication by polynomials (for example, $\hat{f}(q)\cdot q^k$ is equal to the encoding of $f(X)\cdot X^k$). 
+The encoding additionally permits multiplication by polynomials ($\hat{f}(q)\cdot q^k$ is equal to the encoding of $f(X)\cdot X^k$). 
 \begin{comment}
 Or in our example $100 \cdot f(10)=234100$ which is the encoding of $2\cdot X^5+3\cdot X^4+4\cdot X^3+X^2$.
 \end{comment}

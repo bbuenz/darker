@@ -1,13 +1,10 @@
 \clearpage
 \section*{\scalebox{1.25}{\appendixphrase}}
 
-\ifappendix
-%\section{Hardness Assumptions in Groups of Unknown Order} 
 \section{Security Proofs}
 \label{appendix:hardness}
 In the preliminaries we already stated the two main hardness assumptions, the $r$-Strong RSA Assumption and the Adaptive Root Assumption.
 \input{sections/hardness}
-\fi
 
 \subsection{Binding}
 \label{appendix:binding}
@@ -16,7 +13,7 @@ In the preliminaries we already stated the two main hardness assumptions, the $r
 	\bindinglemma
 \end{lemma}
 \begin{proof}
-    Assume that there is an adversary that breaks the binding property of the scheme. Specifically, assume that some probabilistic polynomial time algorithm $\adv$ takes as input $\params$ and outputs $\gr{C} \in \GG, f(X) \in \ZZ(b)[X], f'(X)\in \ZZ(b)[X]$ such that with non-negligble probability $\pro{Open}(\params, \gr{C}, \bar{f}(X), f(X)) = \pro{Open}(\params, \gr{C}, \bar{f'}(X), f'(X)) = 1$ and $\bar{f}(X) \neq \bar{f'}(X)$. We proceed to show that this implies a violation of the Order Assumption~(Assumption \ref{assum:order}) and the Strong RSA Assumption~(Assumption \ref{assum:strongRSA}). The assumptions are incomparable so we show that either suffices to achieve the binding property of the commitment scheme.
+    Assume that there is an adversary that breaks the binding property of the scheme. Specifically, assume that some probabilistic polynomial time algorithm $\adv$ takes as input $\params$ and outputs $\gr{C} \in \GG, f(X) \in \ZZ(b)[X], f'(X)\in \ZZ(b)[X]$ such that with non-negligble probability $\pro{Open}(\params, \gr{C}, \tilde{f}(X), f(X)) = \pro{Open}(\params, \gr{C}, \tilde{f'}(X), f'(X)) = 1$ and $\tilde{f}(X) \neq \tilde{f'}(X)$. We proceed to show that this implies a violation of the Order Assumption~(Assumption \ref{assum:order}) and the Strong RSA Assumption~(Assumption \ref{assum:strongRSA}). The assumptions are incomparable so we show that either suffices to achieve the binding property of the commitment scheme.
     
 	If $f(X)\neq f'(X)$ and $q/2>b$ then $f(q)\neq f'(q)\in \ZZ$. Since $\gr{g}^{f(q)}=\gr{g}^{f'(q)}=\gr{C}$ we have that $\gr{g}^{f(q)-f'(q)}=1$. This directly breaks the Order Assumption and we can also create an adversary $\adv_{RSA}$ that breaks the Strong RSA Assumption. To do so the $\adv_{RSA}$ picks an odd prime $\ell$ that is co-prime with $f(q)-f'(q)$ and computes $\gr{u}\gets \gr{g}^{\ell^{-1} \bmod (f(q)-f'(q))}$ as the $\ell$th root of $\gr{g}$.
 \end{proof}
@@ -33,7 +30,7 @@ In the preliminaries we already stated the two main hardness assumptions, the $r
 In order to ensure correctness we must ensure that $b< q/2$ and that $|f|\leq b$. To show this we show that in each recursion step the honest prover's witness polynomial has coefficients bounded by $b$ and has degree $d$. 
 We argue inductively that for each recursive call of $\pro{EvalBounded}$ the following constraints on the inputs are satisfied: The degree of $f(X)$ is bounded by $d$. $\gr{C}$ encodes the polynomial, \emph{i.e.}, $\gr{C}=\gr{g}^{f(q)}$ and $f(X)\in \ZZ(b)$. Also $f(z) = y\bmod p$.
 
-Initially, during the execution of $\eval$, the prover maps the coefficients of a polynomial $\bar{f}(X)\in \ZZ_p$ to an integer polynomial $f(X)$ with coefficients in $\ZZ(\frac{p-1}{2})$ and degree at most $d$ such that $\gr{C}=\gr{g}^{f(q)}$. Additionally $f(z)\bmod p=\bar{f}(z)=y$.
+Initially, during the execution of $\eval$, the prover maps the coefficients of a polynomial $\tilde{f}(X)\in \ZZ_p$ to an integer polynomial $f(X)$ with coefficients in $\ZZ(\frac{p-1}{2})$ and degree at most $d$ such that $\gr{C}=\gr{g}^{f(q)}$. Additionally $f(z)\bmod p=\tilde{f}(z)=y$.
 
  In a recursion steps where $d+1$ is odd, $f'(X)=X\cdot f(X)$ is a polynomial of degree $d+1$ such that $\gr{C}'=\gr{C}^q=\gr{g}^{q\cdot f(q)}=\gr{g}^{f'(X)}$ and the bound $b$ is unchanged as are the coefficients. Also, $f'(z)\bmod p = z \cdot f(z) \bmod p=z\cdot y\bmod p = y' \bmod p$. If $d+1$ is odd, then in the next step $d+1$ must be even.
  
@@ -303,13 +300,13 @@ gives a commitment to a new vector whose middle coefficient contains the inner p
 \left( \sum\limits_{i=0}^d f_i q^i \right) \left( \sum\limits_{i=0}^d g_{d-i} q^i \right) = \sum\limits_{i=0}^d \sum\limits_{j=0}^d f_i g_j q^{d-j+i} = q^d \sum_{i=0}^d f_i g_i \ + o(q^{d+1}) + \omega(q^{d-1}) \enspace .
 \end{flalign*}
 
-We use this property to realize protocols for extracting inner products. A minor issue is that the right hand vector commitment must represent the coefficients in reversed order. To circumvent this obstacle we denote by $\mathbf{\bar{g}}$ the vector $\mathbf{g}$ but with its coefficients reversed. For applications where this issue cannot be solved with notational cleverness, Appendix \textbf{[todo]} presents a protocol to establish that two vector commitments represent the same coefficients but in reversed order. 
+We use this property to realize protocols for extracting inner products. A minor issue is that the right hand vector commitment must represent the coefficients in reversed order. To circumvent this obstacle we denote by $\mathbf{\tilde{g}}$ the vector $\mathbf{g}$ but with its coefficients reversed. For applications where this issue cannot be solved with notational cleverness, Appendix \textbf{[todo]} presents a protocol to establish that two vector commitments represent the same coefficients but in reversed order. 
 
 \begin{figure}[!htp]
 \noindent\begin{mdframed}[userdefinedwidth=\textwidth]
 \begin{minipage}{\textwidth}
 	\begin{flushleft}
-	$\pro{InnerProduct}(\params, \gr{C}_\mathbf{f}, \gr{C}_\mathbf{\bar{g}}, a; \mathbf{f}, \mathbf{\bar{g}}):$ \pccomment{$\mathbf{f}, \mathbf{\bar{g}} \in \ZZ^{d+1}$ and $\gr{C}_\mathbf{\bar{g}} = \gr{g}^{\sum_{i=0}^d g_{d-i} q^i}$}
+	$\pro{InnerProduct}(\params, \gr{C}_\mathbf{f}, \gr{C}_\mathbf{\tilde{g}}, a; \mathbf{f}, \mathbf{\tilde{g}}):$ \pccomment{$\mathbf{f}, \mathbf{\tilde{g}} \in \ZZ^{d+1}$ and $\gr{C}_\mathbf{\tilde{g}} = \gr{g}^{\sum_{i=0}^d g_{d-i} q^i}$}
 		\begin{enumerate}[nolistsep]
 		    \item \prover computes $\gr{C}_h \gets \gr{C}_\mathbf{f}^{\sum_{i=0}^{d} g_{d-i} q^i}$ and sends it to \verifier
 		    \item \verifier samples $z \sample \mathbb{Z}_p$ and sends it to \prover
@@ -333,11 +330,11 @@ We use this property to realize protocols for extracting inner products. A minor
 \begin{lemma}
     The protocol $\pro{InnerProduct}$ has witness-extended emulation for the relation
 \[\mathcal{R}_\mathsf{IP}(\params) = \left\{
-    \langle(\gr{C}_\mathbf{f}, \gr{C}_\mathbf{\bar{g}}, a), (\mathbf{f}, \mathbf{\bar{g}}, r_f, r_g)\rangle \ : \     \begin{array}{l}
-            \mathbf{f}, \mathbf{\bar{g}} \in \mathbb{Z}_p^{d+1} \\
+    \langle(\gr{C}_\mathbf{f}, \gr{C}_\mathbf{\tilde{g}}, a), (\mathbf{f}, \mathbf{\tilde{g}}, r_f, r_g)\rangle \ : \     \begin{array}{l}
+            \mathbf{f}, \mathbf{\tilde{g}} \in \mathbb{Z}_p^{d+1} \\
             \langle \mathbf{f}, \mathbf{g} \rangle = a \\
             \pro{Open}(\params, \gr{C}_\mathbf{f}, \mathbf{f}, r_f) = 1 \\
-            \pro{Open}(\params, \gr{C}_\mathbf{\bar{g}}, \mathbf{\bar{g}}, r_g) = 1
+            \pro{Open}(\params, \gr{C}_\mathbf{\tilde{g}}, \mathbf{\tilde{g}}, r_g) = 1
         \end{array}
     \right\} \enspace .
 \]
@@ -418,20 +415,20 @@ The probability that $f_L^*(\beta') + \beta'^i f_R^*(\beta') = f^*(\beta') - a \
 
 \subsection{Inner Product}
 
-Using the $\pro{Reverse}$ and $\pro{OpenIndex}$ protocols as subprotocols, it is straightforward to construct a protocol to prove that a given scalar is the inner product of the coefficient vectors of two committed polynomiails. To see this, observe that if $\bar{g}(X)$ is the polynomial with the same coefficients as $g(X)$ but in reverse order, and if both $\bar{g}(X)$ and $f(X)$ have degree $d$, then the coefficient of the monomial $X^d$ in the polynomial $f(X) \cdot \bar{g}(X)$ is exactly the inner product between $\mathbf{f}$ and $\mathbf{g}$. This gives rise to the protocol $\pro{InnerProduct}(\params, \gr{C}_{f}, \gr{C}_{\bar{g}}, a; {f}(X), {\bar{g}}(X)) \rightarrow b \in \{0,1\}$, which proves that $a = \langle \mathbf{f}, \mathbf{g} \rangle$. Note that this protocol assumes that $\gr{C}_{\bar{g}}$ is a commitment to the polynomial $\bar{g}(X)$, which has the same coefficients as $g(X)$ but in reverse order. Protocol $\pro{Reverse}$ can be used to establish that two commitments $\gr{C}_g$ and $\gr{C}_{\bar{g}}$ represent two polynomials with the same coefficients but in reversed order.
+Using the $\pro{Reverse}$ and $\pro{OpenIndex}$ protocols as subprotocols, it is straightforward to construct a protocol to prove that a given scalar is the inner product of the coefficient vectors of two committed polynomiails. To see this, observe that if $\tilde{g}(X)$ is the polynomial with the same coefficients as $g(X)$ but in reverse order, and if both $\tilde{g}(X)$ and $f(X)$ have degree $d$, then the coefficient of the monomial $X^d$ in the polynomial $f(X) \cdot \tilde{g}(X)$ is exactly the inner product between $\mathbf{f}$ and $\mathbf{g}$. This gives rise to the protocol $\pro{InnerProduct}(\params, \gr{C}_{f}, \gr{C}_{\tilde{g}}, a; {f}(X), {\tilde{g}}(X)) \rightarrow b \in \{0,1\}$, which proves that $a = \langle \mathbf{f}, \mathbf{g} \rangle$. Note that this protocol assumes that $\gr{C}_{\tilde{g}}$ is a commitment to the polynomial $\tilde{g}(X)$, which has the same coefficients as $g(X)$ but in reverse order. Protocol $\pro{Reverse}$ can be used to establish that two commitments $\gr{C}_g$ and $\gr{C}_{\tilde{g}}$ represent two polynomials with the same coefficients but in reversed order.
 
 \begin{figure}[!htp]
 \noindent\begin{mdframed}[userdefinedwidth=\textwidth]
 \begin{minipage}{\textwidth}
 	\begin{flushleft}
-	$\pro{InnerProduct}(\params, \gr{C}_{{f}}, \gr{C}_{\bar{g}}, a; f(X), \bar{g}(X)):$ 
+	$\pro{InnerProduct}(\params, \gr{C}_{{f}}, \gr{C}_{\tilde{g}}, a; f(X), \tilde{g}(X)):$ 
 		\begin{enumerate}[nolistsep]
-		    \item $\prover$ computes $h(X) \gets f(X) \cdot \bar{g}(X)$ and $(\gr{C}_h; r_h) \gets \pro{Commit}(\params, h(X))$
+		    \item $\prover$ computes $h(X) \gets f(X) \cdot \tilde{g}(X)$ and $(\gr{C}_h; r_h) \gets \pro{Commit}(\params, h(X))$
 		    \item \prover sends $\gr{C}_h$ to \verifier
 		    \item \verifier samples $z \sample \mathbb{Z}_p$ and sends $z$ to \prover
-		    \item \prover computes $y_f \gets f(z)$ and $y_{\bar{g}} \gets \bar{g}(z)$ and $y_h \gets h(z)$ and sends $(y_f, y_{\bar{g}}, y_h)$ to \verifier
-		    \item \prover and \verifier run $\pro{Eval}(\params, \gr{C}_f, z, y_f, d; f(X))$ and $\pro{Eval}(\params, \gr{C}_{\bar{g}}, z, y_{\bar{g}}, d; \bar{g}(X))$ and $\pro{Eval}(\params, \gr{C}_h, z, y_f, d; h(X))$
-		    \item \verifier checks that $y_f \cdot y_{\bar{g}} = y_h$
+		    \item \prover computes $y_f \gets f(z)$ and $y_{\tilde{g}} \gets \tilde{g}(z)$ and $y_h \gets h(z)$ and sends $(y_f, y_{\tilde{g}}, y_h)$ to \verifier
+		    \item \prover and \verifier run $\pro{Eval}(\params, \gr{C}_f, z, y_f, d; f(X))$ and $\pro{Eval}(\params, \gr{C}_{\tilde{g}}, z, y_{\tilde{g}}, d; \tilde{g}(X))$ and $\pro{Eval}(\params, \gr{C}_h, z, y_f, d; h(X))$
+		    \item \verifier checks that $y_f \cdot y_{\tilde{g}} = y_h$
 		    \item \prover and \verifier run $\pro{OpenIndex}(\params, \gr{C}_h, a, d; h(X))$
 		    \item \pcif{}all checks pass \textbf{then} \textbf{return} 1 \textbf{else} \textbf{return} 0
 		\end{enumerate}
@@ -443,11 +440,11 @@ Using the $\pro{Reverse}$ and $\pro{OpenIndex}$ protocols as subprotocols, it is
 \begin{lemma}
     Protocol $\pro{InnerProduct}$ is an argument of knowledge for the relation
 \[\mathcal{R}_\mathsf{IP}(\params) = \left\{
-    \langle(\gr{C}_{f}, \gr{C}_{\bar{g}}, a), ({f}(X), \bar{g}, r_f, r_{\bar{g}})\rangle \ : \     \begin{array}{l}
-            \mathbf{f}, \mathbf{\bar{g}} \in \mathbb{Z}_p^{d+1} \\
+    \langle(\gr{C}_{f}, \gr{C}_{\tilde{g}}, a), ({f}(X), \tilde{g}, r_f, r_{\tilde{g}})\rangle \ : \     \begin{array}{l}
+            \mathbf{f}, \mathbf{\tilde{g}} \in \mathbb{Z}_p^{d+1} \\
             \langle \mathbf{f}, \mathbf{g} \rangle = a \\
             \pro{Open}(\params, \gr{C}_{f}, {f}(X), r_f) = 1 \\
-            \pro{Open}(\params, \gr{C}_{\bar{g}}, {\bar{g}}(X), r_{\bar{g}}) = 1
+            \pro{Open}(\params, \gr{C}_{\tilde{g}}, {\tilde{g}}(X), r_{\tilde{g}}) = 1
         \end{array}
     \right\} \enspace .
 \]
@@ -519,6 +516,8 @@ Setting $D = 2 \poly$ we get that on at least a $1/2$ fraction of accepting tran
 In conclusion, if $\tr$ is accepting with non-negligible probability, then there is a non-negligible probability that $P'_O$ succeeds. 
 \end{proof}
 
+\ifappendix
+
 \section{Optimizations for Polynomial Commitment Scheme}
 \label{subsec:optimization}
 \input{sections/optimization}
@@ -526,7 +525,7 @@ In conclusion, if $\tr$ is accepting with non-negligible probability, then there
 \label{sec:multivariate}
 
 \input{sections/multivariate}
-
+\fi
 
 %\ifappendix
 %\section{Other Instantiations of Polynomial IOPs} \label{appendix:other_polynomial_iops}
