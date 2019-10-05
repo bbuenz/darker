@@ -109,39 +109,19 @@ However, the validity of $[\![f_L(X)]\!]$ and $[\![f_R(X)]\!]$ are never checked
 The verifier only sees the opening of the commitment at the bottom level of recursion. If the intermediate encodings use integer polynomials with coefficients larger than $q/2$ the homomorphism is not preserved. Furthermore, even if $[\![f(X)]\!]$ is a commitment to $f^*(q)$ with positive $q$-bounded coefficients, an adversarial prover could find an integer polynomial $g^*$ that does not have positive $q$-bounded coefficients such that $g^*(q) = f^*(q)$ and $g^* \not\equiv f^* \bmod p$ (\emph{i.e}, $g^*$ with coefficients greater than $q$ or negative coefficients). 
 The prover could then commit to $g^*_L(q)$ and $g^*_R(q)$, and recurse on $\alpha g^*_L(q) + g^*_R(q)$ instead of $\alpha f^*_L(q) + f^*_R(q)$. This would be non-binding. (For example $f^*(X)= q-1$ and $g^*(X)=X-1$, or $f^*(X) = q +1$ and $g^*(X) = X + 1$). 
 
-\paragraph{Inferring coefficient bounds} So what can the verifier infer from the opened commitment $[\![f']\!]$ at the bottom level of recursion? The opened commitment is an integer $\hat{f}' \equiv f' \bmod p$ such that $\hat{f}' = \alpha \hat{f}_L + \hat{f}_R$. From $\hat{f}'$, the verifier can infer a bound on the absolute value of the coefficients of the integer polynomial $f(X) = \hat{f}_L + X \hat{f}_R$, given that $\hat{f}_L$ and $\hat{f}_R$ were already committed in the second to last round. The bound holds with overwhelming probability over the randomness of $\alpha \in [0,p)$. This is reasoned as follows: if $f'_0 \leftarrow \alpha_0 f_L + f_R$ and $f'_1 \leftarrow \alpha_1 f_L + f_R$ such that $\max(|f'_0|, |f'_1|) < q / (2p)$ for some distinct $\alpha_0 \neq \alpha_1$, then $|f_L| \geq |f'_1 - f'_0| < q / p$ and $|f_R| \leq |\alpha_0 f'_1 - \alpha_1 f'_0| < q/2$. If no such pair exists, \emph{i.e.} the bound only holds for a unique $\alpha$, then there is a negligibly small probability $1/p$ that $f'$ would have passed the bound check. \benedikt{So this paragraph already implies that we need to deal with negative coefficients right? We only give an absolute bound on FL and FR so they may well be negative. In my opinion a one or two sentence explanation of that here would suffice!}
-
+\paragraph{Inferring coefficient bounds} So what can the verifier infer from the opened commitment $[\![f']\!]$ at the bottom level of recursion? The opened commitment is an integer $f' = \alpha f_L + f_R$. From $f'$, the verifier can infer a bound on the absolute value of the coefficients of the integer polynomial $f(X) = f_L + X f_R$, given that $f_L$ and $f_R$ were already committed in the second to last round. The bound holds with overwhelming probability over the randomness of $\alpha \in [0,p)$. This is reasoned as follows: if $f'_0 \leftarrow \alpha_0 f_L + f_R$ and $f'_1 \leftarrow \alpha_1 f_L + f_R$ such that $\max(|f'_0|, |f'_1|) < q / (2p)$ for some distinct $\alpha_0 \neq \alpha_1$, then $|f_L| \geq |f'_1 - f'_0| < q / p$ and $|f_R| \leq |\alpha_0 f'_1 - \alpha_1 f'_0| < q/2$. If no such pair exists, \emph{i.e.} the bound only holds for a unique $\alpha$, then there is a negligibly small probability $1/p$ that $f'$ would have passed the bound check.
 
 
 \paragraph{What about negative coefficients?} 
-The verifier still cannot infer that $\hat{f}_L$ and $\hat{f}_R$ are both \emph{positive} integers. Moreover, if $\hat{f}_R > 0$ and $\hat{f}_L < 0$, then it is still possible that $\hat{f}_L + q \hat{f}_R > 0$, and thus that there is a distinct $g \neq f$ with positive coefficients such that $g(q) = f(q)$\benedikt{This doesn't follow all you said is that fL might be negative. Also equality of polys over integers/bounded integers or mod p?}. For example, say $\hat{f}_R = q/2$ and $\hat{f}_L = -1$ then $\hat{f}_L + q \hat{f}_R = q^2/2 - 1$, and $\alpha \hat{f}_L + \hat{f}_R  = q/2 - \alpha > 0$ for every $\alpha \in [0,p)$. Yet, also $q^2/2 - 1 = g(q)$ for $g(X) = (q/2 - 1)X + q-1$. 
+As shown above, the verifier can infer a bound on the absolute values of $f_L$ and $f_R$, but still cannot infer that $f_L$ and $f_R$ are both \emph{positive} integers. Moreover, if $f_R > 0$ and $f_L < 0$, then it is still possible that $f_L + q f_R > 0$, and thus that there is a distinct $g \neq f$ with $q$-bounded positive coefficients such that $g(q) = f(q)$. For example, say $f_R = q/2$ and $f_L = -1$ then $f_L + q f_R = q^2/2 - 1$, and $\alpha f_L + f_R  = q/2 - \alpha > 0$ for every $\alpha \in [0,p)$. Yet, also $q^2/2 - 1 = g(q)$ for $g(X) = (q/2 - 1)X + q-1$. 
 
-Fortunately, it is a fact that if $|\hat{f}_L| < q/2$ and $|\hat{f}_R| < q/2$ \benedikt{Do you mean norm?}then at least one coefficient of $g$ must be larger than $q/2$. In other words, if the prover had committed instead to $\hat{f}^*_L$ and $\hat{f}^*_R$ such that $g(X) = \hat{f}^*_L + X\hat{f}^*_R$ then the verifier could reject the opening of $\alpha \hat{f}^*_L + \hat{f}^*_R$ with overwhelming probability based on its size. 
-
-
-More generally, for every integer $z$ in the range $B = (-\frac{q^{d+1}}{2}, \frac{q^{d+1}}{2})$ there is a unique degree (at most) $d$ integer polynomial $h(X)$ with coefficients whose absolute values are bounded by $q/2$ such that $h(q) = z$. \emph{(We prove this elementary fact below and show how the coefficients of $h$ can be recovered efficiently from $z$)}\benedikt{I feel like this could follow at the end of the previous paragraph}. If the prover is committed to $h(q)$ at level $i$ of the protocol, there is a unique pair of integers polynomial $h_L$ and $h_R$ with coefficients of absolute value bounded by $q/2$\benedikt{we kind of need a tighter bound but ok} such that $h_L(q) + q^{\frac{d+1}{2}} h_R(q) = h(q)$, and if the prover recurses on any other $h_L^*$ and $h_R^*$ with larger coefficients then the verifier's bound check at the bottom level of recursion will fail with overwhelming probability. 
+\paragraph{Ensuring injectivity} How can we ensure the encoding scheme is injective over polynomials with either positive/negative coefficients bounded in absolute value? Fortunately, it is a fact that if $|f_L| < q/2$ and $|f_R| < q/2$ then at least one coefficient of $g$ must be larger than $q/2$. In other words, if the prover had committed instead to $f^*_L$ and $f^*_R$ such that $g(X) = f^*_L + Xf^*_R$ then the verifier could reject the opening of $\alpha \hat{f}^*_L + \hat{f}^*_R$ with overwhelming probability based on its size. 
 
 
-\paragraph{Optimization with negative coefficients} As long as the coefficients are bounded in size, the verifier cannot necessarily distinguish an adversarial prover who uses integer polynomials with some negative coefficients from one who uses strictly positive coefficients. As an optimization, we can actually allow the honest prover to encode polynomials using a mixture of negative and positive coefficients as well. Also, $\alpha$ can be chosen from $(-p/2, p/2)$, leading to a tighter bound on coefficient growth. A polynomial $f(X) \in \ZZ_p[X]$ is lifted to an integer polynomial by replacing each coefficient of $f$ with its unique integer representative from $(-p/2,p/2)$ of the same equivalence class modulo $p$. This leads us to the following encoding scheme. 
+More generally, for every integer $z$ in the range $B = (-\frac{q^{d+1}}{2}, \frac{q^{d+1}}{2})$ there is a unique degree (at most) $d$ integer polynomial $h(X)$ with coefficients whose absolute values are bounded by $q/2$ such that $h(q) = z$. \emph{We prove this elementary fact below and show how the coefficients of $h$ can be recovered efficiently from $z$ (Fact~\ref{EncodingBijective})}. If the prover is committed to $h(q)$ at level $i$ of the protocol, there is a unique pair of integers polynomial $h_L$ and $h_R$ with coefficients of absolute value bounded by $q/2$ such that $h_L(q) + q^{\frac{d+1}{2}} h_R(q) = h(q)$, and if the prover recurses on any other $h_L^*$ and $h_R^*$ with larger coefficients then the verifier's bound check at the bottom level of recursion will fail with overwhelming probability. 
 
- \begin{comment}
-  $[\![f_L(X)]\!]$ and $[\![f_R(X)]\!]$ could be integer commitments to $f^*_L(q)$ and $f^*_R(q)$ where $f^*_L$ and $f^*_R$ are polynomials with some negative coefficients such that $h*(X) \leftarrow f^*L(X) + X^{d'} f_R(X)$ satisfies $h*(q) = \tilde{f}(q)$, yet $h^* \not \equiv \tilde{f} \bmod p$. 
+\paragraph{Optimization with negative coefficients} As we have seen, an adversarial prover can commit to poylnomials with positive or negative coefficients. As an optimization, we can actually allow the honest prover to encode polynomials using a mixture of negative and positive coefficients as well. A polynomial $f(X) \in \ZZ_p[X]$ is lifted to an integer polynomial by replacing each coefficient of $f$ with its unique integer representative from $(-p/2,p/2)$ of the same equivalence class modulo $p$. Also, $\alpha$ can be chosen from $(-p/2, p/2)$, leading to a tighter bound on coefficient growth. This leads us to the following encoding scheme. 
 
-
-What can the verifier infer from commitment at the bottom level of recursion?
-
- ternal commitments cannot be infered from the commitment opened at the bottom level of recursion.  
-
- $[\![f'(X)]\!] = \alpha \! \cdot \! [\![f_L(X)]\!] + [\![f_R(X)]\!]$
-
-However, this integer encoding is not homomorphic: given $f, g \in \ZZ_p[X]$ with coefficients greater than $p/2$ the encoding of the polynomial $h \leftarrow f + g \bmod p$, \emph{i.e.} the integer $\tilde{h}(q)$, is distinct from $\tilde{f}(q) + \tilde{g}(q)$. 
-
-In order to make the encodings homomorphic, one approach is to consider any integer $z \in [0, q^{d+1}] $ a valid encoding of $f$ as long as there exists an integer polynomial $f^* \in \ZZ[X]$ with positive coefficients less than $q$ such that $f^*(q) = z$ and $f^* \equiv f \bmod p$. Encodings are no longer unique as there are multiple valid ways to encode the same polynomial in $\ZZ_p[X]$, but encodings are still injective: for any $z$ there is a unique polynomial $f^*$ with positive coefficients less than $q$ such that $f^*(q) = z$ and $f^* \bmod p$ uniquely fixes $f$. 
- Now if the coefficients of $f$ and $g$ are bounded by $q/2$ then $\tilde{f} + \tilde{g} \equiv \tilde{h} \bmod p$, hence $\tilde{h}(q)$ is a valid encoding of $h$. By choosing a sufficiently large $q$ it is possible to perform several levels of homomorphic operations on encodings.  
-
-Fortunately, from the value of $f'$ we can infer a \emph{probabilistic bound} on the absolute value of the $f_L$ and $f_R$ given that $\alpha \in (-p/2, p/2)$ is sampled randomly \emph{after} the prover has committed to $f_L$ and $f_R$. If $\alpha$ were not chosen randomly by the verifier no bound would apply: knowing $\alpha$, the prover can choose large $f_L$ and $f_R$ such that $\alpha f_L + f_R$ is small. The probabilistic bound is reasoned as follows: if $f'_0 \leftarrow \alpha_0 f_L + f_R$ and $f'_1 \leftarrow \alpha_1 f_L + f_R$ such that $max(|f'_0|, |f'_1|) < q / (2p)$ for some distinct $\alpha_0 \neq \alpha_1$, then $|f_L| \geq |f'_1 - f'_0| \leq q / p$ and $|f_R| \leq |\alpha_0 f'_1 - \alpha_1 f'_0| \leq q/2$. If no such pair exists, \emph{i.e.} the bound only holds for a unique $\alpha$, then there is a negligibly small probability $1/p$ that $f'$ would have passed the bound check. 
-More generally, a bound on $||f'(X)||_\infty$ in some level of the recursion implies a probabilistic bound on $||f_L(X)||_\infty$ and $||f_R(X)||_\infty$ at the previous level. (For a polynomial $g \in \ZZ[X]$ the norm $||g||_\infty$ is the maximum over the absolute values of all individual coefficients of $g$).
-\end{comment} 
 
 \paragraph{Final encoding scheme} Let $\ZZ(b):=\{x \in \ZZ: \vert x \vert  \leq b\}$ denote the set of integers with absolute value less than or equal to $b$.  Define $\ZZ(b)[X] := \{f \in \ZZ[X]: ||f||_\infty \leq b\}$, the set of integer polynomials with coefficients from $\ZZ(b)$. (For a polynomial $g \in \ZZ[X]$ the norm $||g||_\infty$ is the maximum over the absolute values of all individual coefficients of $g$).
 \begin{itemize} 
@@ -179,62 +159,6 @@ Let $q$ be an odd integer. For any $z$ in the range $B = (-\frac{q^{d+1}}{2}, \f
 Given any degree (at most) $d$ integer polynomial $f \in \ZZ(\frac{q-1}{2})$, by construction we see that $\pro{Dec}(\pro{Enc}(f)) = f$. Therefore, $\pro{Enc}$ is an injective map from degree (at most) $d$ polynomials in $\ZZ(\frac{q-1}{2})[X]$ to $B$. Furthermore, the cardinality of both the domain and range of this map is $q^{d+1}$. This shows that the map is surjective. In conclusion, the map is bijective. 
 \end{proof}
 
-
-
-
-\subsection{Integer Polynomial Encoding (Benedikt's version)}
-
-In order to encode polynomials over an odd prime field $\ZZ_p$, we first lift them to the ring of polynomials over the integers. In the technical overview (Section~\ref{sec:overview}) we noted that a polynomial $f \in \ZZ_p[X]$ can be encoded as an integer by first mapping $f$ to an integer polynomial $\tilde{f}$ with coefficients in $[0, p)$ and then to the integer $\tilde{f}(q)$ for any $q \geq p$. 
-The coefficients of $\tilde{f}$ can be recovered via the base $q$ decomposition of $\tilde{f}(q)$. $\tilde{f}$ is equivalent to $f$ $\bmod p$. 
-This encoding is an injective mapping from polynomials in $\ZZ_p[X]$ of degree at most $d$ to the set $[0, q^{d+1})$. However, this integer encoding is not unique as two integers, e.g. $f(q) \in \ZZ$ and $f(q)+p\in \ZZ$ encode the same polynomial. This becomes relevant when using homomorphisms: given $f, g \in \ZZ_p[X]$ with coefficients greater than $p/2$ the encoding of the polynomial $h \leftarrow f + g \bmod p$, \emph{i.e.} the integer $\tilde{h}(q)$, is distinct from $\tilde{f}(q) + \tilde{g}(q)$. 
-
-%In order to make the encodings homomorphic, one approach is to consider any integer $z \in [0, q^{d+1}] $ a valid encoding of $f$ as long as the base $q$ decomposition of $z$ is equivalent to $f(X)$ $\bmod$ p.
- Encodings are no longer unique as there are multiple valid ways to encode the same polynomial in $\ZZ_p[X]$, but encodings are still injective: for any $z$ there is a unique integer polynomial $\tilde{f}\in \ZZ[X]$ with positive coefficients less than $q$ such that $\tilde{f}(q) = z$ and $\tilde{f} \equiv f \bmod p$. 
- Now if the coefficients of $f$ and $g$ are bounded by $q/2$ then $\tilde{f} + \tilde{g} \equiv \tilde{h} \bmod p$, hence $\tilde{h}(q)$ is a valid encoding of $h$. By choosing a sufficiently large $q$ it is possible to perform several levels of homomorphic operations on encodings. 
- 
-Note that the encoding is only defined for polynomials with positive coefficients. This, however, introduces a problem for the protocol in Section~\ref{sec:overview}. The commitments are never checked (i.e. opened) until the bottom level of recursion. 
-The validity of internal commitments is never verified directly. Instead we want to infer their validity given the check on the bottom of the recursion, i.e. $\tilde{f}(q)\in [0,q-1]$. The integer $\tilde{f}(q)\in [0,b]$ can be written as $\alpha f_L(q) + f_R(q)$ such that $f_L(q)$ and $f_R(q)$ are negative integers. For $q=10$, let $f_L(q)=-2$ and $f_r(q)=9$ then $\tilde{f}(q)\gets \alpha f_L(q)+f_r(q)>0$ for any $\alpha \in [0,4]$. 
-This shows that the internal encodings may be negative but the encoding scheme does not define a decoding for negative integers. To remedy this we extend the en and decoding scheme to also work for negative integers and negative coefficients. The encoding lifts a polynomial $f$ in $\ZZ_p[X]$ to $\tilde{f}(X)\in \ZZ[X]$ such that the coefficients of $\tilde{f}$ are in $(-\frac{p}{2},\frac{p}{2})$. Note that for every element in $\ZZ_p$ there is a unique integer in $z\in (-\frac{p}{2},\frac{p}{2})$. Similarly we can decode any integer between $z\in (-\frac{q^{d+1}}{2},\frac{q^{d+1}}{2})$ to a degree $d$ integer polynomial $\tilde{f}$ with coefficient in $(-\frac{q}{2},\frac{q}{2})$.
-
-Additionally we need to ensure that the homomorphism is preserved. Encodings are homomorphic only if the coefficients of the resulting polynomial are less than $\frac{q}{2}$ in absolute value. To guarantee this we show that the degree $0$ polynomial $\tilde{f}$ at the end of the recursion is significantly smaller than $\frac{q}{2}$. We can show that this implies that the internal encodings also encode polynomials with small coefficients and that the homomorphism is preserve.
-
-Assume that the degree $0$ polynomial $\tilde{f}$ is less than $b$ in absolute value. The evaluation protocol computes $\tilde{f}\gets \alpha f_L +f_R$ for integers $f_L$ and $f_R$. Can we directly ensure that $f_L$ and $f_R$ are decodable to degree $0$ integer polynomials with bounded coefficients? Unfortunately no. If for example $\alpha=1$, $f_L=-k$ and $f_R=k+1$ for any integer $k$ then $\tilde{f}=1$ independent of how large $f_L$ and $f_R$ are. 
-However, this issue only arises for particular combinations of $\alpha,f_L$ and $f_R$. In the protocol $f_L$ and $f_R$ are committed to \emph{before} $\alpha$ is randomly sampled.
-
-We use this to, infer a \emph{probabilistic bound} on the absolute value of the $f_L$ and $f_R$ given that $\tilde{f} \in (-b,b)$ and $\alpha \in (-p/2, p/2)$. The probabilistic bound is reasoned as follows: if $f'_0 \leftarrow \alpha_0 f_L + f_R$ and $f'_1 \leftarrow \alpha_1 f_L + f_R$ such that $\max(|f'_0|, |f'_1|) \leq b$ for some distinct $\alpha_0 \neq \alpha_1$, then $|f_L| \geq |f'_1 - f'_0| \leq b\cdot p$ and $|f_R| \leq |\alpha_0 f'_1 - \alpha_1 f'_0| \leq q/2$. If no such pair exists, \emph{i.e.} the bound only holds for a unique $\alpha$, then there is a negligibly small probability $1/p$ that $f'$ would have passed the bound check. 
-More generally, a bound on $||f'(X)||_\infty$ in some level of the recursion implies a probabilistic bound on $||f_L(X)||_\infty$ and $||f_R(X)||_\infty$ at the previous level. (For a polynomial $g \in \ZZ[X]$ the norm $||g||_\infty$ is the absolute value of the maximum coefficient of $g$).
-
-This leads us to the following encoding scheme. We restrict the set of \emph{valid} encodings to be integers in the range $B = (-\frac{q^{d+1}}{2}, \frac{q^{d+1}}{2})$. An integer $z \in B$ is a valid encoding of $f \in \ZZ_p[X]$ if and only if there exists $\tilde{f} \equiv f \bmod p$ such that $||\tilde{f}||_\infty < q/2$ and $\hat{f}(q) = z$. Every $z \in B$ encodes a unique $f \in \ZZ_p[X]$ of degree at most $d$. (We prove this fact below). 
-
-\paragraph{Encoding scheme} Let $\ZZ(b):=\{x \in \ZZ: \vert x \vert  \leq b\}$ denote the set of integers with absolute value less than or equal to $b$. Define $\ZZ(b)[X] := \{f \in \ZZ[X]: ||f||_\infty \leq b\}$, the set of integer polynomials with coefficients from $\ZZ(b)$. 
-
-\begin{itemize} 
-
-\item \textbf{Encoding.}
-For any integer $q$, the function $\mathsf{Enc} : \mathbb{Z}(b)[X] \rightarrow \mathbb{Z}$ maps $h(X) \mapsto h(q)$. A polynomial $f(X) \in \ZZ_p[X]$ is first mapped to $\ZZ(p/2)[X]$ by replacing each coefficient of $f$ with its unique integer representative from $(-p/2,p/2)$ of the same equivalence class modulo $p$.  %This means the map can be used as encoding of polynomials in the domain $\ZZ(b)[X]$ with $b<q/2$.
-
-\item \textbf{Decoding.}
-Decoding works as follows. Define the partial sum $S_k := \sum_{i=0}^k f_i q^i$ with $S_{-1} := 0$. Assuming $|f_i| < q/2$ for all $i$, observe that for any partial sum $S_k$ we have $|S_k|<\frac{q^{k+1}}{2}$. Therefore, when $S_k < 0$ then $S_k \bmod q^{k+1} > q^{k+1}/2$ and when $S_k \geq 0$ then $S_k \bmod q^{k+1} < q^{k+1}/2$. 
-This leads to a decoding strategy for recovering $S_k$ from $y \in \mathbb{Z}$. The decode algorithm sets $S_k$ to $y \bmod q^{k+1}$ if this value is less than $q^{k+1}/2$ and to $q^{k+1}- (y \bmod q^{k+1})$ otherwise.
-Two consecutive partial sums yield a coefficient of $f(X)$: $f_k = \frac{S_{k} - S_{k-1}}{q^{k}} \in \ZZ(b)$. These operations give rise to the following algorithm.\\
-\end{itemize}
-
- \begin{minipage}{\textwidth}
-\begin{mdframed}
-\begin{flushleft}
-	$\pro{Dec}(y \in \mathbb{Z}):$
-	\begin{enumerate}[nolistsep]
-	    \item \textbf{for each} $k$ \textbf{in} $[0, \, \lfloor \log_q(|y|)\rfloor]$ \textbf{do:}\\
-		\item \pcind[1] $S_{k-1} \gets (y \bmod q^{k})$
-		\item \pcind[1] \pcif{$S_{k-1} > q^{k}/2$} \textbf{then} $S_{k-1} \gets q^{k}-S_{k-1}$ \textbf{end if}
-		\item \pcind[1] $S_k \gets (y \bmod q^{k+1})$
-		\item \pcind[1] \pcif{$S_{k} > q^{k+1}/2$} \textbf{then} $S_{k} \gets q^{k+1}-S_{k}$ \textbf{end if}
-		\item \pcind[1] $f_k \gets (S_{k} - S_{k-1}) / q^k$
-		\item \pcreturn $f(X) = \sum_{k=0}^{\lfloor \log_q(|y|)\rfloor} f_k X^k$
-	\end{enumerate} 
-\end{flushleft}
-\end{mdframed}
-\end{minipage}
 \paragraph{Encoding of dyadic rational polynomials.}
 There exists an algorithm to compute square roots of any element of a class group of an imaginary quadratic order, originally described by Gauß (see Bosma and Stevenhagen for a modern description~\cite{jtn/BosSte96}). As a result, in such class groups an adversary can also commit to \defn{dyadic rationals} $\mathbb{D}:=\{\frac{x}{2^k} : \ x \in \ZZ \wedge k \in \NN\}\subset \QQ$, in addition to integers. When using class groups we therefore need to modify the encoding scheme . 
 
