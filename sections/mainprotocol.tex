@@ -414,7 +414,7 @@ While Reed-Solomon IOPPs naturally extend to polynomial evaluation proofs, and h
     (s_1, f(s_1)) &= (s_1, f_E(y) + s_1f_O(y)) \\
     (\alpha, f'(y)) &= (\alpha, f_E(y) + \alpha f_O(y))
 \end{flalign*}
-lie on a straight line. The verifier can probabilistically test this colinearity by sampling $s_0, s_1, y \in S$ such that $s_0^2 = s_1^2 = y$, and querying the codewords. If this consistency test passes, the protocol recurses to establish that $f'(X)$ has degree at most $d'$. In the final round, $f'$ is a constant and is sent to the verifier
+lie on a straight line. The verifier can probabilistically test this colinearity by sampling $s_0, s_1, y \in S$ such that $s_0^2 = s_1^2 = y$, and querying the codewords. If this consistency test passes, the protocol recurses to establish that $f'(X)$ has degree at most $d'$. In the final round, $f'$ is a constant and is sent to the verifier.
 
 Compared to our DARK evaluation protocol, the recursion principle is similar: split the working polynomial into two halves and combine them with a random weight. However, the consistency check is starkly different and matches the cryptographic tools that enable the compact representation of arbitrarily large polynomials, \emph{i.e.}, Merkle trees of Reed-Solomon codewords versus integer commitments in a group of unknown order. As a result, FRI has $O((\log d)^2)$ proof size and verifier time, whereas for DARK these quantities are only $O(\log d)$. Neither scheme requires a trusted setup. To date, FRI has no support for multivariate polynomials whereas for DARK this support is native.
 
