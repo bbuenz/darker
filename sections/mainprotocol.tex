@@ -92,7 +92,7 @@ Statement: $y = f(z) \bmod p$ and $\deg(f(X)) = d$
 \end{mdframed}
 \end{comment}
 
-\subsection{Integer Polynomial Encoding (Ben's latest version)}
+\subsection{Integer Polynomial Encoding}
 \label{sec:encoding}
 We propose using integer commitments in a group of unknown order.as a concrete instantiation of the homomorphic commitment scheme required for the abstract protocol presented in Section~\ref{sec:abstraction}. At the heart of our protocol is thus an encoding of integer polynomials with bounded coefficients as integers, which also has homomorphic properties. Any commitment scheme which is homomorphic over integer polynomials is automatically homomorphic over $\ZZ_p[X]$ polynomials as well (by reducing integer polynomials modulo $p$). Polynomials over $\ZZ_p[X]$ can be lifted to integer polynomials in a canonical way by choosing representatives in $[0,p)$. Therefore, from here on we will focus on building a homomorphic integer encoding of integer polynomials, and how to combine this with a homomorphic integer commitment scheme. 
 
