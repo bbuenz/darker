@@ -167,7 +167,7 @@ The encoding map is identical, except lifted to the dyadic rationals: $\mathsf{E
 Note that denominator of $g(q)$ is bounded by $2^{\lfloor\log_2(D)\rfloor}$, $D$ rounded down to the next power of $2$. To decode such a dyadic rational, compute the integer $y \gets g(q) \cdot 2^{\lfloor\log_2(D)\rfloor}\in \ZZ$  and use the decoding algorithm described above to decode a polynomial $f(X)$ in $\ZZ(q/2)[X]$. From $f(X)$ one derives the polynomial  $g(X) \gets \frac{f(X)}{2^{\lfloor\log_2(D)\rfloor}} \in \mathbb{D}(\lceil q/(2D)\rceil, 2^{\lfloor\log_2(D)\rfloor})[X]$ through division. If the integer polynomial encoding is uniquely decodable, then so is the scheme for dyadic rational polynomials. If $q$ is a power of $2$, then an adversary can encode Laurent polynomials, \emph{i.e.}, polynomials where some terms have negative powers. In order to disallow negative powers, $q$ must be odd.
 
 \subsection{Concrete Polynomial Commitment Scheme}
-
+\label{subsec:concretepoly}
 We now instantiate the abstract homomorphic commitment function $[\![ * ]\!]$. To this end we sample a group of unknown order $\mathbb{G}$, and sample a random element $\gr{g}$ from this group. 
 Lift the field polynomial $f(X)\in \ZZ_p[X]$ to an integer polynomial with bounded coefficients, \emph{i.e.}, $\hat{f}(X)\in \ZZ(\frac{p-1}{2})[X]$ such that $\hat{f}(X)\bmod p=f(x)$.
 We encode $\hat{f}(X)$ as an integer by evaluating it at a ``large enough'' integer $q$. Finally we use exponentiation in $\GG$ to commit to the integer. $[\![f(X)]\!]$, therefore, corresponds to $\gr{g}^{\hat{f}(q)}$. This commitment function inherits the homomorphic properties of the integer encoding for a limited number of additions and multiplications-by-constant. The monomial homomorphism for $X^d$ is achieved by raising the group element to the power $q^{d}$. To maintain consistency between the prover's witness polynomials and the verifier's commitments, the prover operates on polynomials with integer coefficients  $\hat{f}(X), \hat{g}(X)$, \emph{etc.}, without ever reducing them modulo $p$.
@@ -246,8 +246,8 @@ In the final round we check that the constant $f$ satisfies $|f|\leq b$ and the 
 \[
     \boldsymbol{\varsigma}_{p, d} = \left\{
         \begin{array}{ll}
-            p^{\,2\log_2(d+1)} & \quad \textnormal{(in RSA groups)} \\
-            p^{\,3\log_2(d+1)} & \quad \textnormal{(in class groups)}
+            p^{\,\log_2(d+1)} & \quad \textnormal{(in RSA groups)} \\
+            p^{\,2\log_2(d+1)} & \quad \textnormal{(in class groups)}
         \end{array}
     \right. \enspace .
 \]
@@ -268,7 +268,7 @@ In the final round we check that the constant $f$ satisfies $|f|\leq b$ and the 
         \item \pcif $d=0$:
         \item \label{line:basestart}\pcind[1] \prover sends $f(X)\in \ZZ$ to the verifier. \pccomment{$f=f(X)$ is a constant}
 
-        \item \pcind[1] \verifier checks that $b\cdot \boldsymbol{\varsigma}_{p,d} < q$\pccomment{$\boldsymbol{\varsigma}_{p,d}<p^3$ (see Theorem~\ref{thm:polycommitsecurity} and \ref{thm:dyadicpolysecurity}}
+        \item \pcind[1] \verifier checks that $b\cdot \boldsymbol{\varsigma}_{p,d} < q$\pccomment{$\boldsymbol{\varsigma}_{p,d}=O(p^{2\log(d)})$ (see Theorem~\ref{thm:polycommitsecurity} and \ref{thm:dyadicpolysecurity})}
         %q/(2^{\lceil \log_2(d+1) \rceil+1} p^{2 \lceil \log_2(d+1) \rceil+1})$
         \item \pcind[1] \verifier checks that $|f|\leq b$
           \item \pcind[1] \verifier checks that $f\equiv y \bmod p$
