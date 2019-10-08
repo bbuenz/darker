@@ -232,11 +232,20 @@ HVZK is shown by a straightforward composition of the simulators for $\eval$ and
 
 \subsection{Concrete Instantiations} 
 %We discuss concrete examples of Polynomial IOPs to which we can apply our polynomial commitment compiler.
-We consider examples of Polynomial IOPs to which this compiler can be applied: \textsf{Sonic} and its improvement \textsf{PLONK}; \textsf{Spartan}~\cite{Spartan}, and the popular QAP of Gennaro~\emph{et al.}~\cite{EC:GGPR13}. 
+We consider examples of Polynomial IOPs to which this compiler can be applied: \textsf{STARK}~\cite{C:BBHR19}; \textsf{Sonic} and its improvement \textsf{PLONK}; \textsf{Spartan}~\cite{Spartan}, and the popular QAP of Gennaro~\emph{et al.}~\cite{EC:GGPR13}. 
 \ifappendix
 %To save space, the treatment of \textsf{Spartan} and QAP are deferred to Appendix~\ref{appendix:other_polynomial_iops}. We focus here on the \textsf{Sonic}/\textsf{PLONK} IOP.
 \fi
 %Section~\ref{sec:optimizations} discusses optimizations and performance estimates for a compilation of the Polynomial IOP introduced in \textsf{Sonic}~\cite{Sonic} and improved in \textsf{PLONK}~\cite{Plonk}. 
+
+\subsubsection{STARK}
+The \textsf{STARK} proof system~\cite{C:BBHR19} builds a Reed-Solomon IOP of Proximity (RS-IOPP) for statements about uniform computations whose transition function can be expressed by an arithmetic circuit. The resulting IOPP can be compiled into a concrete, transparent proof system using FRI and Merkle trees.
+
+Given the interpretation of FRI with Merkle trees as a polynomial commitment scheme in its own right, it should be obvious that \emph{any} RS-IOPP, including \textsf{STARK} in particular, is a special case of a Polynomial IOP compiled down with a polynomial commitment scheme.
+
+\begin{theorem}[\cite{C:BBHR19}]
+Let $\mathcal{L}$ be a language decidable in nondeterministic polynomial time $T(n)$ and let $\mathcal{R}$ be the relation induced by $\mathcal{L}$. There is a Polynomial IOP for $\mathcal{R}$ with $\frac{\log T(n)}{2} + O(1)$ rounds, perfect completeness, soundness error $2^-\lambda$ and knowledge error $O(2^{-\lambda})$, and perfect honest-verifier zero-knowledge. TODO finish me properly
+\end{theorem}
 
 \subsubsection{Sonic} 
 \textsf{Sonic} is zk-SNARK system that has a universal trusted setup, which produces a SRS of $n$ group elements that can be used to prove any statement represented as an arithmetic circuit with at most $n$ gates. The SRS can also be updated without re-doing the initial setup, for instance, to enable proving larger circuits, or to increase the distribution of trust. The result in \textsf{Sonic} was not presented using the language of IOPs. Furthermore, the result also relied on a special construction of polynomial commitments (a modification of Kate~\emph{et al.}~\cite{AC:KatZavGol10}) that forces the prover to commit to a Laurent polynomial with no constant term. Given our generic reduction from coefficient queries to evaluation queries (Section~\ref{sec:opencoefficient}), we re-characterize the main theorem of \textsf{Sonic} as follows: 
