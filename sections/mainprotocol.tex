@@ -337,9 +337,8 @@ The full proof takes into account the cryptographic compilation of the protocol 
 
 %We are now in a position to prove the main security statement.
 
-%%%OLD THEOREM
 \newcommand{\maintheorem}{
-The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>(p-1)(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}=O(p^{2\log(d)})$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the Adaptive Root Assumption and the Strong RSA Assumption hold for $\ggen$.
+The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>(p-1)(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}<p^{2\log(d+1)+1}$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the Adaptive Root Assumption and the Strong RSA Assumption hold for $\ggen$.
 }
 \begin{theorem}~\label{thm:polycommitsecurity} 
 	\maintheorem
@@ -349,7 +348,7 @@ The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most
 %The bound on $q$ for correctness (Lemma \ref{lem:correctness}) is $O((\frac{p}{2})^{\log(d)})$ while the bound for soundness is $O((\frac{p}{2})^{2 \log(d)})$. It is not clear whether this gap can be closed. While the soundness analysis is tight for the worst case assumption on challenges it is possible that a probabilistic analysis could give a tighter result.
 
 \newcommand{\dyadicmaintheorem}{
-Let $\ggen$ generate groups $\GG$ of unknown order such that the order of $\GG$ is odd, and such there exists a PPT algorithm for taking square roots in $\GG$. The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>(p-1)^{\lceil\log_2(d+1)\rceil+1}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}=O(p^{3\log(d)})$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the Adaptive Root Assumption and the  $2$-Strong RSA Assumption hold for $\ggen$.
+Let $\ggen$ generate groups $\GG$ of unknown order such that the order of $\GG$ is odd, and such there exists a PPT algorithm for taking square roots in $\GG$. The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>(p-1)^{\lceil\log_2(d+1)\rceil+1}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}<p^{3\log(d+1)+1}$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the Adaptive Root Assumption and the  $2$-Strong RSA Assumption hold for $\ggen$.
 }
 \begin{theorem}
 \label{thm:dyadicpolysecurity}	
@@ -358,13 +357,17 @@ Let $\ggen$ generate groups $\GG$ of unknown order such that the order of $\GG$ 
 The proof of Theorem~\ref{thm:dyadicpolysecurity} is nearly identical to the proof of Theorem~\ref{thm:polycommitsecurity} but the extracted polynomials are polynomials over the dyadic rationals and not over the integers. This requires the bound on $q$ to be larger by a factor of $p^{\log(d+1)}$. Both proofs are presented in the \appendixphrase~(\ref{appendix:maintheoremproof} and \ref{apx:dyadic}).
 
 
-\section{Optimizations for the Polynomial Commitment Scheme}
+\subsection{Optimizations for the Polynomial Commitment Scheme}
 \label{subsec:optimization}
 \input{sections/optimization}
-\section{Multivariate Commitment Scheme}
+\subsection{Multivariate Commitment Scheme}
 \label{sec:multivariate}
 
 \input{sections/multivariate}
+
+\subsection{Hiding Polynomial Commitment with HVZK Eval}
+\label{section:zeroknowlege}
+\input{sections/newzk}
 
 \subsection{Performance}
 The polynomial commitment scheme has logarithmic proof size and verifier time in the degree $d$ of the committed polynomial. 
@@ -414,7 +417,7 @@ While Reed-Solomon IOPPs naturally extend to polynomial evaluation proofs, and h
     (s_1, f(s_1)) &= (s_1, f_E(y) + s_1f_O(y)) \\
     (\alpha, f'(y)) &= (\alpha, f_E(y) + \alpha f_O(y))
 \end{flalign*}
-lie on a straight line. The verifier can probabilistically test this colinearity by sampling $s_0, s_1, y \in S$ such that $s_0^2 = s_1^2 = y$, and querying the codewords. If this consistency test passes, the protocol recurses to establish that $f'(X)$ has degree at most $d'$. In the final round, $f'$ is a constant and is sent to the verifier.
+lie on a straight line. The verifier can probabilistically test this collinearity by sampling $s_0, s_1, y \in S$ such that $s_0^2 = s_1^2 = y$, and querying the codewords. If this consistency test passes, the protocol recurses to establish that $f'(X)$ has degree at most $d'$. In the final round, $f'$ is a constant and is sent to the verifier.
 
 Compared to our DARK evaluation protocol, the recursion principle is similar: split the working polynomial into two halves and combine them with a random weight. However, the consistency check is starkly different and matches the cryptographic tools that enable the compact representation of arbitrarily large polynomials, \emph{i.e.}, Merkle trees of Reed-Solomon codewords versus integer commitments in a group of unknown order. As a result, FRI has $O((\log d)^2)$ proof size and verifier time, whereas for DARK these quantities are only $O(\log d)$. Neither scheme requires a trusted setup. To date, FRI has no support for multivariate polynomials whereas for DARK this support is native.
 

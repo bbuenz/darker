@@ -166,6 +166,7 @@ We note that our statement of the Generalized Forking Lemma differs from that of
 %\ben{TODO: cite appropriate works, Bellare-Rogaway, more recent for more than constant round} 
 
 \begin{definition}[HVZK for interactive arguments]
+\label{def:hvzk}
 Let $\textsf{View}_{\langle \prover(x, w), \verifier(x) \rangle}$ denote the view of the verifier in an interactive protocol described in Definition~\ref{def:argument} on common input $x$ and prover witness input $w$. The interactive protocol has $\delta$-statistical honest verifier zero-knowledge if there exists a probabilistic polynomial time algorithm $\mathcal{S}$ such that for every $(x, w) \in \mathcal{R}$, the distribution $\mathcal{S}(x)$ is $\delta$-close to $\textsf{View}_{\langle \prover(x, w), \verifier(x) \rangle}$ (as distributions over the randomness of $\prover$ and $\verifier$).
 \end{definition}
 

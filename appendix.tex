@@ -140,7 +140,7 @@ For $d+1$ odd we invoke the extractor described by Lemma~\ref{lem:dyadiccombinin
 This means that at every tree level either bounded dyadic rational witness polynomials are extracted or an element of known order or a non-power of $2$ fractional root of $\gr{g}$. By assumption the ladder two cases happen only with negligible probability.
 
 We, therefore, now need to compute a bound on the size of the extracted polynomial. 
-The check on $f$ ensures that $f\in \ZZ$ and that $|f|\leq b=\frac{(p-1)}{2} (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$. We can write $f\in\mathbb{D}(\frac{(p-1)}{2} (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil},1)$. By \ref{lem:intrandomcombine} both the numerator and the denominator grow by at most a factor $p-1$ in every round.
+The check on $f$ ensures that $f\in \ZZ$ and that $|f|\leq b=\frac{p-1}{2} (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$. We can write $f\in\mathbb{D}(\frac{p-1}{2} (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil},1)$. By \ref{lem:intrandomcombine} both the numerator and the denominator grow by at most a factor $p-1$ in every round.
 Given that the transcript tree has depth $\lceil \log_2(d+1)\rceil$ we get that the final extracted polynomial $f_0(X)\in \mathbb{D}(N,D)[X]$ has coefficients with numerators bounded by $N= \frac{p-1}{2}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$ and denominators bounded by $D=(p-1)^{\lceil \log_2(d+1)\rceil}$
 
 $q$ needs to be large enough such that $f_0(X)$ is uniquely decodable, \emph{i.e.}, $q>2\cdot N\cdot b=(p-1)^{\lceil \log_2(d+1)\rceil+1}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$.
@@ -150,13 +150,12 @@ Under the $2$-Fractional Root Assumption and the Order Assumption, the probabili
 Lemma \ref{lem:ordertoadaptive} and Lemma \ref{lem:strongtofractional} show that we can reduce the hardness assumptions to just the Adaptive Root Assumption and the  $2$-Strong RSA Assumption. 
 \end{proof}
 
-\section{Hiding Polynomial Commitment with HVZK Eval} 
-\label{appendix:zeroknowlege}
-\input{sections/zk}
+%\section{Hiding Polynomial Commitment with HVZK Eval} 
+%\label{appendix:zeroknowlege}
+%\input{sections/zk}
 
 
-\section{New ZK based on Benedikt's Suggestion}
-\input{sections/newzk}
+
 
 %%%DEPRECATED SECTIONS BELOW%%%%%%
 
