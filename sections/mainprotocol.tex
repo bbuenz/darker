@@ -253,13 +253,13 @@ In the final round we check that the constant $f$ satisfies $|f|\leq b$ and the 
 \]
 
  We now present the full, formal $\eval$ protocol below.
-\begin{small}
+%\begin{small}
 \begin{mdframed}
 \begin{minipage}{\textwidth}
 			$\pro{Eval}(\crs, \gr{C}\in \GG, z\in \ZZ_p, y\in \ZZ_p, d \in \NN; \tilde{f}(X)\in \ZZ_p[X]) :$ \pccomment{$\tilde{f}(X) = \sum_{i=0}^d \tilde{f}_i X^i$}
 			\begin{enumerate}[nolistsep]
 			\item \prover computes $f_i \in [-\frac{p-1}{2},\frac{p-1}{2}]$ such that $f_i\equiv \tilde{f}_i\bmod p$ for all $i\in[0,d]$.
-			\item \prover computes $f(X)\gets \sum_{i=0}^d f_i \cdot X^{i}\in \ZZ(p)[X]\subset \ZZ[X]$
+			\item \prover computes $f(X)\gets \sum_{i=0}^d f_i \cdot X^{i}\in \ZZ(\frac{p-1}{2})[X]\subset \ZZ[X]$
 			\item \prover and \verifier run $\pro{EvalBounded}(\params,\gr{C},z,y,d,\frac{p-1}{2};f(X))$
 		    \end{enumerate}
 		    		\vspace{1em}
@@ -294,7 +294,7 @@ In the final round we check that the constant $f$ satisfies $|f|\leq b$ and the 
                \end{enumerate}
       \end{minipage}
 \end{mdframed}
-\end{small}
+%\end{small}
 
 
 \begin{comment}
@@ -338,7 +338,7 @@ The full proof takes into account the cryptographic compilation of the protocol 
 %We are now in a position to prove the main security statement.
 
 \newcommand{\maintheorem}{
-The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>(p-1)(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}<p^{2\log(d+1)+1}$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the Adaptive Root Assumption and the Strong RSA Assumption hold for $\ggen$.
+The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>(p-1)(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}<p^{2\log_2(d+1)+1}$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the Adaptive Root Assumption and the Strong RSA Assumption hold for $\ggen$.
 }
 \begin{theorem}~\label{thm:polycommitsecurity} 
 	\maintheorem
@@ -348,7 +348,7 @@ The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most
 %The bound on $q$ for correctness (Lemma \ref{lem:correctness}) is $O((\frac{p}{2})^{\log(d)})$ while the bound for soundness is $O((\frac{p}{2})^{2 \log(d)})$. It is not clear whether this gap can be closed. While the soundness analysis is tight for the worst case assumption on challenges it is possible that a probabilistic analysis could give a tighter result.
 
 \newcommand{\dyadicmaintheorem}{
-Let $\ggen$ generate groups $\GG$ of unknown order such that the order of $\GG$ is odd, and such there exists a PPT algorithm for taking square roots in $\GG$. The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>(p-1)^{\lceil\log_2(d+1)\rceil+1}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}<p^{3\log(d+1)+1}$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the Adaptive Root Assumption and the  $2$-Strong RSA Assumption hold for $\ggen$.
+Let $\ggen$ generate groups $\GG$ of unknown order such that the order of $\GG$ is odd, and such there exists a PPT algorithm for taking square roots in $\GG$. The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>(p-1)^{\lceil\log_2(d+1)\rceil+1}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}<p^{3\log_2(d+1)+1}$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the Adaptive Root Assumption and the  $2$-Strong RSA Assumption hold for $\ggen$.
 }
 \begin{theorem}
 \label{thm:dyadicpolysecurity}	

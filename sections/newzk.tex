@@ -52,17 +52,17 @@ The idea for the zk-eval protocol is a simple blinding of the polynomial and is 
  \noindent\begin{mdframed}[userdefinedwidth=\textwidth]
 \begin{minipage}{\textwidth}
 	\begin{flushleft}
-	\pro{ZK-Eval}\\
-	Input: $\crs,\gr{C} \in \GG,z,y \in \ZZ_p, b\in \ZZ,d$, Witness: $f(X) \ZZ(b),\alpha \in \ZZ(2^\lambda)$\\
-	Statement: $\gr{C}=\commit(f(X);\alpha),f(X) \in \ZZ(b\cdot 2^\lambda),\deg(f(X))=d, f(z)=y \bmod p$
+	\pro{ZK-Eval}$(crs,\gr{C} \in \GG,z,y \in \ZZ_p,d\in \NN;f(X)\in \ZZ(b)[X],r \in \ZZ):$\\
+		Statement: $\langle(\gr{C},z,y,d),(f(X) \in \ZZ(\frac{p-1}{2})[X],r)\rangle \in \mathcal{R}_\eval(pp)$\\
+	%Input: $\crs,\gr{C} \in \GG,z,y \in \ZZ_p, b\in \ZZ,d$, Witness: $f(X) \ZZ(b),\alpha \in \ZZ(2^\lambda)$\\
 	\begin{enumerate}[nolistsep]
-		    \item \prover samples a random degree $d$ $k(X) \sample \ZZ(b\cdot 2^\lambda)[X]$ and $\beta \sample \ZZ(2^\lambda)$ and computes $\gr{R}\gets \commit(k(X);\beta)$ and $y'\gets k(z) \bmod p$
-		    \item \prover sends $\gr{R}$ and $y'$ to $\verifier$
-		    \item \verifier samples random $c\in [-\frac{p-1}{2},\frac{p-1}{2}]$ and sends it to $\prover$
-		    \item \prover computes $s(X)\gets k(X) + c \cdot f(X)$, as well as $\gamma\gets \alpha+ c\cdot \gamma$. 
+		    \item \prover samples a random degree $d$ $k(X) \sample \ZZ(\frac{p^2}{4}\cdot 2^\lambda)[X]$ and $r_k \sample [0,B\cdot 2^\lambda)$ and computes $\gr{R}\gets \commit(k(X);r_k)$ and $y_k\gets k(z) \bmod p$
+		    \item \prover sends $\gr{R}$ and $y_k$ to $\verifier$
+		    \item \verifier samples random $c\sample [-\frac{p-1}{2},\frac{p-1}{2}]$ and sends it to $\prover$
+		    \item \prover computes $s(X)\gets k(X) + c \cdot f(X)$, as well as $r_s\gets r_k+ c\cdot r$. 
 		    \item \prover sends $\gamma$ and to \verifier.
-		    \item \prover and \verifier compute $\gr{C}'\gets \gr{R}\gr{C}^c/g^{q^{d+1}\cdot \gamma}$ and $y''\gets y'+c \cdot y \bmod p$
-		    \item \prover and \verifier run $\eval(\crs,C',z,y'',d,b\cdot 2^{\lambda+1};s(X))$.
+		    \item \prover and \verifier compute $\gr{C}'\gets \gr{R}\gr{C}^c/g^{q^{d+1}\cdot r_s}$ and $y_s\gets y_k+c \cdot y \bmod p$\pccomment{$\gr{C}'=\gr{g}^{s(q)}$}
+		    \item \prover and \verifier run $\pro{EvalBounded}(\crs,\gr{C}',z,y_s,d,\frac{p^2}{4}\cdot 2^{\lambda+1};s(X))$.\pccomment{$s(z)\bmod p=y_s$}
 		   		\end{enumerate}
 	\end{flushleft}
 \end{minipage}
@@ -71,15 +71,13 @@ The idea for the zk-eval protocol is a simple blinding of the polynomial and is 
 
 
 \begin{theorem}
-Let $\eval$ have perfect completeness and witness extended emulation for $q> b\cdot \boldsymbol{\varsigma}_{p, d}$. Assuming that $\pro{commitH}$ is statistically hiding and both the order assumption and the strong RSA assumption hold for $\ggen$ the protocol $\pro{EvalZK}$ has perfect completeness, witness extended emulation and statistical honest-verifier zero-knowledge for $q>\boldsymbol{\varsigma}_{p, d} \cdot p^2$.
+Let $\eval$ have perfect completeness and witness extended emulation for $q> b\cdot \boldsymbol{\varsigma}_{p, d}$. Assuming that $\pro{commitH}$ is statistically hiding and both the order assumption and the strong RSA assumption hold for $\ggen$ the protocol $\pro{EvalZK}$ has perfect completeness, witness extended emulation and statistical honest-verifier zero-knowledge for $q>2^\lambda\cdot (p-1)(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil+1}<p^{2\log_2(d+1)+4}$.
 \end{theorem}
 
 \begin{proof}
-A simple application of Theorem~\ref{thm:algebraicIOPcompiler} and Lemma~\ref{lem:intrandomcombine} shows that the protocol maintains witness extended emulation.   
+A simple application of Theorem~\ref{thm:algebraicIOPcompiler} and Lemma~\ref{lem:intrandomcombine} shows that the protocol maintains witness extended emulation. The extractor extracts $s(X)$ and $s'(X)$ from the $\eval$ protocol for challenges $c$ and $c'$. We can directly use Lemma~\ref{lem:intrandomcombine} to extract the witness $f(X)$ or a break of an assumption from these two transcripts. The bound on $q$ grows by a factor of less than $p^2$ ($p^3$ under the $2$-Strong RSA assumption).   
 
-We build the HVZK simulator $\mathcal{S}$ as follows. Choose a polynomial $h(X) \sample \mathbb{Z}(P)$ with coefficients uniformly random from $\mathbb{Z}(P)$, and compute $y_h \gets h(z) \bmod p$. The polynomial fixes the non-binding commitment $\gr{C}$. Choose a randomizer $R \sample \mathbb{Z}(B)$ and set $\gr{C}^\star \gets \gr{g}^{q^{d+1} \cdot R}$. At this point the simulator can run the \textsf{PoE} and \eval protocols as the honest prover would.
+To show zero-knowledge we build the simulator $\mathcal{S}$ as follows. Choose a polynomial $s(X) \sample \mathbb{Z}(\frac{p^2-1}{4})[X]$ with uniform random coefficients, and a blinding factor $r_s\sample [0,B\cdot 2^{2\cdot\lambda+1})$. $\mathcal{S}$ then chooses a random challenge $c\sample (-p/2,p/2)$ and computes $\gr{R}=\commit(s(X),r_2)\gr{C}^{-c}$. The simulator then performs the rest of the $\eval$ protocol honestly using $s(X)$ as the witness. 
 
-Next, sample $\alpha \sample \mathbb{Z}(p)$ and compute $\gr{C}_g \gets \gr{C}_h \gr{C}_f^{-\alpha}$ and $y_g \gets y_h - \alpha \cdot y_f$. This provides the simulator $\mathcal{S}$ with all the elements for an accepting transcript.
-
-To see why the resulting transcript is indistinguishable from the verifier's view of an authentic execution, observe that the only elements that have a different distribution are $\gr{C}_g$, $\gr{C}_h$ and $\gr{C}$. Since $\gr{C}_g$ and $\gr{C}_h$ are hiding commitments, they are indistinguishable. That leaves $\gr{C}$, which is a deterministic, non-hiding commitment to $h(X)$. However, the point is that $h(X)$ hides $f(X)$ statistically even if $h(X)$ were released in the clear. In other words, the distinguisher can learn no more information about $f(X)$ from $\gr{C} = \gr{g}^{h(q)}$ than if he were to receive $h(X)$ instead, and that is a negligible amount already.
+$r_s$ is distributed identically to the honest $r_s$. Given the hiding property of the commitment scheme, $\gr{R}$ is statistically indistinguishable from any other commitment. Finally the simulated and the honest $s(X)$ have statistical distance at most $2^{-\lambda}$ from a random polynomial. The coefficients of $c\cdot f(x)$ are in $\ZZ(\frac{p^2}{4})$. The blinding $s(X)$ are sampled from a $2^{2\lambda}$ larger range. This means that the coefficients of $s(X)=k(X)+c\cdot f(X)$ are at most $2^{-\lambda}$ from uniform. This implies that the simulated $s(X)$ and the real $s(X)$ are statistically indistinguishable. Given that the simulator can simulate $s(X)$ it is clear that the evaluation of $\pro{EvalBounded}$ cannot leak more than $s$ itself. The views of the simulated and real transcripts are, therefore, statistically indistinguishable and the protocol has honest verifier zero-knowledge.
 \end{proof}
