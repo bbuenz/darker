@@ -42,8 +42,9 @@ Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_\mu)\in \ZZ$ is an encoding of the mul
 		    \end{enumerate}
       \end{minipage}
 \end{mdframed}
+We only proof security under the strong RSA assumption. The security proof, however, directly extends to groups where taking square roots is easy under the $2$-Strong-RSA Assumption. In that case $q>p^{3\mu \log_2(d+1)+1}$ suffices.
 \begin{theorem}[Multivariate Eval]
-	The polynomial commitment scheme for multi-variate polynomials consisting of protocols $(\pro{MultiSetup},\pro{MultiCommit},\pro{MultiEval})$ has perfect correctness and witness extended emulation if the Adaptive Root Assumption and the $r$-Strong RSA Assumption hold for $\ggen$ for $\mu$-variate polynomials of degree $d$ and if $d^\mu=\poly$ if $q>(p-1)^{\mu\cdot \lceil \log_2(d+1)\rceil+1}(\frac{p+1}{2})^{\mu \cdot \lceil \log_2(d+1)\rceil}$.
+	The polynomial commitment scheme for multi-variate polynomials consisting of protocols $(\pro{MultiSetup},\pro{MultiCommit},\pro{MultiEval})$ has perfect correctness and witness extended emulation if the Adaptive Root Assumption and the Strong RSA Assumption hold for $\ggen$ for $\mu$-variate polynomials of degree $d$ and if $d^\mu=\poly$ if $q>(p-1)^{\mu\cdot \lceil \log_2(d+1)\rceil+1}(\frac{p+1}{2})^{\mu \cdot \lceil \log_2(d+1)\rceil}<p^{2 \mu \log_2(d+1)+1}$.
 \end{theorem}
 \begin{proof}
 	Perfect correctness follows from the correctness of the univariate scheme and the fact that the bounds $b$ are appropriately updated and remain less than $q/2$.
@@ -55,7 +56,7 @@ We can therefore use Lemma~\ref{lem:poe} to replace all \textsf{PoE} executions 
 	
 	$\mathcal{X}_{\pro{MultiEval}}$ takes the entire transcript tree and invokes the univariate extractor on input $\gr{C}$ to extract either a degree $(d+1)^\mu-1$ polynomial univariate polynomial $\hat{f}(X)$ or an element of known order or a fractional root of $\gr{g}$. The extracted polynomial has coefficients bounded by $b=\frac{p-1}{2}(\frac{p^2-1}{2})^{\mu
 	\cdot \lceil\log_2(d+1)\rceil}$. Since $q>2b$ decoding and extraction succeeds. Further using $f(X_1,\dots,X_n)\gets\dec_{Multi}(\hat{f}(q),\mu,d)$ we can extract an $\mu$-variate polynomial of degree $d$ in each variable. 
-It remains to show that $f(z_1,\dots,z_\mu)=y$. Lemma~\ref{lem:strongtofractional} which proofs the soundness of each individual extraction step does not require the evaluation point $z$ to be the same in each round. This shows that the extracted evaluation of $f(X_1,\dots,X_\mu)$ follows exactly the honest provers evaluation.
+It remains to show that $f(z_1,\dots,z_\mu)=y$. Lemma~\ref{lem:intrandomcombine} which proofs the soundness of each individual extraction step does not require the evaluation point $z$ to be the same in each round. This shows that the extracted evaluation of $f(X_1,\dots,X_\mu)$ follows exactly the honest provers evaluation.
 For the $y=\sum_{i=0}^{(d+1)^\mu-1 } \hat{f}_{i} (\prod_{j=1}^\mu  z_j^{\lceil i/(d+1)^j\rceil \bmod d+1 }) $, where $\hat{f}_i$ are the coefficients of the encoded univariate degree $(d+1)^\mu-1$. The decoding sets $\hat{f}_i$ to be the coefficient of $\prod_{j=1}^\mu  X_j^{\lceil i/(d+1)^j\rceil \bmod d+1 }$ which shows that $y=f(z_1,\dots,z_\mu)$.
-Under the $k$-Strong RSA Assumption and the Adaptive Root Assumption the probability that the polynomial time adversary can produce an element of known order or a (non-power-of-$k$) fractional root of $\gr{g}$ is negligible. This shows that the multivariate polynomial commitment scheme has witness extended emulation.
+Under the Strong RSA Assumption and the Adaptive Root Assumption the probability that the polynomial time adversary can produce an element of known order or a  fractional root of $\gr{g}$ is negligible. This shows that the multivariate polynomial commitment scheme has witness extended emulation.
 \end{proof}

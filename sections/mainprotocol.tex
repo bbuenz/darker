@@ -403,7 +403,7 @@ The polynomial commitment by Kate~\emph{et al.}~\cite{AC:KatZavGol10} has evalua
 
 In the multivariate setting, our scheme is logarithmic in the total number of coefficients: $\mu\log(d)$ for a $\mu$-variate polynomial of degree $d$. The multivariate extension of Kate~\emph{et al.}'s commitment scheme~\cite{SP:ZGKPP17} evaluation proofs consist of $\mu$ group elements.
 
-\subsubsection{Based on Merkle Trees of Reed-Solomon Codewords}
+\subsubsection{Based on Merkle Trees of Reed-Solomon Codewords} \label{subsection:fri}
 
 Recent years have seen a flurry of developments related to probabilistic testing of Reed-Solomon code membership~\cite{SIAMCOMP:BS08,STOC:BCGT13,ECCC:BGR16,ICALP:BBHR18,DEEPFRI}. Of these developments, the FRI~\cite{ICALP:BBHR18} protocol and its improvement DEEP-FRI~\cite{DEEPFRI} have seen deployment in concrete proof systems such as \textsf{STARK}~\cite{C:BBHR19}, \textsf{Aurora}~\cite{EC:BCRSVW19}, and \textsf{Fractal}~\cite{Fractal}. While these general purpose zero-knowledge proof systems do not use FRI as a polynomial commitment scheme, FRI does admit an interpretation as a one, as explained in a recent eprint note~\cite{MatterLabs}. In addition to that, mechanics that make FRI work are somewhat similar to the mechanics underlying our DARK polynomial evaluation protocol.
 
