@@ -1,7 +1,8 @@
 
-We can extend our polynomial commitment scheme to multivariate polynomials. The idea is simply to use higher degrees of $q$ to encode the next indeterminate. The protocol is linear in the number of variables and logarithmic in the total degree of the polynomial. For simplicity we only present a protocol for $\mu$-variate polynomials where the degree in each variable is $d$. The protocol naturally extends to different degrees per variable.
+We can extend our polynomial commitment scheme to multivariate polynomials. The idea is simply to use higher degrees of $q$ to encode the next indeterminate. The protocol is linear in the number of variables and logarithmic in the total degree of the polynomial. For simplicity we only present a protocol for $\mu$-variate polynomials where the degree in each variable is $d$. The protocol extends naturally to different degrees per variable.
+
 \paragraph{Encoding}
-Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_\mu)\in \ZZ$ is an encoding of the multivariate polynomial $f(X_1,\dots,X_\mu)$ with maximum degree $d$. We use $\dec_{Multi}(f(q),\mu,d)$ to denote the decoding of an $\mu$-variate polynomial with degree exactly $d$ in each variable. The decoding algorithm simply uses the univariate decoding algorithm described in Section \ref{sec:encoding} to decode a univariate polynomial $\hat{h}(X)$ of degree $(d+1)^{\mu}-1$. From this it is easy to compute the $\mu$-variate polynomial $f(X_1,\dots,X_\mu)$ of degree $d$ by assigning the coefficients of $X^{(d+1)^i}$ to the variable $X_i$.
+Let $q_i=q^{(d+1)^i}$ then $\hat{f}(q_1,\dots,q_\mu)\in \ZZ$ is an encoding of the multivariate polynomial $f(X_1,\dots,X_\mu)$ with maximum degree $d$. We use $\dec_{Multi}(f(q),\mu,d)$ to denote the decoding of an $\mu$-variate polynomial with degree exactly $d$ in each variable. The decoding algorithm simply uses the univariate decoding algorithm described in Section \ref{sec:encoding} to decode a univariate polynomial $\hat{h}(X)$ of degree $(d+1)^{\mu}-1$. From this it is easy to compute the $\mu$-variate polynomial $f(X_1,\dots,X_\mu)$ of degree $d$ by assigning the coefficients of $X^{(d+1)^i}$ to the variable $X_i$.
 \paragraph{Protocols}
  Using this encoding we can naturally derive the multivariate commitment scheme and $\eval$ protocol. The $\eval$ protocol computes the univariate polynomials $f(q_1,\dots,q_{\mu-1},X_\mu)$ and then uses the univariate eval protocol to reduce the claim from a claim about an $\mu$-variate polynomial to one about an $(\mu-1)$-variate one. At the final step the prover opens the now constant polynomial and the verifier can check the claim. For example, the protocol would reduce a bivariate (say $X$ and $Y$) cubic polynomial to a univariate one (in $Y$) in two rounds of interaction and then reduce the degree of $Y$ using another two rounds.
  
@@ -17,9 +18,9 @@ Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_\mu)\in \ZZ$ is an encoding of the mul
 			%\item Pick a sufficiently large and odd $q\in \NN$ \pccomment{$q=O_\lambda(p^{\mu \cdot \log(d)})$}
 			\item $\pcreturn \params = (\secpar,\GG,\gr{g})$
 		\end{enumerate}
-	$\pro{MultiCommit}(\crs;f(X_1,\dots,X_\mu) \in \ZZ^\mu(\frac{p-1}{2})[X]\subset \ZZ^\mu[X]):$ 		\begin{enumerate}[nolistsep]
+	$\pro{MultiCommit}(\params;f(X_1,\dots,X_\mu) \in \ZZ(\frac{p-1}{2})[X_1, \ldots, X_\mu]\subset \ZZ[X_1, \ldots, X_\mu]):$ 		\begin{enumerate}[nolistsep]
 			\item $d\gets \deg(f)$\pccomment{For simplicity assume $f(X_1,\dots,X_n)$ has degree $d$ in each variable}
-			\item $q_i\gets q^{(d+1)^{i-1}}$ for each $i\in [1,\mu]$
+			\item $q_i\gets q^{(d+1)^{i-1}}$ for each $i\in [\mu]$
 			\item $\gr{C} \gets \gr{g}^{f(q_1,\dots,q_\mu)}$
 			\item $\pcreturn (\gr{C};f(X_1,\dots,X_\mu))$
 		\end{enumerate}
@@ -29,7 +30,8 @@ Let $q_i=q^{(d+1)^i}$ then $f(q_1,\dots,q_\mu)\in \ZZ$ is an encoding of the mul
  
  \begin{mdframed}
 \begin{minipage}{\textwidth}
-			$\pro{MultiEval}(\crs, \gr{C}\in \GG, \boldsymbol{z}\in \ZZ^\mu_p,y \in \ZZ_p, d,\mu,b \in \NN; f(X_1,\dots,X_\mu)\in \ZZ^\mu(b)[X]) :$ 			\begin{enumerate}[nolistsep]
+			$\pro{MultiEval}(\params, \gr{C}\in \GG, \boldsymbol{z}\in \ZZ^\mu_p,y \in \ZZ_p, d,\mu,b \in \NN; f(X_1,\dots,X_\mu)\in \ZZ(b)[X_1, \ldots, X_\mu]) :$
+			\begin{enumerate}[nolistsep]
 			\item \pcif{$\mu=1$} 
 			\item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\params,\gr{C},z_1,y,d,b,x;f(X_1))$ 
 			\item \pcelse
