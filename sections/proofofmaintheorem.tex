@@ -30,7 +30,7 @@ The check on $f$ ensures that $|f|\leq b=\frac{(p-1)}{2} (\frac{p+1}{2})^{\lceil
 
 Lemma \ref{lem:intrandomcombine} in each invocation guarantees that the extracted parent polynomial has coefficients at most $(p-1)$ times larger than the coefficients of the children's polynomials. Given that the transcript tree has depth $\lceil \log_2(d+1)\rceil$ we get that the final extracted polynomial $f_0(X)\in \ZZ(b)[X]$ has coefficients bounded by $b= \frac{p-1}{2}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$.
 
-Therefore, $q$ needs to be large enough such that $f_0(X)$ is uniquely decodable, \emph{i.e.}, $q>2\cdot b=(p-1)(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$.
+Therefore, $q$ needs to be large enough such that $f_0(X)$ is uniquely decodable, \emph{i.e.}, $q>2\cdot b=(p-1)(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$. This shows that $q>p^{2\lceil\log_2(d+1)\rceil+1}> 2b$ suffices.
 
 We can successfully extract either a witness or a fractional root or an element of known order from any tree of valid transcripts of $\eval'$.
 Under the Fractional Root Assumption and the Order Assumption, the probability that a polynomial time adversary along with a polynomial time extractor $\mathcal{X}$ can produce such a fractional root or an element of known order is negligible. $\eval'$, therefore, has witness extended emulation and under the Adaptive Root Assumption by Lemma \ref{lemma:poe_security} so does $\eval$.

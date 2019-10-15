@@ -40,7 +40,7 @@ Initially, during the execution of $\eval$, the prover maps the coefficients of 
 $f'(z)\bmod p=\alpha f_L(z) +f_R(z) \bmod p= \alpha y_L +y_R\bmod p=y'$
  
  There are exactly $\lceil\log_2(d+1)\rceil$ recursion steps with even $d+1$. In the final recursion step we therefore have $b=\frac{p-1}{2}(\frac{p+1}{2})^{\lceil\log_2(d+1)\rceil}$ and as such the requirement that $q/2>\frac{p-1}{2}(\frac{p+1}{2})^{\lceil\log_2(d+1)\rceil}$. 
- So if $q>(p-1) (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$ then all verifier checks pass and the verifier outputs $1$.
+ So if $q>p^{\lceil\log_2(d+1)\rceil+1}\geq (p-1) (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$ then all verifier checks pass and the verifier outputs $1$.
 \end{proof} 
 
 
@@ -143,7 +143,7 @@ We, therefore, now need to compute a bound on the size of the extracted polynomi
 The check on $f$ ensures that $f\in \ZZ$ and that $|f|\leq b=\frac{p-1}{2} (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$. We can write $f\in\mathbb{D}(\frac{p-1}{2} (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil},1)$. By \ref{lem:intrandomcombine} both the numerator and the denominator grow by at most a factor $p-1$ in every round.
 Given that the transcript tree has depth $\lceil \log_2(d+1)\rceil$ we get that the final extracted polynomial $f_0(X)\in \mathbb{D}(N,D)[X]$ has coefficients with numerators bounded by $N= \frac{p-1}{2}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$ and denominators bounded by $D=(p-1)^{\lceil \log_2(d+1)\rceil}$
 
-$q$ needs to be large enough such that $f_0(X)$ is uniquely decodable, \emph{i.e.}, $q>2\cdot N\cdot b=(p-1)^{\lceil \log_2(d+1)\rceil+1}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$.
+$q$ needs to be large enough such that $f_0(X)$ is uniquely decodable, \emph{i.e.}, $q>2\cdot N\cdot b=(p-1)^{\lceil \log_2(d+1)\rceil+1}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$. In a simpler form $q>p^{3\lceil\log_2(d+1)\rceil+1}$ suffices.
 
 This shows that we can successfully extract either a witness or a non-power of $2$ fractional root or an element of known order from any tree of valid transcripts.
 Under the $2$-Fractional Root Assumption and the Order Assumption, the probability that a polynomial time adversary along with a polynomial time extractor $\mathcal{X}$ can produce such a a  non-power of $2$ fractional root or an element of known order is negligible. $\eval'$, therefore, has witness extended emulation and under the Adaptive Root Assumption by Lemma \ref{lemma:poe_security} so does $\eval$.

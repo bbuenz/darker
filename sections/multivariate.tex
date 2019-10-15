@@ -46,7 +46,7 @@ Let $q_i=q^{(d+1)^i}$ then $\hat{f}(q_1,\dots,q_\mu)\in \ZZ$ is an encoding of t
 \end{mdframed}
 We only proof security under the strong RSA assumption. The security proof, however, directly extends to groups where taking square roots is easy under the $2$-Strong-RSA Assumption. In that case $q>p^{3\mu \log_2(d+1)+1}$ suffices.
 \begin{theorem}[Multivariate Eval]
-	The polynomial commitment scheme for multi-variate polynomials consisting of protocols $(\pro{MultiSetup},\pro{MultiCommit},\pro{MultiEval})$ has perfect correctness and witness extended emulation if the Adaptive Root Assumption and the Strong RSA Assumption hold for $\ggen$ for $\mu$-variate polynomials of degree $d$ and if $d^\mu=\poly$ if $q>(p-1)^{\mu\cdot \lceil \log_2(d+1)\rceil+1}(\frac{p+1}{2})^{\mu \cdot \lceil \log_2(d+1)\rceil}<p^{2 \mu \log_2(d+1)+1}$.
+	The polynomial commitment scheme for multi-variate polynomials consisting of protocols $(\pro{MultiSetup},\pro{MultiCommit},\pro{MultiEval})$ has perfect correctness and witness extended emulation if the Adaptive Root Assumption and the Strong RSA Assumption hold for $\ggen$ for $\mu$-variate polynomials of degree $d$ and if $d^\mu=\poly$ if $q> p^{2 \mu \log_2(d+1)+1}$.
 \end{theorem}
 \begin{proof}
 	Perfect correctness follows from the correctness of the univariate scheme and the fact that the bounds $b$ are appropriately updated and remain less than $q/2$.
