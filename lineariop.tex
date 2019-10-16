@@ -290,8 +290,9 @@ Let $g$ be a generator of $\mathbb{F}^\times$. The preprocessing consists of com
 
   Note that for a valid witness, $f(g^1) = f(g^2) = \cdots = f(g^{T-1}) = 0$, so $z(X)$ divides $f(X)$. Note further that $q(X)$ has degree at most $\mathsf{d}$. The verifier's queries to the proof oracles it received from the prover are as follows:
 \begin{itemize}
-    \item For all boundary constraints of the form $(i, j, \alpha)$ the verifies queries for $w_j(g^i)$, and if $w_j(g^i) \neq \alpha$ then the verifier aborts and rejects. This establishes that all $w_j(X)$ have degree at most $T-1$.
-    \item For a random point $h \sample \mathbb{F}$, the verifier queries for $u_j \leftarrow w_j(h)$ and $v_j \leftarrow w_j(gh)$ for all $j \in [n]$, as well as for $q(h)$ and $z(h)$. This establishes that $q(X)$ is of degree at most $\mathsf{d}$. Finally it checks that $\boldsymbol{\beta}^\mathsf{T} \boldsymbol{\mathcal{P}}(u_1, \ldots, u_n, v_1, \ldots, v_n) = q(h) \cdot z(h)$, and if not it aborts and rejects.
+    \item For all boundary constraints of the form $(i, j, \alpha)$ the verifies queries for $w_j(g^i)$, and if $w_j(g^i) \neq \alpha$ then the verifier aborts and rejects. %This establishes that all $w_j(X)$ have degree at most $T-1$.
+    \item For a random point $h \sample \mathbb{F}$, the verifier queries for $u_j \leftarrow w_j(h)$ and $v_j \leftarrow w_j(gh)$ for all $j \in [n]$, as well as for $q(h)$ and $z(h)$. %This establishes that $q(X)$ is of degree at most $\mathsf{d}$. 
+    Finally it checks that $\boldsymbol{\beta}^\mathsf{T} \boldsymbol{\mathcal{P}}(u_1, \ldots, u_n, v_1, \ldots, v_n) = q(h) \cdot z(h)$, and if not it aborts and rejects.
 \end{itemize}
 If $g$ instead can be chosen as an element of order $T-1$ in $\FF$, then the preprocessing phase can be omitted. In this case $z(X) = X^{T-1} - 1$ and it can be evaluated by the verifier locally in $O(\log T)$ time.
 
