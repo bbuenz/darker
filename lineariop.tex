@@ -237,45 +237,63 @@ HVZK is shown by a straightforward composition of the simulators for $\eval$ and
 We consider examples of Polynomial IOPs to which this compiler can be applied: \textsf{STARK}~\cite{C:BBHR19}; \textsf{Sonic} and its improvement \textsf{PLONK}; \textsf{Spartan}~\cite{Spartan}, and the popular QAP of Gennaro~\emph{et al.}~\cite{EC:GGPR13}. 
 
 \subsubsection{STARK}
-The \textsf{STARK} proof system~\cite{C:BBHR19} builds an IOP for uniform computations whose transition function can be expressed by an arithmetic circuit. The verifier in this IOP is tasked with determining the proximity of given proof oracles to certain Reed-Solomon codes. The IOP itself is then compiled into a concrete transparent proof system using FRI and Merkle trees.
+The \textsf{STARK} proof system~\cite{C:BBHR19} builds an IOP for uniform computations, specified by a program $P$ and timebound $T$ on the running time of $P$. % in which the transition function is expressed as an arithmetic circuit. 
+%The verifier in this IOP is tasked with determining the proximity of given proof oracles to certain Reed-Solomon codes. 
+The IOP itself is then compiled into a concrete proof system using FRI~\cite{ICALP:BBHR18} and Merkle trees.
+The \textsf{STARK} IOP can be cast as a univariate Polynomial IOP. 
 
-Given the capability to expand FRI with Merkle trees into a polynomial commitment scheme, it follows that any abstract proof system that relies only on this primitive, can be cast as a univariate Polynomial IOP. In particular, this formalism immediately captures the IOP underlying the \textsf{STARK} proof system as a special case. To illustrate this capture, we simplify the generic AIR language and rephrase the relevant compilation theorem in terms of a Polynomial IOP. Note that the original AIR is more complex and is even superseded more still complex BAIR/PAIR/BPAIR languages for optimization, but the present definition still serves the illustrative purpose.
+The IOP construction begins with an \emph{algebraic intermediate representation} (AIR) of the program $P$.  
+%Given the capability to expand FRI with Merkle trees into a polynomial commitment scheme, it follows that any abstract proof system that relies only on this primitive, can be cast as a univariate Polynomial IOP. In particular, this formalism immediately captures the IOP underlying the \textsf{STARK} proof system as a special case. 
+We present a simplified version of the original \textsf{STARK} AIR language for the purpose of illustrating how to recast the \textsf{STARK} IOP as a Polynomial IOP.  %and rephrase the relevant compilation theorem in terms of a Polynomial IOP. 
+The original AIR is more complex for efficiency reasons.
+% of efficand is even superseded more still complex BAIR/PAIR/BPAIR languages for optimization, but the present definition still serves the illustrative purpose.
+The AIR represents a computation as an algebraic execution trace of the program $P$ for $T$ timesteps. The AIR views the program as a system of $n$ registers and a transition function. At every timestep each register holds an element of the finite field $\mathbb{F}$. Given a vector $\boldsymbol{v}_i \in \FF^n$ representing the states of the registers at timestep $i$, the transition function determines the vector $\boldsymbol{v}_{i+1} \in \FF^n$ representing the state of the registers at timestep $i+1$. The AIR transforms the transition function into a system of constraints given by a vector of $2n$-variate polynomials $\boldsymbol{\mathcal{P}}$ and vector $\boldsymbol{\mathcal{B}}$ of tuples $([T], [n], \FF)$ representing ``boundary conditions" of the form $\boldsymbol{v}_i[j] = \alpha$ for the value of the $j$th register at timestep $i$.  
 
-AIR represents a computation as an algebraic execution trace of a system of $\mathsf{w}$ registers taking values from a finite field $\mathbb{F}$, evolving for $T$ time steps according to a state transition function $\boldsymbol{\mathcal{P}}$. The trace itself is represented as an array of $T \times \mathsf{w}$ field elements. The state transition function has a representation in terms of polynomials in $2\mathsf{w}$ variables, which represent the current and next state for one time step. In addition to that, certain boundary conditions are satisfied, meaning that specific registers take specific values at certain points.
+%evolving for $T$ time steps according to a state transition function $\boldsymbol{\mathcal{P}}$. The trace itself is represented as an array of $T \times n$ field elements. The state transition function has a representation in terms of polynomials in $2n$ variables, which represent the current and next state for one time step. In addition to that, certain boundary conditions are satisfied, meaning that specific registers take specific values at certain points.
 
 \begin{definition}
 The relation $\mathcal{R}_\mathsf{AIR}$ is the set of all instance-witness pairs $(x, w)$ satisfying the following description:
 
-\noindent\underline{Instance.} An instance is a tuple $x = (\mathbb{F}, T, \mathsf{w}, \boldsymbol{\mathcal{P}}, \boldsymbol{\mathcal{B}})$ where
+\noindent\underline{Instance.} An instance is a tuple $x = (\mathbb{F}, T, n, \boldsymbol{\mathcal{P}}, \boldsymbol{\mathcal{B}})$ where
 \begin{itemize}\itemsep0pt
     \item $\mathbb{F}$ is a finite field.
     \item $T \in \mathbb{N}$ is the number of time steps.
-    \item $w$ is the number of registers.
-    \item $\boldsymbol{\mathcal{P}} \in (\mathbb{F}[X_1, \ldots, X_\mathsf{w}, Y_1, \ldots, Y_\mathsf{w}])^k$ are $k$ polynomials of degree at most $\mathsf{d}$ called the state transition constraints.
-    \item $\boldsymbol{\mathcal{B}} \in ([T] \times [\mathsf{w}] \times \mathbb{F})^\ell$ are $\ell$ tuples representing the boundary conditions.
+    \item $n$ is the number of registers.
+    \item $\boldsymbol{\mathcal{P}}: \FF^{2n} \rightarrow \FF^k$ %(\mathbb{F}[X_1, \ldots, X_n, Y_1, \ldots, Y_n])^k$ 
+    is a polynomial vector function whose $k$ components $(\mathcal{P}_1,...,\mathcal{P}_k)$ are each $2n$-variate polynomials of degree at most $\mathsf{d}$ called the ``state transition constraints". On input $\mathbf{z} \in \FF^{2n}$: $\boldsymbol{\mathcal{P}}(\mathbf{z}) = (\mathcal{P}_1(\mathbf{z}),...,\mathcal{P}_k(\mathbf{z})) \in \FF^k$. 
+    \item $\boldsymbol{\mathcal{B}} \in ([T] \times [n] \times \mathbb{F})^\ell$ are $\ell$ tuples, called the ``boundary conditions".
 \end{itemize}
 
-\noindent\underline{Witness.} A witness is a table $w \in \mathbb{F}^{T \times \mathsf{w}}$ where each row $i \in [T]$ represents the full state of the system at time $i$, and each column $j \in [\mathsf{w}]$ tracks the value of register $j$ across time. A witness $w$ is a valid witness for $x$ if and only if the following conditions are satisfied:
+\noindent\underline{Witness.} A witness is a table $w \in \mathbb{F}^{T \times n}$ where each row $i \in [T]$ represents the full state of the system at time $i$, and each column $j \in [n]$ tracks the value of register $j$ across time. A witness $w$ is a valid witness for $x$ if and only if the following conditions are satisfied:
 \begin{itemize}\itemsep0pt
-    \item The state evolves consistently; in other words, the state transition constraints are satisfied for all consecutive pairs of states $(X_1, \ldots, X_\mathsf{w})$ and $(Y_1, \ldots, Y_\mathsf{w})$ up until time $T$. Symbolically: $\boldsymbol{\mathcal{P}}(w[i,1], \ldots, w[i,\mathsf{w}], w[i+1, 1], \ldots, w[i+1,\mathsf{w}]) = \boldsymbol{0}$ for all $i \in [T-1]$.
-    \item The boundary conditions are satisfied; in other words, for every tuple $(i, j, \alpha) \in \boldsymbol{\mathcal{B}}$ we have $w[i,j] = \alpha$.
+    \item \textbf{State transition consistency}: $\boldsymbol{\mathcal{P}}(w[i,1], \ldots, w[i,n], w[i+1, 1], \ldots, w[i+1,n]) = \boldsymbol{0}$ for all $i \in [T-1]$.
+    \item \textbf{Boundary condition satisfaction}: $w[i,j] = \alpha$ for every tuple $(i, j, \alpha) \in \boldsymbol{\mathcal{B}}$.
 \end{itemize}
 
-Furthermore, the language $\mathcal{L}_\mathsf{AIR}$ is the projection of $\mathcal{R}_\mathsf{AIR}$ onto the first coordinate, \emph{i.e.}, $\mathcal{L}_\mathsf{AIR} = \{x \, | \, \exists w \, (x,w) \in \mathcal{R}_\mathsf{AIR}\}$.
+The language $\mathcal{L}_\mathsf{AIR}$ is defined as $\mathcal{L}_\mathsf{AIR} = \{x \, | \, \exists w \, (x,w) \in \mathcal{R}_\mathsf{AIR}\}$.
 \end{definition}
 
 \begin{theorem}
-There is a 2-round univariate Polynomial IOP for $\mathcal{R}_\mathsf{AIR}$ with preprocessing that makes $k+\mathsf{w}+2$ queries to $\mathsf{w}+2$ polynomials of degree at most $T$. The prover has complexity $\tilde{O}(\mathsf{w}T)$ and the verifier has complexity $O(\mathsf{w} \log T)$. The preprocessing verifier does $O(T)$ work.
+There is a 2-round univariate Polynomial IOP for $\mathcal{R}_\mathsf{AIR}$ with preprocessing that makes $k+n+2$ queries to $n+2$ polynomials of degree at most $T$. The prover has complexity $\tilde{O}(nT)$ and the verifier has complexity $O(n \log T)$. The preprocessing verifier does $O(T)$ work.
 \end{theorem}
 
-We show in the most essential terms how this Polynomial IOP is constructed, replacing Reed-Solomon proximity testing with polynomial commitment schemes. We omit many details and refer to the \textsf{STARK} paper~\cite{C:BBHR19}, and to the references therein, for a complete treatment.
 
-\paragraph{\textsf{STARK} Polynomial IOP} Let $g$ be the generator of a large enough subgroup of $\mathbb{F}$. The preprocessing consists of computing the nonzero polynomial $z(X) = \prod_{i=1}^{T-1} (X-g^i)$ which satisfies $z(g^1) = z(g^2) = \cdots = z(g^{T-1}) = 0$. The online proof starts with the prover computing the $\mathsf{w}$ polynomials $w_j(X)$ of degree at most $T-1$ such that $w[i,j] = w_j(g^i)$, and sending these to the verifier. The verifier responds with the random weight vector $\boldsymbol{\beta} \sample \mathbb{F}^k$. The prover computes $f(X) = \boldsymbol{\beta}^\mathsf{T} \boldsymbol{\mathcal{P}}(w_1(X), \ldots, w_\mathsf{w}(X), w_1(g \cdot X), \ldots, w_\mathsf{w}(g \cdot X))$. Note that for a valid witness, $f(g^1) = f(g^2) = \cdots = f(g^{T-1}) = 0$, so $z(X)$ divides $f(X)$. The prover sends $q(X) = f(X)/z(X)$ to the verifier. Note that $q(X)$ has degree at most $\mathsf{d}$. The verifier queries the following evaluations:
+\paragraph{\textsf{STARK} Polynomial IOP} We sketch how this Polynomial IOP is constructed, omitting many details (see the \textsf{STARK} paper~\cite{C:BBHR19} for further details).
+
+Let $g$ be a generator of $\mathbb{F}^\times$. The preprocessing consists of computing the nonzero polynomial $z(X) = \prod_{i=1}^{T-1} (X-g^i)$ which satisfies $z(g^1) = z(g^2) = \cdots = z(g^{T-1}) = 0$. The online interaction is as follows: 
+\begin{enumerate} 
+\item The prover computing the $n$ polynomials $w_j(X)$ of degree at most $T-1$ such that $w_j(g^i) = w[i,j]$, and sends $n$ polynomial oracles to the verifier, one for each $w_j(X)$. 
+\item The verifier sends a random weight vector $\boldsymbol{\beta} \sample \mathbb{F}^k$.
+\item  The prover computes $f(X) = \boldsymbol{\beta}^\mathsf{T} \boldsymbol{\mathcal{P}}(w_1(X), \ldots, w_n(X), w_1(g \cdot X), \ldots, w_n(g \cdot X))$. The prover sends $q(X) = f(X)/z(X)$ to the verifier.
+
+\end{enumerate}
+
+  Note that for a valid witness, $f(g^1) = f(g^2) = \cdots = f(g^{T-1}) = 0$, so $z(X)$ divides $f(X)$. Note further that $q(X)$ has degree at most $\mathsf{d}$. The verifier's queries to the proof oracles it received from the prover are as follows:
 \begin{itemize}
-    \item For all boundary constraints $(i, j, \alpha)$ he queries $w_j(g^i)$ and if the resulting value is different from $\alpha$ he aborts and rejects. This establishes that all $w_j(X)$ have degree at most $T-1$.
-    \item For a random point $h \sample \mathbb{F}$, he queries $w_j(h)$ and $w_j(gh)$ for all $j \in [\mathsf{w}]$ as well as $q(h)$ and $z(h)$. This establishes that $q(X)$ is of degree at most $\mathsf{d}$. Then he tests whether $\boldsymbol{\beta}^\mathsf{T} \boldsymbol{\mathcal{P}}(w_1(h), \ldots, w_\mathsf{w}(h), w_1(gh), \ldots, w_\mathsf{w}(gh))$ equals $q(h) \cdot z(h)$ and if not he aborts and rejects.
+    \item For all boundary constraints of the form $(i, j, \alpha)$ the verifies queries for $w_j(g^i)$, and if $w_j(g^i) \neq \alpha$ then the verifier aborts and rejects. This establishes that all $w_j(X)$ have degree at most $T-1$.
+    \item For a random point $h \sample \mathbb{F}$, the verifier queries for $u_j \leftarrow w_j(h)$ and $v_j \leftarrow w_j(gh)$ for all $j \in [n]$, as well as for $q(h)$ and $z(h)$. This establishes that $q(X)$ is of degree at most $\mathsf{d}$. Finally it checks that $\boldsymbol{\beta}^\mathsf{T} \boldsymbol{\mathcal{P}}(u_1, \ldots, u_n, v_1, \ldots, v_n) = q(h) \cdot z(h)$, and if not it aborts and rejects.
 \end{itemize}
-The preprocessing phase can be omitted if $g$ spans a subgroup of order $T-1$. In this case $z(X) = X^{T-1} - 1$ and it can be evaluated by the verifier locally in essentially constant time.
+If $g$ instead can be chosen as an element of order $T-1$ in $\FF$, then the preprocessing phase can be omitted. In this case $z(X) = X^{T-1} - 1$ and it can be evaluated by the verifier locally in $O(\log T)$ time.
 
 \subsubsection{Sonic} 
 \textsf{Sonic} is zk-SNARK system that has a universal trusted setup, which produces a SRS of $n$ group elements that can be used to prove any statement represented as an arithmetic circuit with at most $n$ gates. The SRS can also be updated without re-doing the initial setup, for instance, to enable proving larger circuits, or to increase the distribution of trust. The result in \textsf{Sonic} was not presented using the language of IOPs. Furthermore, the result also relied on a special construction of polynomial commitments (a modification of Kate~\emph{et al.}~\cite{AC:KatZavGol10}) that forces the prover to commit to a Laurent polynomial with no constant term. Given our generic reduction from coefficient queries to evaluation queries (Section~\ref{sec:opencoefficient}), we re-characterize the main theorem of \textsf{Sonic} as follows: 
