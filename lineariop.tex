@@ -358,10 +358,13 @@ If we were to compile the bivariate query directly using our multivariate commit
 There is a 5-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with arithmetic complexity $n$) that makes 27 queries overall to univariate degree $n$ polynomial oracles. The preprocessing verifier does $O(n)$ work to check $12$ univariate degree $n$ polynomials. 
 \end{theorem}
 
-The recent system \pro{PLONK} is an improvement on the underlying Polynomial IOP in \pro{Sonic}, and achieves the following: 
+The recent systems \pro{PLONK} and \pro{Marlin}\cite{Marlin} are improvements on the underlying Polynomial IOP in \pro{Sonic}, and achieves the following: 
 
 \begin{theorem}[PLONK,~\cite{Plonk}] 
 There exists a 3-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with arithmetic complexity $n$) that makes $2$ queries overall to univariate degree $3n$ polynomial oracles. The preprocessing verifier does $O(n)$ work to check $9$ univariate degree $n$ polynomials.
+\end{theorem}
+\begin{theorem}[Marlin,~\cite{Marlin}] 
+There exists a 4-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with arithmetic complexity $n$) that makes $3$ queries overall to univariate degree $6n$ polynomial oracles. The preprocessing verifier does $O(n)$ work to check $9$ univariate degree $n$ polynomials.
 \end{theorem}
 
 Combining the \pro{Sonic} IOP with the new transparent polynomial compiler of Section~\ref{sec:protocol} gives the following result:  
