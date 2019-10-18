@@ -284,34 +284,34 @@ The IOP construction begins with an \emph{algebraic intermediate representation}
 We present a simplified version of the original \textsf{STARK} AIR language for the purpose of illustrating how to recast the \textsf{STARK} IOP as a Polynomial IOP.  %and rephrase the relevant compilation theorem in terms of a Polynomial IOP. 
 The original AIR is more complex for efficiency reasons.
 % of efficand is even superseded more still complex BAIR/PAIR/BPAIR languages for optimization, but the present definition still serves the illustrative purpose.
-The AIR represents a computation as an algebraic execution trace of the program $P$ for $T$ timesteps. The AIR views the program as a system of $n$ registers and a transition function. At every timestep each register holds an element of the finite field $\mathbb{F}$. Given a vector $\boldsymbol{v}_i \in \FF^n$ representing the states of the registers at timestep $i$, the transition function determines the vector $\boldsymbol{v}_{i+1} \in \FF^n$ representing the state of the registers at timestep $i+1$. The AIR transforms the transition function into a system of constraints given by a vector of $2n$-variate polynomials $\boldsymbol{\mathcal{P}}$ and vector $\boldsymbol{\mathcal{B}}$ of tuples $([T], [n], \FF)$ representing ``boundary conditions" of the form $\boldsymbol{v}_i[j] = \alpha$ for the value of the $j$th register at timestep $i$.  
+The AIR represents a computation as an algebraic execution trace of the program $P$ for $T$ timesteps. The AIR views the program as a system of $n$ registers and a transition function. At every timestep each register holds an element of the finite field $\mathbb{F}$. Given a vector $\mathbf{w}_i \in \FF^n$ representing the states of the registers at timestep $i$, the transition function determines the vector $\mathbf{w}_{i+1} \in \FF^n$ representing the state of the registers at timestep $i+1$. The AIR transforms the transition function into a system of constraints given by a vector of $2n$-variate polynomials $\boldsymbol{\mathcal{P}}$ and vector $\boldsymbol{\mathcal{B}}$ of tuples $([T], \mathsf{w}, \FF)$ representing ``boundary conditions" of the form $\boldsymbol{v}_i[j] = \alpha$ for the value of the $j$th register at timestep $i$.  
 
 %evolving for $T$ time steps according to a state transition function $\boldsymbol{\mathcal{P}}$. The trace itself is represented as an array of $T \times n$ field elements. The state transition function has a representation in terms of polynomials in $2n$ variables, which represent the current and next state for one time step. In addition to that, certain boundary conditions are satisfied, meaning that specific registers take specific values at certain points.
 
 \begin{definition}
-The relation $\mathcal{R}_\mathsf{AIR}$ is the set of all instance-witness pairs $(x, w)$ satisfying the following description:
+The relation $\mathcal{R}_\mathsf{AIR}$ is the set of all instance-witness pairs $((\mathbb{F}, T, \mathsf{w}, \boldsymbol{\mathcal{P}}, \boldsymbol{\mathcal{B}}), W)$ satisfying the following description:
 
-\noindent\underline{Instance.} An instance is a tuple $x = (\mathbb{F}, T, n, \boldsymbol{\mathcal{P}}, \boldsymbol{\mathcal{B}})$ where
+\noindent\underline{Instance.} An instance is a tuple $(\mathbb{F}, T, \mathsf{w}, \boldsymbol{\mathcal{P}}, \boldsymbol{\mathcal{B}})$ where
 \begin{itemize}\itemsep0pt
     \item $\mathbb{F}$ is a finite field.
     \item $T \in \mathbb{N}$ is the number of time steps.
-    \item $n$ is the number of registers.
+    \item $\mathsf{w}$ is the number of registers.
     \item $\boldsymbol{\mathcal{P}}: \FF^{2n} \rightarrow \FF^k$ %(\mathbb{F}[X_1, \ldots, X_n, Y_1, \ldots, Y_n])^k$ 
-    is a polynomial vector function whose $k$ components $(\mathcal{P}_1,...,\mathcal{P}_k)$ are each $2n$-variate polynomials of degree at most $\mathsf{d}$ called the ``state transition constraints". On input $\mathbf{z} \in \FF^{2n}$: $\boldsymbol{\mathcal{P}}(\mathbf{z}) = (\mathcal{P}_1(\mathbf{z}),...,\mathcal{P}_k(\mathbf{z})) \in \FF^k$. 
-    \item $\boldsymbol{\mathcal{B}} \in ([T] \times [n] \times \mathbb{F})^\ell$ are $\ell$ tuples, called the ``boundary conditions".
+    is a polynomial vector function whose $k$ components $(\mathcal{P}_1,...,\mathcal{P}_k)$ are each $2\mathsf{w}$-variate polynomials of degree at most $\mathsf{d}$ called the ``state transition constraints". On input $\mathbf{z} \in \FF^{2\mathsf{w}}$: $\boldsymbol{\mathcal{P}}(\mathbf{z}) = (\mathcal{P}_1(\mathbf{z}),...,\mathcal{P}_k(\mathbf{z})) \in \FF^k$. 
+    \item $\boldsymbol{\mathcal{B}} \in ([T] \times [\mathsf{w}] \times \mathbb{F})^\ell$ are $\ell$ tuples, called the ``boundary conditions".
 \end{itemize}
 
-\noindent\underline{Witness.} A witness is a table $w \in \mathbb{F}^{T \times n}$ where each row $i \in [T]$ represents the full state of the system at time $i$, and each column $j \in [n]$ tracks the value of register $j$ across time. A witness $w$ is a valid witness for $x$ if and only if the following conditions are satisfied:
+\noindent\underline{Witness.} A witness is a table $W \in \mathbb{F}^{T \times \mathsf{w}}$ where each row $i \in [T]$ represents the full state of the system at time $i$, and each column $j \in [\mathsf{w}]$ tracks the value of register $j$ across time. A witness $W$ is a valid witness for the instance $x = (\mathbb{F}, T, \mathsf{w}, \boldsymbol{\mathcal{P}}, \boldsymbol{\mathcal{B}})$ if and only if the following conditions are satisfied:
 \begin{itemize}\itemsep0pt
-    \item \textbf{State transition consistency}: $\boldsymbol{\mathcal{P}}(w[i,1], \ldots, w[i,n], w[i+1, 1], \ldots, w[i+1,n]) = \boldsymbol{0}$ for all $i \in [T-1]$.
-    \item \textbf{Boundary condition satisfaction}: $w[i,j] = \alpha$ for every tuple $(i, j, \alpha) \in \boldsymbol{\mathcal{B}}$.
+    \item \textbf{State transition consistency}: $\boldsymbol{\mathcal{P}}(W[i,1], \ldots, W[i,n], W[i+1, 1], \ldots, W[i+1,n]) = \boldsymbol{0}$ for all $i \in [T-1]$.
+    \item \textbf{Boundary condition satisfaction}: $W[i,j] = \alpha$ for every tuple $(i, j, \alpha) \in \boldsymbol{\mathcal{B}}$.
 \end{itemize}
 
-The language $\mathcal{L}_\mathsf{AIR}$ is defined as $\mathcal{L}_\mathsf{AIR} = \{x \, | \, \exists w \, (x,w) \in \mathcal{R}_\mathsf{AIR}\}$.
+The language $\mathcal{L}_\mathsf{AIR}$ is defined as $\mathcal{L}_\mathsf{AIR} = \{x=(\mathbb{F}, T, \mathsf{w}, \boldsymbol{\mathcal{P}}, \boldsymbol{\mathcal{B}}) \, | \, \exists W \, (x,W) \in \mathcal{R}_\mathsf{AIR}\}$.
 \end{definition}
 
 \begin{theorem}
-There is a 2-round univariate Polynomial IOP for $\mathcal{R}_\mathsf{AIR}$ with preprocessing that makes $k+n+2$ queries to $n+2$ polynomials of degree at most $T$. The prover has complexity $\tilde{O}(nT)$ and the verifier has complexity $O(n \log T)$. The preprocessing verifier does $O(T)$ work.
+There is a 2-round univariate Polynomial IOP for $\mathcal{R}_\mathsf{AIR}$ with preprocessing that makes $k+\mathsf{w}+2$ queries to $\mathsf{w}+2$ polynomials of degree at most $T$. The prover has complexity $\tilde{O}(\mathsf{w}T)$ and the verifier has complexity $O(\mathsf{w} \log T)$. The preprocessing verifier does $O(T)$ work.
 \end{theorem}
 
 
