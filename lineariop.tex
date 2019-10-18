@@ -21,7 +21,7 @@ All existing SNARK constructions can be viewed conceptually as consisting of an 
 An \emph{interactive oracle proof (IOP)}~\cite{TCC:BenChiSpo16,STOC:ReiRotRot16} is a multi-round interactive PCP: in each round of an IOP the verifier sends a message to the prover and the prover responds with a polynomial length proof, which the verifier can query via random access. A $t$-round $\ell$-query IOP has $t$ rounds of interaction in which the verifier makes exactly $\ell$ queries in each round. Linear IOPs~\cite{C:BBCGI19} are defined analogously except that in each round the prover sends a \emph{linear} PCP~\cite{CC:IKO07}, in which the prover sends a single proof vector $\proofO \in \FF^m$ %to some language membership assertion,
 and the verifier makes $\emph{linear queries}$ to $\pi$. Specifically, the PCP gives the verifier access to an oracle that receives queries of the form $\mathbf{q} \in \FF^m$ and returns the inner product $\langle \proofO, \mathbf{q} \rangle$. 
 
-Bitansky \emph{et al.} \cite{TCC:BCIOP13} defined a linear PCP to be of degree $(d_Q, d_V)$ if there is an explicit circuit of degree $d_Q$ that derives the query vector from the verifier's random coins, and an explicit circuit of degree $d_V$ that computes the verifier's decision from the query responses. %(An arithmetic circuit $C: \FF^\mu \rightarrow \FF^m$ has degree $d$ and arity $\mu$ if each $i$th component of the output is computed by an $\mu$-variate polynomial $p_i: \FF^\mu \rightarrow \FF$ of degree at most $d$.)
+Bitansky \emph{et al.} \cite{TCC:BCIOP13} defined a linear PCP to be of \emph{degree} $(d_Q, d_V)$ if there is an explicit circuit of degree $d_Q$ that derives the query vector from the verifier's random coins, and an explicit circuit of degree $d_V$ that computes the verifier's decision from the query responses. %(An arithmetic circuit $C: \FF^\mu \rightarrow \FF^m$ has degree $d$ and arity $\mu$ if each $i$th component of the output is computed by an $\mu$-variate polynomial $p_i: \FF^\mu \rightarrow \FF$ of degree at most $d$.)
 In a multi-query PCP, $d_Q$ refers to the maximum degree over all the independent circuits computing each query. Bitansky~\emph{et al.} called the linear PCP \emph{algebraic} for a security parameter $\lambda$ if it has degree $(\poly, \poly)$. The popular linear PCP based on \emph{Quadratic Arithmetic Programs} (QAPs) implicit in the GGPR protocol~\cite{EC:GGPR13} and follow-up works is an algebraic linear PCP with $d_Q \in O(m)$ and $d_V = 2$, where $m$ is the size of the witness.
 
 For the purposes of the present work, we are only interested in the algebraic nature of the query circuit and not the verifier's decision circuit. Of particular interest are linear PCPs where each query-and-response interaction corresponds to the evaluation of a fixed $\mu$-variate degree $d$ polynomial at a query point in $\FF^\mu$. This description is equivalent to saying that the PCP is a vector of length $m = {d + \mu \choose \mu}$ and the query circuit is the vector of all $\mu$-variate monomials of degree at most $d$ (in some canonical order) evaluated at a point in $\FF^\mu$. We call this a $(\mu, d)$ \emph{Polynomial PCP} and define \emph{Polynomial IOPs} analogously. As we will explain, we are interested in Polynomial PCPs where $\mu \ll m$ because we can cryptographically compile them into succinct arguments using polynomial commitments, in the same way that Merkle trees are used to compile classical (point) IOPs. %In fact, it is not important for the query point in $\FF^\mu$ to be random; it may be derived in a non-algebraic way from the verifier's random coins. Therefore, in order to view Polynomial PCPs as a special case of algebraic linear PCPs we must relax the definition: a linear PCP is $(\mu, d)$ algebraic if each query to a length $n$ oracle can be succinctly specified in $\FF^\mu$ and expanded into $\FF^n$ via a circuit $C : \FF^\mu \rightarrow \FF^n$ of degree $d$. 
@@ -58,7 +58,7 @@ In the $i$th round (starting at $i = 1$) the prover outputs a single\footnote{Th
 and verifier state is $\textsf{st}^\verifier_i \leftarrow (\textsf{st}^\verifier_{i-1}, \mathit{coins}_i, \mathbf{a}_i)$
 Finally, $\decider(\textsf{st}^\verifier_t)$ returns $1$ or $0$. 
 
-(\emph{Querying prior round oracles}: The syntax can naturally be extended so that in the $i$th round the verifier may query any oracle sent in the $i$th round or earlier). \\ 
+(\emph{Querying prior round oracles}: The syntax can be naturally extended so that in the $i$th round the verifier may query any oracle, whether sent in the $i$th round or earlier). \\ 
 
 %\noindent \underline{Completeness}. For every $(x, w) \in \mathcal{R}$, if $(\prover, \verifier)$ follow the protocol then $\verifier(\textsf{st}^V_t)$ returns $1$ with probability 1. \\
 
@@ -70,9 +70,9 @@ Finally, $\decider(\textsf{st}^\verifier_t)$ returns $1$ or $0$.
 
 \noindent \underline{Argument of Knowledge.} As a proof system, $(\prover, \verifier)$ satisfies perfect completeness, soundness with respect to the relation $\mathcal{R}$ and with soundness error $\epsilon$, and witness-extended emulation with respect $\mathcal{R}$ with knowledge error $\delta$. \\
 
-Furthermore, a linear IOP is \textbf{stateless} if for each $i \in [t]$, $\qgen(\textsf{st}^V_{i-1}, \mathit{coins}_i) = \qgen(i, \mathit{coins}_i)$.
+Furthermore, a linear IOP is \textbf{stateless} if for each $i \in [t]$, $\qgen(\textsf{st}^\verifier_{i-1}, \mathit{coins}_i) = \qgen(i, \mathit{coins}_i)$.
 It has \textbf{algebraic queries} if, additionally, for each $i \in [t]$, $\mathit{coins}_i$ defines a \emph{seed matrix} $\boldsymbol{\Sigma}_i \in \mathbb{F}^{\mu_i \times \ell}$ and the map $\boldsymbol{\Sigma}_i \xmapsto{\mathcal{Q}(i, \cdot)} \mathbf{Q}_i \in \mathbb{F}^{m_i \times \ell}$
-is described by $\ell$ $\mu_i$-variate polynomial functions of degree at most $d = \poly$: $\vec{p}_1, \ldots, \vec{p}_\ell : \mathbb{F}^{\mu_i} \rightarrow \mathbb{F}^{m_i}$ such that for all $k \in [\ell]$, $p_k(\boldsymbol{\sigma}_{i,k}) = \mathbf{q}_{i,k}$, where $\boldsymbol{\sigma}_{i,k}$ and $\mathbf{q}_{i,k}$ denote the $k$th column of $\boldsymbol{\Sigma}_i$ and $\mathbf{Q}_i$, respectively.
+is described by $\ell$ $\mu_i$-variate polynomial functions of degree at most $d = \poly$: $\vec{p}_1, \ldots, \vec{p}_\ell : \mathbb{F}^{\mu_i} \rightarrow \mathbb{F}^{m_i}$ such that for all $k \in [\ell]$, $\vec{p}_k(\boldsymbol{\sigma}_{i,k}) = \mathbf{q}_{i,k}$, where $\boldsymbol{\sigma}_{i,k}$ and $\mathbf{q}_{i,k}$ denote the $k$th column of $\boldsymbol{\Sigma}_i$ and $\mathbf{Q}_i$, respectively.
 
 %It is \textbf{input-oblivious} if $x$ is not included in the state passed to $Q$.
 \end{definition} 
@@ -87,30 +87,34 @@ We should like to define \emph{Polynomial IOP}s as a restriction of algebraic li
 \end{comment} 
 
 \begin{definition}[Public coin Polynomial IOP] 
-Let $\mathcal{R}$ be a binary relation and $\FF$ a finite field. Let $\mathbf{X} = (X_1, \ldots, X_\mu)$ be a vector of $\mu$. A $(\mu, d)$ Polynomial IOP for $\mathcal{R}$ over $\FF$ with soundness error $\epsilon$ and knowledge error $\delta$ consists of two stateful PPT algorithms, the \emph{prover} $\prover$, and the \emph{verifier} $\verifier$, that satisfy the following requirements:\\
+Let $\mathcal{R}$ be a binary relation and $\FF$ a finite field. Let $\mathbf{X} = (X_1, \ldots, X_\mu)$ be a vector of $\mu$ indeterminates. A $(\mu, d)$ Polynomial IOP for $\mathcal{R}$ over $\FF$ with soundness error $\epsilon$ and knowledge error $\delta$ consists of two stateful PPT algorithms, the \emph{prover} $\prover$, and the \emph{verifier} $\verifier$, that satisfy the following requirements:\\
 
 \noindent \underline{Protocol syntax}. 
 For each $i$th round there is a prover state $\textsf{st}^\prover_i$ and a verifier state $\textsf{st}^\verifier_i$. For any common input $x$ and $\mathcal{R}$ witness $w$, at round 0 the states are $\textsf{st}^\prover_0 = (x, w)$ and $\textsf{st}^\verifier_0 = x$. 
 In the $i$th round (starting at $i = 1$) the prover outputs a single proof oracle $\prover(\textsf{st}^\prover_{i-1}) \rightarrow \pi_i$, which is a polynomial $\pi_i(\mathbf{X}) \in \mathbb{F}[\mathbf{X}]$. 
-The verifier samples public random bits $\mathit{coins}_i \sample \{0,1\}^*$ and the query generator computes a query matrix from the verifier state and this randomness: $\qgen(\textsf{st}^\verifier_{i-1}, \mathit{coins}_i) \rightarrow \mathbf{Q}_i \in \mathbb{F}^{\mu \times \ell}$, which is interpreted as a list of $\ell$ points in $\FF^\mu$ denoted $(\mathbf{q}_{i,1},...,\mathbf{q}_{i,\ell})$. 
+The verifier deterministically computes the query matrix $\boldsymbol{\Sigma}_i \in \mathbb{F}^{\mu \times \ell}$ from its state and a string of public random bits $\mathit{coins}_i \sample \{0,1\}^*$, \emph{i.e}, $\verifier(\st^\verifier_{i-1}, \mathit{coins}_i) \rightarrow \boldsymbol{\Sigma}_i$. This query matrix is interpreted as a list of $\ell$ points in $\FF^\mu$ denoted $(\boldsymbol{\sigma}_{i,1}, \ldots, \boldsymbol{\sigma}_{i, \ell})$.
+%The verifier samples public random bits $\mathit{coins}_i \sample \{0,1\}^*$ and the query generator computes a query matrix from the verifier state and this randomness: $\qgen(\textsf{st}^\verifier_{i-1}, \mathit{coins}_i) \rightarrow \mathbf{Q}_i \in \mathbb{F}^{\mu \times \ell}$, which is interpreted as a list of $\ell$ points in $\FF^\mu$ denoted $(\mathbf{q}_{i,1},...,\mathbf{q}_{i,\ell})$. 
 %The verifier computes a list of points $\verifier(\st^\verifier_{i-1}) \rightarrow \boldsymbol{\Sigma}_i$ where $\boldsymbol{\Sigma}_i = (\boldsymbol{\sigma}_{i,1}, \ldots, \boldsymbol{\sigma}_{i, \ell}) \in \mathbb{F}^{\mu \times \ell}$. 
-The verifier queries the oracle $\pi_i$ on all points in the list, 
-and obtains the response vector: 
-$(\pi_i(\mathbf{q}_{i,1}), \ldots, \pi_\ell(\mathbf{q}_{i, \ell})) = \mathbf{a}_i \in \mathbb{F}^{1 \times \ell}$. The updated prover state is $\textsf{st}^\prover_i \leftarrow (\textsf{st}^\prover_{i-1}, \mathbf{Q}_i)$
-and verifier state is $\textsf{st}^\verifier_i \leftarrow (\textsf{st}^\verifier_{i-1}, \mathbf{Q}_i, \mathbf{a}_i)$. Finally, $\verifier(\textsf{st}^\verifier_t)$ returns $1$ or $0$. 
+%The verifier queries the oracle $\pi_i$ on all points in the list, 
+%and obtains the response vector: 
+The oracle $\pi_i$ is queried on all points in this list, producing the response vector
+$(\pi_i(\boldsymbol{\sigma}_{i,1}), \ldots, \pi_\ell(\boldsymbol{\sigma}_{i, \ell})) = \mathbf{a}_i \in \mathbb{F}^{1 \times \ell}$. The updated prover state is $\textsf{st}^\prover_i \leftarrow (\textsf{st}^\prover_{i-1}, \boldsymbol{\Sigma}_i)$
+and verifier state is $\textsf{st}^\verifier_i \leftarrow (\textsf{st}^\verifier_{i-1}, \boldsymbol{\Sigma}_i, \mathbf{a}_i)$. Finally, $\verifier(\textsf{st}^\verifier_t)$ returns $1$ or $0$. 
 %A public-coin $(\mu, d)$ Polynomial IOP is a public-coin algebraic linear IOP where in each query-response the inner product $\langle \boldsymbol{\pi}_i , \mathbf{q}_{i,k} \rangle$ corresponds to the evaluation of some polynomial $f \in \mathbb{F}[X_1, \ldots, X_\mu]$ of total degree at most $d$ in the seed matrix $\boldsymbol{\sigma_i}_k \in \mathbb{F}^{\mu}$ from which $\mathbf{q}_{i,k}$ was derived.
 
-(\emph{Extensions: multiple and prior round oracles.} The syntax can naturally be extended so that multiple oracles are sent in the $i$th round, and the verifier may query oracles sent in the $i$th round or earlier.) \\ 
+(\emph{Extensions: multiple and prior round oracles; various arity.} The syntax can be naturally extended such that multiple oracles are sent in the $i$th round; that the verifier may query oracles sent in the $i$th round or earlier; or that some of the oracles are polynomials in fewer variables than $\mu$.) \\ 
 
 \noindent \underline{Argument of Knowledge.} As a proof system, $(\prover, \verifier)$ satisfies perfect completeness, soundness with respect to the relation $\mathcal{R}$ and with soundness error $\epsilon$, and witness-extended emulation with respect $\mathcal{R}$ with knowledge error $\delta$. \\
 
-Furthermore, a Polynomial IOP is \defn{stateless} if for each $i \in [t]$, $\mathcal{V}(\st^\verifier_{i-1}) = \mathcal{V}(i)$. 
+Furthermore, a Polynomial IOP is \defn{stateless} if for each $i \in [t]$, $\mathcal{V}(\st^\verifier_{i-1}, \mathit{coins}_i) = \mathcal{V}(i, \mathit{coins}_i)$. 
 %It is \defn{public coin} if, additionally, the randomized computation $\mathcal{V}(i) \rightarrow \boldsymbol{\Sigma}_i$ is equivalent to the derandomized computation $\mathit{coins}_i \sample \{0,1\}^*$ followed by $\mathcal{V}(i; \mathit{coins}_i) \rightarrow \boldsymbol{\Sigma}_i$ and where $\mathit{coins}_i$ is public and $\mathcal{V}(i; \mathit{coins}_i)$ is deterministic.
 \end{definition}
 
 \paragraph{Polynomial IOPs as a subclass of Algebraic Linear IOPs}
 
-Public coin Polynomial IOPs, as defined here, are \emph{almost} a strict subclass of public coin Algebraic Linear IOPs. If the definition of Algebraic Linear IOPs were slightly relaxed such that the matrices $\boldsymbol{\Sigma}_i$ were not identified with $\mathit{coins}_i$, but rather derived from it through an arbitrary polynomial time computation, then Polynomial IOPs would perfectly fit the definition as a special case. A $(\mu, d)$-Polynomial IOP would coincide precisely with the case that $\pi_i$ is a vector of length ${d+\mu \choose \mu}$ representing the coefficients of a $(\mu, d)$-polynomial, $\boldsymbol{\Sigma}_i \in \FF^{\mu \times \ell}$ are the Polynomial IOP queries, and $\mathcal{Q}(i, \cdot)$ maps $\boldsymbol{\Sigma}_i$ to a query matrix $\mathbf{Q}_i$ by evaluating each $\mu$-variate monomial of degree at most $d$ on the $\FF^\mu$-points given by rows of $\boldsymbol{\Sigma}_i$. The inner-product of each row of $\mathbf{Q}_i$ with $\pi_i$ is equivalent to evaluating the polynomial with coefficient vector $\pi_i$ on a point given by a row of $\boldsymbol{\Sigma}_i$. Similarly, a more restrictive definition of Polynomial IOPs would identify $\mathbf{Q}_i$ with the seed matrix $\boldsymbol{\Sigma}_i$, which is defined by $\textit{coins}_i$. We chose not to modify the definition of Algebraic Linear IOPs from Bitansky \emph{et. al.}~\cite{TCC:BCIOP13}, and also not to make the definition of Polynomial IOPs overly restrictive.
+Public coin Polynomial IOPs, as defined here, are \emph{almost} a strict subclass of public coin Algebraic Linear IOPs. If the definition of Algebraic Linear IOPs were slightly relaxed such that the matrices $\boldsymbol{\Sigma}_i$ were not identified with $\mathit{coins}_i$, but rather derived from it through an arbitrary polynomial time computation, then Polynomial IOPs would perfectly fit the definition as a special case. In this case, a $(\mu, d)$-Polynomial IOP would coincide precisely with the case that $\boldsymbol{\pi}_i$ is a vector of length ${d+\mu \choose \mu}$ representing the coefficients of a $\mu$-variate, degree-$d$ polynomial $\pi_i(\mathbf{X})$. Furthermore, $\boldsymbol{\Sigma}_i \in \FF^{\mu \times \ell}$ are the Polynomial IOP queries, and $\mathcal{Q}(i, \cdot)$ would map $\boldsymbol{\Sigma}_i$ to a query matrix $\mathbf{Q}_i \in \mathbb{F}^{{d+\mu \choose \mu} \times \ell}$ by evaluating each $\mu$-variate monomial of degree at most $d$ (according to some canonical monomial ordering) in the points $\boldsymbol{\sigma}_{i,k} \in \FF^\mu$ given by the columns of $\boldsymbol{\Sigma}_i$. Computing the inner-product of each column of $\mathbf{Q}_i$ with $\boldsymbol{\pi}_i$ is equivalent to evaluating the polynomial $\pi_i(\mathbf{X})$ in each column of $\boldsymbol{\Sigma}_i$.
+
+Conversely, a more restrictive definition of Polynomial IOPs would identify $\textit{coins}_i$ directly with $\boldsymbol{\Sigma}_i$, independently of both the verifier's state and the round index. In particular, this restriction would disallow the possibly non-trivial derivation $\textit{coins}_i \xmapsto{\verifier(\st^\verifier_{i-1}, \cdot)} \boldsymbol{\Sigma}_i$. We chose not to modify the definition of Algebraic Linear IOPs from Bitansky \emph{et. al.}~\cite{TCC:BCIOP13}, and also not to make the definition of Polynomial IOPs overly restrictive.
 
 
 \begin{comment} 
@@ -287,35 +291,35 @@ We present a simplified version of the original \textsf{STARK} AIR language for 
 The original AIR is more complex for efficiency reasons.
 % of efficand is even superseded more still complex BAIR/PAIR/BPAIR languages for optimization, but the present definition still serves the illustrative purpose.
 
-The AIR represents a computation as an algebraic execution trace of the program $P$ for $T$ timesteps. The AIR views the program as a system of $n$ registers and a transition function. At every timestep each register holds an element of the finite field $\mathbb{F}$. Given a vector $\mathbf{w}_i \in \FF^n$ representing the states of the registers at timestep $i$, the transition function determines the vector $\mathbf{w}_{i+1} \in \FF^n$ representing the state of the registers at timestep $i+1$. The AIR transforms the transition function into a system of constraints given by a vector of $2n$-variate polynomials $\boldsymbol{\mathcal{P}}$ and vector $\boldsymbol{\mathcal{B}}$ of tuples $([T], \mathsf{w}, \FF)$ representing ``boundary conditions" of the form $\boldsymbol{v}_i[j] = \alpha$ for the value of the $j$th register at timestep $i$.  
+The AIR represents a computation as an algebraic execution trace of the program $P$ for $T$ timesteps. The AIR views the program as a system of $n$ registers and a transition function. At every timestep each register holds an element of the finite field $\mathbb{F}$. Given a vector $\mathbf{w}_i \in \FF^n$ representing the states of the registers at timestep $i$, the transition function determines the vector $\mathbf{w}_{i+1} \in \FF^n$ representing the state of the registers at timestep $i+1$. The AIR represents the transition function as a system of constraints given by a vector of $2n$-variate polynomials $\boldsymbol{\mathcal{P}}$, and furthermore specifies a vector $\boldsymbol{\mathcal{B}}$ of tuples $([T], [n], \FF)$ representing ``boundary conditions" of the form $\mathbf{w}_i[j] = \alpha$ for the value of the $j$th register at timestep $i$.  
 
 
 %evolving for $T$ time steps according to a state transition function $\boldsymbol{\mathcal{P}}$. The trace itself is represented as an array of $T \times n$ field elements. The state transition function has a representation in terms of polynomials in $2n$ variables, which represent the current and next state for one time step. In addition to that, certain boundary conditions are satisfied, meaning that specific registers take specific values at certain points.
 
 \begin{definition}
-The relation $\mathcal{R}_\mathsf{AIR}$ is the set of all instance-witness pairs $((\mathbb{F}, T, \mathsf{w}, \boldsymbol{\mathcal{P}}, \boldsymbol{\mathcal{B}}), W)$ satisfying the following description:
+The relation $\mathcal{R}_\mathsf{AIR}$ is the set of all instance-witness pairs $((\mathbb{F}, T, n, \boldsymbol{\mathcal{P}}, \boldsymbol{\mathcal{B}}), W)$ satisfying the following description:
 
-\noindent\underline{Instance.} An instance is a tuple $(\mathbb{F}, T, \mathsf{w}, \boldsymbol{\mathcal{P}}, \boldsymbol{\mathcal{B}})$ where
+\noindent\underline{Instance.} An instance is a tuple $(\mathbb{F}, T, n, \boldsymbol{\mathcal{P}}, \boldsymbol{\mathcal{B}})$ where
 \begin{itemize}\itemsep0pt
     \item $\mathbb{F}$ is a finite field.
     \item $T \in \mathbb{N}$ is the number of time steps.
-    \item $\mathsf{w}$ is the number of registers.
+    \item $n$ is the number of registers.
     \item $\boldsymbol{\mathcal{P}}: \FF^{2n} \rightarrow \FF^k$ %(\mathbb{F}[X_1, \ldots, X_n, Y_1, \ldots, Y_n])^k$ 
-    is a polynomial vector function whose $k$ components $(\mathcal{P}_1,...,\mathcal{P}_k)$ are each $2\mathsf{w}$-variate polynomials of degree at most $\mathsf{d}$ called the ``state transition constraints". On input $\mathbf{z} \in \FF^{2\mathsf{w}}$: $\boldsymbol{\mathcal{P}}(\mathbf{z}) = (\mathcal{P}_1(\mathbf{z}),...,\mathcal{P}_k(\mathbf{z})) \in \FF^k$. 
-    \item $\boldsymbol{\mathcal{B}} \in ([T] \times [\mathsf{w}] \times \mathbb{F})^\ell$ are $\ell$ tuples, called the ``boundary conditions".
+    is a polynomial vector function whose $k$ components $(\mathcal{P}_1,...,\mathcal{P}_k)$ are each $2n$-variate polynomials of degree at most $\mathsf{d}$ called the ``state transition constraints''. On input $\mathbf{z} \in \FF^{2n}$: $\boldsymbol{\mathcal{P}}(\mathbf{z}) = (\mathcal{P}_1(\mathbf{z}),...,\mathcal{P}_k(\mathbf{z})) \in \FF^k$. 
+    \item $\boldsymbol{\mathcal{B}} \in ([T] \times [n] \times \mathbb{F})^\ell$ are $\ell$ tuples, called the ``boundary conditions".
 \end{itemize}
 
-\noindent\underline{Witness.} A witness is a table $W \in \mathbb{F}^{T \times \mathsf{w}}$ where each row $i \in [T]$ represents the full state of the system at time $i$, and each column $j \in [\mathsf{w}]$ tracks the value of register $j$ across time. A witness $W$ is a valid witness for the instance $x = (\mathbb{F}, T, \mathsf{w}, \boldsymbol{\mathcal{P}}, \boldsymbol{\mathcal{B}})$ if and only if the following conditions are satisfied:
+\noindent\underline{Witness.} A witness is a table $W \in \mathbb{F}^{T \times n}$ where each row $i \in [T]$ represents the full state of the system at time $i$, and each column $j \in [n]$ tracks the value of register $j$ across time. A witness $W$ is a valid witness for the instance $x = (\mathbb{F}, T, n, \boldsymbol{\mathcal{P}}, \boldsymbol{\mathcal{B}})$ if and only if the following conditions are satisfied:
 \begin{itemize}\itemsep0pt
     \item \textbf{State transition consistency}: $\boldsymbol{\mathcal{P}}(W[i,1], \ldots, W[i,n], W[i+1, 1], \ldots, W[i+1,n]) = \boldsymbol{0}$ for all $i \in [T-1]$.
     \item \textbf{Boundary condition satisfaction}: $W[i,j] = \alpha$ for every tuple $(i, j, \alpha) \in \boldsymbol{\mathcal{B}}$.
 \end{itemize}
 
-The language $\mathcal{L}_\mathsf{AIR}$ is defined as $\mathcal{L}_\mathsf{AIR} = \{x=(\mathbb{F}, T, \mathsf{w}, \boldsymbol{\mathcal{P}}, \boldsymbol{\mathcal{B}}) \, | \, \exists W \, (x,W) \in \mathcal{R}_\mathsf{AIR}\}$.
+The language $\mathcal{L}_\mathsf{AIR}$ is defined as $\mathcal{L}_\mathsf{AIR} = \{x=(\mathbb{F}, T, n, \boldsymbol{\mathcal{P}}, \boldsymbol{\mathcal{B}}) \, | \, \exists W \, (x,W) \in \mathcal{R}_\mathsf{AIR}\}$.
 \end{definition}
 
 \begin{theorem}
-There is a 2-round univariate Polynomial IOP for $\mathcal{R}_\mathsf{AIR}$ with preprocessing that makes $k+\mathsf{w}+2$ queries to $\mathsf{w}+2$ polynomials of degree at most $T$. The prover has complexity $\tilde{O}(\mathsf{w}T)$ and the verifier has complexity $O(\mathsf{w} \log T)$. The preprocessing verifier does $O(T)$ work.
+There is a 2-round univariate Polynomial IOP for $\mathcal{R}_\mathsf{AIR}$ with preprocessing that makes $k+n+2$ queries to $n+2$ polynomials of degree at most $T$. The prover has complexity $\tilde{O}(nT)$ and the verifier has complexity $O(n \log T)$. The preprocessing verifier does $O(T)$ work.
 \end{theorem}
 
 
