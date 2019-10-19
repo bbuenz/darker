@@ -395,20 +395,7 @@ We describe the performance of our scheme for different settings in Table~\ref{t
 \end{small}
 \end{table}
 
-\begin{table}[!htp]
-\begin{small}
-\begin{tabular}{l|l||l|l|l}
-	Scheme & $\crs$  & Prover & Verifier & Communication \\
-	Univariate\\
-	\hline
-    This Work (DARK) & $O(1)$ unstructered & $O(\lambda \log(d) d) \GG$ & $2 \lambda \log(d)\GG$ & $2 \log(d) \GG$ \\
-    Pairing-based \cite{AC:KatZavGol10} & $d$ $\GG$ structured & $O(d\lambda) \GG$ & $O(\lambda) \GG$ & $1 \GG$\\
-\end{tabular}
 
-\caption{Comparison table between different polynomial commitment}
-\label{tab:performance}
-\end{small}
-\end{table}
 \subsection{Comparison to Other Polynomial Commitment Schemes}
 
 \subsubsection{Based on Pairings}
@@ -423,6 +410,25 @@ The FRI protocol~\cite{ICALP:BBHR18} is an efficient interactive oracle proof (I
 Since this oracle is a Reed-Solomon codeword, it represents the evaluations of a low-degree polynomial $f$ on an evaluation set $S \subset \FF$. In order to be used as a polynomial commitment scheme, the protocol needs to permit querying the polynomial outside of the evaluation set. DEEP-FRI~\cite{DEEPFRI} shows that this is possible and a recent note by Vlasov and Panarin \cite{MatterLabs} makes the connection explicit by building a polynomial commitment scheme from FRI. 
 This FRI-based polynomial commitment scheme has evaluation proofs of size and verifier time $O(\lambda \log^2(d))$ where $\lambda$ is the security parameter and $d = \deg(f)$. To date, no extension to multivariate polynomials exists for FRI. The commitment relies only on symmetric cryptography and is plausibly quantum resistant.
 
+\begin{table}[!htp]
+\begin{small}
+\begin{tabular}{l||l|l|l|l|l}
+	Scheme & Transp. & $|\crs|$  & Prover & Verifier & $|\pi|$ \\
+	\hline
+	\hline
+    DARK  & yes & $O(1)$ & $O( d^\mu \mu \log(d) )\; \textsf{EXP}$ & $2\mu \log(d)~\textsf{EXP}$ & $2 \mu \log(d) \GG_{U}$ \\
+    Pairing \cite{AC:KatZavGol10} & no & $d^\mu$ $\GG_{B}$ & $O(d^\mu)\; \textsf{EXP}$  & $\mu\; \textsf{Pairing} $ & $\mu\; \GG_{B}$\\
+    D-Log \cite{EC:BCCGP16} & yes & $\sqrt{d^\mu}\GG_{P}$ & $O(d^\mu)$ \textsf{EXP} & $O(\sqrt{d^\mu})\textsf{EXP}$ &$O(\sqrt{d^\mu}) \; \GG_P$\\
+       BP \cite{EC:BCCGP16,SP:BBBPWM18} & yes &$2 d^\mu\GG_{P}$& $O(d^\mu)$ \textsf{EXP}& $O(d^\mu)\textsf{EXP}$ &$2 \mu \log(d) ; \GG_P$\\
+       FRI\cite{DEEPFRI,MatterLabs} (univar.) & yes & $O(1)$ & $O(\lambda  d)$ $\hash$ & $O(\lambda \log^2(d))$ $\hash$ & $O(\lambda \log^2(d))$ $\hash$
+\end{tabular}
+
+\caption{Comparison table between different polynomial commitment schemes. 
+In particular we evaluate the reference string size, the prover and verifier time as well as the evaluation proof size.
+Note that even when precise factors are given the numbers should be seen as  estimates. For example we chose to not display smaller order terms. $\GG_U$ is a group of unknown order $\GG_{BL}$ is a group with a bilinear map (pairing), $\GG_{P}$ is a prime order group with known order. $\textsf{EXP}$ refers to exponentiation of a $\lambda$ bit number in these groups. $\hash$ is either the size of a hash output or the time it takes to compute a hash depending on context. }
+\label{tab:performance}
+\end{small}
+\end{table}
 \begin{comment}
 	Multiple recent concrete proof systems such as use probabilistic testing of Reed-Solomon codes as
 Recent years have seen a flurry of developments related to probabilistic testing of Reed-Solomon code membership~\cite{SIAMCOMP:BS08,STOC:BCGT13,ECCC:BGR16,ICALP:BBHR18,DEEPFRI}. Of these developments, the FRI~\cite{ICALP:BBHR18} protocol and its improvement DEEP-FRI~\cite{DEEPFRI} have seen deployment in concrete proof systems such as \textsf{STARK}~\cite{C:BBHR19}, \textsf{Aurora}~\cite{EC:BCRSVW19}, and \textsf{Fractal}~\cite{Fractal}. While these general purpose zero-knowledge proof systems do not use FRI as a polynomial commitment scheme, FRI does admit an interpretation as a one, as explained in a recent eprint note~\cite{MatterLabs}. In addition to that, mechanics that make FRI work are somewhat similar to the mechanics underlying our DARK polynomial evaluation protocol.
