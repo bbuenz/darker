@@ -46,7 +46,6 @@ The precise definition of Polynomial IOPs as a central and standalone notion rai
 %This construction establishes that adding point queries to univariate Polynomial IOPs does not make them more powerful. 
 Furthermore, we present a univariate Polynomial IOP for proving that the inner product between the coefficient vectors of two polynomials equals a given value. This proof system is of independent interest. Together with an offline pre-processing phase during which the correctness of a multivariate polynomial is ascertained, these two tools enable us to show that \emph{any} algebraic linear IOP can be realized with a multivariate Polynomial IOP. 
 
-In concurrent work 
 
 
 \paragraph{Polynomial IOP compiler} 
@@ -54,7 +53,7 @@ We present a generic compilation of any public-coin Polynomial IOP into a doubly
 %\cite{C:FiaSha86,CCS:BelRog93,EC:PoiSte96,CSproofs,TCC:HalMyeRac08,TCC:BenChiSpo16,EC:AABN02,C:KalRotRot17,EC:CCRR18,FOCS:HolLom18,STOC:CCHLRRW19}.}
 
 \paragraph{New SNARK without Trusted Setup}
-The main practical outcome of this work is a new transparent proof system (\pro{Supersonic}) for computations represented as arbitrary arithmetic circuits, obtained by cryptographically compiling the Polynomial IOPs underlying \textsf{Sonic}~\cite{Sonic} and \textsf{PLONK}~\cite{Plonk} using the DARK polynomial commitment scheme. \pro{Supersonic} improves the proof size by an order of magnitude over \textsf{STARK}s without compromising on verification time. For one million gates, \pro{Supersonic}'s proofs are just 8.4KB and take around 75ms to verify. 
+The main practical outcome of this work is a new transparent proof system (\pro{Supersonic}) for computations represented as arbitrary arithmetic circuits, obtained by cryptographically compiling the Polynomial IOPs underlying \textsf{Sonic}~\cite{Sonic} and \textsf{PLONK}~\cite{Plonk} using the DARK polynomial commitment scheme. \pro{Supersonic} improves the proof size by an order of magnitude over \textsf{STARK}s without compromising on verification time. For one million gates, \pro{Supersonic}'s proofs are just 7.8KB and take around 75ms to verify. %Asymptotically, \textsf{STARK}s 
 As a caveat, while the prover time in \pro{Supersonic} is asymptotically on par with \textsf{STARK}s (\emph{i.e.}, quasilinear in $T$), the concrete efficiency is much worse due to the use of heavy-weight ``crypto operations'' over 1200 bit class group elements in contrast to the light-weight FFTs and hash functions in \textsf{STARK}s. Furthermore, \pro{Supersonic} is not quantum-secure due to its reliance on groups of unknown order, whereas \textsf{STARK}s are a candidate quantum-secure SNARK. 
 
 \subsection{Related Work}
@@ -68,7 +67,9 @@ Pietrzak~\cite{ITCS:Pietrzak18} developed an efficient proof of repeated squarin
 Whaby \emph{et al.} constructed a transparent polynomial commitment scheme~\cite{SP:WTSTW18} combining a matrix commitment of Bootle~\emph{et al.}~\cite{EC:BCCGP16} with the inner-product argument of B\"{u}nz~\emph{et al.}~\cite{SP:BBBPWM18}. This commitment works for multilinear polynomials. For polynomials of degree $d$ it has $O(\sqrt{d})$ size commitments and evaluation arguments with $O(\sqrt{d})$ communication. 
 The  FRI (Fast Reed Solomon IOPP)~\cite{ICALP:BBHR18} and DEEP-FRI~\cite{ECCC:BGKS19} protocols are also implicitly a transparent polynomial commitment scheme that has $O(\lambda)$ size commitments and evaluation arguments with $O(\log^2 d)$ communication. This connection is described in a recent manuscript by Matter Labs~\cite{MatterLabs}. 
 
-
+\paragraph{Polynomial IOP formalism}
+In concurrent work Chiesa et al.\cite{Marlin} introduced an information theoretic framework called algebraic holographic IOPs (AHP). They also show that with a polynomial commitment scheme these AHPs can be compiled to a preprocessing SNARK. The framework is essentially equivalent to our Polynomial IOP framework and we show how any algebraic linear IOP can be transformed into a Polynomial IOP. 
+In other concurrent work, Chiesa, Oljah and Spooner show interesting connections between holographic proofs and recursive proof composition\cite{Fractal}.
 %DEEP-FRI protocol~\cite{ECCC:BGKS19}, an improvement of
 %\subsection{Background on SNARGs and SNARKs} 
 %A SNARG is a system for generating ``short non-interactive arguments". Given any statement $x$ that can be verified in polynomial time $T$, a SNARG prover can generate a \emph{succinct} proof $\pi$ that can be publicly verified in time much less than $T$ (\emph{i.e.}, sublinear in $T$). The proof $\pi$ is called succinct because it is much smaller than printing a transcript of the $T$ computation steps that verify $x$ (\emph{i.e.}, also sublinear in $T$). The proof is called an \emph{argument} because it is only sound assuming the prover is computationally bounded.
