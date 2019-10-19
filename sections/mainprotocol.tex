@@ -395,6 +395,20 @@ We describe the performance of our scheme for different settings in Table~\ref{t
 \end{small}
 \end{table}
 
+\begin{table}[!htp]
+\begin{small}
+\begin{tabular}{l|l||l|l|l}
+	Scheme & $\crs$  & Prover & Verifier & Communication \\
+	Univariate\\
+	\hline
+    This Work (DARK) & $O(1)$ unstructered & $O(\lambda \log(d) d) \GG$ & $2 \lambda \log(d)\GG$ & $2 \log(d) \GG$ \\
+    Pairing-based \cite{AC:KatZavGol10} & $d$ $\GG$ structured & $O(d\lambda) \GG$ & $O(\lambda) \GG$ & $1 \GG$\\
+\end{tabular}
+
+\caption{Comparison table between different polynomial commitment}
+\label{tab:performance}
+\end{small}
+\end{table}
 \subsection{Comparison to Other Polynomial Commitment Schemes}
 
 \subsubsection{Based on Pairings}
