@@ -409,7 +409,7 @@ The FRI protocol~\cite{ICALP:BBHR18} is an efficient interactive oracle proof (I
 
 Since this oracle is a Reed-Solomon codeword, it represents the evaluations of a low-degree polynomial $f$ on an evaluation set $S \subset \FF$. In order to be used as a polynomial commitment scheme, the protocol needs to permit querying the polynomial outside of the evaluation set. DEEP-FRI~\cite{DEEPFRI} shows that this is possible and a recent note by Vlasov and Panarin \cite{MatterLabs} makes the connection explicit by building a polynomial commitment scheme from FRI. 
 This FRI-based polynomial commitment scheme has evaluation proofs of size and verifier time $O(\lambda \log^2(d))$ where $\lambda$ is the security parameter and $d = \deg(f)$. To date, no extension to multivariate polynomials exists for FRI. The commitment relies only on symmetric cryptography and is plausibly quantum resistant.
-
+In Table \ref{tab:polycommit} we give a comparison between different polynomial commitment schemes from literature. 
 \begin{table}[!htp]
 \begin{small}
 \begin{tabular}{l||l|l|l|l|l}
@@ -423,10 +423,10 @@ This FRI-based polynomial commitment scheme has evaluation proofs of size and ve
        FRI\cite{DEEPFRI,MatterLabs} (univar.) & yes & $O(1)$ & $O(\lambda  d)$ $\hash$ & $O(\lambda \log^2(d))$ $\hash$ & $O(\lambda \log^2(d))$ $\hash$
 \end{tabular}
 
-\caption{Comparison table between different polynomial commitment schemes. 
+\caption{Comparison table between different polynomial commitment schemes for an $\mu$-variate polynomial with $d$ coefficients (degree $d-1$). 
 In particular we evaluate the reference string size, the prover and verifier time as well as the evaluation proof size.
 Note that even when precise factors are given the numbers should be seen as  estimates. For example we chose to not display smaller order terms. $\GG_U$ is a group of unknown order $\GG_{BL}$ is a group with a bilinear map (pairing), $\GG_{P}$ is a prime order group with known order. $\textsf{EXP}$ refers to exponentiation of a $\lambda$ bit number in these groups. $\hash$ is either the size of a hash output or the time it takes to compute a hash depending on context. }
-\label{tab:performance}
+\label{tab:polycommit}
 \end{small}
 \end{table}
 \begin{comment}
