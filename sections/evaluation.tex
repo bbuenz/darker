@@ -35,16 +35,16 @@ Using $10\mu$s per group operation (estimated using OpenSSL's 2048-bit RSA imple
 	Scheme & Transp. & $|\crs|$  & Prover & Verifier & $|\pi|$& $n=2^{20}$ \\
 	\hline
 	\hline
-    Supersonic & yes & $O(1)$ & $O( n \log(n) )\; \textsf{EXP}$ & $O(\log(n))~\textsf{EXP}$ & $O(\log(n) \GG_{U})$ & 7.8KB \\
+    Supersonic & yes & $O(1)$ & $O( n \log(n) )\; \textsf{EXP}$ & $O(\log(n))~\textsf{EXP}$ & $O(\log(n) \ \GG_{U})$ & 7.8KB \\
     Plonk \cite{Plonk} & no & $2n$ $\GG_{B}$ & $O(n)\; \textsf{EXP}$  & $1\; \textsf{Pairing} $ & $O(1)\; \GG_{B}$ & 720b \\
-        Groth16 \cite{EC:Groth16} & no & $2n$ $\GG_{B}$ & $O(n)\; \textsf{EXP}$  & $1\; \textsf{Pairing} $ & $O(1)\; \GG_{B}$ & 192b \\
-       BP \cite{SP:BBBPWM18} & yes &$2 n \GG_{P}$& $O(n)$ \textsf{EXP}& $O(n)\textsf{EXP}$ &$2 \log(d) ; \GG_P$ & 1.7KB\\
+        Groth16 \cite{EC:Groth16} & no & $2n$ $\GG_{B}$ & $O(n)\; \textsf{EXP}$  & $1\; \textsf{Pairing} $ & $O(1) \ \GG_{B}$ & 192b \\
+       BP \cite{SP:BBBPWM18} & yes &$2 n \ \GG_{P}$& $O(n)$ \textsf{EXP}& $O(n) \ \textsf{EXP}$ &$2 \log(n) \ \GG_P$ & 1.7KB\\
        STARK & yes & $O(1)$ & $O(\lambda  T)$ $\hash$ & $O(\lambda \log^2(T))$ $\hash$ & $O(\lambda \log^2(T))$ $\hash$ & 600 KB
 \end{tabular}
 
 \caption{Comparison table between different succinct arguments. 
 In column order we compare on transparent setup, CRS size, prover and verifier time, asymptotic proof size and concrete proof for an np relation with arithmetic complexity $2^{20}$.
-Note that even when precise factors are given the numbers should be seen as  estimates. For example we chose to not display smaller order terms. $\GG_U$ is a group of unknown order $\GG_{BL}$ is a group with a bilinear map (pairing), $\GG_{P}$ is a prime order group with known order. $\textsf{EXP}$ refers to exponentiation of a $\lambda$ bit number in these groups. $\hash$ is either the size of a hash output or the time it takes to compute a hash depending on context. 
+Note that even when precise factors are given the numbers should be seen as  estimates. For example we chose to not display smaller order terms. $\GG_U$ is a group of unknown order $\GG_{B}$ is a group with a bilinear map (pairing), $\GG_{P}$ is a prime order group with known order. $\textsf{EXP}$ refers to exponentiation of a $\lambda$ bit number in these groups. $\hash$ is either the size of a hash output or the time it takes to compute a hash depending on context. 
 Note that the prover time for the group based schemes could be brought down by a log factor when using multi-exponentiation techniques.}
 \label{tab:proofcomp}
 \end{small}
