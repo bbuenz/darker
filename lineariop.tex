@@ -357,13 +357,13 @@ The number of univariate queries increased from the original $3$ in \textsf{Soni
 If we were to compile the bivariate query directly using our multivariate commitment scheme this would result in $O(n^2)$ prover time (a bivariate polynomial with degree $n$ on each variable is converted to a univariate polynomial of degree roughly $n^2$). However, \textsf{Sonic} also provides a way to replace the bivariate polynomial with several degree $n$ univariate polynomials and more rounds of communication. 
 
 \begin{theorem}[Sonic Univariate, \cite{Sonic}]\label{thm:sonic} 
-There is a 5-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with arithmetic complexity $n$) that makes $39$ queries overall to $27$ univariate degree $2n$ polynomial oracles. The total number of distinct query points is $12$. The preprocessing verifier does $O(n)$ work to check $12$ of the univariate degree $2n$ polynomials. 
+There is a 5-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with multiplicative complexity $n$) that makes $39$ queries overall to $27$ univariate degree $2n$ polynomial oracles. The total number of distinct query points is $12$. The preprocessing verifier does $O(n)$ work to check $12$ of the univariate degree $2n$ polynomials. 
 \end{theorem}
 
 The recent systems \pro{PLONK} and \pro{Marlin}\cite{Marlin} are improvements on the underlying Polynomial IOP in \pro{Sonic}, and achieves the following: 
 
 \begin{theorem}[PLONK,~\cite{Plonk}] 
-There is a 3-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with arithmetic complexity $n$) that makes $12$ queries overall to $12$ univariate degree $3n$ polynomial oracles. The total number of distinct query points is $2$. The preprocessing verifier does $O(n)$ work to check $9$ of the univariate degree $3n$ polynomials.
+There is a 3-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with arithmetic complexity $n$) that makes $12$ queries overall to $12$ univariate degree $3n$ polynomial oracles. The total number of distinct query points is $2$. The preprocessing verifier does $O(n)$ work to check $7$ of the univariate degree $n$ polynomials.
 \end{theorem}
 \begin{theorem}[Marlin,~\cite{Marlin}] 
 There exists a 4-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with R1CS complexity $n$) that makes $20$ queries at $3$ distinct query points to $19$ univariate degree polynomial oracles of maximum degree  $6n$. The preprocessing verifier does $O(n)$ work to check $9$ univariate degree $n$ polynomials.
