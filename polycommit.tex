@@ -16,7 +16,7 @@
 %\usepackage[subtle]{savetrees}
 \usepackage[hidelinks]{hyperref}
 \usepackage{url}
-\usepackage{authblk}
+%\usepackage{authblk}
 %\usepackage{draftwatermark}
 \usepackage[legalpaper, margin=1in]{geometry}
 %\usepackage{thmtools}
@@ -58,14 +58,16 @@
 \newcommand{\appendixphrase}{Appendix}
 
 
-\begin{document}
-
 \title{Transparent SNARKs from DARK Compilers}
- \author[1]{Benedikt B\"unz}
- \author[1]{Ben Fisch} 
- \author[2]{Alan Szepieniec} 
- \affil[1]{Stanford University, Findora Foundation}
-  \affil[2]{Nervos Foundation}
+\author{\begin{tabular}{c}Benedikt B\"unz$^1$ \\ \small \texttt{benedikt@cs.stanford.edu} \end{tabular}   \begin{tabular}{c}Ben Fisch$^1$ \\ \small \texttt{bfisch@cs.stanford.edu} \end{tabular}   \begin{tabular}{c}Alan Szepieniec$^2$ \\ \small \texttt{alan@nervos.org} \end{tabular} \\
+$^1$Stanford University, Findora Foundation \\
+$^2$Nervos Foundation}
+% \affil[1]{Stanford University, Findora Foundation}
+% \affil[2]{Nervos Foundation}
+
+
+
+\begin{document}
 
 \maketitle
 

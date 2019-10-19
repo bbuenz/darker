@@ -80,7 +80,7 @@ It has \textbf{algebraic queries} if, additionally, for each $i \in [t]$, the ma
 Let $\textsf{View}_{\langle \prover(x, w), \verifier(x) \rangle}(\verifier)$ denote the view of the verifier in the $t$-round $\ell$-query interactive protocol described in Definition~\ref{def:linearIOP} on inputs $(x,w)$ with prover algorithm $\prover$ and verifier $\verifier$, consisting of all public-coin challenges and oracle outputs (this view is equivalent to the final state $\textsf{st}^\verifier_t$). The interactive protocol has \defn{$\delta$-statistical honest-verifier zero-knowledge} if there exists a probabilistic polynomial time algorithm $\mathcal{S}$ such that for every $(x, w) \in \mathcal{R}$, the distribution $\mathcal{S}(x)$ is $\delta$-close to $\textsf{View}_{\langle \prover(x, w), \verifier(x) \rangle}(\verifier)$ (as distributions over the randomness of $\prover$ and random public-coin challenges).
 \end{definition}
 
-We note that the separation into two maps $\mathit{coins}_i \xmapsto{\qgen_0(i, \cdot)} \boldsymbol{\Sigma}_i \xmapsto{\qgen_1(i, \cdot)} \mathbf{Q}_i$ subtly relaxes the definition of Bitansky~\emph{et al.}, which instead requires that $\mathbf{Q}_i$ be determined via $\vec{p}_1, \ldots, \vec{p}_\ell$ evaluated at a random $\boldsymbol{r} \sample \mathbb{F}^{\mu_i}$. The Bitansky~\emph{et al.} definition corresponds to the special case that $\qgen_0(i, \cdot)$ samples a random element of $\FF^{\mu_i}$ based on $\textit{coins}_i$. The point is that $\qgen_0$ can also do other computations that don't necessarily sample $\boldsymbol{r}$ uniformly, or even output a matrix rather than a vector. The separation into two steps is only meaningful when $\mu_i$ is smaller than $m_i$. The significance to SNARK constructions is that the query can be represented compactly as $\Sigma_i$, and the prover will take advantage of the algebraic map $\qgen_1(i, \cdot)$ to demonstrate that $\Sigma_i$ was expanded correctly into $\mathbf{Q}_i$ and applied to the proof oracle $\pi_i$. 
+We note that the separation into two maps $\mathit{coins}_i \xmapsto{\qgen_0(i, \cdot)} \boldsymbol{\Sigma}_i \xmapsto{\qgen_1(i, \cdot)} \mathbf{Q}_i$ subtly relaxes the definition of Bitansky~\emph{et al.}, which instead requires that $\mathbf{Q}_i$ be determined via $\vec{p}_1, \ldots, \vec{p}_\ell$ evaluated at a random $\boldsymbol{r} \sample \mathbb{F}^{\mu_i}$. The Bitansky~\emph{et al.} definition corresponds to the special case that $\qgen_0(i, \cdot)$ samples a random element of $\FF^{\mu_i}$ based on $\textit{coins}_i$. The point is that $\qgen_0$ can also do other computations that do not necessarily sample $\boldsymbol{r}$ uniformly, or even output a matrix rather than a vector. The separation into two steps is only meaningful when $\mu_i$ is smaller than $m_i$. The significance to SNARK constructions is that the query can be represented compactly as $\boldsymbol{\Sigma}_i$, and the prover will take advantage of the algebraic map $\qgen_1(i, \cdot)$ to demonstrate that $\boldsymbol{\Sigma}_i$ was expanded correctly into $\mathbf{Q}_i$ and applied to the proof oracle $\pi_i$. 
  %\is what makes it possible to represent the verifier's query compactly.  , becaue this relative size difference captures the intuition whereby a computationally simple verifier outputs a short message, and outsources the expansion thereof into a list of large linear query vectors to some well defined algebraic circuit. Furthermore, this relaxation allows us to capture Polynomial IOPs as a special case of algebraic linear IOPs. 
  We first present a standalone definition of Polynomial IOPs, and then explain how it is a special case of Algebraic Linear IOPs. 
  
@@ -281,35 +281,33 @@ HVZK is shown by a straightforward composition of the simulators for $\eval$ and
 
 \subsection{Concrete Instantiations} 
 
-We consider examples of Polynomial IOPs to which this compiler can be applied: \textsf{STARK}~\cite{C:BBHR19}; \textsf{Sonic} and its improvement \textsf{PLONK}; \textsf{Spartan}~\cite{Spartan}, and the popular QAP of Gennaro~\emph{et al.}~\cite{EC:GGPR13}. 
+We consider examples of Polynomial IOPs to which this compiler can be applied: \textsf{STARK}~\cite{C:BBHR19}; \textsf{Sonic}~\cite{Sonic} and its improvements \textsf{PLONK}~\cite{Plonk} and \textsf{Marlin}~\cite{Marlin}; \textsf{Spartan}~\cite{Spartan}, and the popular QAP of Gennaro~\emph{et al.}~\cite{EC:GGPR13}. 
 For the purpose of the following discussion, we refer to the complexity of an NP relation $\mathcal{R}$ in various forms: 
 \begin{itemize}
 \item $\mathcal{R}$ has \emph{arithmetic complexity} $n$ if the function computing $\mathcal{R}(x, w)$ can be expressed as 2-fan-in arithmetic circuit with a total of $n$ gates. 
 \item $\mathcal{R}$ has \emph{multiplicative complexity} $n$ if the function computing $\mathcal{R}(x, w)$ can be expressed an arithmetic circuit with a total of $n$ multiplication gates, where each multiplication gate has 2 inputs.
-\item $\mathcal{R}$ has \emph{R1CS complexity}\footnotemark \ $n$ if the function computing $\mathcal{R}(x, w)$ can be expressed as an R1CS instance $(A, B, C, v, w)$ where $A, B, C \in \FF^{m \times (\ell+1)}$, $(v,w) \in \FF^\ell$, and $n$ is the maximum number of non-zero entries in either $A$, $B$, or $C$. \footnotetext{The arithemtic complexity and R1CS complexity are similar, but vary because the R1CS constraints correspond to the wiring of an arithmetic circuit with unrestricted fan-in.}
+\item $\mathcal{R}$ has \emph{R1CS complexity}\footnotemark \ $n$ if the function computing $\mathcal{R}(x, w)$ can be expressed as an R1CS instance $(A, B, C, v, w)$ where $A, B, C \in \FF^{m \times (\ell+1)}$, $(v,w) \in \FF^\ell$, and $n$ is the maximum number of non-zero entries in either $A$, $B$, or $C$. \footnotetext{The arithmetic complexity and R1CS complexity are similar, but vary because the R1CS constraints correspond to the wiring of an arithmetic circuit with unrestricted fan-in.}
 \end{itemize}
  
 \subsubsection{Sonic} 
 \textsf{Sonic} is zk-SNARK system that has a universal trusted setup, which produces a Structured Reference String (SRS) of $n$ group elements that can be used to prove any statement represented as an arithmetic circuit with at most $n$ gates. The SRS can also be updated without re-doing the initial setup, for instance, to enable proving larger circuits, or to increase the distribution of trust. The result in \textsf{Sonic} was not presented using the language of IOPs. Furthermore, the result also relied on a special construction of polynomial commitments (a modification of Kate~\emph{et al.}~\cite{AC:KatZavGol10}) that forces the prover to commit to a Laurent polynomial with no constant term. Given our generic reduction from coefficient queries to evaluation queries (Section~\ref{sec:opencoefficient}), we re-characterize the main theorem of \textsf{Sonic} as follows: 
 
-\begin{theorem}[Sonic Bivariate, \cite{Sonic}]
+\begin{theorem}[\textsf{Sonic} Bivariate, \cite{Sonic}]
 There exists a 2-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with multiplicative complexity $n$) that makes 1 query to a bivariate polynomial oracle of degree $n$ on each variable, and 6 queries to degree $n$ univariate oracles. The preprocessing verifier does $O(n)$ work to check the single bivariate oracle. 
 \end{theorem}
 
-The number of univariate queries increased from the original $3$ in \textsf{Sonic} (with special commitments) to $6$ with our generic coefficient query technique. 
-%For uniform circuits\alan{As in, circuits that are the output of a polynomial-time Turing machine?}, the bivariate query is not necessary and can be evaluated efficiently by the verifier.\alan{This sentence does not make any sense to me.} 
-If we were to compile the bivariate query directly using our multivariate commitment scheme this would result in $O(n^2)$ prover time (a bivariate polynomial with degree $n$ on each variable is converted to a univariate polynomial of degree roughly $n^2$). However, \textsf{Sonic} also provides a way to replace the bivariate polynomial with several degree $n$ univariate polynomials and more rounds of communication. 
+The number of univariate queries increased from the original $3$ in \textsf{Sonic} (with special commitments) to $6$ with our generic coefficient query technique. If we were to compile the bivariate query directly using our multivariate commitment scheme this would result in $O(n^2)$ prover time (a bivariate polynomial with degree $n$ on each variable is converted to a univariate polynomial of degree roughly $n^2$). However, \textsf{Sonic} also provides a way to replace the bivariate polynomial with several degree $n$ univariate polynomials and more rounds of communication. 
 
-\begin{theorem}[Sonic Univariate, \cite{Sonic}]\label{thm:sonic} 
+\begin{theorem}[\textsf{Sonic} Univariate, \cite{Sonic}]\label{thm:sonic} 
 There is a 5-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with multiplicative complexity $n$) that makes $39$ queries overall to $27$ univariate degree $2n$ polynomial oracles. The total number of distinct query points is $12$. The preprocessing verifier does $O(n)$ work to check $12$ of the univariate degree $2n$ polynomials. 
 \end{theorem}
 
-The recent systems \pro{PLONK} and \pro{Marlin}\cite{Marlin} are improvements on the underlying Polynomial IOP in \pro{Sonic}, and achieves the following: 
+The recent proof systems \pro{PLONK} and \pro{Marlin} improve on \pro{Sonic} by constructing a different Polynomial IOP. They achieve the following: 
 
-\begin{theorem}[PLONK,~\cite{Plonk}] 
+\begin{theorem}[\textsf{PLONK},~\cite{Plonk}] 
 There is a 3-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with arithmetic complexity $n$) that makes $12$ queries overall to $12$ univariate degree $3n$ polynomial oracles. The total number of distinct query points is $2$. The preprocessing verifier does $O(n)$ work to check $7$ of the univariate degree $n$ polynomials.
 \end{theorem}
-\begin{theorem}[Marlin,~\cite{Marlin}] 
+\begin{theorem}[\textsf{Marlin},~\cite{Marlin}] 
 There exists a 4-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with R1CS complexity $n$) that makes $20$ queries at $3$ distinct query points to $19$ univariate degree polynomial oracles of maximum degree  $6n$. The preprocessing verifier does $O(n)$ work to check $9$ univariate degree $n$ polynomials.
 \end{theorem}
 
@@ -317,7 +315,7 @@ Combining the \pro{Sonic} IOP with the new transparent polynomial compiler of Se
 
 %\ben{TODO: Add actual complexity for preprocessing and prover rather than quasilinear} 
 \begin{theorem}
-There exists an $O(\log n)$-round public-coin interactive argument of knowledge for any NP relation of arithmetic complexity $n$ that has $O(\log n)$ communication, $O(\log n)$ ``online" verification, quasilinear prover time, and a preprocessing step that is verifiable in quasilinear time. The argument of knowledge has witness-extended emulation assuming it is instantiated with a group $\GG$ for which the $r$-Strong RSA Assumption, and the Adaptive Root Assumption all hold. 
+There exists an $O(\log n)$-round public-coin interactive argument of knowledge for any NP relation of arithmetic complexity $n$ that has $O(\log n)$ communication, $O(\log n)$ ``online" verification, quasilinear prover time, and a preprocessing step that is verifiable in quasilinear time. The argument of knowledge has witness-extended emulation assuming it is instantiated with a group $\GG$ for which the Strong RSA Assumption, and the Adaptive Root Assumption hold. 
 \end{theorem}
 \begin{proof}
 We apply the univariate polynomial commitment scheme from Section~\ref{sec:protocol} to the 5-round Polynomial IOP from Theorem~\ref{thm:sonic}. Denote this commitment scheme by $\Gamma = (\pro{Setup},$ $\pro{Commit}, \pro{Open}, \pro{Eval})$ 

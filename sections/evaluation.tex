@@ -1,9 +1,8 @@
-We now evaluate \textsf{\textbf{Supersonic}}, the trustless-setup SNARK built on the Polynomial IOPs underlying \textsf{Sonic}~\cite{Sonic} and \textsf{PLONK}~\cite{Plonk} and compiled using our DARK polynomial commitment scheme. As explained in Section \ref{subsec:optimization}, the commitment scheme has several batching properties that can be put to good use here. It is possible to evaluate $k$ polynomials of degree at most $d$ using only $2$ group elements and $(k+1)$ field elements. To take advantage of this we delay the evaluation until the last step of the protocol (see Section \ref{subsec:compiling}). We present the proof size for both the compilation of \textsf{Sonic}, \textsf{PLONK} and \textsf{Marlin} in Table~\ref{tab:proofsize}. We use 1200 bits as the size of class group elements (\cite{PKC/BucHam01}) and $\lambda=120$. This leads to proof sizes of $12.5$KB for \textsf{Sonic}, $7.8$KB using \textsf{PLONK} and $9.6$KB using \textsf{Marlin} for circuits with a million gates. Using 2048-bit RSA groups the proof sizes become $18.4$KB for the compilation of Sonic and $12.7$KB for Plonk respectively. 
+We now evaluate \textsf{\textbf{Supersonic}}, the trustless-setup SNARK built on the Polynomial IOPs underlying \textsf{Sonic}~\cite{Sonic} and \textsf{PLONK}~\cite{Plonk} and compiled using our DARK polynomial commitment scheme. As explained in Section \ref{subsec:optimization}, the commitment scheme has several batching properties that can be put to good use here. It is possible to evaluate $k$ polynomials of degree at most $d$ using only $2$ group elements and $(k+1)$ field elements. To take advantage of this we delay the evaluation until the last step of the protocol (see Section \ref{subsec:compiling}). We present the proof size for both the compilation of \textsf{Sonic}, \textsf{PLONK} and \textsf{Marlin} in Table~\ref{tab:proofsize}. We use 1200 bits as the size of class group elements (\cite{PKC/BucHam01}) and $\lambda=120$. This leads to proof sizes of $12.5$KB for \textsf{Sonic}, $7.8$KB using \textsf{PLONK} and $9.6$KB using \textsf{Marlin} for circuits with $n = 2^{20}$ (one million) gates. Using 2048-bit RSA groups the proof sizes become $18.4$KB for the compilation of \textsf{Sonic} and $12.7$KB for that of \textsf{PLONK}. 
 
-The comparison is slightly misleading because for \textsf{Sonic} one million is the number of multiplication gates whereas for \textsf{PLONK} it is the sum of multiplication and addition gates. For \textsf{Marlin} it is the number of non-zero entries in the R1CS description of the circuit. A more careful analysis is therefore necessary, but this shows that there are Polynomial IOPs that can be compiled using the DARK polynomial commitment scheme to SNARKS of roughly $10$ kilobytes in size. These numbers stand in contrast to \textsf{STARK}s which achieve proofs of $600$KB for computation of similar complexity~\cite{C:BBHR19}. We compare Supersonic to different other SNARKs in Table~\ref{tab:proofcomp}.
-\vspace{-1em}
+The comparison is slightly misleading because for \textsf{Sonic} one million is the number of multiplication gates whereas for \textsf{PLONK} it is the sum of multiplication and addition gates. For \textsf{Marlin} it is the number of non-zero entries in the R1CS description of the circuit. A more careful analysis is therefore necessary, but this shows that there are Polynomial IOPs that can be compiled using the DARK polynomial commitment scheme to SNARKs of roughly $10$ kilobytes in size. These numbers stand in contrast to \textsf{STARK}s which achieve proofs of $600$KB for computation of similar complexity~\cite{C:BBHR19}. We compare \textsf{Supersonic} to different other proof systems in Table~\ref{tab:proofcomp}. \textsf{Supersonic} is the only proof system with efficient verifier time, small (less than 10KB) proof sizes that doesn't require a trusted setup.
 
-\begin{table}
+\begin{table}[!htp]
 \begin{mdframed}
 \centering
 \begin{tabular}{l|c|c|c|c}
@@ -35,11 +34,11 @@ Using $10\mu$s per group operation (estimated using OpenSSL's 2048-bit RSA imple
 	Scheme & Transp. & $|\crs|$  & Prover & Verifier & $|\pi|$& $n=2^{20}$ \\
 	\hline
 	\hline
-    Supersonic & yes & $O(1)$ & $O( n \log(n) )\; \textsf{EXP}$ & $O(\log(n))~\textsf{EXP}$ & $O(\log(n) \ \GG_{U})$ & 7.8KB \\
-    Plonk \cite{Plonk} & no & $2n$ $\GG_{B}$ & $O(n)\; \textsf{EXP}$  & $1\; \textsf{Pairing} $ & $O(1)\; \GG_{B}$ & 720b \\
+    \textsf{Supersonic} & yes & $O(1)$ & $O( n \log(n) )\; \textsf{EXP}$ & $O(\log(n))~\textsf{EXP}$ & $O(\log(n) \ \GG_{U})$ & 7.8KB \\
+    \textsf{PLONK} \cite{Plonk} & no & $2n$ $\GG_{B}$ & $O(n)\; \textsf{EXP}$  & $1\; \textsf{Pairing} $ & $O(1)\; \GG_{B}$ & 720b \\
         Groth16 \cite{EC:Groth16} & no & $2n$ $\GG_{B}$ & $O(n)\; \textsf{EXP}$  & $1\; \textsf{Pairing} $ & $O(1) \ \GG_{B}$ & 192b \\
        BP \cite{SP:BBBPWM18} & yes &$2 n \ \GG_{P}$& $O(n)$ \textsf{EXP}& $O(n) \ \textsf{EXP}$ &$2 \log(n) \ \GG_P$ & 1.7KB\\
-       STARK & yes & $O(1)$ & $O(\lambda  T)$ $\hash$ & $O(\lambda \log^2(T))$ $\hash$ & $O(\lambda \log^2(T))$ $\hash$ & 600 KB
+       \textsf{STARK} & yes & $O(1)$ & $O(\lambda  T)$ $\hash$ & $O(\lambda \log^2(T))$ $\hash$ & $O(\lambda \log^2(T))$ $\hash$ & 600 KB
 \end{tabular}
 
 \caption{Comparison table between different succinct arguments. 

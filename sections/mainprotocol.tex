@@ -357,7 +357,7 @@ Let $\ggen$ generate groups $\GG$ of unknown order such that the order of $\GG$ 
 The proof of Theorem~\ref{thm:dyadicpolysecurity} is nearly identical to the proof of Theorem~\ref{thm:polycommitsecurity} but the extracted polynomials are polynomials over the dyadic rationals and not over the integers. This requires the bound on $q$ to be larger by a factor of $p^{\log(d+1)}$. Both proofs are presented in the \appendixphrase~(\ref{appendix:maintheoremproof} and \ref{apx:dyadic}).
 
 
-\subsection{Optimizations for the Polynomial Commitment Scheme}
+\subsection{Optimizations}
 \label{subsec:optimization}
 \input{sections/optimization}
 \subsection{Multivariate Commitment Scheme}
@@ -404,29 +404,41 @@ The polynomial commitment by Kate~\emph{et al.}~\cite{AC:KatZavGol10} has evalua
 
 In the multivariate setting, our scheme is logarithmic in the total number of coefficients: $\mu\log(d)$ for a $\mu$-variate polynomial of degree $d$ in each variable. The multivariate extension of Kate~\emph{et al.}'s commitment scheme~\cite{SP:ZGKPP17} evaluation proofs consist of $\mu$ group elements.
 
+\subsubsection{Based on Discrete Logarithms}
+
+\textsf{Bulletproofs}~\cite{EC:BCCGP16,SP:BBBPWM18} is a proof system based on prime order groups in which the discrete logarithm is hard. As a core component it relies on an inner product argument which can be used as a polynomial commitment (see \cite{SP:WTSTW18}). The polynomial commitment has logarithmic evaluation proofa with great constants. Unfortunately, the verifier time is linear in the size of the polynomial, i.e. $(d+1)^\mu$ for a $\mu$- variate degree $d$ polynomial.
+The more general version of the commitment\cite{EC:BCCGP16} can also give evaluation proofs with square root verifier time and square root proof size.
+
+
 \subsubsection{Based on Merkle Trees of Reed-Solomon Codewords} \label{subsection:fri}
+
 The FRI protocol~\cite{ICALP:BBHR18} is an efficient interactive oracle proof (IOP) that a committed oracle is close to a Reed-Solomon codeword, meaning that the prover commits to large sequences of field elements and the verifier queries only a few specific elements rather than reading the entire sequence. The abstract functionality is cryptographically compiled with a Merkle tree, which results in constant-size commitments and element queries that are logarithmic in the size of the codeword, i.e. the size of the oracle. FRI has been used in multiple recent zero-knowledge proof systems such as  \textsf{STARK}~\cite{C:BBHR19}, \textsf{Aurora}~\cite{EC:BCRSVW19}, and \textsf{Fractal}~\cite{Fractal}.
 
 Since this oracle is a Reed-Solomon codeword, it represents the evaluations of a low-degree polynomial $f$ on an evaluation set $S \subset \FF$. In order to be used as a polynomial commitment scheme, the protocol needs to permit querying the polynomial outside of the evaluation set. DEEP-FRI~\cite{DEEPFRI} shows that this is possible and a recent note by Vlasov and Panarin \cite{MatterLabs} makes the connection explicit by building a polynomial commitment scheme from FRI. 
 This FRI-based polynomial commitment scheme has evaluation proofs of size and verifier time $O(\lambda \log^2(d))$ where $\lambda$ is the security parameter and $d = \deg(f)$. To date, no extension to multivariate polynomials exists for FRI. The commitment relies only on symmetric cryptography and is plausibly quantum resistant.
-In Table \ref{tab:polycommit} we give a comparison between different polynomial commitment schemes from literature. 
+
+\subsubsection{Comparison}
+
+In Table \ref{tab:polycommit} we give a comparison between different polynomial commitment schemes in the literature. In particular, we evaluate the size of the reference string ($|\params|$), the prover and verifier time, as well as the size of the evaluation proof ($|\pi|$). Column $2$ indicates whether the setup is transparent, \emph{i.e.}, whether the reference string is structured. $\GG_U$ is a group of unknown order $\GG_{B}$ is a group with a bilinear map (pairing), $\GG_{P}$ is a prime order group with known order. $\textsf{EXP}$ refers to exponentiation of a $\lambda$ bit number in these groups. $\hash$ is either the size of a hash output, or the time it takes to compute a hash, depending on context. 
+
+Note that even when precise factors are given, the numbers should be interpreted as estimates. For example we chose to not display smaller order terms.
+Note also that the prover time for the group based schemes could be brought down by a log factor when using multi-exponentiation techniques.
+
 \begin{table}[!htp]
 \begin{small}
 \begin{tabular}{l||l|l|l|l|l}
 	Scheme & Transp. & $|\crs|$  & Prover & Verifier & $|\pi|$ \\
 	\hline
 	\hline
-    DARK  (This work) & yes & $O(1)$ & $O( d^\mu \mu \log(d) )\; \textsf{EXP}$ & $2\mu \log(d)~\textsf{EXP}$ & $2 \mu \log(d) \GG_{U}$ \\
-    Pairing \cite{AC:KatZavGol10} & no & $d^\mu$ $\GG_{B}$ & $O(d^\mu)\; \textsf{EXP}$  & $\mu\; \textsf{Pairing} $ & $\mu\; \GG_{B}$\\
-    D-Log \cite{EC:BCCGP16} & yes & $\sqrt{d^\mu}\GG_{P}$ & $O(d^\mu)$ \textsf{EXP} & $O(\sqrt{d^\mu})\textsf{EXP}$ &$O(\sqrt{d^\mu}) \; \GG_P$\\
-       BP \cite{EC:BCCGP16,SP:BBBPWM18} & yes &$2 d^\mu\GG_{P}$& $O(d^\mu)$ \textsf{EXP}& $O(d^\mu)\textsf{EXP}$ &$2 \mu \log(d) ; \GG_P$\\
-       FRI\cite{DEEPFRI,MatterLabs} (univar.) & yes & $O(1)$ & $O(\lambda  d)$ $\hash$ & $O(\lambda \log^2(d))$ $\hash$ & $O(\lambda \log^2(d))$ $\hash$
+    DARK  \textit{(this work)} & yes & $O(1)$ & $O( d^\mu \mu \log(d) )\; \textsf{EXP}$ & $2\mu \log(d)~\textsf{EXP}$ & $2 \mu \log(d) \; \GG_{U}$ \\
+    Based on Pairings & no & $d^\mu$ $\GG_{B}$ & $O(d^\mu)\; \textsf{EXP}$  & $\mu\; \textsf{Pairing} $ & $\mu \; \GG_{B}$\\
+    \cite[$\sqrt{\cdot}$]{EC:BCCGP16} & yes & $\sqrt{d^\mu}\GG_{P}$ & $O(d^\mu)$ \textsf{EXP} & $O(\sqrt{d^\mu})\textsf{EXP}$ &$O(\sqrt{d^\mu}) \; \GG_P$\\
+       \textsf{Bulletproofs} & yes &$2 d^\mu\GG_{P}$& $O(d^\mu)$ \textsf{EXP}& $O(d^\mu)\textsf{EXP}$ &$2 \mu \log(d) \; \GG_P$\\
+       FRI  ($\mu = 1$) & yes & $O(1)$ & $O(\lambda  d)$ $\hash$ & $O(\lambda \log^2(d))$ $\hash$ & $O(\lambda \log^2(d)) \; \hash$
 \end{tabular}
 
-\caption{Comparison table between different polynomial commitment schemes for an $\mu$-variate polynomial with $d$ coefficients (degree $d-1$). 
-In particular we evaluate the reference string size, the prover and verifier time as well as the evaluation proof size. Column $2$ indicates whether the setup is transparent, i.e. whether the CRS is structured.
-Note that even when precise factors are given the numbers should be seen as  estimates. For example we chose to not display smaller order terms. $\GG_U$ is a group of unknown order $\GG_{B}$ is a group with a bilinear map (pairing), $\GG_{P}$ is a prime order group with known order. $\textsf{EXP}$ refers to exponentiation of a $\lambda$ bit number in these groups. $\hash$ is either the size of a hash output or the time it takes to compute a hash depending on context. 
-Note that the prover time for the group based schemes could be brought down by a log factor when using multi-exponentiation techniques.}
+\caption{Comparison table between different polynomial commitment schemes for an $\mu$-variate polynomial of degree $d$.}
+
 \label{tab:polycommit}
 \end{small}
 \end{table}
