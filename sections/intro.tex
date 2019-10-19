@@ -44,7 +44,10 @@ The shift towards Polynomial IOPs, which can be compiled more directly with effi
 
 The precise definition of Polynomial IOPs as a central and standalone notion raises the question about its exact relation to other IOP notions. We present a univariate Polynomial IOP for extracting an indicated coefficient of a polynomial. 
 %This construction establishes that adding point queries to univariate Polynomial IOPs does not make them more powerful. 
-Furthermore, we present a univariate Polynomial IOP for proving that the inner product between the coefficient vectors of two polynomials equals a given value. This proof system is of independent interest. Together with an offline pre-processing phase during which the correctness of a multivariate polynomial is ascertained, these two tools enable us to show that \emph{any} algebraic linear IOP can be realized with a multivariate Polynomial IOP.
+Furthermore, we present a univariate Polynomial IOP for proving that the inner product between the coefficient vectors of two polynomials equals a given value. This proof system is of independent interest. Together with an offline pre-processing phase during which the correctness of a multivariate polynomial is ascertained, these two tools enable us to show that \emph{any} algebraic linear IOP can be realized with a multivariate Polynomial IOP. 
+
+In concurrent work 
+
 
 \paragraph{Polynomial IOP compiler} 
 We present a generic compilation of any public-coin Polynomial IOP into a doubly-efficient public-coin interactive argument of knowledge using an abstract polynomial commitment scheme. We prove that if the commitment scheme's evaluation protocol has witness-extended emulation, then the compiled interactive argument has this knowledge property as well. If the commitment scheme is hiding and the evaluation is honest-verifier zero knowledge (HVZK), then the compiled interactive argument is HVZK as well. Finally, public-coin interactive arguments may be cryptographically compiled into SNARKs using the Fiat-Shamir heuristic.\footnote{Security for Fiat-Shamir has been proven secure in the random oracle model for constant-round protocols, for multi-round protocols satisfying \emph{soundness against restoration attacks}, and in some cases using correlation-intractable hash functions~\cite{C:FiaSha86,TCC:BenChiSpo16,C:KalRotRot17,EC:CCRR18,STOC:CCHLRRW19}.}
@@ -64,6 +67,8 @@ Pietrzak~\cite{ITCS:Pietrzak18} developed an efficient proof of repeated squarin
 \paragraph{Transparent polynomial commitments} 
 Whaby \emph{et al.} constructed a transparent polynomial commitment scheme~\cite{SP:WTSTW18} combining a matrix commitment of Bootle~\emph{et al.}~\cite{EC:BCCGP16} with the inner-product argument of B\"{u}nz~\emph{et al.}~\cite{SP:BBBPWM18}. This commitment works for multilinear polynomials. For polynomials of degree $d$ it has $O(\sqrt{d})$ size commitments and evaluation arguments with $O(\sqrt{d})$ communication. 
 The  FRI (Fast Reed Solomon IOPP)~\cite{ICALP:BBHR18} and DEEP-FRI~\cite{ECCC:BGKS19} protocols are also implicitly a transparent polynomial commitment scheme that has $O(\lambda)$ size commitments and evaluation arguments with $O(\log^2 d)$ communication. This connection is described in a recent manuscript by Matter Labs~\cite{MatterLabs}. 
+
+
 %DEEP-FRI protocol~\cite{ECCC:BGKS19}, an improvement of
 %\subsection{Background on SNARGs and SNARKs} 
 %A SNARG is a system for generating ``short non-interactive arguments". Given any statement $x$ that can be verified in polynomial time $T$, a SNARG prover can generate a \emph{succinct} proof $\pi$ that can be publicly verified in time much less than $T$ (\emph{i.e.}, sublinear in $T$). The proof $\pi$ is called succinct because it is much smaller than printing a transcript of the $T$ computation steps that verify $x$ (\emph{i.e.}, also sublinear in $T$). The proof is called an \emph{argument} because it is only sound assuming the prover is computationally bounded.

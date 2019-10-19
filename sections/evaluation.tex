@@ -7,18 +7,18 @@ The comparison is slightly misleading because for \textsf{Sonic} one million is 
 \begin{mdframed}
 \centering
 \begin{tabular}{l|c|c|c|c}
-Polynomial IOP &Polynomials  & \eval{}s & $|$SNARK$|$ & concrete size \\
+Polynomial IOP &Polynomials  & \eval{} points & $|$SNARK$|$ & concrete size \\
 \hline
 
- \multirow{2}{*}{\textsf{Sonic}~\cite{Sonic}} & \multirow{2}{*}{12 in $\params$ + 15} & \multirow{2}{*}{$27$}  & $(15+2\log_2(n))\GG$ &\; \multirow{2}{*}{11.3 KB} \\
- & & & $+(27+9\log_2(n))\ZZ_p$ &  \\
-  \multirow{2}{*}{\textsf{PLONK}~\cite{Plonk}} & \multirow{2}{*}{$9$ in $\params$ + 6} & \multirow{2}{*}{$2$} & $9+2\log_2(3n)\GG$& \; \multirow{2}{*}{8.3 KB} \\
+ \multirow{2}{*}{\textsf{Sonic}~\cite{Sonic}} & \multirow{2}{*}{12 in $\params$ + 15} & \multirow{2}{*}{$12$}  & $(15+2\log_2(n))\GG$ &\; \multirow{2}{*}{11.3 KB} \\
+ & & & $+(12+13\log_2(n))\ZZ_p$ &  \\
+  \multirow{2}{*}{\textsf{PLONK}~\cite{Plonk}} & \multirow{2}{*}{$9$ in $\params$ + 3} & \multirow{2}{*}{$2$} & $9+2\log_2(3n)\GG$& \; \multirow{2}{*}{8.3 KB} \\
   & & & + $(6+3\log_2(3n)) \ZZ_p$\\
     \multirow{2}{*}{\textsf{Marlin}~\cite{Marlin}} & \multirow{2}{*}{$9$ in $\params$ + 10} & \multirow{2}{*}{$3$} & $10+2\log_2(6n)\GG$& \; \multirow{2}{*}{9.6 KB} \\
   & & & + $(4+4\log_2(3n)) \ZZ_p$
 	\end{tabular}
 \end{mdframed}
-\caption{Proof size for $\textsf{\textbf{Supersonic}}$. Column 2 says how many polynomials are committed to in the SRS (offline oracles) and how many are sent by the prover (online oracles). Column 3 states the number of evaluation points. The proof size calculation uses $|\ZZ_p|=120$ and $|\GG|=1200$ for $n=2^{20}$ gates.}
+\caption{Proof size for $\textsf{\textbf{Supersonic}}$. Column 2 says how many polynomials are committed to in the SRS (offline oracles) and how many are sent by the prover (online oracles). Column 3 states the number of distinct evaluation points. The proof size calculation uses $|\ZZ_p|=120$ and $|\GG|=1200$ for $n=2^{20}$ gates.}
 \label{tab:proofsize}
 \end{table}
 
