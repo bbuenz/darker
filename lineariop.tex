@@ -288,6 +288,8 @@ For the purpose of the following discussion, we refer to the complexity of an NP
 \item $\mathcal{R}$ has \emph{multiplicative complexity} $n$ if the function computing $\mathcal{R}(x, w)$ can be expressed an arithmetic circuit with a total of $n$ multiplication gates, where each multiplication gate has 2 inputs.
 \item $\mathcal{R}$ has \emph{R1CS complexity}\footnotemark \ $n$ if the function computing $\mathcal{R}(x, w)$ can be expressed as an R1CS instance $(A, B, C, v, w)$ where $A, B, C \in \FF^{m \times (\ell+1)}$, $(v,w) \in \FF^\ell$, and $n$ is the maximum number of non-zero entries in either $A$, $B$, or $C$. \footnotetext{The arithmetic complexity and R1CS complexity are similar, but vary because the R1CS constraints correspond to the wiring of an arithmetic circuit with unrestricted fan-in.}
 \end{itemize}
+
+Theorem~\ref{thm:supersonic} provides the main theoretical result of this work, tying together the new DARK polynomial commitment scheme (Theorem~\ref{thm:polycommitsecurity}), the compilation of HVZK Polynomial IOPs into zk-SNARKs with preprocessing using polynomial commitments (Theorem~\ref{thm:IOPcompiler}), and a concrete univariate Polynomial IOP introduced in \textsf{Sonic}~\cite{Sonic} (Theorem~\ref{thm:sonic}).   
  
 \subsubsection{Sonic} 
 \textsf{Sonic} is zk-SNARK system that has a universal trusted setup, which produces a Structured Reference String (SRS) of $n$ group elements that can be used to prove any statement represented as an arithmetic circuit with at most $n$ gates. The SRS can also be updated without re-doing the initial setup, for instance, to enable proving larger circuits, or to increase the distribution of trust. The result in \textsf{Sonic} was not presented using the language of IOPs. Furthermore, the result also relied on a special construction of polynomial commitments (a modification of Kate~\emph{et al.}~\cite{AC:KatZavGol10}) that forces the prover to commit to a Laurent polynomial with no constant term. Given our generic reduction from coefficient queries to evaluation queries (Section~\ref{sec:opencoefficient}), we re-characterize the main theorem of \textsf{Sonic} as follows: 
@@ -314,7 +316,7 @@ There exists a 4-round HVZK Polynomial IOP with preprocessing for any NP relatio
 Combining the \pro{Sonic} IOP with the new transparent polynomial compiler of Section~\ref{sec:protocol} gives the following result:  
 
 %\ben{TODO: Add actual complexity for preprocessing and prover rather than quasilinear} 
-\begin{theorem}
+\begin{theorem}[\textbf{New Transparent zk-SNARK}]\label{thm:supersonic} 
 There exists an $O(\log n)$-round public-coin interactive argument of knowledge for any NP relation of arithmetic complexity $n$ that has $O(\log n)$ communication, $O(\log n)$ ``online" verification, quasilinear prover time, and a preprocessing step that is verifiable in quasilinear time. The argument of knowledge has witness-extended emulation assuming it is instantiated with a group $\GG$ for which the Strong RSA Assumption, and the Adaptive Root Assumption hold. 
 \end{theorem}
 \begin{proof}
