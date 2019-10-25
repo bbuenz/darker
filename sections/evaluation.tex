@@ -27,7 +27,7 @@ We use the notation $O_\lambda (\cdot)$ to denote asymptotic complexity for a fi
 This proof requires calculating the commitments to the polynomials $f_L(q)$ and $f_R(q)$ in each round and performing the $\textsf{PoE}(\gr{C}_R,\gr{C}/\gr{C}_L,q^{d'+1})$. Using precomputation, \emph{i.e.}, computing $\gr{g}^{q^i}$ for all $i$ and using multi-exponentiation, the commitments can be computed in $O_\lambda(\frac{d}{\log(d)})$ group operations. The same techniques can be used to reduce the number of group operations for the $\textsf{PoE}$s to $O_\lambda(d)$. The total number of group operations is therefore linear in the maximum degree of the polynomial oracles and the number of online oracles. Interestingly, the number of offline oracles hardly impacts the prover time and proof size.
  
 The verifier time is dominated by the group operations for exponentiation in various places in the single combined $\eval$ protocol. It consists of 3 $\lambda$-bit exponentiations in each round: 1 for combining $\gr{C}_L$ and $\gr{C}_R$ and two for verifying the \textsf{PoE}. In the final round the verifier does another $\lambda \log_2(d+1)$-bit exponentiation to open the commitment but this could also be outsourced to the prover using yet another $\textsf{PoE}$. The total verifier time therefore consists of roughly an exponentiation of $3 \lambda \log_2(d+1)$ group operations. 
-Using $10\mu$s per group operation\footnote{The estimate comes from the recent Chia Inc. class group implementation competition. The competition used a larger $2048$bit discriminant but only did repeated squaring on a powerful CPU. \url{https://github.com/Chia-Network/vdfcontest2results}}, this gives us for $\lambda=120$ and $n=2^{20}$ a verification time of around 72ms. 
+Using $10\mu$s per group operation\footnote{The estimate comes from the recent Chia Inc. class group implementation competition. The competition used a larger $2048$bit discriminant but only performed repeated squaring. \url{https://github.com/Chia-Network/vdfcontest2results}}, this gives us for $\lambda=120$ and $n=2^{20}$ a verification time of around 72ms. 
 \begin{table}[!htp]
 \begin{small}
 \begin{tabular}{l||l|l|l|l|l|l}
@@ -43,8 +43,8 @@ Using $10\mu$s per group operation\footnote{The estimate comes from the recent C
 
 \caption{Comparison table between different succinct arguments. 
 In column order we compare on transparent setup, CRS size, prover and verifier time, asymptotic proof size and concrete proof for an np relation with arithmetic complexity $2^{20}$.
-Note that even when precise factors are given the numbers should be seen as  estimates. For example we chose to not display smaller order terms. $\GG_U$ is a group of unknown order $\GG_{B}$ is a group with a bilinear map (pairing), $\GG_{P}$ is a prime order group with known order. $\textsf{EXP}$ refers to exponentiation of a $\lambda$ bit number in these groups. $\hash$ is either the size of a hash output or the time it takes to compute a hash depending on context. 
-Note that the prover time for the group based schemes could be brought down by a log factor when using multi-exponentiation techniques.}
+Even when precise factors are given the numbers should be seen as  estimates. For example, we chose to not display smaller order terms. $\GG_U$ is a group of unknown order $\GG_{B}$ is a group with a bilinear map (pairing), $\GG_{P}$ is a prime order group with known order. $\textsf{EXP}$ refers to exponentiation of $\lambda$-bit numbers in these groups. $\hash$ is either the size of a hash output or the time it takes to compute a hash. 
+The prover time for the group based schemes can be brought down by a log factor when using multi-exponentiation techniques.}
 \label{tab:proofcomp}
 \end{small}
 \end{table}
