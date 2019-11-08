@@ -1,0 +1,13 @@
+\BOOKMARK [1][-]{section.1}{Introduction}{}% 1
+\BOOKMARK [2][-]{subsection.1.1}{Summary of contributions}{section.1}% 2
+\BOOKMARK [1][-]{section.2}{Technical Overview}{}% 3
+\BOOKMARK [1][-]{section.3}{Polynomial Commitments from Groups of Unknown Order}{}% 4
+\BOOKMARK [2][-]{subsection.3.1}{Information-Theoretic Abstraction}{section.3}% 5
+\BOOKMARK [2][-]{subsection.3.2}{Integer Polynomial Encoding}{section.3}% 6
+\BOOKMARK [2][-]{subsection.3.3}{Concrete Polynomial Commitment Scheme}{section.3}% 7
+\BOOKMARK [2][-]{subsection.3.4}{Security Analysis}{section.3}% 8
+\BOOKMARK [2][-]{subsection.3.5}{Multivariate Polynomials, Zero-Knowledge and Optimizations}{section.3}% 9
+\BOOKMARK [2][-]{subsection.3.6}{Performance}{section.3}% 10
+\BOOKMARK [2][-]{subsection.3.7}{Comparison}{section.3}% 11
+\BOOKMARK [1][-]{section.4}{Transparent SNARKs via Polynomial IOPs}{}% 12
+\BOOKMARK [1][-]{section.5}{Evaluation}{}% 13

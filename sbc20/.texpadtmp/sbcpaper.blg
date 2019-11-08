@@ -1,0 +1,55 @@
+This is BibTeX, Version 0.99d (TeX Live 2019)
+Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
+The top-level auxiliary file: /Users/buenz/Library/Mobile Documents/com~apple~CloudDocs/Research/Bitcoin research/rsapoly/sbc20/.texpadtmp/sbcpaper.aux
+The style file: alpha.bst
+Database file #1: ../cryptobib/abbrev3.bib
+Reallocated str_pool (elt_size=1) to 130000 items from 65000.
+Reallocated str_pool (elt_size=1) to 195000 items from 130000.
+Database file #2: ../cryptobib/crypto.bib
+Database file #3: ../cryptobib/additional.bib
+Warning--to sort, need author or key in Zcash
+Warning--empty booktitle in CC:GolVadWig02
+Warning--empty booktitle in CC:IKO07
+Warning--empty booktitle in ES:SBVBPW13
+You've used 50 entries,
+            2543 wiz_defined-function locations,
+            12534 strings with 148905 characters,
+and the built_in function-call counts, 26386 in all, are:
+= -- 2612
+> -- 1398
+< -- 66
++ -- 488
+- -- 483
+* -- 1959
+:= -- 4072
+add.period$ -- 184
+call.type$ -- 50
+change.case$ -- 362
+chr.to.int$ -- 49
+cite$ -- 55
+duplicate$ -- 1046
+empty$ -- 1883
+format.name$ -- 531
+if$ -- 5642
+int.to.chr$ -- 2
+int.to.str$ -- 0
+missing$ -- 36
+newline$ -- 259
+num.names$ -- 193
+pop$ -- 450
+preamble$ -- 1
+purify$ -- 412
+quote$ -- 0
+skip$ -- 940
+stack$ -- 0
+substring$ -- 1336
+swap$ -- 394
+text.length$ -- 66
+text.prefix$ -- 13
+top$ -- 0
+type$ -- 400
+warning$ -- 4
+while$ -- 253
+width$ -- 55
+write$ -- 692
+(There were 4 warnings)

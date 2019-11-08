@@ -19,6 +19,7 @@
 %\usepackage{authblk}
 %\usepackage{draftwatermark}
 \usepackage[legalpaper, margin=1in]{geometry}
+%\usepackage{fullpage}
 %\usepackage{thmtools}
 %\usepackage{thm-restate}
 %\declaretheorem[name=Theorem]{theorem}
@@ -59,12 +60,12 @@
 
 
 \title{Transparent SNARKs from DARK Compilers}
-\author{\begin{tabular}{c}Benedikt B\"unz$^1$ \\ \small \texttt{benedikt@cs.stanford.edu} \end{tabular}   \begin{tabular}{c}Ben Fisch$^1$ \\ \small \texttt{bfisch@cs.stanford.edu} \end{tabular}   \begin{tabular}{c}Alan Szepieniec$^2$ \\ \small \texttt{alan@nervos.org} \end{tabular} \\
-\\
+%\author{\begin{tabular}{c}Benedikt B\"unz$^1$ \\ \small \texttt{benedikt@cs.stanford.edu} \end{tabular}   \begin{tabular}{c}Ben Fisch$^1$ \\ \small \texttt{bfisch@cs.stanford.edu} \end{tabular}   \begin{tabular}{c}Alan Szepieniec$^2$ \\ \small \texttt{alan@nervos.org} \end{tabular} \\
+%\\
 %\normalsize
-$^1$Stanford University, Findora Foundation \\
+%$^1$Stanford University, Findora Foundation \\
 %\normalsize
-$^2$Nervos Foundation}
+%$^2$Nervos Foundation}
 % \affil[1]{Stanford University, Findora Foundation}
 % \affil[2]{Nervos Foundation}
 
@@ -81,7 +82,7 @@ We construct a new polynomial commitment scheme for univariate and multivariate 
 There are many existing examples of Polynomial IOPs (PIOPs) dating back to the first PCP (BFLS, STOC'91). %Recently more efficient univariate PIOPs were presented in \textsf{Sonic} (MBKM, CCS'19), \textsf{PLONK} (GWC, ePrint'19), \textsf{Marlin} (CHM+, ePrint'19), \textsf{Fractal} (COS, TCC'19), and were also implicit in \textsf{STARKs} (BBHR, Crypto'19) and \textsf{Aurora} (BCR+, Eurocrypt'19). 
 We present a generic compilation of any PIOP using our DARK polynomial commitment scheme. In particular, compiling the PIOP from \textsf{PLONK} (GWC, ePrint'19), an improvement on \textsf{Sonic} (MBKM, CCS'19), yields a public-coin interactive argument with quasi-linear preprocessing, quasi-linear (online) prover time, logarithmic communication, and logarithmic (online) verification time in the circuit size. Applying Fiat-Shamir results in a SNARK, which we call \textsf{\textbf{Supersonic}}. 
 
-\textsf{Supersonic} is also concretely efficient with 10KB proofs and under $100$ms verification time for circuits with 1 million gates (estimated for 120-bit security). Most importantly, this SNARK is \emph{transparent}: it does not require a trusted setup. We obtain zk-SNARKs by applying a hiding variant of our polynomial commitment scheme with zero-knowledge evaluations. \textsf{Supersonic} is the first complete zk-SNARK system that has both a practical prover time as well as asymptotically \emph{logarithmic} proof size and verification time. 
+\textsf{Supersonic} is also concretely efficient with 10KB proofs and under $100$ms verification time for circuits with 1 million gates (estimated for 120-bit security). Most importantly, this SNARK is \emph{transparent}: it does not require a trusted setup. We obtain zk-SNARKs by applying a hiding variant of our polynomial commitment scheme with zero-knowledge evaluations. \textsf{Supersonic} is the first complete zk-SNARK system that has both a practical prover time as well as asymptotically \emph{logarithmic} proof size and verification time. This submission is an extended abstract omitting preliminaries, optimizations and formal security proof. The full version of the paper is available online \cite{fullversion}.
 %(concretely a $70\times$ reduction in proof size over the state-of-the-art). 
 
 
@@ -91,30 +92,25 @@ We present a generic compilation of any PIOP using our DARK polynomial commitmen
 \input{sections/intro} 
 \section{Technical Overview}\label{sec:overview} 
 \input{sections/overview}
-\section{Preliminaries}
-\input{sections/preliminaries}
 
 \section{Polynomial Commitments from Groups of Unknown Order}
 \label{sec:protocol}
 \input{sections/mainprotocol}
 
-\section{Transparent SNARKs via Polynomial IOPs}\label{sec:polyiop}
-\input{sections/lineariop}
-
+%\section{Transparent SNARKs via Polynomial IOPs}\label{sec:polyiop}
+%\input{sections/lineariop}
+\section{Transparent SNARKs via Polynomial IOPs}
+\label{sec:polyiop}
+In the full version of the paper we introduce the information theoretic concept of Polynomial IOPs. These are multi-round interactive proofs in which the prover sends oracles to polynomials in each round. The verifier can query these oracles in order to evaluate polynomials at query points. Polynomial IOPs additionally have a preprocessing phase where a verifier can preprocess oracles to polynomials that depend only on the language (e.g. the circuit) but not on the specific instance or witness. The main theorem is that we can compile an efficient Polynomial IOP to a SNARK using efficient polynomial commitments and the Fiat-Shamir transform.  
 \section{Evaluation}
 \input{sections/evaluation}
 \pagebreak
-\section{Conclusion}
-\input{sections/newconclusion}
-\section*{Acknowledgements}
-We thank Dan Boneh for helpful discussions and comments.
-This work was partially supported by NSF, SGF, ONR, the Simons Foundation, the Nervos Foundation and the Findora Foundation. 
+%\section{Conclusion}
+%\input{sections/newconclusion}
+
 \bibliographystyle{alpha}
 {\footnotesize
   \bibliography{cryptobib/abbrev3,cryptobib/crypto,cryptobib/additional}}
 
-\appendix
-
-\input{appendix} 
 
 \end{document}

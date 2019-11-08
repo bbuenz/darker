@@ -1,0 +1,329 @@
+\newcommand{\etalchar}[1]{$^{#1}$}
+\begin{thebibliography}{BCC{\etalchar{+}}16b}
+
+\bibitem[ALM{\etalchar{+}}92]{FOCS:ALMSS92}
+Sanjeev Arora, Carsten Lund, Rajeev Motwani, Madhu Sudan, and Mario Szegedy.
+\newblock Proof verification and hardness of approximation problems.
+\newblock In {\em 33rd FOCS}, pages 14--23. {IEEE} Computer Society Press,
+  October 1992.
+
+\bibitem[Ano19]{fullversion}
+Anonymized.
+\newblock Transparent snarks from dark compilers.
+\newblock Cryptology ePrint Archive, Report 2019/1229, 2019.
+\newblock \url{https://eprint.iacr.org/2019/1229}.
+
+\bibitem[BBB{\etalchar{+}}18]{SP:BBBPWM18}
+Benedikt B{\"u}nz, Jonathan Bootle, Dan Boneh, Andrew Poelstra, Pieter Wuille,
+  and Greg Maxwell.
+\newblock Bulletproofs: Short proofs for confidential transactions and more.
+\newblock In {\em 2018 {IEEE} Symposium on Security and Privacy}, pages
+  315--334. {IEEE} Computer Society Press, May 2018.
+
+\bibitem[BBC{\etalchar{+}}19]{C:BBCGI19}
+Dan Boneh, Elette Boyle, Henry {Corrigan-Gibbs}, Niv Gilboa, and Yuval Ishai.
+\newblock Zero-knowledge proofs on secret-shared data via fully linear {PCPs}.
+\newblock In Alexandra Boldyreva and Daniele Micciancio, editors, {\em
+  CRYPTO~2019, Part~III}, volume 11694 of {\em {LNCS}}, pages 67--97. Springer,
+  Heidelberg, August 2019.
+
+\bibitem[BBHR18]{ICALP:BBHR18}
+Eli {Ben-Sasson}, Iddo Bentov, Yinon Horesh, and Michael Riabzev.
+\newblock Fast reed-solomon interactive oracle proofs of proximity.
+\newblock In Ioannis Chatzigiannakis, Christos Kaklamanis, D{\'a}niel Marx, and
+  Donald Sannella, editors, {\em ICALP 2018}, volume 107 of {\em {LIPIcs}},
+  pages 14:1--14:17. Schloss Dagstuhl, July 2018.
+
+\bibitem[BBHR19]{C:BBHR19}
+Eli {Ben-Sasson}, Iddo Bentov, Yinon Horesh, and Michael Riabzev.
+\newblock Scalable zero knowledge with no trusted setup.
+\newblock In Alexandra Boldyreva and Daniele Micciancio, editors, {\em
+  CRYPTO~2019, Part~III}, volume 11694 of {\em {LNCS}}, pages 701--732.
+  Springer, Heidelberg, August 2019.
+
+\bibitem[BCC{\etalchar{+}}16a]{EPRINT:BCCGP16}
+Jonathan Bootle, Andrea Cerulli, Pyrros Chaidos, Jens Groth, and Christophe
+  Petit.
+\newblock Efficient zero-knowledge arguments for arithmetic circuits in the
+  discrete log setting.
+\newblock Cryptology ePrint Archive, Report 2016/263, 2016.
+\newblock \url{http://eprint.iacr.org/2016/263}.
+
+\bibitem[BCC{\etalchar{+}}16b]{EC:BCCGP16}
+Jonathan Bootle, Andrea Cerulli, Pyrros Chaidos, Jens Groth, and Christophe
+  Petit.
+\newblock Efficient zero-knowledge arguments for arithmetic circuits in the
+  discrete log setting.
+\newblock In Marc Fischlin and Jean-S{\'{e}}bastien Coron, editors, {\em
+  EUROCRYPT~2016, Part~II}, volume 9666 of {\em {LNCS}}, pages 327--357.
+  Springer, Heidelberg, May 2016.
+
+\bibitem[BCG{\etalchar{+}}13]{C:BCGTV13}
+Eli {Ben-Sasson}, Alessandro Chiesa, Daniel Genkin, Eran Tromer, and Madars
+  Virza.
+\newblock {SNARKs} for {C}: Verifying program executions succinctly and in zero
+  knowledge.
+\newblock In Ran Canetti and Juan~A. Garay, editors, {\em CRYPTO~2013,
+  Part~II}, volume 8043 of {\em {LNCS}}, pages 90--108. Springer, Heidelberg,
+  August 2013.
+
+\bibitem[BCG{\etalchar{+}}14]{SP:BCGGMT14}
+Eli {Ben-Sasson}, Alessandro Chiesa, Christina Garman, Matthew Green, Ian
+  Miers, Eran Tromer, and Madars Virza.
+\newblock Zerocash: Decentralized anonymous payments from bitcoin.
+\newblock In {\em 2014 {IEEE} Symposium on Security and Privacy}, pages
+  459--474. {IEEE} Computer Society Press, May 2014.
+
+\bibitem[BCI{\etalchar{+}}13]{TCC:BCIOP13}
+Nir Bitansky, Alessandro Chiesa, Yuval Ishai, Rafail Ostrovsky, and Omer
+  Paneth.
+\newblock Succinct non-interactive arguments via linear interactive proofs.
+\newblock In Amit Sahai, editor, {\em TCC~2013}, volume 7785 of {\em {LNCS}},
+  pages 315--333. Springer, Heidelberg, March 2013.
+
+\bibitem[BCR{\etalchar{+}}19]{EC:BCRSVW19}
+Eli {Ben-Sasson}, Alessandro Chiesa, Michael Riabzev, Nicholas Spooner, Madars
+  Virza, and Nicholas~P. Ward.
+\newblock Aurora: Transparent succinct arguments for {R1CS}.
+\newblock In Yuval Ishai and Vincent Rijmen, editors, {\em EUROCRYPT~2019,
+  Part~I}, volume 11476 of {\em {LNCS}}, pages 103--128. Springer, Heidelberg,
+  May 2019.
+
+\bibitem[BCS16]{TCC:BenChiSpo16}
+Eli {Ben-Sasson}, Alessandro Chiesa, and Nicholas Spooner.
+\newblock Interactive oracle proofs.
+\newblock In Martin Hirt and Adam~D. Smith, editors, {\em TCC~2016-B, Part~II},
+  volume 9986 of {\em {LNCS}}, pages 31--60. Springer, Heidelberg,
+  October~/~November 2016.
+
+\bibitem[BFLS91]{STOC:BFLS91}
+L{\'a}szl{\'o} Babai, Lance Fortnow, Leonid~A. Levin, and Mario Szegedy.
+\newblock Checking computations in polylogarithmic time.
+\newblock In {\em 23rd ACM STOC}, pages 21--31. {ACM} Press, May 1991.
+
+\bibitem[BGG{\etalchar{+}}88]{C:BGGHKMR88}
+Michael {Ben-Or}, Oded Goldreich, Shafi Goldwasser, Johan H{\aa}stad, Joe
+  Kilian, Silvio Micali, and Phillip Rogaway.
+\newblock Everything provable is provable in zero-knowledge.
+\newblock In Shafi Goldwasser, editor, {\em CRYPTO'88}, volume 403 of {\em
+  {LNCS}}, pages 37--56. Springer, Heidelberg, August 1988.
+
+\bibitem[BH01]{PKC/BucHam01}
+Johannes Buchmann and Safuat Hamdy.
+\newblock A survey on iq cryptography.
+\newblock In {\em Public-Key Cryptography and Computational Number Theory},
+  pages 1--15, 2001.
+
+\bibitem[Bow16]{bellman}
+Sean Bowe.
+\newblock Bellman zk-snarks library, 2016.
+\newblock \url{https://github.com/zkcrypto/bellman}.
+
+\bibitem[But16]{ZK-rollup}
+Vitalik Buterin.
+\newblock Zk rollup, 2016.
+\newblock
+  \url{https://ethresear.ch/t/on-chain-scaling-to-potentially-500-tx-sec-through-mass-tx-validation/3477}.
+
+\bibitem[CCH{\etalchar{+}}19]{STOC:CCHLRRW19}
+Ran Canetti, Yilei Chen, Justin Holmgren, Alex Lombardi, Guy~N. Rothblum,
+  Ron~D. Rothblum, and Daniel Wichs.
+\newblock {Fiat}-{Shamir}: from practice to theory.
+\newblock In Moses Charikar and Edith Cohen, editors, {\em 51st ACM STOC},
+  pages 1082--1090. {ACM} Press, June 2019.
+
+\bibitem[CCRR18]{EC:CCRR18}
+Ran Canetti, Yilei Chen, Leonid Reyzin, and Ron~D. Rothblum.
+\newblock {Fiat}-{Shamir} and correlation intractability from strong
+  {KDM}-secure encryption.
+\newblock In Jesper~Buus Nielsen and Vincent Rijmen, editors, {\em
+  EUROCRYPT~2018, Part~I}, volume 10820 of {\em {LNCS}}, pages 91--122.
+  Springer, Heidelberg, April~/~May 2018.
+
+\bibitem[CHM{\etalchar{+}}19]{Marlin}
+Alessandro Chiesa, Yuncong Hu, Mary Maller, Pratyush Mishra, Noah Vesely, and
+  Nicholas Ward.
+\newblock Marlin: Preprocessing zksnarks with universal and updatable srs.
+\newblock Cryptology ePrint Archive, Report 2019/1047, 2019.
+\newblock \url{https://eprint.iacr.org/2019/1047}.
+
+\bibitem[Ebe]{Zokrates}
+Jacob Eberhardt.
+\newblock Zokrates.
+\newblock \url{https://zokrates.github.io/}.
+
+\bibitem[FS87]{C:FiaSha86}
+Amos Fiat and Adi Shamir.
+\newblock How to prove yourself: {Practical} solutions to identification and
+  signature problems.
+\newblock In Andrew~M. Odlyzko, editor, {\em CRYPTO'86}, volume 263 of {\em
+  {LNCS}}, pages 186--194. Springer, Heidelberg, August 1987.
+
+\bibitem[GGPR13]{EC:GGPR13}
+Rosario Gennaro, Craig Gentry, Bryan Parno, and Mariana Raykova.
+\newblock Quadratic span programs and succinct {NIZKs} without {PCPs}.
+\newblock In Thomas Johansson and Phong~Q. Nguyen, editors, {\em
+  EUROCRYPT~2013}, volume 7881 of {\em {LNCS}}, pages 626--645. Springer,
+  Heidelberg, May 2013.
+
+\bibitem[GKR08]{STOC:GolKalRot08}
+Shafi Goldwasser, Yael~Tauman Kalai, and Guy~N. Rothblum.
+\newblock Delegating computation: interactive proofs for muggles.
+\newblock In Richard~E. Ladner and Cynthia Dwork, editors, {\em 40th ACM STOC},
+  pages 113--122. {ACM} Press, May 2008.
+
+\bibitem[GMR85]{STOC:GolMicRac85}
+Shafi Goldwasser, Silvio Micali, and Charles Rackoff.
+\newblock The knowledge complexity of interactive proof-systems (extended
+  abstract).
+\newblock In {\em 17th ACM STOC}, pages 291--304. {ACM} Press, May 1985.
+
+\bibitem[GMW91]{JACM:GMW91}
+Oded Goldreich, Silvio Micali, and Avi Wigderson.
+\newblock Proofs that yield nothing but their validity.
+\newblock {\em Journal of the ACM}, 38(3), 1991.
+
+\bibitem[Gro16]{EC:Groth16}
+Jens Groth.
+\newblock On the size of pairing-based non-interactive arguments.
+\newblock In Marc Fischlin and Jean-S{\'{e}}bastien Coron, editors, {\em
+  EUROCRYPT~2016, Part~II}, volume 9666 of {\em {LNCS}}, pages 305--326.
+  Springer, Heidelberg, May 2016.
+
+\bibitem[GVW02]{CC:GolVadWig02}
+Oded Goldreich, Salil Vadhan, and Avi Wigderson.
+\newblock On interactive proofs with a laconic prover.
+\newblock volume 11(1/2), pages 1--53, 2002.
+
+\bibitem[GWC19]{Plonk}
+Ariel Gabizon, Zachary~J. Williamson, and Oana Ciobotaru.
+\newblock Plonk: Permutations over lagrange-bases for oecumenical
+  noninteractive arguments of knowledge.
+\newblock Cryptology ePrint Archive, Report 2019/953, 2019.
+\newblock \url{https://eprint.iacr.org/2019/953}.
+
+\bibitem[HBHW19]{ZcashProtocol}
+Daira Hopwood, Sean Bowe, Taylor Hornby, and Nathan Wilcox.
+\newblock Zcash {P}rotocol {S}pecification, 2019.
+
+\bibitem[IKO07]{CC:IKO07}
+Yuval Ishai, Eyal Kushilevitz, and Rafael Ostrovsky.
+\newblock Efficeint arguments without short pcps.
+\newblock 2007.
+
+\bibitem[Kil92]{STOC:Kilian92}
+Joe Kilian.
+\newblock A note on efficient zero-knowledge proofs and arguments (extended
+  abstract).
+\newblock In {\em 24th ACM STOC}, pages 723--732. {ACM} Press, May 1992.
+
+\bibitem[KRR17]{C:KalRotRot17}
+Yael~Tauman Kalai, Guy~N. Rothblum, and Ron~D. Rothblum.
+\newblock From obfuscation to the security of {Fiat}-{Shamir} for proofs.
+\newblock In Jonathan Katz and Hovav Shacham, editors, {\em CRYPTO~2017,
+  Part~II}, volume 10402 of {\em {LNCS}}, pages 224--251. Springer, Heidelberg,
+  August 2017.
+
+\bibitem[KZG10]{AC:KatZavGol10}
+Aniket Kate, Gregory~M. Zaverucha, and Ian Goldberg.
+\newblock Constant-size commitments to polynomials and their applications.
+\newblock In Masayuki Abe, editor, {\em ASIACRYPT~2010}, volume 6477 of {\em
+  {LNCS}}, pages 177--194. Springer, Heidelberg, December 2010.
+
+\bibitem[Lab18]{Coda}
+O(1) Labs.
+\newblock Coda protocol, 2018.
+\newblock \url{https://codaprotocol.com/}.
+
+\bibitem[Lip03]{AC:Lipmaa03a}
+Helger Lipmaa.
+\newblock On diophantine complexity and statistical zero-knowledge arguments.
+\newblock In Chi-Sung Laih, editor, {\em ASIACRYPT~2003}, volume 2894 of {\em
+  {LNCS}}, pages 398--415. Springer, Heidelberg, November~/~December 2003.
+
+\bibitem[LM19]{C:LaiMal19}
+Russell W.~F. Lai and Giulio Malavolta.
+\newblock Subvector commitments with application to succinct arguments.
+\newblock In Alexandra Boldyreva and Daniele Micciancio, editors, {\em
+  CRYPTO~2019, Part~I}, volume 11692 of {\em {LNCS}}, pages 530--560. Springer,
+  Heidelberg, August 2019.
+
+\bibitem[LRY16]{ICALP:LibRamYun16}
+Beno{\^\i}t Libert, Somindu~C. Ramanna, and Moti Yung.
+\newblock Functional commitment schemes: From polynomial commitments to
+  pairing-based accumulators from simple assumptions.
+\newblock In Ioannis Chatzigiannakis, Michael Mitzenmacher, Yuval Rabani, and
+  Davide Sangiorgi, editors, {\em ICALP 2016}, volume~55 of {\em {LIPIcs}},
+  pages 30:1--30:14. Schloss Dagstuhl, July 2016.
+
+\bibitem[MBKM19]{Sonic}
+Mary Maller, Sean Bowe, Markulf Kohlweiss, and Sarah Meiklejohn.
+\newblock Sonic: Zero-knowledge snarks from linear-size universal and updatable
+  structured reference strings.
+\newblock Cryptology ePrint Archive, Report 2019/099, 2019.
+\newblock \url{https://eprint.iacr.org/2019/099}.
+
+\bibitem[Pie19]{ITCS:Pietrzak18}
+Krzysztof Pietrzak.
+\newblock Simple verifiable delay functions.
+\newblock In {\em 10th Innovations in Theoretical Computer Science Conference,
+  {ITCS} 2019, January 10-12, 2019, San Diego, California, {USA}}, pages
+  60:1--60:15, 2019.
+
+\bibitem[RRR16]{STOC:ReiRotRot16}
+Omer Reingold, Guy~N. Rothblum, and Ron~D. Rothblum.
+\newblock Constant-round interactive proofs for delegating computation.
+\newblock In Daniel Wichs and Yishay Mansour, editors, {\em 48th ACM STOC},
+  pages 49--62. {ACM} Press, June 2016.
+
+\bibitem[SBV{\etalchar{+}}13]{ES:SBVBPW13}
+S.~Setty, B.~Braun, V.~Vu, A.~J. Blumberg, B.~Parno, and M.~Walfish.
+\newblock Resolving the conflict between generality and plausibility in
+  verified computation.
+\newblock 2013.
+
+\bibitem[Set19]{Spartan}
+Srinath Setty.
+\newblock Spartan: Efficient and general-purpose zksnarks without trusted
+  setup.
+\newblock Cryptology ePrint Archive, Report 2019/550, 2019.
+\newblock \url{https://eprint.iacr.org/2019/550}.
+
+\bibitem[WB15]{WalBlu15}
+Michael Walfish and Andrew~J. Blumberg.
+\newblock Verifying computations without reexecuting them: From theoretical
+  possibility to near practicality.
+\newblock {\em Communications of the ACM}, 58(2), 2015.
+
+\bibitem[Wee05]{ICALP:Wee05}
+Hoeteck Wee.
+\newblock On round-efficient argument systems.
+\newblock In Lu{\'i}s Caires, Giuseppe~F. Italiano, Lu{\'i}s Monteiro, Catuscia
+  Palamidessi, and Moti Yung, editors, {\em ICALP 2005}, volume 3580 of {\em
+  {LNCS}}, pages 140--152. Springer, Heidelberg, July 2005.
+
+\bibitem[Wes19]{EC:Wesolowski19}
+Benjamin Wesolowski.
+\newblock Efficient verifiable delay functions.
+\newblock In Yuval Ishai and Vincent Rijmen, editors, {\em EUROCRYPT~2019,
+  Part~III}, volume 11478 of {\em {LNCS}}, pages 379--407. Springer,
+  Heidelberg, May 2019.
+
+\bibitem[Wil16]{ZcashCeremony}
+Z.~Wilcox.
+\newblock The design of the ceremony, 2016.
+\newblock \url{https://z.cash/blog/the-design-of-the-ceremony.html}.
+
+\bibitem[XZZ{\etalchar{+}}19]{Libra}
+Tiacheng Xie, Jiaheng Zhang, Yupeng Zhang, Charalampos Papamanthou, and Dawn
+  Song.
+\newblock Libra: Succinct zero-knowledge proofs with optimal prover
+  computation.
+\newblock Cryptology ePrint Archive, Report 2019/317, 2019.
+\newblock \url{https://eprint.iacr.org/2019/317}.
+
+\bibitem[Zca]{Zcash}
+Zcash.
+\newblock \url{https://z.cash}.
+
+\end{thebibliography}

@@ -1,0 +1,51 @@
+We now evaluate \textsf{Supersonic}, the trustless-setup SNARK built on the Polynomial IOPs underlying \textsf{Sonic}~\cite{Sonic} and \textsf{PLONK}~\cite{Plonk} and compiled using our DARK polynomial commitment scheme. As explained in Section \ref{subsec:optimization}, the commitment scheme has several batching properties that can be put to good use here. It is possible to evaluate $k$ polynomials of degree at most $d$ using only $2$ group elements and $(k+1)$ field elements. To take advantage of this we delay the evaluation until the last step of the protocol (see Section \ref{subsec:compiling}). We present the proof size for both the compilation of \textsf{Sonic}, \textsf{PLONK} and \textsf{Marlin} in Table~\ref{tab:proofsize}. We use 1600 bits as the size of class group elements and $\lambda=120$. The security of 1600 bit class groups is believed to be equivalent to 3048bit RSA groups and have 120 bits of security \cite{PKC/BucHam01}. This leads to proof sizes of $16.5$KB for \textsf{Sonic}, $10.1$KB using \textsf{PLONK} and $12.3$KB using \textsf{Marlin} for circuits with $n = 2^{20}$ (one million) gates. Using 3048-bit RSA groups the proof sizes becomes $18.4$KB for the compilation of  \textsf{PLONK}. If $100$ bits of security suffice then a $1200$ bit class group can be used and the compiled Plonk proofs are $7.8$KB for the same setting. In a $2048$-bit RSA group this becomes $12.7$KB.
+
+The comparison between the polynomial IOPs is slightly misleading because for \textsf{Sonic} $n$ is the number of multiplication gates whereas for \textsf{PLONK} it is the sum of multiplication and addition gates. For \textsf{Marlin} it is the number of non-zero entries in the R1CS description of the circuit. A more careful analysis is therefore necessary, but this shows that there are Polynomial IOPs that can be compiled using the DARK polynomial commitment scheme to SNARKs of roughly $10$ kilobytes in size. These numbers stand in contrast to \textsf{STARK}s which achieve proofs of $600$KB for computation of similar complexity~\cite{C:BBHR19}. We compare \textsf{Supersonic} to different other proof systems in Table~\ref{tab:proofcomp}. \textsf{Supersonic} is the only proof system with efficient verifier time, small proof sizes that does not require a trusted setup.
+
+\begin{table}[!htp]
+\begin{mdframed}
+\centering
+\begin{tabular}{l|c|c|c|c}
+Polynomial IOP &Polynomials  & \eval{} points & $|$SNARK$|$ & concrete size \\
+\hline
+
+ \multirow{2}{*}{\textsf{Sonic}~\cite{Sonic}} & \multirow{2}{*}{12 in $\params$ + 15} & \multirow{2}{*}{$12$}  & $(15+2\log_2(n))\GG$ &\; \multirow{2}{*}{15.3 KB} \\
+ & & & $+(12+13\log_2(n))\ZZ_p$ &  \\
+  \multirow{2}{*}{\textsf{PLONK}~\cite{Plonk}} & \multirow{2}{*}{$7$ in $\params$ + 7} & \multirow{2}{*}{$2$} & $7+2\log_2(n)\GG$& \; \multirow{2}{*}{10.1 KB} \\
+  & & & + $(2+3\log_2(n)) \ZZ_p$\\
+    \multirow{2}{*}{\textsf{Marlin}~\cite{Marlin}} & \multirow{2}{*}{$9$ in $\params$ + 10} & \multirow{2}{*}{$3$} & $10+2\log_2(6n)\GG$& \; \multirow{2}{*}{12.3 KB} \\
+  & & & + $(3+4\log_2(6n)) \ZZ_p$
+	\end{tabular}
+\end{mdframed}
+\caption{Proof size for $\pro{Supersonic}$. Column 2 says how many polynomials are committed to in the SRS (offline oracles) and how many are sent by the prover (online oracles). Column 3 states the number of distinct evaluation points. The proof size calculation uses $|\ZZ_p|=120$ and $|\GG|=1600$ for $n=2^{20}$ gates.}
+\label{tab:proofsize}
+\end{table}
+
+\paragraph{Prover and Verifier cost}
+%With pre-computation the prover time consists of a linear number of group operations. 
+We use the notation $O_\lambda (\cdot)$ to denote asymptotic complexity for a fixed security parameter $\lambda$, \emph{i.e.} how the prover and verifier costs scale as a function of variables other than $\lambda$. The main cost for the \pro{Supersonic} prover consist of computing the commitments to the polynomial oracles and producing the single combined $\eval$ proof.
+This proof requires calculating the commitments to the polynomials $f_L(q)$ and $f_R(q)$ in each round and performing the $\textsf{PoE}(\gr{C}_R,\gr{C}/\gr{C}_L,q^{d'+1})$. Using precomputation, \emph{i.e.}, computing $\gr{g}^{q^i}$ for all $i$ and using multi-exponentiation, the commitments can be computed in $O_\lambda(\frac{d}{\log(d)})$ group operations. The same techniques can be used to reduce the number of group operations for the $\textsf{PoE}$s to $O_\lambda(d)$. The total number of group operations is therefore linear in the maximum degree of the polynomial oracles and the number of online oracles. Interestingly, the number of offline oracles hardly impacts the prover time and proof size.
+ 
+The verifier time is dominated by the group operations for exponentiation in various places in the single combined $\eval$ protocol. It consists of 3 $\lambda$-bit exponentiations in each round: 1 for combining $\gr{C}_L$ and $\gr{C}_R$ and two for verifying the \textsf{PoE}. In the final round the verifier does another $\lambda \log_2(d+1)$-bit exponentiation to open the commitment but this could also be outsourced to the prover using yet another $\textsf{PoE}$. The total verifier time therefore consists of roughly an exponentiation of $3 \lambda \log_2(d+1)$ group operations. 
+Using $10\mu$s per group operation\footnote{The estimate comes from the recent Chia Inc. class group implementation competition. The competition used a larger $2048$bit discriminant but only performed repeated squaring. \url{https://github.com/Chia-Network/vdfcontest2results}}, this gives us for $\lambda=120$ and $n=2^{20}$ a verification time of around 72ms. 
+\begin{table}[!htp]
+\begin{small}
+\begin{tabular}{l||l|l|l|l|l|l}
+	Scheme & Transp. & $|\crs|$  & Prover & Verifier & $|\pi|$& $n=2^{20}$ \\
+	\hline
+	\hline
+    \textsf{Supersonic} & yes & $O(1)$ & $O( n \log(n) )\; \textsf{EXP}$ & $O(\log(n))~\textsf{EXP}$ & $O(\log(n) \ \GG_{U})$ & 10.1KB \\
+    \textsf{PLONK} \cite{Plonk} & no & $2n$ $\GG_{B}$ & $O(n)\; \textsf{EXP}$  & $1\; \textsf{Pairing} $ & $O(1)\; \GG_{B}$ & 720b \\
+        Groth16 \cite{EC:Groth16} & no & $2n$ $\GG_{B}$ & $O(n)\; \textsf{EXP}$  & $1\; \textsf{Pairing} $ & $O(1) \ \GG_{B}$ & 192b \\
+       BP \cite{SP:BBBPWM18} & yes &$2 n \ \GG_{P}$& $O(n)$ \textsf{EXP}& $O(n) \ \textsf{EXP}$ &$2 \log(n) \ \GG_P$ & 1.7KB\\
+       \textsf{STARK} & yes & $O(1)$ & $O(\lambda  T)$ $\hash$ & $O(\lambda \log^2(T))$ $\hash$ & $O(\lambda \log^2(T))$ $\hash$ & 600 KB
+\end{tabular}
+
+\caption{Comparison table between different succinct arguments. 
+In column order we compare on transparent setup, CRS size, prover and verifier time, asymptotic proof size and concrete proof for an np relation with arithmetic complexity $2^{20}$.
+Even when precise factors are given the numbers should be seen as  estimates. For example, we chose to not display smaller order terms. $\GG_U$ is a group of unknown order $\GG_{B}$ is a group with a bilinear map (pairing), $\GG_{P}$ is a prime order group with known order. $\textsf{EXP}$ refers to exponentiation of $\lambda$-bit numbers in these groups. $\hash$ is either the size of a hash output or the time it takes to compute a hash. 
+The prover time for the group based schemes can be brought down by a log factor when using multi-exponentiation techniques.}
+\label{tab:proofcomp}
+\end{small}
+\end{table}
+
