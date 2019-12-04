@@ -276,7 +276,7 @@ In the final round we check that the constant $f$ satisfies $|f|\leq b$ and the 
 \item \pcind[1] \verifier outputs $1$ \pcif all checks pass, $0$ otherwise.
           \item \pcif{$d+1$ is odd}
          \item \pcind[1]  $d'\gets d+1, \gr{C}'\gets \gr{C}^q$, $y'\gets y\cdot z \bmod p$ and $f'(X)\gets X \cdot f(X)$.
-         \item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\crs,\gr{C}',z,y',d',bd;f'(X))$
+         \item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\crs,\gr{C}',z,y',d',b;f'(X))$
 
         \item \pcelse: \pccomment{$d \geq 1$ and $d+1$ is even}
        
