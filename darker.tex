@@ -1,0 +1,119 @@
+\documentclass[12pt]{article}
+\pagestyle{plain} 
+\usepackage[operators,lambda,keys,sets,primitives,adversary,asymptotics,advantage]{cryptocode}
+\usepackage{notations}
+%\usepackage{bm}
+\usepackage{mdframed}
+\usepackage{enumitem}
+\usepackage{amsthm}
+\usepackage{amsmath,amssymb}
+\usepackage[utf8x]{inputenc}
+\usepackage[colorinlistoftodos]{todonotes}
+\usepackage{xspace}
+\usepackage[hidelinks]{hyperref}
+\usepackage{url}
+%\usepackage{authblk}
+%\usepackage{draftwatermark}
+\usepackage[legalpaper, margin=1in]{geometry}
+
+\usepackage{comment}
+\title{Darker}
+
+\begin{document}
+	
+\maketitle
+\section{Sketched Protocol}
+\subsection{Odd Even Protocol}
+\begin{mdframed}
+Public Input: $C\in \GG$\\
+Witness: $f(X) \in \ZZ_p[X]$ \\
+Claim: $C=\commit(f(X))$ and $\deg(f(X))<d$	\\
+$\textsf{FFTEval}(q,C,d;f(X))$
+\begin{enumerate}[nolistsep]
+		\item $\pcif d=0$
+		\item $\pcind[1]$ $\prover$ sends $f=f(X)$
+		\item $\pcind[1]$ $\verifier$ checks that $|f|<2^{\log_2(d_{\max}) \cdot \lambda}$ and that $g^f=C$ \pccomment{$d_{\max}$ is the original degree here}
+		\item $\prover$ computes $f_E(X)$ and $f_O(X)$ s.t. $f_E(X^2)+X \cdot f_O(X^2)=f(X)$\pccomment{Odd and Even coefficients} 
+		\item \prover sends $\gr{C}_E\gets \gr{g}^{f_E(q^2)}$ and $\gr{C}_O\gets \gr{g}^{f_O(q^2)}$ to $\verifier$.
+		\item $\verifier$ checks that $\gr{C}_E\cdot \gr{C}_O^q=\gr{C}$ \pccomment{$q$ grows in each round.}
+		\item $\verifier$ samples $\alpha \sample [-2^{\lambda-1},2^{\lambda-1}]$ and sends it to $\prover$
+		\item \prover and \verifier compute $\gr{C}'\gets \gr{C}_E\gr{C}_O^{\alpha}$
+		\item $\prover$ computes $f'(X)\gets f_E(X)+\alpha f_O(X)$
+		\item \prover and \verifier run $\textsf{FFTEval}(q^2,\gr{C}',\frac{d}{2};f'(X))$
+	\end{enumerate}
+\end{mdframed}
+\subsection{Performing all PoEs at once}
+Let the subscript $i$ denote proof elements from the $i$th round of the protocol.
+Let $\gr{D}_i\gets \gr{C}_{O,i}$ and $\gr{D}_i'\gets \gr{C}_i/\gr{C}_{E,i}$. The prover needs to show that $D_i^{q^{2^{i-1}}}=\gr{D}'_i$
+\begin{enumerate}[nolistsep]
+\item $X_{\log_2(d)}=\gr{D}_{\log_2(d)}$, $Z_{\log_2(d)}=\gr{D}'_{\log_2(d)}$
+\item $Y_{\log_2(d)}\gets X_{\log_2(d)}^{q^{d/4}}$ \pccomment{Computable as $g_{\frac{d}{4}}^{f_{\log_4(d)}}$ for $g_{\frac{d}{4}}=g^{(q^{\frac{d}{4}})}$}
+\item \prover sends $Y_{\log_2(d)}$ to $\verifier$
+	\item $\pcfor i \in [\log_2(d)-1,2]$
+	\item \pcind[1]$\verifier$ samples $\alpha,\beta \sample [-2^{\lambda-1} ,2^{\lambda-1}]$ and sends them to $\prover$
+	\item \pcind[1]\prover and \verifier compute  $X_{i}\gets  X_{i+1} Y_{i+1}^{\alpha}D_{i}^{\beta}$
+	\item $\pcind[1]$\prover and \verifier compute   $Z_{i}\gets Y_{i+1}Z_{i+1}^{\alpha}D_{i}^{'\beta}$
+		\item \pcind[1]\prover computes $Y_{i}\gets X_{i}^{q^{2^{i-2}}}$ \pccomment{See discussion below}
+		\item \pcind[1]$\prover$ sends $Y_{i}$ to \verifier.
+\item \verifier samples random $\alpha,\beta \sample [-2^{\lambda-1} ,2^{\lambda-1}]$ and checks that $(X_{2} Y_{2}^{\alpha}D_{1}^{\beta})^q=Y_{2}Z_{2}^{\alpha}D_{1}^{'\beta}$
+\end{enumerate}
+\subsection{Computational complexity of batch PoE}
+The main provers work is in computing $Y_i$. In the first few loops $Y_i=g^{f(q)}$ for a sparse polynomial $f(X)$. For example in the first loop $f(X)$ has only a single non-zero coefficient.
+After $\log_2(d)/2$ rounds the polynomial has roughly $\sqrt{d}$ coefficients. It then makes sense to switch to computing $Y_i$ using a sequential computation, i.e. $Y_i=X_i^{q^{2^{i-2}}}$. This now also takes $O(\sqrt{d}\cdot \log{d})$ work. One could also switch earlier from one computation to the other. Additionally it is possible to use Wesolowski PoEs for the second part of the loop, i.e. the first half of the Odd/Even protocol. This leads to a smaller proof size.
+\begin{comment}
+\section{Other ideas (WIP)}
+\subsection{No field elements eval}
+
+
+\begin{mdframed}
+Public Input: $C\in \GG,z\in \ZZ_p,y\in \ZZ_p$\\
+Witness: $f(X) \in \ZZ_p[X]$ \\
+Claim: $C=\commit(f(X))$, $\deg(f(X))<d$ and $f(z)=y \bmod p$
+	\begin{enumerate}[nolistsep]
+		\item $\prover$ computes $q(X) \in \ZZ_p[X]=f(X)//(X-z) \bmod p$ and $Q\gets\commit(q(X))$
+		\item \prover sends $Q$ to $\verifier$.
+		\item $\prover$ and $\verifier$ compute $D\gets C/(Q^{(q-z)}g^y)$ \pccomment{$D$ commits to $h(X)=f(X)-q(X)(X-z)-y\equiv 0\bmod p$.}
+
+		\item \prover and \verifier run $\textsf{DegreeProof}(D,Q^q,d;h(X),q(X)\cdot X)$
+	\end{enumerate}
+\end{mdframed}
+
+Assume $d+1$ is a power of $2$
+\begin{mdframed}
+\begin{minipage}{\textwidth}
+			$\pro{DegreeProof}(\crs, \gr{C},\gr{Q}\in \GG, d \in \NN; h(X),q(X)\in \ZZ_p[X]) :$ \pccomment{$\tilde{f}(X) = \sum_{i=0}^d \tilde{f}_i X^i$}
+			\begin{enumerate}[nolistsep]
+					\item \verifier samples challenge $\alpha$ 
+			\item $\gr{C}'\gets \gr{C}^{\alpha}Q$
+			\item \prover and \verifier run $\pro{DegreeProofBounded}(\params,q,\gr{C}',d,p\cdot 2^\lambda;\alpha \cdot h(X)+f(X))$
+        \item \ \verifier checks that $b\cdot \boldsymbol{\varsigma}_{p,d} < q$\pccomment{$\boldsymbol{\varsigma}_{p,d}=O(p^{2\log(d)})$ (see Theorem~\ref{thm:polycommitsecurity} and \ref{thm:dyadicpolysecurity})}
+        %q/(2^{\lceil \log_2(d+1) \rceil+1} p^{2 \lceil \log_2(d+1) \rceil+1})$
+        \item \pcind[1] \verifier checks that $|h|\leq b$ and 
+          \item \pcind[1] \verifier checks that $f\equiv 0 \bmod p$
+                \item \label{line:baseend}\pcind[1] \verifier checks that $\gr{g}^{\alpha h}=\gr{C}$
+\item \pcind[1] \verifier outputs $1$ \pcif all checks pass, $0$ otherwise.
+		    \end{enumerate}
+		    		\vspace{1em}
+		$\pro{EvalBounded}(\crs,q,\gr{C}'\in \GG,d\in \NN,b\in \ZZ;\alpha h(X),f(X)\in \ZZ(b)[X])$		
+	    \begin{enumerate}[nolistsep]
+        \item \pcif $d=0$:
+        \item \label{line:basestart}\pcind[1] \pcreturn $\gr{C}$ to $\prover$ and $\verifier$ and $\alpha h(X), f(X)$ \pccomment{$\alpha h(X)$ and $f(X)$ are constants}
+
+        
+        \item \pcelse: \pccomment{$d \geq 1$ and $d+1$ is even}
+       
+        \item \pcind[1] \prover and \verifier compute $d' \gets \lfloor\frac{d}{2}\rfloor$
+        \item \pcind[1] \prover computes $f_E(X) \gets \sum\limits_{i=0}^{d'} f_{2\cdot i} \cdot X^i$ and $f_O(X)\gets\sum\limits_{i=0}^{d'} f_{2\cdot i 1}\cdot X^{i}$
+        \item \pcind[1] \prover computes $\gr{C}_E \gets \gr{g}^{f_L(q^2)}$ and $\gr{C}_O \gets \gr{g}^{f_R(q^2)}$
+        \item \pcind[1] \prover sends $\gr{C}_E, \gr{C}_O$ to \verifier. \pccomment{See Section \ref{subsec:optimization} for an optimization}
+        \item \pcind[1] \label{line:PoE} \prover and \verifier run $\pro{PoE}(\gr{C}_E, \gr{C}/\gr{C}_O, q)$\pccomment{Showing that $\gr{C}_E\gr{C}_O^{q}=\gr{C}$}
+        \item \pcind[1] \verifier samples $\alpha \sample [-2^{\lambda-1},2^{\lambda-1}]$ and sends it to \prover
+        \item \pcind[1] \prover and \verifier compute $\gr{C}' \gets \gr{C}_E^\alpha  \gr{C}_O$, $b'\gets b \cdot 2^{\lambda}$. 
+        \item \pcind[1] \prover computes $f'(X) \gets \alpha \cdot f_E(X) + f_O(X) \in \ZZ[X]$  and\\
+        \pcind[1] $h'(X)=\alpha h_E(X) + h_O(X)$\pccomment{$\deg(f'(X))=\deg(h'(X))=d'$}
+        \item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\params, \gr{C}',q^2, d',b' ; \alpha f'(X))$
+               \end{enumerate}
+      \end{minipage}
+\end{mdframed}
+\end{comment}
+\end{document}

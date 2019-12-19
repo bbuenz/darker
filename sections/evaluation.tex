@@ -34,7 +34,7 @@ Using $10\mu$s per group operation\footnote{The estimate comes from the recent C
 	Scheme & Transp. & $|\crs|$  & Prover & Verifier & $|\pi|$& $n=2^{20}$ \\
 	\hline
 	\hline
-    \textsf{Supersonic} & yes & $O(1)$ & $O( n \log(n) )\; \textsf{EXP}$ & $O(\log(n))~\textsf{EXP}$ & $O(\log(n) \ \GG_{U})$ & 10.1KB \\
+    \textsf{Supersonic} & yes & $O(1)$ & $O( n \log(n) )\; \textsf{EXP}$ & $3 \log(n)~\textsf{EXP}$ & $2 \log(n) \ \GG_{U}$ & 10.1KB \\
     \textsf{PLONK} \cite{Plonk} & no & $2n$ $\GG_{B}$ & $O(n)\; \textsf{EXP}$  & $1\; \textsf{Pairing} $ & $O(1)\; \GG_{B}$ & 720b \\
         Groth16 \cite{EC:Groth16} & no & $2n$ $\GG_{B}$ & $O(n)\; \textsf{EXP}$  & $1\; \textsf{Pairing} $ & $O(1) \ \GG_{B}$ & 192b \\
        BP \cite{SP:BBBPWM18} & yes &$2 n \ \GG_{P}$& $O(n)$ \textsf{EXP}& $O(n) \ \textsf{EXP}$ &$2 \log(n) \ \GG_P$ & 1.7KB\\
