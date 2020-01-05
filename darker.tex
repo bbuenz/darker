@@ -62,6 +62,14 @@ The main prover work is in computing $Y_i$. In the first few loops $Y_i=g^{h(q)}
 After $\log_2(d)/2$ rounds the polynomial has roughly $\sqrt{d}$ coefficients. It then makes sense to switch to computing $Y_i$ using a sequential computation, i.e. $Y_i=X_i^{q^{2^{i-2}}}$. This now also takes $O(\sqrt{d}\cdot \log{d})$ work. One could also switch earlier from one computation to the other. Additionally it is possible to use Wesolowski PoEs for the second part of the loop, i.e. the first half of the Odd/Even protocol. This leads to a smaller proof size. One possible split may be to only do $\log{\log{d}}$ BatchPoEs at the end. This should give you prover time that is still linear but better proof size. In practice doing BatchPoE for the last $6$ rounds should be good for almost all input sizes.
 \section{$\tilde{O}(\sqrt{d})$ eval}
 The PoEs are efficient and with some caching during the commitment phase we can also make the rest of the eval have $\tilde{O}(\sqrt{d})$ complexity (only group operations). The protocol is parameterized by a bound $b$ which determines the amount of preprocessing. We discuss the perfect choice for $b$ later but for intuition it helps to think of $b=d/b=\sqrt{d}$.
+\subsection{Idea}
+The core idea is that we can write a polynomial $f(X)$ of degree $d-1$ as the sum of $b$ polynomials $f_i(X)$ of degree less than $\frac{d}{b}$. That is $f(X)=\sum_{i=0}^b X^i f_i(X^b)$. This is a direct generalization of the odd/even split that the $\textsf{FFTEval}$ protocol uses. During the committing phase the prover computes and stores commitments to $f_i(X^b)$, i.e. $P_i\gets g^{f_i(q^b)}$. Using the $\frac{d}{b}$ precomputed group elements $g,g^{q^b},g^{q^{2b}}\dots$ all $b$ $P_i$'s can be computed using $d$ $\lambda$-bit exponentiations\footnote{Ignoring multi-exponentiation speedups for now}. Given the $P_i$'s one can compute $C=g^{f(q)}$. This is because $C=\prod_{i=0}^{b-1} P_i^{q^i}$. By computing this product left to right, i.e. $C=(((P_{b-1}^qP_{b-2})^qP_{b-3})^q \dots)P_0$ this can be done using only $b$ $\log_2(q)$-bit exponentiations.
+
+Similarly the prover can use the $P_i$ to compute to $C_O$, i.e. the commitment to $f_O(X^2)$ where $f(X)=f_E(X^2)+Xf_O(X^2)$. Additionally computing $C_O'=g^{q f(q^2)}$ can be done efficiently given just $C_O$ as $C_O'=C_O^q$. 
+
+After each round the protocol continues with $f'(X)=f_E(X)+\alpha f_O(X)$ as a witness and $q_{i+1}=q_{i}^2$. Similarly as in the first round we can write $f'(X)$ as the sum of $b/2$ polynomials of degree less than $\frac{d}{b}$.
+$f'(X)=\sum_{i=0}^{\frac{b}{2}-1} X^i f'_i(X^{\frac{b}{2}})$. Given the commitments to the $f_i(X^b)$ we can efficiently compute commitments to $f_i'(X)=f_{2i}(X)+\alpha f_{2i+1}(X)$ as $P_i'\gets P_{2i}P_{2i+1}^{\alpha}$. This takes work at most $b$, $\lambda$-bit exponentiations. Repeating this for $\log_2(b)$ rounds we end up with a witness polynomial $f''(X)$ of degree less than $\frac{d}{b}$. Given the precomputed $g_i$ the prover can construct commitments to $f''(X)$ and finish the protocol using $\frac{d}{b}$ $\lambda$-bit exponentiations. In the first $\log_2(b)$ steps the most expensive operations is computing $C_O$ given the $P_i$'s. This takes roughly $b$ $\log_2(q)$-bit exponentiations in every round, i.e. $b\log_2(b) \log_2(q)$-bit exponentiations in total.
+\subsection{Protocol}
 \begin{mdframed}
 $\textsf{Preprocess(b)}$:
 \begin{enumerate}[nolistsep]
@@ -71,7 +79,7 @@ $\textsf{Preprocess(b)}$:
 $\textsf{Commit}(f(X),b):$
 \begin{enumerate}[nolistsep]
 	\item $f(X)=\sum_{i=0}^{b-1} X^{i} f_i(X^{b})$ \pccomment{$\deg(f_i(X))<\frac{d}{b}$.}
-	\item Let $P_i\gets g^{f_i(q)}$ for all $i \in [0,b-1]$\pccomment{ computed using $g_i$; Cost: $d$ $\lambda$-bit exp.}
+	\item Let $P_i\gets g^{f_i(q^b)}$ for all $i \in [0,b-1]$\pccomment{ computed using $g_i$; Cost: $d$ $\lambda$-bit exp.}
 	\item Compute $C\gets \prod_{i=0}^{b-1} P_i^{q^i}=((P_{b-1}^q P_{b-2})^q P_{b-3})^q...P_0$ \pccomment{Cost: $b$ $\log_2(q)$-bit exp.}
 	\item Output $C$ and $P_{0}\dots,P_{b-1}$
 \end{enumerate}
