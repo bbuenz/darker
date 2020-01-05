@@ -35,14 +35,14 @@ $\textsf{FFTEval}(q,C,d;f(X))$
 		\item $\pcind[1]$ $\verifier$ checks that $|f|<2^{\log_2(d_{\max}) \cdot \lambda}$ and that $g^f=C$ \pccomment{$d_{\max}$ is the original degree here}
 		\item $\prover$ computes $f_E(X)$ and $f_O(X)$ s.t. $f_E(X^2)+X \cdot f_O(X^2)=f(X)$\pccomment{Odd and Even coefficients} 
 		\item \prover sends $\gr{C}_E\gets \gr{g}^{f_E(q^2)}$ and $\gr{C}_O\gets \gr{g}^{f_O(q^2)}$ to $\verifier$.
-		\item $\verifier$ checks that $\gr{C}_E\cdot \gr{C}_O^q=\gr{C}$ \pccomment{$q$ grows in each round.}
+		\item $\verifier$ checks that $\gr{C}_E\cdot \gr{C}_O^q=\gr{C}$ \pccomment{$q$ grows in each round. Outsourced with PoEs. See below}
 		\item $\verifier$ samples $\alpha \sample [-2^{\lambda-1},2^{\lambda-1}]$ and sends it to $\prover$
 		\item \prover and \verifier compute $\gr{C}'\gets \gr{C}_E\gr{C}_O^{\alpha}$
 		\item $\prover$ computes $f'(X)\gets f_E(X)+\alpha f_O(X)$
 		\item \prover and \verifier run $\textsf{FFTEval}(q^2,\gr{C}',\frac{d}{2};f'(X))$
 	\end{enumerate}
 \end{mdframed}
-\subsection{Performing all PoEs at once}
+\subsection{Computing all PoEs at once}
 Let the subscript $i$ denote proof elements from the $i$th round of the protocol.
 Let $\gr{D}_i\gets \gr{C}_{O,i}$ and $\gr{D}_i'\gets \gr{C}_i/\gr{C}_{E,i}$. The prover needs to show that $D_i^{q^{2^{i-1}}}=\gr{D}'_i$
 \begin{enumerate}[nolistsep]
@@ -58,8 +58,43 @@ Let $\gr{D}_i\gets \gr{C}_{O,i}$ and $\gr{D}_i'\gets \gr{C}_i/\gr{C}_{E,i}$. The
 \item \verifier samples random $\alpha,\beta \sample [-2^{\lambda-1} ,2^{\lambda-1}]$ and checks that $(X_{2} Y_{2}^{\alpha}D_{1}^{\beta})^q=Y_{2}Z_{2}^{\alpha}D_{1}^{'\beta}$
 \end{enumerate}
 \subsection{Computational complexity of batch PoE}
-The main provers work is in computing $Y_i$. In the first few loops $Y_i=g^{f(q)}$ for a sparse polynomial $f(X)$. For example in the first loop $f(X)$ has only a single non-zero coefficient.
-After $\log_2(d)/2$ rounds the polynomial has roughly $\sqrt{d}$ coefficients. It then makes sense to switch to computing $Y_i$ using a sequential computation, i.e. $Y_i=X_i^{q^{2^{i-2}}}$. This now also takes $O(\sqrt{d}\cdot \log{d})$ work. One could also switch earlier from one computation to the other. Additionally it is possible to use Wesolowski PoEs for the second part of the loop, i.e. the first half of the Odd/Even protocol. This leads to a smaller proof size.
+The main prover work is in computing $Y_i$. In the first few loops $Y_i=g^{h(q)}$ for a sparse polynomial $h(X)$. For example in the first loop $h(X)$ has only a single non-zero coefficient.
+After $\log_2(d)/2$ rounds the polynomial has roughly $\sqrt{d}$ coefficients. It then makes sense to switch to computing $Y_i$ using a sequential computation, i.e. $Y_i=X_i^{q^{2^{i-2}}}$. This now also takes $O(\sqrt{d}\cdot \log{d})$ work. One could also switch earlier from one computation to the other. Additionally it is possible to use Wesolowski PoEs for the second part of the loop, i.e. the first half of the Odd/Even protocol. This leads to a smaller proof size. One possible split may be to only do $\log{\log{d}}$ BatchPoEs at the end. This should give you prover time that is still linear but better proof size. In practice doing BatchPoE for the last $6$ rounds should be good for almost all input sizes.
+\section{$\tilde{O}(\sqrt{d})$ eval}
+The PoEs are efficient and with some caching during the commitment phase we can also make the rest of the eval have $\tilde{O}(\sqrt{d})$ complexity (only group operations)
+\begin{mdframed}
+$\textsf{Preprocess(b)}$:
+\begin{enumerate}[nolistsep]
+	\item $g_i=g^{q^{ib}}$ for $i \in [0,\frac{d}{b}-1]$
+	\item Output $g_0,\dots,g_{\frac{d}{b}-1}$
+\end{enumerate}
+$\textsf{Commit}(f(X),b):$
+\begin{enumerate}[nolistsep]
+	\item $f(X)=\sum_{i=0}^{b-1} X^{i} f_i(X^{b})$ \pccomment{$\deg(f_i(X))<\frac{d}{b}$.}
+	\item Let $P_i\gets g^{f_i(q)}$ for all $i \in [0,b-1]$\pccomment{ computed using $g_i$; Cost: $d$ $\lambda$-bit exp.}
+	\item Compute $C\gets \prod_{i=0}^{b-1} P_i^{q^i}=((P_{b-1}^q P_{b-2})^q P_{b-3})^q...P_0$ \pccomment{Cost: $b$ $\log_2(q)$-bit exp.}
+	\item Output $C$ and $P_{0}\dots,P_{b-1}$
+\end{enumerate}
+$\textsf{FFTEval}(q,C,P_0,\dots,P_{b-1},b,d;f_0(X),\dots,f_{b}(X))$
+\begin{enumerate}[nolistsep]
+		\item $\pcfor i=1$ to $\log_2(b)$
+		\item $\pcind[1]$ $C_{O,i}\gets\prod_{j=0}^{\frac{b}{2^i}-1} P_{2j+1}^{q^{j\cdot 2^i}}$ \pccomment{Computed using folding method, Total Cost: $b \log{b}$ $\log_2(q)$-bit exp}.
+		\item \pcind[1] $C_{O,i}'=C_{O,i}^{q^{2^i}}$ \pccomment{Total cost (all iterations) $b$ $q$-bit exp, might as well do W PoE here}
+		\item \pcind[1] $\alpha_i\gets \hash(C_{O,i})$ \pccomment{Fiat-Shamir}
+		\item $\pcind[1] P_{j}=P_{2j}P_{2j+1}^{\alpha}$ for $j \in [0,\frac{b}{2^i}]$\pccomment{$b$ $\lambda$-bit exp in total}
+		\item $f'(X)\gets \sum_{i=0}^{b-1} f_i(X) \prod_{j=1}^{\log_2(b)} \alpha_j^{j\text{th last bit of }i}$ \pccomment{$f_0(X)+\alpha_1 f_1(X) + \alpha_2 f_2(X)$, Cost: $d$ field ops}
+		\item \pcfor $i=\log_2(b)+1$ to $\log_2(d)$
+		\item \pcind[1] $f'(X)=f_E(X^2)+Xf_O(X^2)$
+		\item \pcind[1] $C_{O,i}\gets g^{f_O(q^{2^i})}$ \pccomment{Cost: $\frac{d}{b}$ times $\log_2(b) \lambda$-bit multiexp}
+		\item  \pcind[1] $C_{O,i}'\gets g^{q^{2^{i-1}} \cdot f_O(q^{2^i})}$ \pccomment{Cost: $\frac{d}{b}$ times $\log_2(b) \lambda$-bit multiexp using $g_i$}
+		\item \pcind[1] $\alpha_i\gets\hash(C_{O,i},C_{O,i}')$
+		\item \pcind[1] $f'(X)=f_E(X)+\alpha_i f_O(X)$
+		\item Proof is $C_{O,1},\dots,C_{O,\log_2(d)}$ and $C_O$'s
+		\item Add $f'=f'(X)$ to proof.
+	\end{enumerate}
+	\end{mdframed}
+	For $b=\sqrt{d}$ the runtime is $O(d \log_2(d)^2)$. A value like $b=\sqrt{d/\log(d)}$ gives roughly $O(d\log_2(d)^{1.5})$. Parallelism and multi-exp techniques need to be taken into account and the optimal value is likely best determined numerically. There are limited options anyway as $b$ needs to be a power of $2$.\\ 
+Step 2 in FFTEval is likely a bottleneck. Smaller q value would still help in this protocol.
 \begin{comment}
 \section{Other ideas (WIP)}
 \subsection{No field elements eval}
