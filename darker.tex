@@ -61,7 +61,7 @@ Let $\gr{D}_i\gets \gr{C}_{O,i}$ and $\gr{D}_i'\gets \gr{C}_i/\gr{C}_{E,i}$. The
 The main prover work is in computing $Y_i$. In the first few loops $Y_i=g^{h(q)}$ for a sparse polynomial $h(X)$. For example in the first loop $h(X)$ has only a single non-zero coefficient.
 After $\log_2(d)/2$ rounds the polynomial has roughly $\sqrt{d}$ coefficients. It then makes sense to switch to computing $Y_i$ using a sequential computation, i.e. $Y_i=X_i^{q^{2^{i-2}}}$. This now also takes $O(\sqrt{d}\cdot \log{d})$ work. One could also switch earlier from one computation to the other. Additionally it is possible to use Wesolowski PoEs for the second part of the loop, i.e. the first half of the Odd/Even protocol. This leads to a smaller proof size. One possible split may be to only do $\log{\log{d}}$ BatchPoEs at the end. This should give you prover time that is still linear but better proof size. In practice doing BatchPoE for the last $6$ rounds should be good for almost all input sizes.
 \section{$\tilde{O}(\sqrt{d})$ eval}
-The PoEs are efficient and with some caching during the commitment phase we can also make the rest of the eval have $\tilde{O}(\sqrt{d})$ complexity (only group operations)
+The PoEs are efficient and with some caching during the commitment phase we can also make the rest of the eval have $\tilde{O}(\sqrt{d})$ complexity (only group operations). The protocol is parameterized by a bound $b$ which determines the amount of preprocessing. We discuss the perfect choice for $b$ later but for intuition it helps to think of $b=d/b=\sqrt{d}$.
 \begin{mdframed}
 $\textsf{Preprocess(b)}$:
 \begin{enumerate}[nolistsep]
