@@ -52,7 +52,7 @@ Let $\gr{D}_i\gets \gr{C}_{O,i}$ and $\gr{D}_i'\gets \gr{C}_i/\gr{C}_{E,i}$. The
 	\item $\pcfor i \in [\log_2(d)-1,2]$
 	\item \pcind[1]$\verifier$ samples $\alpha,\beta \sample [-2^{\lambda-1} ,2^{\lambda-1}]$ and sends them to $\prover$
 	\item \pcind[1]\prover and \verifier compute  $X_{i}\gets  X_{i+1} Y_{i+1}^{\alpha}D_{i}^{\beta}$
-	\item $\pcind[1]$\prover and \verifier compute   $Z_{i}\gets Y_{i+1}Z_{i+1}^{\alpha}D_{i}^{'\beta}$
+	\item $\pcind[1]$\verifier compute   $Z_{i}\gets Y_{i+1}Z_{i+1}^{\alpha}D_{i}^{'\beta}$
 		\item \pcind[1]\prover computes $Y_{i}\gets X_{i}^{q^{2^{i-2}}}$ \pccomment{See discussion below}
 		\item \pcind[1]$\prover$ sends $Y_{i}$ to \verifier.
 \item \verifier samples random $\alpha,\beta \sample [-2^{\lambda-1} ,2^{\lambda-1}]$ and checks that $(X_{2} Y_{2}^{\alpha}D_{1}^{\beta})^q=Y_{2}Z_{2}^{\alpha}D_{1}^{'\beta}$
@@ -103,7 +103,6 @@ $\textsf{FFTEval}(q,C,P_0,\dots,P_{b-1},b,d;f_0(X),\dots,f_{b}(X))$
 	\end{mdframed}
 	For $b=\sqrt{d}$ the runtime is $O(d \log_2(d)^2)$. A value like $b=\sqrt{d/\log(d)}$ gives roughly $O(d\log_2(d)^{1.5})$. Parallelism and multi-exp techniques need to be taken into account and the optimal value is likely best determined numerically. There are limited options anyway as $b$ needs to be a power of $2$.\\ 
 Step 2 in FFTEval is likely a bottleneck. Smaller q value would still help in this protocol.
-\begin{comment}
 \section{Other ideas (WIP)}
 \subsection{No field elements eval}
 
@@ -158,5 +157,4 @@ Assume $d+1$ is a power of $2$
                \end{enumerate}
       \end{minipage}
 \end{mdframed}
-\end{comment}
 \end{document}
