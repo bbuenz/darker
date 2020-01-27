@@ -203,8 +203,8 @@ Observe that the middle coefficient of $h(X)$ is equal to $\sum_{i=0}^d f_i g_{d
 \label{sec:algebraicIOP}
 
 \begin{theorem}\label{thm:algebraicIOPcompiler}
-Any public-coin $t$-round stateless algebraic linear IOP can be implemented with a $t+1$-round Polynomial IOP with preprocessing. Suppose the original $\ell$-query IOP is $(\mu,d)$ algebraic with query length $(m_1,...,m_t)$ then the resulting Polynomial IOP has for each $i \in [t]$: $2\ell$ degree $m_i$ univariate oracles, $\ell$ pre-processed multivariate oracles of degree $d$ and $\mu+1$ variables, $\ell$ degree $2m_i$ univariate oracles %(for inner products), 
-and $2\ell$ degree $2m_i$ univariate oracles. %(for coefficient openings). 
+Any public-coin $t$-round stateless algebraic linear IOP can be implemented with a $t+1$-round Polynomial IOP with preprocessing. Suppose the original $\ell$-query IOP is $(\mu,d)$ algebraic with query length $(m_1,...,m_t)$ then the resulting Polynomial IOP has for each $i \in [t]$: $2\ell$ degree $m_i$ univariate polynomial oracles, $\ell$ pre-processed multivariate oracles of degree $d$ and $\mu+1$ variables, $\ell$ degree $2m_i$ univariate polynomial oracles %(for inner products), 
+and $2\ell$ degree $2m_i$ univariate polynomial oracles. %(for coefficient openings). 
 There is exactly one query to each oracle on a random point in $\FF$. The soundness loss of the transformation is $\negl$ for a sufficiently large field (\emph{i.e.}, whose cardinality is exponential in $\lambda$).
 \end{theorem}
 
@@ -271,7 +271,7 @@ If $\verifier$ does not abort in any of these subprotocols, then it receives a s
 %We begin with a lemma on using polynomial commitments (that has witness-extended emulation) to compile a public-coin Polynomial IOP with negligible knowledge error into a public-coin interactive argument with witness-extended emulation. 
 
 \begin{theorem}\label{thm:IOPcompiler}
-If the polynomial commitment scheme $\Gamma$ has witness-extended emulation and the $t$-round Polynomial IOP for $\mathcal{R}$ has negligible knowledge error, then $\Pi$ is a public-coin interactive argument for $\mathcal{R}$ that has witness-extended emulation. The compilation also preserves HVZK if $\Gamma$ is hiding and $\eval$ is HVZK. 
+If the polynomial commitment scheme $\Gamma$ has witness-extended emulation, and if the $t$-round Polynomial IOP for $\mathcal{R}$ has negligible knowledge error, then $\Pi$ is a public-coin interactive argument for $\mathcal{R}$ that has witness-extended emulation. The compilation also preserves HVZK if $\Gamma$ is hiding and $\eval$ is HVZK. 
 \end{theorem}
 
 The full proof is provided in \appendixphrase~\ref{sec:IOPcompilerproof}. 
@@ -292,10 +292,10 @@ For the purpose of the following discussion, we refer to the complexity of an NP
 Theorem~\ref{thm:supersonic} provides the main theoretical result of this work, tying together the new DARK polynomial commitment scheme (Theorem~\ref{thm:polycommitsecurity}), the compilation of HVZK Polynomial IOPs into zk-SNARKs with preprocessing using polynomial commitments (Theorem~\ref{thm:IOPcompiler}), and a concrete univariate Polynomial IOP introduced in \textsf{Sonic}~\cite{Sonic} (Theorem~\ref{thm:sonic}).   
  
 \subsubsection{Sonic} 
-\textsf{Sonic} is zk-SNARK system that has a universal trusted setup, which produces a Structured Reference String (SRS) of $n$ group elements that can be used to prove any statement represented as an arithmetic circuit with at most $n$ gates. The SRS can also be updated without re-doing the initial setup, for instance, to enable proving larger circuits, or to increase the distribution of trust. The result in \textsf{Sonic} was not presented using the language of IOPs. Furthermore, the result also relied on a special construction of polynomial commitments (a modification of Kate~\emph{et al.}~\cite{AC:KatZavGol10}) that forces the prover to commit to a Laurent polynomial with no constant term. Given our generic reduction from coefficient queries to evaluation queries (Section~\ref{sec:opencoefficient}), we re-characterize the main theorem of \textsf{Sonic} as follows: 
+\textsf{Sonic} is a zk-SNARK system that has a universal trusted setup, which produces a Structured Reference String (SRS) of $n$ group elements that can be used to prove any statement represented as an arithmetic circuit with at most $n$ gates. The SRS can also be updated without re-doing the initial setup, for instance, to enable proving larger circuits, or to increase the distribution of trust. The result in \textsf{Sonic} was not presented using the language of IOPs. Furthermore, the result also relied on a special construction of polynomial commitments (a modification of Kate~\emph{et al.}~\cite{AC:KatZavGol10}) that forces the prover to commit to a Laurent polynomial with no constant term. Given our generic reduction from coefficient queries to evaluation queries (Section~\ref{sec:opencoefficient}), we re-characterize the main theorem of \textsf{Sonic} as follows: 
 
 \begin{theorem}[\textsf{Sonic} Bivariate, \cite{Sonic}]
-There exists a 2-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with multiplicative complexity $n$) that makes 1 query to a bivariate polynomial oracle of degree $n$ on each variable, and 6 queries to degree $n$ univariate oracles. The preprocessing verifier does $O(n)$ work to check the single bivariate oracle. 
+There exists a 2-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with multiplicative complexity $n$) that makes 1 query to a bivariate polynomial oracle of degree $n$ on each variable, and 6 queries to degree $n$ univariate polynomial oracles. The preprocessing verifier does $O(n)$ work to check the single bivariate oracle. 
 \end{theorem}
 
 The number of univariate queries increased from the original $3$ in \textsf{Sonic} (with special commitments) to $6$ with our generic coefficient query technique. If we were to compile the bivariate query directly using our multivariate commitment scheme this would result in $O(n^2)$ prover time (a bivariate polynomial with degree $n$ on each variable is converted to a univariate polynomial of degree roughly $n^2$). However, \textsf{Sonic} also provides a way to replace the bivariate polynomial with several degree $n$ univariate polynomials and more rounds of communication. 

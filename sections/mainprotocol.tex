@@ -302,7 +302,7 @@ In the final round we check that the constant $f$ satisfies $|f|\leq b$ and the 
 
 \subsection{Security Analysis} 
  \newcommand{\bindinglemma}{
- The polynomial commitment scheme is binding for polynomials in $\ZZ(b)[X]$ for $b<q/2$ if either the Order Assumption or the Strong RSA Assumption hold.
+ The polynomial commitment scheme is binding for polynomials in $\ZZ(b)[X]$ for $b<q/2$ if either the Adaptive Root Assumption or the Strong RSA Assumption hold.
 	}
 \begin{lemma}
 \label{lem:binding}
@@ -412,14 +412,14 @@ The more general version of the commitment\cite{EC:BCCGP16} can also give evalua
 
 \subsubsection{Based on Merkle Trees of Reed-Solomon Codewords} \label{subsection:fri}
 
-The FRI protocol~\cite{ICALP:BBHR18} is an efficient interactive oracle proof (IOP) that a committed oracle is close to a Reed-Solomon codeword, meaning that the prover commits to large sequences of field elements and the verifier queries only a few specific elements rather than reading the entire sequence. The abstract functionality is cryptographically compiled with a Merkle tree, which results in constant-size commitments and element queries that are logarithmic in the size of the codeword, i.e. the size of the oracle. FRI has been used in multiple recent zero-knowledge proof systems such as  \textsf{STARK}~\cite{C:BBHR19}, \textsf{Aurora}~\cite{EC:BCRSVW19}, and \textsf{Fractal}~\cite{Fractal}.
+The FRI protocol~\cite{ICALP:BBHR18} is an efficient interactive oracle proof (IOP) that a committed oracle is close to a Reed-Solomon codeword, meaning that the prover commits to large sequences of field elements and the verifier queries only a few specific elements rather than reading the entire sequence. The abstract functionality is cryptographically compiled with a Merkle tree, which results in constant-size commitments and element queries that are logarithmic in the length of the codeword, \emph{i.e.}, the size of the oracle. FRI has been used in multiple recent zero-knowledge proof systems such as  \textsf{STARK}~\cite{C:BBHR19}, \textsf{Aurora}~\cite{EC:BCRSVW19}, and \textsf{Fractal}~\cite{Fractal}.
 
 Since this oracle is a Reed-Solomon codeword, it represents the evaluations of a low-degree polynomial $f$ on an evaluation set $S \subset \FF$. In order to be used as a polynomial commitment scheme, the protocol needs to permit querying the polynomial outside of the evaluation set. DEEP-FRI~\cite{DEEPFRI} shows that this is possible and a recent note by Vlasov and Panarin \cite{MatterLabs} makes the connection explicit by building a polynomial commitment scheme from FRI. 
 This FRI-based polynomial commitment scheme has evaluation proofs of size and verifier time $O(\lambda \log^2(d))$ where $\lambda$ is the security parameter and $d = \deg(f)$. To date, no extension to multivariate polynomials exists for FRI. The commitment relies only on symmetric cryptography and is plausibly quantum resistant.
 
 \subsubsection{Comparison}
 
-In Table \ref{tab:polycommit} we give a comparison between different polynomial commitment schemes in the literature. In particular, we evaluate the size of the reference string ($|\params|$), the prover and verifier time, as well as the size of the evaluation proof ($|\pi|$). Column $2$ indicates whether the setup is transparent, \emph{i.e.}, whether the reference string is structured. $\GG_U$ is a group of unknown order $\GG_{B}$ is a group with a bilinear map (pairing), $\GG_{P}$ is a prime order group with known order. $\textsf{EXP}$ refers to exponentiation of a $\lambda$ bit number in these groups. $\hash$ is either the size of a hash output, or the time it takes to compute a hash, depending on context. 
+In Table \ref{tab:polycommit} we give a comparison between different polynomial commitment schemes in the literature. In particular, we evaluate the size of the reference string ($|\params|$), the prover and verifier time, as well as the size of the evaluation proof ($|\pi|$). Column $2$ indicates whether the setup is transparent, \emph{i.e.}, whether the reference string is structured. The symbol $\GG_U$ denotes a group of unknown order, $\GG_{B}$ a group with a bilinear map (pairing), and $\GG_{P}$ a group with prime (and known) order. Furthermore, $\textsf{EXP}$ refers to exponentiation of a $\lambda$ bit number in these groups, and $\hash$ is either the size of a hash output, or the time it takes to compute a hash, depending on context. 
 
 Note that even when precise factors are given, the numbers should be interpreted as estimates. For example we chose to not display smaller order terms.
 Note also that the prover time for the group based schemes could be brought down by a log factor when using multi-exponentiation techniques.
