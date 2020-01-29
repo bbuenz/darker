@@ -58,7 +58,7 @@ In the $i$th round (starting at $i = 1$) the prover outputs a single\footnote{Th
 and verifier state is $\textsf{st}^\verifier_i \leftarrow (\textsf{st}^\verifier_{i-1}, \mathit{coins}_i, \mathbf{a}_i)$
 Finally, $\decider(\textsf{st}^\verifier_t)$ returns $1$ or $0$. 
 
-(\emph{Querying prior round oracles}: The syntax can be naturally extended so that in the $i$th round the verifier may query any oracle, whether sent in the $i$th round or earlier). \\ 
+(\emph{Querying prior round oracles}: The syntax can be naturally extended so that in the $i$th round the verifier may query any oracle, whether sent in the $i$th round or earlier.) \\ 
 
 %\noindent \underline{Completeness}. For every $(x, w) \in \mathcal{R}$, if $(\prover, \verifier)$ follow the protocol then $\verifier(\textsf{st}^V_t)$ returns $1$ with probability 1. \\
 
@@ -290,7 +290,7 @@ For the purpose of the following discussion, we refer to the complexity of an NP
 \item $\mathcal{R}$ has \emph{R1CS complexity}\footnotemark \ $n$ if the function computing $\mathcal{R}(x, w)$ can be expressed as an R1CS instance $(A, B, C, v, w)$ where $A, B, C \in \FF^{m \times (\ell+1)}$, $(v,w) \in \FF^\ell$, and $n$ is the maximum number of non-zero entries in either $A$, $B$, or $C$. \footnotetext{The arithmetic complexity and R1CS complexity are similar, but vary because the R1CS constraints correspond to the wiring of an arithmetic circuit with unrestricted fan-in.}
 \end{itemize}
 
-Theorem~\ref{thm:supersonic} provides the main theoretical result of this work, tying together the new DARK polynomial commitment scheme (Theorem~\ref{thm:polycommitsecurity}), the compilation of HVZK Polynomial IOPs into zk-SNARKs with preprocessing using polynomial commitments (Theorem~\ref{thm:IOPcompiler}), and a concrete univariate Polynomial IOP introduced in \textsf{Sonic}~\cite{Sonic} (Theorem~\ref{thm:sonic}).   
+Theorem~\ref{thm:supersonic} provides the main theoretical result of this work, tying together the new DARK polynomial commitment scheme (Theorem~\ref{thm:polycommitsecurity}), the compilation of HVZK Polynomial IOPs into zk-SNARKs with preprocessing using polynomial commitments (Theorem~\ref{thm:IOPcompiler}), and a concrete univariate Polynomial IOP introduced in \textsf{Sonic}~\cite{Sonic} (Theorem~\ref{thm:sonic}) or follow-up works.   
  
 \subsubsection{Sonic} 
 \textsf{Sonic} is a zk-SNARK system that has a universal trusted setup, which produces a Structured Reference String (SRS) of $n$ group elements that can be used to prove any statement represented as an arithmetic circuit with at most $n$ gates. The SRS can also be updated without re-doing the initial setup, for instance, to enable proving larger circuits, or to increase the distribution of trust. The result in \textsf{Sonic} was not presented using the language of IOPs. Furthermore, the result also relied on a special construction of polynomial commitments (a modification of Kate~\emph{et al.}~\cite{AC:KatZavGol10}) that forces the prover to commit to a Laurent polynomial with no constant term. Given our generic reduction from coefficient queries to evaluation queries (Section~\ref{sec:opencoefficient}), we re-characterize the main theorem of \textsf{Sonic} as follows: 
@@ -314,7 +314,7 @@ There is a 3-round HVZK Polynomial IOP with preprocessing for any NP relation $\
 There exists a 4-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with R1CS complexity $n$) that makes $20$ queries at $3$ distinct query points to $19$ univariate degree polynomial oracles of maximum degree  $6n$. The preprocessing verifier does $O(n)$ work to check $9$ univariate degree $n$ polynomials.
 \end{theorem}
 
-Combining the \pro{Sonic} IOP with the new transparent polynomial compiler of Section~\ref{sec:protocol} gives the following result:  
+Combining the \pro{Sonic} Polynomial IOP with the new transparent polynomial compiler of Section~\ref{sec:protocol} gives the following result.  Similar results are obtained by using \textsf{PLONK} or \textsf{Marlin} instead.  
 
 %\ben{TODO: Add actual complexity for preprocessing and prover rather than quasilinear} 
 \begin{theorem}[\textbf{New Transparent zk-SNARK}]\label{thm:supersonic} 
