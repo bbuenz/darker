@@ -93,15 +93,15 @@ Statement: $y = f(z) \bmod p$ and $\deg(f(X)) = d$
 \end{comment}
 
 \subsection{Integer Polynomial Encoding}
+
 \label{sec:encoding}
-We propose using integer commitments in a group of unknown order.as a concrete instantiation of the homomorphic commitment scheme required for the abstract protocol presented in Section~\ref{sec:abstraction}. At the heart of our protocol is thus an encoding of integer polynomials with bounded coefficients as integers, which also has homomorphic properties. Any commitment scheme which is homomorphic over integer polynomials is automatically homomorphic over $\ZZ_p[X]$ polynomials as well (by reducing integer polynomials modulo $p$). Polynomials over $\ZZ_p[X]$ can be lifted to integer polynomials in a canonical way by choosing representatives in $[0,p)$. Therefore, from here on we will focus on building a homomorphic integer encoding of integer polynomials, and how to combine this with a homomorphic integer commitment scheme. 
+We propose using integer commitments in a group of unknown order as a concrete instantiation of the homomorphic commitment scheme required for the abstract protocol presented in Section~\ref{sec:abstraction}. At the heart of our protocol is thus an encoding of integer polynomials with bounded coefficients as integers, which also has homomorphic properties. Any commitment scheme which is homomorphic over integer polynomials is automatically homomorphic over $\ZZ_p[X]$ polynomials as well (by reducing integer polynomials modulo $p$). Polynomials over $\ZZ_p[X]$ can be lifted to integer polynomials in a canonical way by choosing representatives in $[0,p)$. Therefore, from here on we will focus on building a homomorphic integer encoding of integer polynomials, and how to combine this with a homomorphic integer commitment scheme. 
 
 \paragraph{Strawman encoding} In order to encode integer polynomials over an odd prime field $\mathbb{F}_p$, we first lift them to the ring of polynomials over the integers by choosing representatives in $[0,p)$. In the technical overview (Section~\ref{sec:overview}) we noted that a polynomial $f \in \ZZ[X]$ with positive coefficients bounded by $q$ can be encoded as the integer $f(q)$.   
-The coefficients of $f$ can be recovered via the base $q$ decomposition of $f(q)$. %Let $\ZZ(b):=\{x \in \ZZ: \vert x \vert  \leq b\}$ denote the set of integers with absolute value less than or equal to $b$.
+The coefficients of $f$ can be recovered via the base $q$ decomposition of $f(q)$. 
 This encoding is an injective mapping from polynomials in $\ZZ[X]$ of degree at most $d$ with positive coefficients less than $q$ to the set $[0, q^{d+1})$. The encoding is also \emph{partially} homomorphic. 
 If $f$ is encoded as $f(q)$ and $g$ is encoded as $g(q)$ where coefficients of both $g, f$ are less than $q/2$, then the base-$q$ decomposition of $f(q) + g(q)$ gives back the polynomial $f + g$. 
 By choosing a sufficiently large $q \gg p$ it is possible to perform several levels of homomorphic operations on encodings. 
-%The restriction to positive coefficients is critical for injectivity\benedikt{Disagreed we later show how it is important. The problem only come from how we define the strawman. The same problem arrises if you allow for coefficients $>q$, e.g. 11 = X+1 for q=10}; for any $f^*$ with positive $q$-bounded coefficients there exists $g^*$ with negative coefficients such that $g^*(q) = f^*(q)$ and $g^* \not \equiv f^* \bmod p$. For example $f^*(X)=9$ and $g^*(X)=X-1$ for $q=10$ \benedikt{added example} (The commitment scheme over $\ZZ_p[X]$ will obviously be non-binding if the encoding is not injective). 
 
 \paragraph{What goes wrong?} Unfortunately, this simple encoding scheme does not quite work yet for the protocol outlined in Section~\ref{sec:overview}. The homomorphic consistency checks ensure that if $[\![f_L(X)]\!]$ is a homomorphic integer commitment to the encoding of $f_L \in \ZZ[X]$, $[\![f_R(X)]\!]$ is a homomorphic integer commitment to the encoding of $f_R \in \ZZ[X]$, and both $f_L, f_R$ are polynomials with $q/2$-bounded coefficients, then $[\![f(X)]\!]$ is an integer commitment to the encoding of $f_L + X^{d'}f_R$. (Moreover, if $f_L(z) = y_L \bmod p$ and $f_R(z) = y_R \bmod p$ then $f(z) = y_L + z^{d'} y_R \bmod p$). 
 
@@ -120,8 +120,7 @@ As shown above, the verifier can infer a bound on the absolute values of $f_L$ a
 
 More generally, for every integer $z$ in the range $B = (-\frac{q^{d+1}}{2}, \frac{q^{d+1}}{2})$ there is a unique degree (at most) $d$ integer polynomial $h(X)$ with coefficients whose absolute values are bounded by $q/2$ such that $h(q) = z$. \emph{We prove this elementary fact below and show how the coefficients of $h$ can be recovered efficiently from $z$ (Fact~\ref{EncodingBijective})}. If the prover is committed to $h(q)$ at level $i$ of the protocol, there is a unique pair of integers polynomial $h_L$ and $h_R$ with coefficients of absolute value bounded by $q/2$ such that $h_L(q) + q^{\frac{d+1}{2}} h_R(q) = h(q)$, and if the prover recurses on any other $h_L^*$ and $h_R^*$ with larger coefficients then the verifier's bound check at the bottom level of recursion will fail with overwhelming probability. 
 
-\paragraph{Optimization with negative coefficients} As we have seen, an adversarial prover can commit to poylnomials with positive or negative coefficients. As an optimization, we can actually allow the honest prover to encode polynomials using a mixture of negative and positive coefficients as well. A polynomial $f(X) \in \ZZ_p[X]$ is lifted to an integer polynomial by replacing each coefficient of $f$ with its unique integer representative from $(-p/2,p/2)$ of the same equivalence class modulo $p$. Also, $\alpha$ can be chosen from $(-p/2, p/2)$, leading to a tighter bound on coefficient growth. This leads us to the following encoding scheme. 
-
+\paragraph{Optimization with negative coefficients} As we have seen, an adversarial prover can commit to polynomials with positive or negative coefficients. As an optimization, we can actually allow the honest prover to encode polynomials using a mixture of negative and positive coefficients as well. A polynomial $f(X) \in \ZZ_p[X]$ is lifted to an integer polynomial by replacing each coefficient of $f$ with its unique integer representative from $(-p/2,p/2)$ of the same equivalence class modulo $p$. Also, $\alpha$ can be chosen from $(-p/2, p/2)$, leading to a tighter bound on coefficient growth. This leads us to the following encoding scheme. 
 
 \paragraph{Final encoding scheme} Let $\ZZ(b):=\{x \in \ZZ: \vert x \vert  \leq b\}$ denote the set of integers with absolute value less than or equal to $b$.  Define $\ZZ(b)[X] := \{f \in \ZZ[X]: ||f||_\infty \leq b\}$, the set of integer polynomials with coefficients from $\ZZ(b)$. (For a polynomial $g \in \ZZ[X]$ the norm $||g||_\infty$ is the maximum over the absolute values of all individual coefficients of $g$).
 \begin{itemize} 
@@ -371,7 +370,7 @@ The proof of Theorem~\ref{thm:dyadicpolysecurity} is nearly identical to the pro
 
 \subsection{Performance}
 The polynomial commitment scheme has logarithmic proof size and verifier time in the degree $d$ of the committed polynomial. 
-It has highly batchable proofs and it is possible to evaluate $n$ degree $d$ polynomials at $k$ points using only $2\log_2(d+1)$ group elements and $(k+1)\log_2(d+1)$ field elements (see Section \ref{subsec:optimization} of the \appendixphrase). Note that this means the proof size is independent of $n$ and linear in $k$ but with a small constant $(15 \log(d)$ bytes). 
+It has highly batchable proofs and it is possible to evaluate $n$ degree $d$ polynomials at $k$ points using only $2\log_2(d+1)$ group elements and $(k+1)\log_2(d+1)$ field elements (see Section \ref{subsec:optimization}). Note that this means the proof size is independent of $n$ and linear in $k$ but with a small constant $(15 \log(d)$ bytes). 
 We describe the performance of our scheme for different settings in Table~\ref{tab:performance}.
 
 \begin{table}[!htp]
@@ -407,7 +406,7 @@ In the multivariate setting, our scheme is logarithmic in the total number of co
 \subsubsection{Based on Discrete Logarithms}
 
 \textsf{Bulletproofs}~\cite{EC:BCCGP16,SP:BBBPWM18} is a proof system based on prime order groups in which the discrete logarithm is hard. As a core component it relies on an inner product argument which can be used as a polynomial commitment (see \cite{SP:WTSTW18}). The polynomial commitment has logarithmic evaluation proofa with great constants. Unfortunately, the verifier time is linear in the size of the polynomial, i.e. $(d+1)^\mu$ for a $\mu$- variate degree $d$ polynomial.
-The more general version of the commitment\cite{EC:BCCGP16} can also give evaluation proofs with square root verifier time and square root proof size.
+The more general version of the commitment~\cite{EC:BCCGP16} can also give evaluation proofs with square root verifier time and square root proof size.
 
 
 \subsubsection{Based on Merkle Trees of Reed-Solomon Codewords} \label{subsection:fri}
