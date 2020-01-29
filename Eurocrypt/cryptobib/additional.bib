@@ -6,7 +6,21 @@
   year={2003},
   publisher={Springer}
 }
-
+@article{DBLP:journals/corr/BiasseJS10,
+  author    = {Jean{-}Fran{\c{c}}ois Biasse and
+               Michael J. Jacobson Jr. and
+               Alan K. Silvester},
+  title     = {Security Estimates for Quadratic Field Based Cryptosystems},
+  journal   = {CoRR},
+  volume    = {abs/1004.5512},
+  year      = {2010},
+  url       = {http://arxiv.org/abs/1004.5512},
+  archivePrefix = {arXiv},
+  eprint    = {1004.5512},
+  timestamp = {Mon, 13 Aug 2018 16:46:50 +0200},
+  biburl    = {https://dblp.org/rec/bib/journals/corr/BiasseJS10},
+  bibsource = {dblp computer science bibliography, https://dblp.org}
+}
 @inproceedings{conf/icics/Sander99,
   author    = {Tomas Sander},
   title     = {Efficient Accumulators without Trapdoor Extended Abstracts},
@@ -26,9 +40,9 @@ author={Sean Bowe},
 year={2016},
 note= "\url{https://github.com/zkcrypto/bellman}"
 }
-@Misc{coda,
+@Misc{Coda,
 title={Coda Protocol},
-author={O(1) labs},
+author={O(1) Labs},
 year={2018},
 note= "\url{https://codaprotocol.com/}"
 }
@@ -188,6 +202,13 @@ Computation},
     year = {2019},
     note = {\url{https://eprint.iacr.org/2019/317}},
 }
+@misc{Marlin,
+    author = {Alessandro Chiesa and Yuncong Hu and Mary Maller and Pratyush Mishra and Noah Vesely and Nicholas Ward},
+    title = {Marlin: Preprocessing zkSNARKs with Universal and Updatable SRS},
+    howpublished = {Cryptology ePrint Archive, Report 2019/1047},
+    year = {2019},
+    note = {\url{https://eprint.iacr.org/2019/1047}},
+}
 
 @misc{Plonk,
     author = {Ariel Gabizon and Zachary J. Williamson and Oana Ciobotaru},
@@ -209,9 +230,7 @@ Computation},
 
 @article{pippenger1980evaluation,
      author = {Nicholas Pippenger},
-     ISSN = {0097--5397},
      journal = {SIAM Journal on Computing},
-     MR = {82c:10064},
      pages = {230--250},
      title = {{On the evaluation of powers and monomials}},
      volume = {9},
@@ -220,7 +239,16 @@ Computation},
  
  @misc{ZCash,
     title = {ZCash},
-    note = {\url{https://zcash.co}},
+    note = {\url{https://z.cash}},
+}
+
+@Misc{ZcashProtocol,
+   author = {Daira Hopwood and Sean Bowe and Taylor Hornby and Nathan
+Wilcox},
+   title = {Zcash {P}rotocol {S}pecification},
+   url = {https://zips.z.cash/protocol/protocol.pdf},
+   urldate = {2019-10-24}, 
+   year = {2019}
 }
 
  @misc{ZCashCeremony,
@@ -230,5 +258,127 @@ Computation},
     note = {\url{https://z.cash/blog/the-design-of-the-ceremony.html}},
 }
 
+@article{WalBlu15,
+     author = {Michael Walfish and Andrew J. Blumberg},
+     journal = {Communications of the ACM},
+     title = {Verifying computations without reexecuting them: From theoretical possibility to near practicality},
+     volume = {58(2)},
+     year = {2015}
+ }
 
+@article{EPRINT:BCGMMW18,
+  author    = {Sean Bowe and
+               Alessandro Chiesa and
+               Matthew Green and
+               Ian Miers and
+               Pratyush Mishra and
+               Howard Wu},
+  title     = {Zexe: Enabling Decentralized Private Computation},
+  journal   = {{IACR} Cryptology ePrint Archive},
+  year      = {2018},
+  url       = {https://eprint.iacr.org/2018/962},
+ }
+ 
+ @misc{ZK-rollup,
+    author = {Vitalik Buterin},
+    title = {ZK Rollup},
+    year = {2016},
+    note = {\url{https://ethresear.ch/t/on-chain-scaling-to-potentially-500-tx-sec-through-mass-tx-validation/3477}},
+}
+
+@misc{Zokrates,
+    author = {Jacob Eberhardt},
+    title = {Zokrates},
+    note = {\url{https://zokrates.github.io/}},
+}
+
+@article{JACM:GMW91,
+  author    = {Oded Goldreich and Silvio Micali and Avi Wigderson},
+  title     = {Proofs that yield nothing but their validity},
+  journal   = {Journal of the ACM},
+  volume    = {38(3)},
+  year      = {1991},
+ }
+ 
+@article{DEEPFRI,
+  author    = {Eli Ben{-}Sasson and
+               Lior Goldberg and
+               Swastik Kopparty and
+               Shubhangi Saraf},
+  title     = {{DEEP-FRI:} Sampling Outside the Box Improves Soundness},
+  journal   = {{IACR} Cryptology ePrint Archive},
+  volume    = {2019},
+  pages     = {336},
+  year      = {2019},
+  url       = {https://eprint.iacr.org/2019/336},
+}
+
+@misc{Fractal,
+    author = {Alessandro Chiesa and Dev Ojha and Nicholas Spooner},
+    title = {Fractal: Post-Quantum and Transparent Recursive Proofs from Holography},
+    journal   = {{IACR} Cryptology ePrint Archive},
+    year = {2019},
+    volume = {2019},
+    pages = {1076},
+    url = {https://eprint.iacr.org/2019/1076},
+}
+
+@article{SIAMCOMP:BS08,
+  author    = {Eli Ben{-}Sasson and
+               Madhu Sudan},
+  title     = {Short PCPs with Polylog Query Complexity},
+  journal   = {{SIAM} J. Comput.},
+  volume    = {38},
+  number    = {2},
+  pages     = {551--607},
+  year      = {2008},
+  url       = {https://doi.org/10.1137/050646445},
+  doi       = {10.1137/050646445},
+}
+
+@inproceedings{STOC:CGT13,
+  author    = {Eli Ben{-}Sasson and
+               Alessandro Chiesa and
+               Daniel Genkin and
+               Eran Tromer},
+  title     = {On the concrete efficiency of probabilistically-checkable proofs},
+  booktitle = {{STOC} 2013},
+  pages     = {585--594},
+  year      = {2013},
+  crossref  = {DBLP:conf/stoc/2013},
+  url       = {https://doi.org/10.1145/2488608.2488681},
+  doi       = {10.1145/2488608.2488681},
+  editor    = {Dan Boneh and
+               Tim Roughgarden and
+               Joan Feigenbaum},
+  publisher = {{ACM}},
+}
+
+@article{ECCC:BGR16,
+  author    = {Eli Ben{-}Sasson and
+               Iddo Bentov and
+               Ariel Gabizon and
+               Michael Riabzev},
+  title     = {Improved concrete efficiency and security analysis of Reed-Solomon
+               PCPPs},
+  journal   = {Electronic Colloquium on Computational Complexity {(ECCC)}},
+  volume    = {23},
+  pages     = {73},
+  year      = {2016},
+  url       = {http://eccc.hpi-web.de/report/2016/073},
+}
+
+
+
+@article{DARK/Supersonic:fullversion,
+  author    = {Benedikt B{\"{u}}nz and
+               Ben Fisch and
+               Alan Szepieniec},
+  title     = {Transparent {SNARK}s from {DARK} {C}ompilers},
+  journal   = {{IACR} Cryptology ePrint Archive},
+  volume    = {2019},
+  pages     = {1229},
+  year      = {2019},
+  url       = {https://eprint.iacr.org/2019/1229},
+}
 
