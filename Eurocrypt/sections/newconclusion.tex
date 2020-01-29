@@ -1,0 +1,12 @@
+In this work we presented the DARK compiler: a polynomial commitment scheme from falsifiable assumptions in groups of unknown order with evaluation proofs that can be verified in logarithmic time. We also presented Polynomial IOPs, a unifying information-theoretical framework underlying the information theoretic foundation of several recent SNARK constructions. Polynomial IOPs can be compiled into a concrete SNARK using a polynomial commitment scheme and the Fiat-Shamir transform. We showed that applying the DARK compiler to recent Polynomial IOPs yields \textbf{the first trustless SNARKs (\emph{i.e.}, with a transparent untrusted setup) that have practical proof sizes and verification times}. In particular, this is the first trustless/transparent SNARK construction that has asymptotically logarithmic verification time (ignoring the $\lambda$-dependent factors, which are comparable to $\lambda$-dependent factors in prior works). Finally, unlike all known SNARKs in bilinear groups, the construction does not require knowledge of exponent assumptions.
+Several important open questions remain:
+
+\begin{itemize}
+    \item Our polynomial commitment scheme has prover time linear in the total number of coefficients, even for zero coefficients. Consequently for a sparse bivariate polynomial of degree $d$ in each variable the prover time is quadratic in $d$. A sparse polynomial commitment scheme would directly enable an efficient compilation of simple information theoretic protocols such as QAPs.
+    \item Assymptotically, Supersonic's prover time is on par with pairing-based SNARK constructions, however, a concrete implementation and performance comparison remains open.
+    \item This work further motivates the study of class groups and groups of unknown order. In particular we rely on a recently introduced adaptive root assumption.
+    \item Our polynomial commitment scheme uses a simple underlying information theoretic protocol that could be compiled using a (partially) homomorphic commitment scheme over polynomials, or even another type of integer homomorphic commitment scheme. This leaves open whether there are different ways of instantiating our DARK compiler under different cryptographic assumptions. 
+    
+\end{itemize}
+
+
