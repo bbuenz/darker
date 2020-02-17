@@ -150,7 +150,7 @@ As a matter of concrete efficiency, it is possible to extend the Polynomial IOP 
 
 \subsection{Polynomial IOP reductions} \label{sec:polynomialIOPreductions}
 
-In this section we show that one can construct any algebraic linear IOP from a (multivariate) Polynomial IOP. This construction rests on two tools for univariate Polynomial IOPs. These tools are treated explicitly in the full version of this paper~\cite{DARK/Supersonic:fullversion}; for now it suffices to say that these subprotocols are realizable with small number (constant) of evaluations.
+In this section we show that one can construct any algebraic linear IOP from a (multivariate) Polynomial IOP. This construction rests on two tools for univariate Polynomial IOPs. These tools are treated explicitly in the full version of this paper~\cite{DARK/Supersonic:fullversion}; These subprotocols are realizable with small constant number of evaluations.
 \begin{itemize}
     \item \emph{Coefficient queries.} The verifier verifies that an indicated coefficient of a polynomial oracle has a given value.
     \item \emph{Inner products.} The verifier verifies that the inner product of the coefficient vectors of two polynomial oracles equals a given value.
@@ -283,8 +283,7 @@ The proof is provided in the full version of this paper~\cite[\S B]{DARK/Superso
 
 \subsection{Concrete Instantiations} 
 
-We consider here examples of Polynomial IOPs to which this compiler can be applied: \textsf{Sonic}~\cite{Sonic}, \textsf{PLONK}~\cite{Plonk} and \textsf{Marlin}~\cite{Marlin}. The full version of this paper~\cite{DARK/Supersonic:fullversion} extends this application to \textsf{STARK}~\cite{C:BBHR19}, \textsf{Spartan}~\cite{Spartan}, and the popular QAP of Gennaro~\emph{et al.}~\cite{EC:GGPR13}.
-
+Several proof systems use Polynomial IOPs and our compiler can be applied to them. We present \textsf{Sonic}~\cite{Sonic} here and discuss several other proof systems \cite{Plonk,Marlin,C:BBHR19,Spartan,EC:GGPR13} in the full version~\cite{DARK/Supersonic:fullversion}
 \if 0
 For the purpose of the following discussion, we refer to the complexity of an NP relation $\mathcal{R}$ in various forms: 
 \begin{itemize}
@@ -313,13 +312,6 @@ There is a 5-round HVZK Polynomial IOP with preprocessing for any NP relation $\
 
 %The recent proof systems \pro{PLONK} and \pro{Marlin} improve on \pro{Sonic} by constructing a different Polynomial IOP. They achieve the following: 
 
-\begin{theorem}[\textsf{PLONK},~\cite{Plonk}] 
-There is a 3-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ that makes $12$ queries overall to $12$ univariate degree $n$ polynomial oracles. The total number of distinct query points is $2$. The preprocessing verifier does $O(n)$ work to check $7$ of the univariate degree $n$ polynomials. Here, $n$ is the total number of arithmetic gates in the circuit that defines $\mathcal{R}$.
-\end{theorem}
-
-\begin{theorem}[\textsf{Marlin},~\cite{Marlin}] 
-There exists a 4-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ that makes $20$ queries at $3$ distinct query points to $19$ univariate degree polynomial oracles of maximum degree  $6n$. The preprocessing verifier does $O(n)$ work to check $9$ univariate degree $n$ polynomials. Here, $n$ is the number of nonzero entries in the R1CS description of $\mathcal{R}$.
-\end{theorem}
 
 Combining the \pro{Sonic} Polynomial IOP with the new transparent polynomial compiler of Section~\ref{sec:protocol} gives the following result. Similar results are obtained by using \textsf{PLONK} or \textsf{Marlin} instead.  
 
@@ -328,7 +320,7 @@ Combining the \pro{Sonic} Polynomial IOP with the new transparent polynomial com
 There exists an $O(\log n)$-round public-coin interactive argument of knowledge for any NP relation with arithmetic complexity $n$ that has $O(\log n)$ communication, $O(\log n)$ ``online" verification, quasilinear prover time, and a preprocessing step that is verifiable in quasilinear time. The argument of knowledge has witness-extended emulation assuming it is instantiated with a group $\GG$ for which the Strong RSA Assumption, and the Adaptive Root Assumption hold. 
 \end{theorem}
 
-Despite its triviality, the proof is deferred to the full version of this paper~\cite{DARK/Supersonic:fullversion}.
+The proof is deferred to the full version of this paper~\cite{DARK/Supersonic:fullversion}.
 
 \if 0
 \begin{proof}

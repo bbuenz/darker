@@ -157,7 +157,7 @@ Let $(\prover, \verifier)$ be an $r$-round public-coin interactive argument syst
 \end{lemma}
 
 We note that our statement of the Generalized Forking Lemma differs from that of Bootle~\emph{et al.}, which does not mention a tree-finder $\mathcal{T}$ and which requires $\mathcal{X}$ have success probability one. The restatement is necessary to take into account adversaries $\prover^*$ for which the tree-finder $\mathcal{T}$ outputs a $({n_1}, \ldots, {n_r})$-tree of accepting transcripts with negligible but nonzero probability even when the statement $x$ has no matching witness $w$. In such cases, no extractor $\mathcal{X}$ with success probability one can exist. Intuitively, the reason why this modification is okay is because the proof constructs an emulator $\mathcal{E}$ that uses $\mathcal{X}$ as a black box. Since $\mathcal{E}$ runs in polynomial time, it cannot distinguish an always-correct $\mathcal{X}$ from an overwhelmingly correct $\mathcal{X}$. If $\mathcal{X}$ should fail, then $\mathcal{E}$ re-runs $\mathcal{T}$ and $\mathcal{X}$.
-\fi
+
 
 \paragraph{Zero knowledge} We recall the definition of \emph{honest verifier zero-knowledge} (HVZK) for interactive proofs. HVZK only considers simulating the view of a verifier that follows the protocol honestly. The Fiat-Shamir transform compiles public-coin proofs that have HVZK into non-interactive proofs that have statistical zero-knowledge (for malicious verifiers). 
 %\ben{TODO: cite appropriate works, Bellare-Rogaway, more recent for more than constant round} 
@@ -166,7 +166,7 @@ We note that our statement of the Generalized Forking Lemma differs from that of
 \label{def:hvzk}
 Let $\textsf{View}_{\langle \prover(x, w), \verifier(x) \rangle}$ denote the view of the verifier in an interactive protocol described in Definition~\ref{def:argument} on common input $x$ and prover witness input $w$. The interactive protocol has $\delta$-statistical honest verifier zero-knowledge if there exists a probabilistic polynomial time algorithm $\mathcal{S}$ such that for every $(x, w) \in \mathcal{R}$, the distribution $\mathcal{S}(x)$ is $\delta$-close to $\textsf{View}_{\langle \prover(x, w), \verifier(x) \rangle}$ (as distributions over the randomness of $\prover$ and $\verifier$).
 \end{definition}
-
+\fi
 \subsection{Commitment Schemes}
 
 In defining the syntax of the various protocols, we use the following convention with respect to public values (known to both the prover and the verifier) and secret ones (known only to the prover). In any list of arguments or returned tuple $(a, b, c; d, e)$ those variables listed before the semicolon are public, and those variables listed after it are secret. When there is no secret information, the semicolon is omitted.
@@ -235,7 +235,7 @@ Specifically, if the prover is honest then for all polynomials $f(X) \in R[X]$ a
 \]
 \end{small}
 
-A polynomial commitment scheme is \defn{evaluation binding} if no efficient adversary can convince the verifier that the committed polynomial $f(X)$ evaluates to different values $y_0 \neq y_1 \in R$ in the same point $z \in R$. However, our applications require a stronger property called \emph{knowledge soundness}. 
+%A polynomial commitment scheme is \defn{evaluation binding} if no efficient adversary can convince the verifier that the committed polynomial $f(X)$ evaluates to different values $y_0 \neq y_1 \in R$ in the same point $z \in R$. However, our applications require a stronger property called \emph{knowledge soundness}. 
 \begin{comment}
 	Let $b \gets \pro{Eval}_{\langle \adv_1, \verifier\rangle}(c, z, y, d, \st)$ denote the verifier's output in an execution of this protocol with adversarial prover $\adv_1$ on public inputs $c, z, y, d$ and private adversary state $\st$. %(The adversary may or may not know a witness polynomial $f(X)$.)
 Evaluation binding requires that for all probabilistic polynomial-time adversaries $\adv = (\adv_0, \adv_1)$,
@@ -276,7 +276,7 @@ f \in R[X] \ \text{and} \ \deg(f(X)) \leq d \ \text{and} \ f(z) = y \\
 \end{small}
 The correctness definition above implies that if $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ is \emph{correct} then $\eval$ is a correct interactive argument for $\mathcal{R_\textsf{Eval}}(\params)$, with overwhelming probability over the randomness of $\pro{Setup}$. We say that $\Gamma$ has \textbf{witness-extended emulation} if $\eval$ has witness-extended emulation as an interactive argument for $\mathcal{R_\textsf{Eval}}(\params)$. 
 
-It is easy to see that witness-extended emulation implies evaluation binding when the $\pro{Setup}, \pro{Commit},$ and $\pro{Open}$ part of $\Gamma$ form a binding commitment scheme. If the adversary succeeds in $\eval$ on both $(c, z, y_0, d_0)$ and $(c, z, y_1, d_1)$ for $y_0 \neq y_1$ or $d_0 \neq d_1$ then the emulator obtains two distinct witnesses $f(X) \neq f'(X)$ such that $c$ is a valid commitment to both. This would contradict the binding property of the commitment scheme. 
+%It is easy to see that witness-extended emulation implies evaluation binding when the $\pro{Setup}, \pro{Commit},$ and $\pro{Open}$ part of $\Gamma$ form a binding commitment scheme. If the adversary succeeds in $\eval$ on both $(c, z, y_0, d_0)$ and $(c, z, y_1, d_1)$ for $y_0 \neq y_1$ or $d_0 \neq d_1$ then the emulator obtains two distinct witnesses $f(X) \neq f'(X)$ such that $c$ is a valid commitment to both. This would contradict the binding property of the commitment scheme. 
 
 %\paragraph{Opening individual coefficients} The coefficients of a committed polynomial can be revealed and checked all at once using $\pro{Open}$, however, in some cases it is useful to reveal an individual coefficient more efficiently (\emph{i.e.}, with sublinear communication). 
 %There is a generic one-round protocol for this that uses $\pro{Eval}$ as a black-box, and inherits the efficiency properties of $\pro{Eval}$. We present this in Section~\ref{sec:opencoefficient}. 

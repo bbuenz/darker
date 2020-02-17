@@ -1,79 +1,57 @@
 This is BibTeX, Version 0.99d (TeX Live 2019)
 Capacity: max_strings=100000, hash_size=100000, hash_prime=85009
 The top-level auxiliary file: /Users/buenz/Library/Mobile Documents/com~apple~CloudDocs/Research/Bitcoin research/rsapoly/Eurocrypt/.texpadtmp/polycommit.aux
-The style file: vancouver.bst
-Reallocated glb_str_ptr (elt_size=4) to 20 items from 10.
-Reallocated global_strs (elt_size=20001) to 20 items from 10.
-Reallocated glb_str_end (elt_size=4) to 20 items from 10.
-Reallocated wiz_functions (elt_size=4) to 6000 items from 3000.
+The style file: ../splncs03.bst
 Database file #1: ../cryptobib/abbrev3.bib
 Reallocated str_pool (elt_size=1) to 130000 items from 65000.
 Reallocated str_pool (elt_size=1) to 195000 items from 130000.
 Database file #2: ../cryptobib/crypto.bib
 Database file #3: ../cryptobib/additional.bib
-Warning--empty author and editor in Coda
-Warning--missing publisher in Coda
-Warning--empty booktitle in ES:SBVBPW13
-Warning--empty pages in ES:SBVBPW13
-Warning--empty author and editor in ZcashCeremony
-Warning--missing publisher in ZcashCeremony
-Warning--empty author and editor in Sonic
-Warning--missing publisher in Sonic
-Warning--empty author and editor in Libra
-Warning--missing publisher in Libra
-Warning--empty author and editor in Spartan
-Warning--missing publisher in Spartan
-Warning--empty author and editor in Plonk
-Warning--missing publisher in Plonk
+Warning--I didn't find a database entry for "Zcash"
+Warning--empty journal in ECCC:BGKS19
+Warning--empty booktitle in CC:GolVadWig02
 Warning--empty booktitle in CC:IKO07
-Warning--empty pages in CC:IKO07
-Warning--empty pages in RivShaWag96
-Warning--empty author and editor in MatterLabs
-Warning--missing publisher in MatterLabs
+Warning--empty booktitle in ES:SBVBPW13
 Warning--empty booktitle in web/Stra19
-Warning--empty pages in web/Stra19
-Warning--empty pages in jtn/BosSte96
-Warning--empty author and editor in EPRINT:BTVW14
-Warning--missing publisher in EPRINT:BTVW14
-You've used 55 entries,
-            3170 wiz_defined-function locations,
-            12658 strings with 149984 characters,
-and the built_in function-call counts, 91051 in all, are:
-= -- 10827
-> -- 868
-< -- 66
-+ -- 434
-- -- 217
-* -- 7435
-:= -- 10083
-add.period$ -- 200
-call.type$ -- 55
-change.case$ -- 92
+You've used 56 entries,
+            2785 wiz_defined-function locations,
+            12568 strings with 149113 characters,
+and the built_in function-call counts, 35859 in all, are:
+= -- 2987
+> -- 1129
+< -- 63
++ -- 447
+- -- 387
+* -- 2363
+:= -- 4490
+add.period$ -- 107
+call.type$ -- 56
+change.case$ -- 418
 chr.to.int$ -- 0
-cite$ -- 79
-duplicate$ -- 6751
-empty$ -- 8669
-format.name$ -- 279
-if$ -- 21310
+cite$ -- 61
+duplicate$ -- 3185
+empty$ -- 3230
+format.name$ -- 446
+if$ -- 7855
 int.to.chr$ -- 0
-int.to.str$ -- 55
-missing$ -- 628
-newline$ -- 273
-num.names$ -- 115
-pop$ -- 1331
+int.to.str$ -- 56
+missing$ -- 654
+newline$ -- 173
+num.names$ -- 164
+pop$ -- 1269
 preamble$ -- 1
-purify$ -- 0
+purify$ -- 282
 quote$ -- 0
-skip$ -- 1442
+skip$ -- 858
 stack$ -- 0
-substring$ -- 16528
-swap$ -- 1909
-text.length$ -- 66
+substring$ -- 2133
+swap$ -- 1806
+text.length$ -- 63
 text.prefix$ -- 0
 top$ -- 0
-type$ -- 0
-warning$ -- 24
-while$ -- 600
-width$ -- 57
-write$ -- 657
-(There were 24 warnings)
+type$ -- 224
+warning$ -- 5
+while$ -- 296
+width$ -- 58
+write$ -- 593
+(There were 6 warnings)

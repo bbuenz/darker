@@ -94,7 +94,7 @@ Statement: $y = f(z) \bmod p$ and $\deg(f(X)) = d$
 
 \subsection{Integer Polynomial Encoding}
 \label{sec:encoding}
-\if 0
+
 We propose using integer commitments in a group of unknown order as a concrete instantiation of the homomorphic commitment scheme required for the abstract protocol presented in Section~\ref{sec:abstraction}. At the heart of our protocol is thus an encoding of integer polynomials with bounded coefficients as integers, which also has homomorphic properties. Any commitment scheme which is homomorphic over integer polynomials is automatically homomorphic over $\ZZ_p[X]$ polynomials as well (by reducing integer polynomials modulo $p$). Polynomials over $\ZZ_p[X]$ can be lifted to integer polynomials in a canonical way by choosing representatives in $[0,p)$. Therefore, from here on we will focus on building a homomorphic integer encoding of integer polynomials, and how to combine this with a homomorphic integer commitment scheme. 
 
 \paragraph{Strawman encoding} In order to encode integer polynomials over an odd prime field $\mathbb{F}_p$, we first lift them to the ring of polynomials over the integers by choosing representatives in $[0,p)$. In the technical overview (Section~\ref{sec:overview}) we noted that a polynomial $f \in \ZZ[X]$ with positive coefficients bounded by $q$ can be encoded as the integer $f(q)$.   
@@ -120,12 +120,11 @@ As shown above, the verifier can infer a bound on the absolute values of $f_L$ a
 
 More generally, for every integer $z$ in the range $B = (-\frac{q^{d+1}}{2}, \frac{q^{d+1}}{2})$ there is a unique degree (at most) $d$ integer polynomial $h(X)$ with coefficients whose absolute values are bounded by $q/2$ such that $h(q) = z$. \emph{We prove this elementary fact below and show how the coefficients of $h$ can be recovered efficiently from $z$ (Fact~\ref{EncodingBijective})}. If the prover is committed to $h(q)$ at level $i$ of the protocol, there is a unique pair of integers polynomial $h_L$ and $h_R$ with coefficients of absolute value bounded by $q/2$ such that $h_L(q) + q^{\frac{d+1}{2}} h_R(q) = h(q)$, and if the prover recurses on any other $h_L^*$ and $h_R^*$ with larger coefficients then the verifier's bound check at the bottom level of recursion will fail with overwhelming probability. 
 
-\paragraph{Optimization with negative coefficients} As we have seen, an adversarial prover can commit to polynomials with positive or negative coefficients. As an optimization, we can actually allow the honest prover to encode polynomials using a mixture of negative and positive coefficients as well. A polynomial $f(X) \in \ZZ_p[X]$ is lifted to an integer polynomial by replacing each coefficient of $f$ with its unique integer representative from $(-p/2,p/2)$ of the same equivalence class modulo $p$. Also, $\alpha$ can be chosen from $(-p/2, p/2)$, leading to a tighter bound on coefficient growth. This leads us to the following encoding scheme. 
-\fi
+%\paragraph{Optimization with negative coefficients} As we have seen, an adversarial prover can commit to polynomials with positive or negative coefficients. As an optimization, we can actually allow the honest prover to encode polynomials using a mixture of negative and positive coefficients as well. A polynomial $f(X) \in \ZZ_p[X]$ is lifted to an integer polynomial by replacing each coefficient of $f$ with its unique integer representative from $(-p/2,p/2)$ of the same equivalence class modulo $p$. Also, $\alpha$ can be chosen from $(-p/2, p/2)$, leading to a tighter bound on coefficient growth. This leads us to the following encoding scheme. 
 
-In contrast to the highly simplified technical overview presented earlier, we prefer a balanced choice of integer representatives of $\mathbb{Z}_p$. This choice benefits a more natural reasoning about the growth of coefficients in an extraction argument. We refer the reader to full version of this paper~\cite{DARK/Supersonic:fullversion} for a more elaborate motivation.
+%In contrast to the highly simplified technical overview presented earlier, we prefer a balanced choice of integer representatives of $\mathbb{Z}_p$. This choice benefits a more natural reasoning about the growth of coefficients in an extraction argument. We refer the reader to full version of this paper~\cite{DARK/Supersonic:fullversion} for a more elaborate motivation.
 
-\paragraph{Encoding scheme} Let $\ZZ(b):=\{x \in \ZZ: \vert x \vert  \leq b\}$ denote the set of integers with absolute value less than or equal to $b$.  Define $\ZZ(b)[X] := \{f \in \ZZ[X]: ||f||_\infty \leq b\}$, the set of integer polynomials with coefficients from $\ZZ(b)$. (For a polynomial $g \in \ZZ[X]$ the norm $||g||_\infty$ is the maximum over the absolute values of all individual coefficients of $g$.)
+\paragraph{Final Encoding scheme} Let $\ZZ(b):=\{x \in \ZZ: \vert x \vert  \leq b\}$ denote the set of integers with absolute value less than or equal to $b$.  Define $\ZZ(b)[X] := \{f \in \ZZ[X]: ||f||_\infty \leq b\}$, the set of integer polynomials with coefficients from $\ZZ(b)$. (For a polynomial $g \in \ZZ[X]$ the norm $||g||_\infty$ is the maximum over the absolute values of all individual coefficients of $g$.)
 \begin{itemize} 
 
 \item \textbf{Encoding.}
@@ -134,7 +133,7 @@ For any integer $q$, the function $\mathsf{Enc} : \mathbb{Z}(b)[X] \rightarrow \
 \item \textbf{Decoding.}
 Decoding works as follows. Define the partial sum $S_k := \sum_{i=0}^k f_i q^i$ with $S_{-1} := 0$. Assuming $|f_i| < q/2$ for all $i$, observe that for any partial sum $S_k$ we have $|S_k|<\frac{q^{k+1}}{2}$. Therefore, when $S_k < 0$ then $S_k \bmod q^{k+1} > q^{k+1}/2$ and when $S_k \geq 0$ then $S_k \bmod q^{k+1} < q^{k+1}/2$. 
 This leads to a decoding strategy for recovering $S_k$ from $y \in \mathbb{Z}$. The decode algorithm sets $S_k$ to $y \bmod q^{k+1}$ if this value is less than $q^{k+1}/2$ and to $q^{k+1}- (y \bmod q^{k+1})$ otherwise.
-Two consecutive partial sums yield a coefficient of $f(X)$: $f_k = \frac{S_{k} - S_{k-1}}{q^{k}} \in \ZZ(b)$. These operations give rise to the following algorithm.\\
+Two consecutive partial sums yield a coefficient of $f(X)$: $f_k = \frac{S_{k} - S_{k-1}}{q^{k}} \in \ZZ(b)$. These operations give rise to the following algorithm.
 \end{itemize}
 
  \begin{minipage}{\textwidth}
@@ -157,17 +156,15 @@ Two consecutive partial sums yield a coefficient of $f(X)$: $f_k = \frac{S_{k} -
 \begin{fact} \label{EncodingBijective}
 Let $q$ be an odd integer. For any $z$ in the range $B = (-\frac{q^{d+1}}{2}, \frac{q^{d+1}}{2})$ there is a unique degree (at most) $d$ integer polynomial $h(X)$ in $\ZZ(\frac{q-1}{2})[X]$ such that $h(q) = z$. 
 \end{fact}
-\begin{proof}
-Given any degree (at most) $d$ integer polynomial $f \in \ZZ(\frac{q-1}{2})$, by construction we see that $\pro{Dec}(\pro{Enc}(f)) = f$. Therefore, $\pro{Enc}$ is an injective map from degree (at most) $d$ polynomials in $\ZZ(\frac{q-1}{2})[X]$ to $B$. Furthermore, the cardinality of both the domain and range of this map is $q^{d+1}$. This shows that the map is surjective. In conclusion, the map is bijective. 
-\end{proof}
 
+\iffalse 
 \paragraph{Encoding of dyadic rational polynomials.}
 There exists an algorithm to compute square roots of any element of a class group of an imaginary quadratic order, originally described by Gauß (see Bosma and Stevenhagen for a modern description~\cite{jtn/BosSte96}). As a result, in such class groups an adversary can also commit to \defn{dyadic rationals} $\mathbb{D}:=\{\frac{x}{2^k} : \ x \in \ZZ \wedge k \in \NN\}\subset \QQ$, in addition to integers. When using class groups we therefore need to modify the encoding scheme . 
 
 The encoding map is identical, except lifted to the dyadic rationals: $\mathsf{Enc} : \mathbb{D}[X] \rightarrow \mathbb{D}, \, g(X) \mapsto g(q)$. The main difference with respect to the integer encoding scheme will be that decoding works for dyadic rationals where \emph{both the numerator and the denominator are bounded}. Let $N \in \NN$ be a bound on the absolute value of the numerator and $2^D\in \NN$ be a bound on the value of the denominator, and let $\mathbb{D}(N, D) :=\{\frac{x}{2^a} \in \mathbb{D} : \ |x|\leq N \wedge 2^a \leq D\}$ denote the set of such bounded dyadic rationals. The encoding scheme is uniquely decodable if $N \cdot 2^a < q/2$.
  
 Note that denominator of $g(q)$ is bounded by $2^{\lfloor\log_2(D)\rfloor}$, $D$ rounded down to the next power of $2$. To decode such a dyadic rational, compute the integer $y \gets g(q) \cdot 2^{\lfloor\log_2(D)\rfloor}\in \ZZ$  and use the decoding algorithm described above to decode a polynomial $f(X)$ in $\ZZ(q/2)[X]$. From $f(X)$ one derives the polynomial  $g(X) \gets \frac{f(X)}{2^{\lfloor\log_2(D)\rfloor}} \in \mathbb{D}(\lceil q/(2D)\rceil, 2^{\lfloor\log_2(D)\rfloor})[X]$ through division. If the integer polynomial encoding is uniquely decodable, then so is the scheme for dyadic rational polynomials. If $q$ is a power of $2$, then an adversary can encode Laurent polynomials, \emph{i.e.}, polynomials where some terms have negative powers. In order to disallow negative powers, $q$ must be odd.
-
+\fi 
 \subsection{Concrete Polynomial Commitment Scheme}
 \label{subsec:concretepoly}
 We now instantiate the abstract homomorphic commitment function $[\![ * ]\!]$. To this end we sample a group of unknown order $\mathbb{G}$, and sample a random element $\gr{g}$ from this group. 
@@ -362,7 +359,8 @@ The proof of Theorem~\ref{thm:dyadicpolysecurity} is nearly identical to the pro
 
 \subsection{Optimizations, Extensions, and Comparison}
 Out of space constraints, a number of interesting but non-essential sections are omitted.
-The full version of this paper~\cite{DARK/Supersonic:fullversion} presents a range of optimizations for greater prover and verifier efficiency and smaller proof size, as well as protocol extensions to achieve special properties. These properties include batched evaluation, multi-point evaluation, multivariate polynomial evaluation, and zero-knowledge polynomial evaluation with hiding commitments. Furthermore, the full version includes a comparison to three alternative strategies (and specific instances of these strategies) for generating polynomial commitment schemes, namely based on bilinear maps, based on discrete logarithms, and based on Merkle trees of Reed-Solomon codewords.
+The full version of this paper~\cite{DARK/Supersonic:fullversion} presents a range of optimizations for greater prover and verifier efficiency and smaller proof size. It also shows how to achieve extend the commitment to multivariate polynomials and shows how to make the commitment hiding with a ZK evaluation protocol. 
+%Furthermore, the full version includes a comparison to three alternative strategies (and specific instances of these strategies) for generating polynomial commitment schemes, namely based on bilinear maps, based on discrete logarithms, and based on Merkle trees of Reed-Solomon codewords.
 %\subsection{Optimizations}
 %\label{subsec:optimization}
 %\input{sections/optimization}

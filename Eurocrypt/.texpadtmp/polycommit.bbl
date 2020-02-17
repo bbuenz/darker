@@ -1,334 +1,284 @@
 \begin{thebibliography}{10}
-
-\bibitem{STOC:GolMicRac85}
-Goldwasser S, Micali S, Rackoff C.
-\newblock The Knowledge Complexity of Interactive Proof-Systems (Extended
-  Abstract).
-\newblock In: 17th ACM STOC. {ACM} Press; 1985. p. 291--304.
-
-\bibitem{STOC:BFLS91}
-Babai L, Fortnow L, Levin LA, Szegedy M.
-\newblock Checking Computations in Polylogarithmic Time.
-\newblock In: 23rd ACM STOC. {ACM} Press; 1991. p. 21--31.
-
-\bibitem{FOCS:ALMSS92}
-Arora S, Lund C, Motwani R, Sudan M, Szegedy M.
-\newblock Proof Verification and Hardness of Approximation Problems.
-\newblock In: 33rd FOCS. {IEEE} Computer Society Press; 1992. p. 14--23.
-
-\bibitem{STOC:Kilian92}
-Kilian J.
-\newblock A Note on Efficient Zero-Knowledge Proofs and Arguments (Extended
-  Abstract).
-\newblock In: 24th ACM STOC. {ACM} Press; 1992. p. 723--732.
-
-\bibitem{SP:BCGGMT14}
-{Ben-Sasson} E, Chiesa A, Garman C, Green M, Miers I, Tromer E, et~al.
-\newblock Zerocash: Decentralized Anonymous Payments from Bitcoin.
-\newblock In: 2014 {IEEE} Symposium on Security and Privacy. {IEEE} Computer
-  Society Press; 2014. p. 459--474.
-
-\bibitem{damgaard2003theory}
-Damg{\aa}rd I, Groth J, Salomonsen G.
-\newblock The theory and implementation of an electronic voting system.
-\newblock In: Secure Electronic Voting. Springer; 2003. p. 77--99.
-
-\bibitem{Coda}
-labs O. Coda Protocol; 2018.
-\newblock \url{https://codaprotocol.com/}.
-
-\bibitem{EC:GGPR13}
-Gennaro R, Gentry C, Parno B, Raykova M.
-\newblock Quadratic Span Programs and Succinct {NIZKs} without {PCPs}.
-\newblock In: Johansson T, Nguyen PQ, editors. EUROCRYPT~2013. vol. 7881 of
-  {LNCS}. Springer, Heidelberg; 2013. p. 626--645.
-
-\bibitem{ES:SBVBPW13}
-Setty S, Braun B, Vu V, Blumberg AJ, Parno B, Walfish M.
-\newblock Resolving the conflict between generality and plausibility in
-  verified computation.; 2013. .
-
-\bibitem{TCC:BCIOP13}
-Bitansky N, Chiesa A, Ishai Y, Ostrovsky R, Paneth O.
-\newblock Succinct Non-interactive Arguments via Linear Interactive Proofs.
-\newblock In: Sahai A, editor. TCC~2013. vol. 7785 of {LNCS}. Springer,
-  Heidelberg; 2013. p. 315--333.
-
-\bibitem{C:BCGTV13}
-{Ben-Sasson} E, Chiesa A, Genkin D, Tromer E, Virza M.
-\newblock {SNARKs} for {C}: Verifying Program Executions Succinctly and in Zero
-  Knowledge.
-\newblock In: Canetti R, Garay JA, editors. CRYPTO~2013, Part~II. vol. 8043 of
-  {LNCS}. Springer, Heidelberg; 2013. p. 90--108.
-
-\bibitem{EC:Groth16}
-Groth J.
-\newblock On the Size of Pairing-Based Non-interactive Arguments.
-\newblock In: Fischlin M, Coron JS, editors. EUROCRYPT~2016, Part~II. vol. 9666
-  of {LNCS}. Springer, Heidelberg; 2016. p. 305--326.
-
-\bibitem{ZcashCeremony}
-Wilcox Z. The design of the ceremony; 2016.
-\newblock \url{https://z.cash/blog/the-design-of-the-ceremony.html}.
-
-\bibitem{C:BBHR19}
-{Ben-Sasson} E, Bentov I, Horesh Y, Riabzev M.
-\newblock Scalable Zero Knowledge with No Trusted Setup.
-\newblock In: Boldyreva A, Micciancio D, editors. CRYPTO~2019, Part~III. vol.
-  11694 of {LNCS}. Springer, Heidelberg; 2019. p. 701--732.
-
-\bibitem{STOC:GolKalRot08}
-Goldwasser S, Kalai YT, Rothblum GN.
-\newblock Delegating computation: interactive proofs for muggles.
-\newblock In: Ladner RE, Dwork C, editors. 40th ACM STOC. {ACM} Press; 2008. p.
-  113--122.
-
-\bibitem{C:FiaSha86}
-Fiat A, Shamir A.
-\newblock How to Prove Yourself: {Practical} Solutions to Identification and
-  Signature Problems.
-\newblock In: Odlyzko AM, editor. CRYPTO'86. vol. 263 of {LNCS}. Springer,
-  Heidelberg; 1987. p. 186--194.
-
-\bibitem{STOC:CCHLRRW19}
-Canetti R, Chen Y, Holmgren J, Lombardi A, Rothblum GN, Rothblum RD, et~al.
-\newblock {Fiat}-{Shamir}: from practice to theory.
-\newblock In: Charikar M, Cohen E, editors. 51st ACM STOC. {ACM} Press; 2019.
-  p. 1082--1090.
-
-\bibitem{Sonic}
-Maller M, Bowe S, Kohlweiss M, Meiklejohn S. Sonic: Zero-Knowledge SNARKs from
-  linear-size universal and updatable structured reference strings; 2019.
-\newblock \url{https://eprint.iacr.org/2019/099}.
-\newblock Cryptology ePrint Archive, Report 2019/099.
-
-\bibitem{Libra}
-Xie T, Zhang J, Zhang Y, Papamanthou C, Song D. Libra: Succinct Zero-Knowledge
-  Proofs with Optimal Prover Computation; 2019.
-\newblock \url{https://eprint.iacr.org/2019/317}.
-\newblock Cryptology ePrint Archive, Report 2019/317.
-
-\bibitem{Spartan}
-Setty S. Spartan: Efficient and general-purpose zkSNARKs without trusted setup;
-  2019.
-\newblock \url{https://eprint.iacr.org/2019/550}.
-\newblock Cryptology ePrint Archive, Report 2019/550.
-
-\bibitem{Plonk}
-Gabizon A, Williamson ZJ, Ciobotaru O. PLONK: Permutations over Lagrange-bases
-  for Oecumenical Noninteractive arguments of Knowledge; 2019.
-\newblock \url{https://eprint.iacr.org/2019/953}.
-\newblock Cryptology ePrint Archive, Report 2019/953.
-
-\bibitem{AC:KatZavGol10}
-Kate A, Zaverucha GM, Goldberg I.
-\newblock Constant-Size Commitments to Polynomials and Their Applications.
-\newblock In: Abe M, editor. ASIACRYPT~2010. vol. 6477 of {LNCS}. Springer,
-  Heidelberg; 2010. p. 177--194.
-
-\bibitem{ICALP:BBHR18}
-{Ben-Sasson} E, Bentov I, Horesh Y, Riabzev M.
-\newblock Fast Reed-Solomon Interactive Oracle Proofs of Proximity.
-\newblock In: Chatzigiannakis I, Kaklamanis C, Marx D, Sannella D, editors.
-  ICALP 2018. vol. 107 of {LIPIcs}. Schloss Dagstuhl; 2018. p. 14:1--14:17.
-
-\bibitem{STOC:ReiRotRot16}
-Reingold O, Rothblum GN, Rothblum RD.
-\newblock Constant-round interactive proofs for delegating computation.
-\newblock In: Wichs D, Mansour Y, editors. 48th ACM STOC. {ACM} Press; 2016. p.
-  49--62.
-
-\bibitem{TCC:BenChiSpo16}
-{Ben-Sasson} E, Chiesa A, Spooner N.
-\newblock Interactive Oracle Proofs.
-\newblock In: Hirt M, Smith AD, editors. TCC~2016-B, Part~II. vol. 9986 of
-  {LNCS}. Springer, Heidelberg; 2016. p. 31--60.
-
-\bibitem{CC:IKO07}
-Ishai Y, Kushilevitz E, Ostrovsky R.
-\newblock Efficeint arguments without short PCPs.; 2007. .
-
-\bibitem{C:BBCGI19}
-Boneh D, Boyle E, {Corrigan-Gibbs} H, Gilboa N, Ishai Y.
-\newblock Zero-Knowledge Proofs on Secret-Shared Data via Fully Linear {PCPs}.
-\newblock In: Boldyreva A, Micciancio D, editors. CRYPTO~2019, Part~III. vol.
-  11694 of {LNCS}. Springer, Heidelberg; 2019. p. 67--97.
-
-\bibitem{C:KalRotRot17}
-Kalai YT, Rothblum GN, Rothblum RD.
-\newblock From Obfuscation to the Security of {Fiat}-{Shamir} for Proofs.
-\newblock In: Katz J, Shacham H, editors. CRYPTO~2017, Part~II. vol. 10402 of
-  {LNCS}. Springer, Heidelberg; 2017. p. 224--251.
-
-\bibitem{EC:CCRR18}
-Canetti R, Chen Y, Reyzin L, Rothblum RD.
-\newblock {Fiat}-{Shamir} and Correlation Intractability from Strong
-  {KDM}-Secure Encryption.
-\newblock In: Nielsen JB, Rijmen V, editors. EUROCRYPT~2018, Part~I. vol. 10820
-  of {LNCS}. Springer, Heidelberg; 2018. p. 91--122.
-
-\bibitem{C:FujOka97}
-Fujisaki E, Okamoto T.
-\newblock Statistical Zero Knowledge Protocols to Prove Modular Polynomial
-  Relations.
-\newblock In: {Kaliski Jr } BS, editor. CRYPTO'97. vol. 1294 of {LNCS}.
-  Springer, Heidelberg; 1997. p. 16--30.
-
-\bibitem{AC:DamFuj02}
-Damg{\aa}rd I, Fujisaki E.
-\newblock A Statistically-Hiding Integer Commitment Scheme Based on Groups with
-  Hidden Order.
-\newblock In: Zheng Y, editor. ASIACRYPT~2002. vol. 2501 of {LNCS}. Springer,
-  Heidelberg; 2002. p. 125--142.
-
-\bibitem{AC:Lipmaa03a}
-Lipmaa H.
-\newblock On Diophantine Complexity and Statistical Zero-Knowledge Arguments.
-\newblock In: Laih CS, editor. ASIACRYPT~2003. vol. 2894 of {LNCS}. Springer,
-  Heidelberg; 2003. p. 398--415.
-
-\bibitem{EC:CouPetPoi17}
-Couteau G, Peters T, Pointcheval D.
-\newblock Removing the Strong {RSA} Assumption from Arguments over the
-  Integers.
-\newblock In: Coron J, Nielsen JB, editors. EUROCRYPT~2017, Part~II. vol. 10211
-  of {LNCS}. Springer, Heidelberg; 2017. p. 321--350.
-
-\bibitem{ITCS:Pietrzak18}
-Pietrzak K.
-\newblock Simple Verifiable Delay Functions.
-\newblock In: 10th Innovations in Theoretical Computer Science Conference,
-  {ITCS} 2019, January 10-12, 2019, San Diego, California, {USA}; 2019. p.
-  60:1--60:15.
-
-\bibitem{C:BBBF18}
-Boneh D, Bonneau J, B{\"u}nz B, Fisch B.
-\newblock Verifiable Delay Functions.
-\newblock In: Shacham H, Boldyreva A, editors. CRYPTO~2018, Part~I. vol. 10991
-  of {LNCS}. Springer, Heidelberg; 2018. p. 757--788.
-
-\bibitem{RivShaWag96}
-Rivest R, Shamir A, Wagner D.
-\newblock Time-lock puzzles and timed-release crypto.
-\newblock In: MIT Technical report; 1996. .
-
-\bibitem{EC:Wesolowski19}
-Wesolowski B.
-\newblock Efficient Verifiable Delay Functions.
-\newblock In: Ishai Y, Rijmen V, editors. EUROCRYPT~2019, Part~III. vol. 11478
-  of {LNCS}. Springer, Heidelberg; 2019. p. 379--407.
-
-\bibitem{C:BonBunFis19}
-Boneh D, B{\"u}nz B, Fisch B.
-\newblock Batching Techniques for Accumulators with Applications to {IOPs} and
-  Stateless Blockchains.
-\newblock In: Boldyreva A, Micciancio D, editors. CRYPTO~2019, Part~I. vol.
-  11692 of {LNCS}. Springer, Heidelberg; 2019. p. 561--586.
-
-\bibitem{EC:BCCGP16}
-Bootle J, Cerulli A, Chaidos P, Groth J, Petit C.
-\newblock Efficient Zero-Knowledge Arguments for Arithmetic Circuits in the
-  Discrete Log Setting.
-\newblock In: Fischlin M, Coron JS, editors. EUROCRYPT~2016, Part~II. vol. 9666
-  of {LNCS}. Springer, Heidelberg; 2016. p. 327--357.
-
-\bibitem{SP:BBBPWM18}
-B{\"u}nz B, Bootle J, Boneh D, Poelstra A, Wuille P, Maxwell G.
-\newblock Bulletproofs: Short Proofs for Confidential Transactions and More.
-\newblock In: 2018 {IEEE} Symposium on Security and Privacy. {IEEE} Computer
-  Society Press; 2018. p. 315--334.
-
-\bibitem{MatterLabs}
-Vlasov A, Panarin K. Transparent Polynomial Commitment Scheme with
-  Polylogarithmic Communication Complexity; 2019.
-\newblock \url{https://eprint.iacr.org/2019/1020}.
-\newblock Cryptology ePrint Archive, Report 2019/1020.
+\providecommand{\url}[1]{\texttt{#1}}
+\providecommand{\urlprefix}{URL }
 
 \bibitem{EC:BarPfi97}
-Bari N, Pfitzmann B.
-\newblock Collision-Free Accumulators and Fail-Stop Signature Schemes Without
-  Trees.
-\newblock In: Fumy W, editor. EUROCRYPT'97. vol. 1233 of {LNCS}. Springer,
-  Heidelberg; 1997. p. 480--494.
+Bari, N., Pfitzmann, B.: Collision-free accumulators and fail-stop signature
+  schemes without trees. In: Fumy, W. (ed.) EUROCRYPT'97. {LNCS}, vol. 1233,
+  pp. 480--494. Springer, Heidelberg (May 1997)
 
-\bibitem{EC:DamKop02}
-Damg{\aa}rd I, Koprowski M.
-\newblock Generic Lower Bounds for Root Extraction and Signature Schemes in
-  General Groups.
-\newblock In: Knudsen LR, editor. EUROCRYPT~2002. vol. 2332 of {LNCS}.
-  Springer, Heidelberg; 2002. p. 256--271.
+\bibitem{ICALP:BBHR18}
+{Ben-Sasson}, E., Bentov, I., Horesh, Y., Riabzev, M.: Fast reed-solomon
+  interactive oracle proofs of proximity. In: Chatzigiannakis, I., Kaklamanis,
+  C., Marx, D., Sannella, D. (eds.) ICALP 2018. {LIPIcs}, vol. 107, pp.
+  14:1--14:17. Schloss Dagstuhl (Jul 2018)
 
-\bibitem{PKC/BucHam01}
-Buchmann J, Hamdy S.
-\newblock A survey on IQ cryptography.
-\newblock In: Public-Key Cryptography and Computational Number Theory; 2001. p.
-  1--15.
+\bibitem{C:BBHR19}
+{Ben-Sasson}, E., Bentov, I., Horesh, Y., Riabzev, M.: Scalable zero knowledge
+  with no trusted setup. In: Boldyreva, A., Micciancio, D. (eds.) CRYPTO~2019,
+  Part~III. {LNCS}, vol. 11694, pp. 701--732. Springer, Heidelberg (Aug 2019)
 
-\bibitem{web/Stra19}
-Straka M.
-\newblock Class Groups for Cryptographic Accumulators; 2019. Available from:
-  \url{https://www.michaelstraka.com/posts/classgroups/}.
+\bibitem{SP:BCGGMT14}
+{Ben-Sasson}, E., Chiesa, A., Garman, C., Green, M., Miers, I., Tromer, E.,
+  Virza, M.: Zerocash: Decentralized anonymous payments from bitcoin. In: 2014
+  {IEEE} Symposium on Security and Privacy. pp. 459--474. {IEEE} Computer
+  Society Press (May 2014)
+
+\bibitem{C:BCGTV13}
+{Ben-Sasson}, E., Chiesa, A., Genkin, D., Tromer, E., Virza, M.: {SNARKs} for
+  {C}: Verifying program executions succinctly and in zero knowledge. In:
+  Canetti, R., Garay, J.A. (eds.) CRYPTO~2013, Part~II. {LNCS}, vol. 8043, pp.
+  90--108. Springer, Heidelberg (Aug 2013)
+
+\bibitem{TCC:BenChiSpo16}
+{Ben-Sasson}, E., Chiesa, A., Spooner, N.: Interactive oracle proofs. In: Hirt,
+  M., Smith, A.D. (eds.) TCC~2016-B, Part~II. {LNCS}, vol. 9986, pp. 31--60.
+  Springer, Heidelberg (Oct~/~Nov 2016)
+
+\bibitem{ECCC:BGKS19}
+Ben-Sasson, E., Goldberg, L., Kopparty, S., Saraf, S.: Deep-fri: Sampling
+  outside the box improves soundness  26, ~44 (2019),
+  \url{https://eccc.weizmann.ac.il/report/2019/044}
+
+\bibitem{DBLP:journals/corr/BiasseJS10}
+Biasse, J., Jr., M.J.J., Silvester, A.K.: Security estimates for quadratic
+  field based cryptosystems. CoRR  abs/1004.5512 (2010),
+  \url{http://arxiv.org/abs/1004.5512}
+
+\bibitem{TCC:BCIOP13}
+Bitansky, N., Chiesa, A., Ishai, Y., Ostrovsky, R., Paneth, O.: Succinct
+  non-interactive arguments via linear interactive proofs. In: Sahai, A. (ed.)
+  TCC~2013. {LNCS}, vol. 7785, pp. 315--333. Springer, Heidelberg (Mar 2013)
+
+\bibitem{C:BBBF18}
+Boneh, D., Bonneau, J., B{\"u}nz, B., Fisch, B.: Verifiable delay functions.
+  In: Shacham, H., Boldyreva, A. (eds.) CRYPTO~2018, Part~I. {LNCS}, vol.
+  10991, pp. 757--788. Springer, Heidelberg (Aug 2018)
+
+\bibitem{C:BBCGI19}
+Boneh, D., Boyle, E., {Corrigan-Gibbs}, H., Gilboa, N., Ishai, Y.:
+  Zero-knowledge proofs on secret-shared data via fully linear {PCPs}. In:
+  Boldyreva, A., Micciancio, D. (eds.) CRYPTO~2019, Part~III. {LNCS}, vol.
+  11694, pp. 67--97. Springer, Heidelberg (Aug 2019)
+
+\bibitem{C:BonBunFis19}
+Boneh, D., B{\"u}nz, B., Fisch, B.: Batching techniques for accumulators with
+  applications to {IOPs} and stateless blockchains. In: Boldyreva, A.,
+  Micciancio, D. (eds.) CRYPTO~2019, Part~I. {LNCS}, vol. 11692, pp. 561--586.
+  Springer, Heidelberg (Aug 2019)
+
+\bibitem{EPRINT:BCCGP16}
+Bootle, J., Cerulli, A., Chaidos, P., Groth, J., Petit, C.: Efficient
+  zero-knowledge arguments for arithmetic circuits in the discrete log setting.
+  Cryptology ePrint Archive, Report 2016/263 (2016),
+  \url{http://eprint.iacr.org/2016/263}
+
+\bibitem{EC:BCCGP16}
+Bootle, J., Cerulli, A., Chaidos, P., Groth, J., Petit, C.: Efficient
+  zero-knowledge arguments for arithmetic circuits in the discrete log setting.
+  In: Fischlin, M., Coron, J.S. (eds.) EUROCRYPT~2016, Part~II. {LNCS}, vol.
+  9666, pp. 327--357. Springer, Heidelberg (May 2016)
 
 \bibitem{jtn/BosSte96}
-Bosma W, Stevenhagen P.
-\newblock On the Computation of Quadratic 2-Class Groups.
-\newblock In: Journal de Theorie des Nombres; 1996. .
+Bosma, W., Stevenhagen, P.: On the computation of quadratic 2-class groups. In:
+  Journal de Theorie des Nombres (1996)
+
+\bibitem{bellman}
+Bowe, S.: Bellman zk-snarks library (2016),
+  \url{https://github.com/zkcrypto/bellman}
+
+\bibitem{PKC/BucHam01}
+Buchmann, J., Hamdy, S.: A survey on iq cryptography. In: Public-Key
+  Cryptography and Computational Number Theory. pp. 1--15 (2001)
+
+\bibitem{SP:BBBPWM18}
+B{\"u}nz, B., Bootle, J., Boneh, D., Poelstra, A., Wuille, P., Maxwell, G.:
+  Bulletproofs: Short proofs for confidential transactions and more. In: 2018
+  {IEEE} Symposium on Security and Privacy. pp. 315--334. {IEEE} Computer
+  Society Press (May 2018)
+
+\bibitem{DARK/Supersonic:fullversion}
+B{\"{u}}nz, B., Fisch, B., Szepieniec, A.: Transparent {SNARK}s from {DARK}
+  {C}ompilers. {IACR} Cryptology ePrint Archive  2019,  1229 (2019),
+  \url{https://eprint.iacr.org/2019/1229}
+
+\bibitem{ZK-rollup}
+Buterin, V.: Zk rollup (2016),
+  \url{https://ethresear.ch/t/on-chain-scaling-to-potentially-500-tx-sec-through-mass-tx-validation/3477}
+
+\bibitem{STOC:CCHLRRW19}
+Canetti, R., Chen, Y., Holmgren, J., Lombardi, A., Rothblum, G.N., Rothblum,
+  R.D., Wichs, D.: {Fiat}-{Shamir}: from practice to theory. In: Charikar, M.,
+  Cohen, E. (eds.) 51st ACM STOC. pp. 1082--1090. {ACM} Press (Jun 2019)
+
+\bibitem{Marlin}
+Chiesa, A., Hu, Y., Maller, M., Mishra, P., Vesely, N., Ward, N.: Marlin:
+  Preprocessing zksnarks with universal and updatable srs. Cryptology ePrint
+  Archive, Report 2019/1047 (2019), \url{https://eprint.iacr.org/2019/1047}
+
+\bibitem{Fractal}
+Chiesa, A., Ojha, D., Spooner, N.: Fractal: Post-quantum and transparent
+  recursive proofs from holography (2019),
+  \url{https://eprint.iacr.org/2019/1076}
+
+\bibitem{EC:CouPetPoi17}
+Couteau, G., Peters, T., Pointcheval, D.: Removing the strong {RSA} assumption
+  from arguments over the integers. In: Coron, J., Nielsen, J.B. (eds.)
+  EUROCRYPT~2017, Part~II. {LNCS}, vol. 10211, pp. 321--350. Springer,
+  Heidelberg (Apr~/~May 2017)
+
+\bibitem{AC:DamFuj02}
+Damg{\aa}rd, I., Fujisaki, E.: A statistically-hiding integer commitment scheme
+  based on groups with hidden order. In: Zheng, Y. (ed.) ASIACRYPT~2002.
+  {LNCS}, vol. 2501, pp. 125--142. Springer, Heidelberg (Dec 2002)
+
+\bibitem{EC:DamKop02}
+Damg{\aa}rd, I., Koprowski, M.: Generic lower bounds for root extraction and
+  signature schemes in general groups. In: Knudsen, L.R. (ed.) EUROCRYPT~2002.
+  {LNCS}, vol. 2332, pp. 256--271. Springer, Heidelberg (Apr~/~May 2002)
+
+\bibitem{Zokrates}
+Eberhardt, J.: Zokrates, \url{https://zokrates.github.io/}
+
+\bibitem{C:FiaSha86}
+Fiat, A., Shamir, A.: How to prove yourself: {Practical} solutions to
+  identification and signature problems. In: Odlyzko, A.M. (ed.) CRYPTO'86.
+  {LNCS}, vol. 263, pp. 186--194. Springer, Heidelberg (Aug 1987)
+
+\bibitem{C:FujOka97}
+Fujisaki, E., Okamoto, T.: Statistical zero knowledge protocols to prove
+  modular polynomial relations. In: {Kaliski Jr.}, B.S. (ed.) CRYPTO'97.
+  {LNCS}, vol. 1294, pp. 16--30. Springer, Heidelberg (Aug 1997)
+
+\bibitem{Plonk}
+Gabizon, A., Williamson, Z.J., Ciobotaru, O.: Plonk: Permutations over
+  lagrange-bases for oecumenical noninteractive arguments of knowledge.
+  Cryptology ePrint Archive, Report 2019/953 (2019),
+  \url{https://eprint.iacr.org/2019/953}
+
+\bibitem{EC:GGPR13}
+Gennaro, R., Gentry, C., Parno, B., Raykova, M.: Quadratic span programs and
+  succinct {NIZKs} without {PCPs}. In: Johansson, T., Nguyen, P.Q. (eds.)
+  EUROCRYPT~2013. {LNCS}, vol. 7881, pp. 626--645. Springer, Heidelberg (May
+  2013)
+
+\bibitem{CC:GolVadWig02}
+Goldreich, O., Vadhan, S., Wigderson, A.: On interactive proofs with a laconic
+  prover. vol. 11(1/2), pp. 1--53 (2002)
+
+\bibitem{STOC:GolKalRot08}
+Goldwasser, S., Kalai, Y.T., Rothblum, G.N.: Delegating computation:
+  interactive proofs for muggles. In: Ladner, R.E., Dwork, C. (eds.) 40th ACM
+  STOC. pp. 113--122. {ACM} Press (May 2008)
+
+\bibitem{STOC:GolMicRac85}
+Goldwasser, S., Micali, S., Rackoff, C.: The knowledge complexity of
+  interactive proof-systems (extended abstract). In: 17th ACM STOC. pp.
+  291--304. {ACM} Press (May 1985)
+
+\bibitem{EC:Groth16}
+Groth, J.: On the size of pairing-based non-interactive arguments. In:
+  Fischlin, M., Coron, J.S. (eds.) EUROCRYPT~2016, Part~II. {LNCS}, vol. 9666,
+  pp. 305--326. Springer, Heidelberg (May 2016)
 
 \bibitem{EC:GroIsh08}
-Groth J, Ishai Y.
-\newblock Sub-linear Zero-Knowledge Argument for Correctness of a Shuffle.
-\newblock In: Smart NP, editor. EUROCRYPT~2008. vol. 4965 of {LNCS}. Springer,
-  Heidelberg; 2008. p. 379--396.
+Groth, J., Ishai, Y.: Sub-linear zero-knowledge argument for correctness of a
+  shuffle. In: Smart, N.P. (ed.) EUROCRYPT~2008. {LNCS}, vol. 4965, pp.
+  379--396. Springer, Heidelberg (Apr 2008)
 
-\bibitem{C:CraDam98}
-Cramer R, Damg{\aa}rd I.
-\newblock Zero-Knowledge Proofs for Finite Field Arithmetic; or: Can
-  Zero-Knowledge Be for Free?
-\newblock In: Krawczyk H, editor. CRYPTO'98. vol. 1462 of {LNCS}. Springer,
-  Heidelberg; 1998. p. 424--441.
+\bibitem{ZcashProtocol}
+Hopwood, D., Bowe, S., Hornby, T., Wilcox, N.: Zcash {P}rotocol {S}pecification
+  (2019), \url{https://zips.z.cash/protocol/protocol.pdf}
 
-\bibitem{SP:ZGKPP17}
-Zhang Y, Genkin D, Katz J, Papadopoulos D, Papamanthou C.
-\newblock {vSQL}: Verifying Arbitrary {SQL} Queries over Dynamic Outsourced
-  Databases.
-\newblock In: 2017 {IEEE} Symposium on Security and Privacy. {IEEE} Computer
-  Society Press; 2017. p. 863--880.
+\bibitem{CC:IKO07}
+Ishai, Y., Kushilevitz, E., Ostrovsky, R.: Efficeint arguments without short
+  pcps. (2007)
 
-\bibitem{CCS:CraSho99}
-Cramer R, Shoup V.
-\newblock Signature Schemes Based on the Strong {RSA} Assumption.
-\newblock In: Motiwalla J, Tsudik G, editors. ACM CCS 99. {ACM} Press; 1999. p.
-  46--51.
+\bibitem{AC:KatZavGol10}
+Kate, A., Zaverucha, G.M., Goldberg, I.: Constant-size commitments to
+  polynomials and their applications. In: Abe, M. (ed.) ASIACRYPT~2010. {LNCS},
+  vol. 6477, pp. 177--194. Springer, Heidelberg (Dec 2010)
 
-\bibitem{C:BraGol10}
-Brakerski Z, Goldwasser S.
-\newblock Circular and Leakage Resilient Public-Key Encryption under Subgroup
-  Indistinguishability - (or: Quadratic Residuosity Strikes Back).
-\newblock In: Rabin T, editor. CRYPTO~2010. vol. 6223 of {LNCS}. Springer,
-  Heidelberg; 2010. p. 1--20.
+\bibitem{Coda}
+Labs, O.: Coda protocol (2018), \url{https://codaprotocol.com/}
 
-\bibitem{C:Pedersen91}
-Pedersen TP.
-\newblock Non-Interactive and Information-Theoretic Secure Verifiable Secret
-  Sharing.
-\newblock In: Feigenbaum J, editor. CRYPTO'91. vol. 576 of {LNCS}. Springer,
-  Heidelberg; 1992. p. 129--140.
+\bibitem{C:Lindell01}
+Lindell, Y.: Parallel coin-tossing and constant-round secure two-party
+  computation. In: Kilian, J. (ed.) CRYPTO~2001. {LNCS}, vol. 2139, pp.
+  171--189. Springer, Heidelberg (Aug 2001)
 
-\bibitem{pippenger1980evaluation}
-Pippenger N.
-\newblock {On the evaluation of powers and monomials}.
-\newblock SIAM Journal on Computing. 1980;9:230--250.
+\bibitem{AC:Lipmaa03a}
+Lipmaa, H.: On diophantine complexity and statistical zero-knowledge arguments.
+  In: Laih, C.S. (ed.) ASIACRYPT~2003. {LNCS}, vol. 2894, pp. 398--415.
+  Springer, Heidelberg (Nov~/~Dec 2003)
 
-\bibitem{EPRINT:BTVW14}
-Blumberg AJ, Thaler J, Vu V, Walfish M. Verifiable computation using multiple
-  provers; 2014.
-\newblock \url{http://eprint.iacr.org/2014/846}.
-\newblock Cryptology ePrint Archive, Report 2014/846.
+\bibitem{Sonic}
+Maller, M., Bowe, S., Kohlweiss, M., Meiklejohn, S.: Sonic: Zero-knowledge
+  snarks from linear-size universal and updatable structured reference strings.
+  Cryptology ePrint Archive, Report 2019/099 (2019),
+  \url{https://eprint.iacr.org/2019/099}
 
-\bibitem{BFL}
-Babai L, Fortnow L, Lund C.
-\newblock Non-Deterministic Exponential Time has Two-Prover Interactive
-  Protocols.
-\newblock Computational Complexity. 1991;1:3--40.
+\bibitem{ITCS:Pietrzak18}
+Pietrzak, K.: Simple verifiable delay functions. In: 10th Innovations in
+  Theoretical Computer Science Conference, {ITCS} 2019, January 10-12, 2019,
+  San Diego, California, {USA}. pp. 60:1--60:15 (2019)
+
+\bibitem{STOC:ReiRotRot16}
+Reingold, O., Rothblum, G.N., Rothblum, R.D.: Constant-round interactive proofs
+  for delegating computation. In: Wichs, D., Mansour, Y. (eds.) 48th ACM STOC.
+  pp. 49--62. {ACM} Press (Jun 2016)
+
+\bibitem{RivShaWag96}
+Rivest, R., Shamir, A., Wagner, D.: Time-lock puzzles and timed-release crypto.
+  In: MIT Technical report (1996)
+
+\bibitem{ES:SBVBPW13}
+Setty, S., Braun, B., Vu, V., Blumberg, A.J., Parno, B., Walfish, M.: Resolving
+  the conflict between generality and plausibility in verified computation.
+  (2013)
+
+\bibitem{Spartan}
+Setty, S.: Spartan: Efficient and general-purpose zksnarks without trusted
+  setup. Cryptology ePrint Archive, Report 2019/550 (2019),
+  \url{https://eprint.iacr.org/2019/550}
+
+\bibitem{web/Stra19}
+Straka, M.: Class groups for cryptographic accumulators (2019),
+  \url{https://www.michaelstraka.com/posts/classgroups/}
+
+\bibitem{MatterLabs}
+Vlasov, A., Panarin, K.: Transparent polynomial commitment scheme with
+  polylogarithmic communication complexity. Cryptology ePrint Archive, Report
+  2019/1020 (2019), \url{https://eprint.iacr.org/2019/1020}
+
+\bibitem{SP:WTSTW18}
+Wahby, R.S., Tzialla, I., {shelat}, a., Thaler, J., Walfish, M.:
+  Doubly-efficient {zkSNARKs} without trusted setup. In: 2018 {IEEE} Symposium
+  on Security and Privacy. pp. 926--943. {IEEE} Computer Society Press (May
+  2018)
+
+\bibitem{WalBlu15}
+Walfish, M., Blumberg, A.J.: Verifying computations without reexecuting them:
+  From theoretical possibility to near practicality. Communications of the ACM
+  58(2) (2015)
+
+\bibitem{ICALP:Wee05}
+Wee, H.: On round-efficient argument systems. In: Caires, L., Italiano, G.F.,
+  Monteiro, L., Palamidessi, C., Yung, M. (eds.) ICALP 2005. {LNCS}, vol. 3580,
+  pp. 140--152. Springer, Heidelberg (Jul 2005)
+
+\bibitem{EC:Wesolowski19}
+Wesolowski, B.: Efficient verifiable delay functions. In: Ishai, Y., Rijmen, V.
+  (eds.) EUROCRYPT~2019, Part~III. {LNCS}, vol. 11478, pp. 379--407. Springer,
+  Heidelberg (May 2019)
+
+\bibitem{ZcashCeremony}
+Wilcox, Z.: The design of the ceremony (2016),
+  \url{https://z.cash/blog/the-design-of-the-ceremony.html}
+
+\bibitem{Libra}
+Xie, T., Zhang, J., Zhang, Y., Papamanthou, C., Song, D.: Libra: Succinct
+  zero-knowledge proofs with optimal prover computation. Cryptology ePrint
+  Archive, Report 2019/317 (2019), \url{https://eprint.iacr.org/2019/317}
 
 \end{thebibliography}
