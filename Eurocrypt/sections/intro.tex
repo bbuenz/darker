@@ -64,8 +64,7 @@ Pietrzak~\cite{ITCS:Pietrzak18} developed an efficient proof of repeated squarin
 
 \paragraph{Transparent polynomial commitments} 
 Whaby \emph{et al.} constructed a transparent polynomial commitment scheme~\cite{SP:WTSTW18} for multilinear polynomials by combining a matrix commitment of Bootle~\emph{et al.}~\cite{EC:BCCGP16} with the inner-product argument of B\"{u}nz~\emph{et al.}~\cite{SP:BBBPWM18}. For polynomials of degree $d$ it has commitments of size  $O(\sqrt{d})$ and evaluation arguments with $O(\sqrt{d})$ communication.
-The  FRI (Fast Reed Solomon IOPP)~\cite{ICALP:BBHR18} and DEEP-FRI~\cite{ECCC:BGKS19} protocols are also implicitly a transparent polynomial commitment scheme that has $O(\lambda)$ size commitments and evaluation arguments with $O(\log^2 d)$ communication. This connection is described in a recent manuscript by Matter Labs~\cite{MatterLabs}. 
-
+Zhang et al.~\cite{EPRINT:ZXZS19} recently showed how to build a transparent polynomial commitment based on FRI (Fast Reed Solomon IOPP)~\cite{ICALP:BBHR18}. The scheme has $O(\lambda)$ size commitments and evaluation arguments with $O(k \cdot \log^2 d)$ communication for repetition parameter $k$.
 \paragraph{Polynomial IOP formalism}
 In concurrent work Chiesa~\emph{et al.}~\cite{Marlin} introduce an information theoretic framework called \emph{algebraic holographic proofs (AHP)}. They also show that with a polynomial commitment scheme an AHP can be compiled to a preprocessing SNARK. The AHP framework is essentially equivalent to our Polynomial IOP framework. %We additionally show how any Algebraic Linear IOP can be transformed into a Polynomial IOP, and hence an AHP. 
 In other concurrent work, Chiesa, Ojha, and Spooner show interesting connections between algebraic holographic proofs and recursive proof composition. In the same work, the authors develop an AHP-based transparent SNARK called \textsf{Fractal}~\cite{Fractal}.
