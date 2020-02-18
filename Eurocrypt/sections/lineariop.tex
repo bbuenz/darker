@@ -284,37 +284,18 @@ If the polynomial commitment scheme $\Gamma$ has witness-extended emulation, and
 
 \subsection{Concrete Instantiations} 
 
-Several proof systems use Polynomial IOPs and our compiler can be applied to them. We present \textsf{Sonic}~\cite{Sonic} here and discuss several other proof systems \cite{Plonk,Marlin,C:BBHR19,Spartan,EC:GGPR13} in the full version~\cite{EPRINT:BunFisSze19}
-\if 0
-For the purpose of the following discussion, we refer to the complexity of an NP relation $\mathcal{R}$ in various forms: 
-\begin{itemize}
-\item $\mathcal{R}$ has \emph{arithmetic complexity} $n$ if the function computing $\mathcal{R}(x, w)$ can be expressed as 2-fan-in arithmetic circuit with a total of $n$ gates. 
-\item $\mathcal{R}$ has \emph{multiplicative complexity} $n$ if the function computing $\mathcal{R}(x, w)$ can be expressed an arithmetic circuit with a total of $n$ multiplication gates, where each multiplication gate has 2 inputs.
-\item $\mathcal{R}$ has \emph{R1CS complexity}\footnotemark \ $n$ if the function computing $\mathcal{R}(x, w)$ can be expressed as an R1CS instance $(A, B, C, v, w)$ where $A, B, C \in \FF^{m \times (\ell+1)}$, $(v,w) \in \FF^\ell$, and $n$ is the maximum number of non-zero entries in either $A$, $B$, or $C$. \footnotetext{The arithmetic complexity and R1CS complexity are similar, but vary because the R1CS constraints correspond to the wiring of an arithmetic circuit with unrestricted fan-in.}
-\end{itemize}
-\fi
+Several proof systems use Polynomial IOPs and our compiler can be applied to them. We present \textsf{PLONK}~\cite{Plonk} here and discuss several other proof systems \cite{Sonic,Marlin,C:BBHR19,Spartan,EC:GGPR13} in the full version~\cite{EPRINT:BunFisSze19}
 
-Theorem~\ref{thm:supersonic} provides the main theoretical result of this work, tying together the new DARK polynomial commitment scheme (Theorem~\ref{thm:polycommitsecurity}), the compilation of Polynomial IOPs into SNARKs with preprocessing using polynomial commitments (Theorem~\ref{thm:IOPcompiler}), and a concrete univariate Polynomial IOPs. To enable this tie-up, we re-characterize the results of \textsf{Sonic}, \textsf{PLONK}, and \textsf{Marlin} in terms of Polynomial IOPs, making use of the coefficient query technique (Section~\ref{sec:polynomialIOPreductions}) as necessary.
+Theorem~\ref{thm:supersonic} provides the main theoretical result of this work, tying together the new DARK polynomial commitment scheme (Theorem~\ref{thm:polycommitsecurity}), the compilation of Polynomial IOPs into SNARKs with preprocessing using polynomial commitments (Theorem~\ref{thm:IOPcompiler}), and a concrete univariate Polynomial IOPs. To enable this tie-up, we re-characterize the result of \textsf{PLONK} in terms of Polynomial IOPs, making use of the coefficient query technique (Section~\ref{sec:polynomialIOPreductions}) as necessary.
 
-\if 0 
-\subsubsection{Sonic} 
-\textsf{Sonic} is a zk-SNARK system that has a universal trusted setup, which produces a Structured Reference String (SRS) of $n$ group elements that can be used to prove any statement represented as an arithmetic circuit with at most $n$ gates. The SRS can also be updated without re-doing the initial setup, for instance, to enable proving larger circuits, or to increase the distribution of trust. The result in \textsf{Sonic} was not presented using the language of IOPs. Furthermore, the result also relied on a special construction of polynomial commitments (a modification of Kate~\emph{et al.}~\cite{AC:KatZavGol10}) that forces the prover to commit to a Laurent polynomial with no constant term. Given our generic reduction from coefficient queries to evaluation queries (Section~\ref{sec:polynomialIOPreductions}), we re-characterize the main theorem of \textsf{Sonic} as follows: 
-
-\begin{theorem}[\textsf{Sonic} Bivariate, \cite{Sonic}]
-There exists a 2-round Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with multiplicative complexity $n$) that makes 1 query to a bivariate polynomial oracle of degree $n$ on each variable, and 6 queries to degree $n$ univariate polynomial oracles. The preprocessing verifier does $O(n)$ work to check the single bivariate oracle. 
-\end{theorem}
-
-The number of univariate queries increased from the original $3$ in \textsf{Sonic} (with special commitments) to $6$ with our generic coefficient query technique. If we were to compile the bivariate query directly using our multivariate commitment scheme this would result in $O(n^2)$ prover time (a bivariate polynomial with degree $n$ on each variable is converted to a univariate polynomial of degree roughly $n^2$). However, \textsf{Sonic} also provides a way to replace the bivariate polynomial with several degree $n$ univariate polynomials and more rounds of communication. 
-\fi
-
-\begin{theorem}[\textsf{Sonic} Univariate, \cite{Sonic}]\label{thm:sonic} 
-There is a 5-round Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with multiplicative complexity $n$) that makes $39$ queries overall to $27$ univariate degree $2n$ polynomial oracles. The total number of distinct query points is $12$. The preprocessing verifier does $O(n)$ work to check $12$ of the univariate degree $2n$ polynomials. Here, $n$ is the \emph{arithmetic complexity} and counts the number of multiplication gates in the arithmetic circuit that defines $\mathcal{R}$.
+\begin{theorem}[\textsf{PLONK},~\cite{Plonk}] \label{thm:plonk}
+There is a 3-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with arithmetic complexity $n$) that makes $12$ queries overall to $12$ univariate degree $n$ polynomial oracles. The total number of distinct query points is $2$. The preprocessing verifier does $O(n)$ work to check $7$ of the univariate degree $n$ polynomials.
 \end{theorem}
 
 %The recent proof systems \pro{PLONK} and \pro{Marlin} improve on \pro{Sonic} by constructing a different Polynomial IOP. They achieve the following: 
 
 
-Combining the \pro{Sonic} Polynomial IOP with the new transparent polynomial compiler of Section~\ref{sec:protocol} gives the following result. Similar results are obtained by using \textsf{PLONK} or \textsf{Marlin} instead.  
+Combining the \pro{PLONK} Polynomial IOP with the new transparent polynomial compiler of Section~\ref{sec:protocol} gives the following result. Analogous results are obtained by using \textsf{Sonic}~\cite{Sonic} or \textsf{Marlin}~\cite{Marlin} instead.  
 
 %\ben{TODO: Add actual complexity for preprocessing and prover rather than quasilinear} 
 \begin{theorem}[\textbf{New Transparent zk-SNARK}]\label{thm:supersonic} 
