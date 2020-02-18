@@ -150,7 +150,7 @@ As a matter of concrete efficiency, it is possible to extend the Polynomial IOP 
 
 \subsection{Polynomial IOP reductions} \label{sec:polynomialIOPreductions}
 
-In this section we show that one can construct any algebraic linear IOP from a (multivariate) Polynomial IOP. This construction rests on two tools for univariate Polynomial IOPs. These tools are treated explicitly in the full version of this paper~\cite{DARK/Supersonic:fullversion}; These subprotocols are realizable with small constant number of evaluations.
+In this section we show that one can construct any algebraic linear IOP from a (multivariate) Polynomial IOP. This construction rests on two tools for univariate Polynomial IOPs. These tools are treated explicitly in the full version of this paper~\cite{EPRINT:BunFisSze19}; These subprotocols are realizable with small constant number of evaluations.
 \begin{itemize}
     \item \emph{Coefficient queries.} The verifier verifies that an indicated coefficient of a polynomial oracle has a given value.
     \item \emph{Inner products.} The verifier verifies that the inner product of the coefficient vectors of two polynomial oracles equals a given value.
@@ -213,7 +213,7 @@ and $2\ell$ degree $2m_i$ univariate polynomial oracles. %(for coefficient openi
 There is exactly one query to each oracle on a random point in $\FF$. The soundness loss of the transformation is $\negl$ for a sufficiently large field (\emph{i.e.}, whose cardinality is exponential in $\lambda$).
 \end{theorem}
 
-We formally prove Theorem~\ref{thm:algebraicIOPcompiler} in the full version of this paper~\cite{DARK/Supersonic:fullversion}. Here we present the transformation without proof.
+We formally prove Theorem~\ref{thm:algebraicIOPcompiler} in the full version of this paper~\cite{EPRINT:BunFisSze19}. Here we present the transformation without proof.
 
 By definition of a $(\mu, d)$ algebraic linear IOP, in each $i$th round of the IOP there are $\ell$ query generation functions $\vec{p}_{i,1},\ldots,\vec{p}_{i,\ell}: \FF^\mu \rightarrow \FF^{m_i}$, where each $\vec{p}_{i,k}$ is a vector whose $j$th component is a $\mu$-variate degree-$d$ polynomial $p_{i,k,j}$. These polynomials are applied to a seed matrix $\boldsymbol{\sigma}_{i,k} \in \FF^\mu$ (which is identifiable with or derived from the verifier's $i$th round public-coin randomness $\mathit{coins}_i$); this evaluation produces $\vec{p}_{i,k}(\boldsymbol{\sigma}_{i,k}) = \mathbf{q}_{i,k} \in \mathbb{F}^{m_i}$ for all $k \in [\ell]$. The vectors $\mathbf{q}_{i,k}$ are the columns of the query matrix $\mathbf{Q}_i \in \mathbb{F}^{m_i \times \ell}$.
 
@@ -279,12 +279,12 @@ If the polynomial commitment scheme $\Gamma$ has witness-extended emulation, and
 %The compilation also preserves HVZK if $\Gamma$ is hiding and $\eval$ is HVZK. 
 \end{theorem}
 
-The proof is provided in the full version of this paper~\cite[\S B]{DARK/Supersonic:fullversion}. 
+%The proof is provided in the full version of this paper~\cite[\S B]{EPRINT:BunFisSze19}. 
 %HVZK is shown by a straightforward composition of the simulators for $\eval$ and the original IOP simulator. The emulator $E$ works as follows. Given the IP adversary $P'$, $E$ simulates an IOP adversary $P'_O$ by using the $\eval$ emulator $E_\eval$ to extract proof oracles (\emph{i.e.}, polynomials) from any commitment that $P'$ sends and subsequently opens at an evaluation point. We argue that $P'_O$ is successful whenever $P'$ is successful, with negligible loss. (The only events that cause $P'_O$ to fail when $P'$ succeeds is if $E_\eval$ fails to extract from a successful $\eval$ or $P'$ succesfully opens a commitment inconsistently with an extracted polynomial.) $E$ then runs the IOP knowledge extractor with $P'_O$ to extract a witness for the input. 
 
 \subsection{Concrete Instantiations} 
 
-Several proof systems use Polynomial IOPs and our compiler can be applied to them. We present \textsf{Sonic}~\cite{Sonic} here and discuss several other proof systems \cite{Plonk,Marlin,C:BBHR19,Spartan,EC:GGPR13} in the full version~\cite{DARK/Supersonic:fullversion}
+Several proof systems use Polynomial IOPs and our compiler can be applied to them. We present \textsf{Sonic}~\cite{Sonic} here and discuss several other proof systems \cite{Plonk,Marlin,C:BBHR19,Spartan,EC:GGPR13} in the full version~\cite{EPRINT:BunFisSze19}
 \if 0
 For the purpose of the following discussion, we refer to the complexity of an NP relation $\mathcal{R}$ in various forms: 
 \begin{itemize}
@@ -321,7 +321,7 @@ Combining the \pro{Sonic} Polynomial IOP with the new transparent polynomial com
 There exists an $O(\log n)$-round public-coin interactive argument of knowledge for any NP relation with arithmetic complexity $n$ that has $O(\log n)$ communication, $O(\log n)$ ``online" verification, quasilinear prover time, and a preprocessing step that is verifiable in quasilinear time. The argument of knowledge has witness-extended emulation assuming it is instantiated with a group $\GG$ for which the Strong RSA Assumption, and the Adaptive Root Assumption hold. 
 \end{theorem}
 
-The proof is deferred to the full version of this paper~\cite{DARK/Supersonic:fullversion}.
+%The proof is deferred to the full version of this paper~\cite{EPRINT:BunFisSze19}.
 
 \if 0
 \begin{proof}

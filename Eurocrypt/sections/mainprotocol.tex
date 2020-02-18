@@ -122,7 +122,7 @@ More generally, for every integer $z$ in the range $B = (-\frac{q^{d+1}}{2}, \fr
 
 %\paragraph{Optimization with negative coefficients} As we have seen, an adversarial prover can commit to polynomials with positive or negative coefficients. As an optimization, we can actually allow the honest prover to encode polynomials using a mixture of negative and positive coefficients as well. A polynomial $f(X) \in \ZZ_p[X]$ is lifted to an integer polynomial by replacing each coefficient of $f$ with its unique integer representative from $(-p/2,p/2)$ of the same equivalence class modulo $p$. Also, $\alpha$ can be chosen from $(-p/2, p/2)$, leading to a tighter bound on coefficient growth. This leads us to the following encoding scheme. 
 
-%In contrast to the highly simplified technical overview presented earlier, we prefer a balanced choice of integer representatives of $\mathbb{Z}_p$. This choice benefits a more natural reasoning about the growth of coefficients in an extraction argument. We refer the reader to full version of this paper~\cite{DARK/Supersonic:fullversion} for a more elaborate motivation.
+%In contrast to the highly simplified technical overview presented earlier, we prefer a balanced choice of integer representatives of $\mathbb{Z}_p$. This choice benefits a more natural reasoning about the growth of coefficients in an extraction argument. We refer the reader to full version of this paper~\cite{EPRINT:BunFisSze19} for a more elaborate motivation.
 
 \paragraph{Final Encoding scheme} Let $\ZZ(b):=\{x \in \ZZ: \vert x \vert  \leq b\}$ denote the set of integers with absolute value less than or equal to $b$.  Define $\ZZ(b)[X] := \{f \in \ZZ[X]: ||f||_\infty \leq b\}$, the set of integer polynomials with coefficients from $\ZZ(b)$. (For a polynomial $g \in \ZZ[X]$ the norm $||g||_\infty$ is the maximum over the absolute values of all individual coefficients of $g$.)
 \begin{itemize} 
@@ -242,14 +242,14 @@ First, we handle the case where $d+1$ is not a power of 2.  Whenever $d+1$ is od
 Second, the coefficients of $f(X)$ grow by a factor of $\frac{p+1}{2}$ in every recursion step, but eventually the transmitted constant $f$ has to be tested against some bound because if it is \emph{too large} it should be rejected. However, the function interface provides no option to specify the allowable size of coefficients. We therefore define and use a subroutine $\pro{EvalBounded}$, which takes an additional argument $b$ and which proves, in addition to what $\pro{Eval}$ proves, that all coefficients $f_i$ of $f(X)$ satisfy $|f_i| \leq b$. Importantly, $b$ grows by a factor for $\frac{p+1}{2}$ in every recursion step. This subroutine is also useful if commitments were homomorphically combined prior to the execution of $\pro{EvalBounded}$. The growth of these coefficients determines a lower bound on $q$: $q$ should be \emph{significantly} larger than $b$. Exactly which factor constitutes ``significantly'' is determined by the knowledge-soundness proof.
 
 In the final round we check that the constant $f$ satisfies $|f|\leq b$ and the protocol's correctness is guaranteed if $b = \frac{p-1}{2}(\frac{p+1}{2})^{\lceil\log_2(d+1)\rceil}$. However, $q$ needs to be even larger than this value in order for extraction to work (and hence, for the proof of witness-extended emulation to go through). In RSA groups, where computing square roots is hard, we need $q>p^{2\log(d+1)+1}$; whereas in class groups where computing square roots is easy, we need $p^{3\log(d+1)+1}$. When this condition is satisfied, we can prove that the original committed polynomial has coefficients smaller than $\frac{q}{2}$. To avoid presenting two algorithms whose only difference is the one constant, we capture this constant explicitly in the variable $\boldsymbol{\varsigma}_{p,d}$ and set its value depending on the context:
-\[
+$
     \boldsymbol{\varsigma}_{p, d} = \left\{
         \begin{array}{ll}
             p^{\,\log_2(d+1)} & \quad \textnormal{(in RSA groups)} \\
             p^{\,2\log_2(d+1)} & \quad \textnormal{(in class groups)}
         \end{array}
     \right. \enspace .
-\]
+$
 
  We now present the full, formal $\eval$ protocol below.
 %\begin{small}
@@ -284,7 +284,7 @@ In the final round we check that the constant $f$ satisfies $|f|\leq b$ and the 
         \item \pcind[1] \prover computes $f_L(X) \gets \sum\limits_{i=0}^{d'} f_i \cdot X^i$ and $f_R(X)\gets\sum\limits_{i=0}^{d'} f_{d'+1+i}\cdot X^{i}$
         \item \pcind[1] \prover computes $y_L\gets f_L(z) \bmod p$ and $y_R\gets f_R(z)\bmod p$
         \item \pcind[1] \prover computes $\gr{C}_L \gets \gr{g}^{f_L(q)}$ and $\gr{C}_R \gets \gr{g}^{f_R(q)}$
-        \item \pcind[1] \prover sends $y_L,y_R, \gr{C}_L, \gr{C}_R$ to \verifier. \pccomment{See Section \ref{subsec:optimization} for an optimization}
+        \item \pcind[1] \prover sends $y_L,y_R, \gr{C}_L, \gr{C}_R$ to \verifier. \pccomment{See full version for an optimization}
         \item \pcind[1] \verifier checks that $y=y_L+z^{d'+1}\cdot y_R \bmod p$, outputs $0$ if check fails.
         \item \pcind[1] \label{line:PoE} \prover and \verifier run $\pro{PoE}(\gr{C}_R, \gr{C}/\gr{C}_L, q^{d'+1})$\pccomment{Showing that $\gr{C}_L\gr{C}_R^{(q^{d'+1})}=\gr{C}$}
         \item \pcind[1] \verifier samples $\alpha \sample [-\frac{p-1}{2},\frac{p-1}{2}]$ and sends it to \prover
@@ -320,7 +320,7 @@ The polynomial commitment scheme is correct for polynomials in $\ZZ_p[X]$ of deg
  \end{lemma}
 
 
-The proofs of the previous lemmas are in the full version of this paper~\cite[\S A.1 -- \S A.2]{DARK/Supersonic:fullversion}.
+All security proofs are in the full version of this paper~\cite[\S A.1 -- \S A.2]{EPRINT:BunFisSze19}.
 Next is the main security theorem, which states that the evaluation protocol has witness-extended emulation. We start with a high-level intuitive overview where we also identify potential obstacles.
 
 \paragraph{Proof idea.} %Consider the information theoretic version of the $\eval$ protocol, where the prover sends the integer polynomials $f_L(X)$ and $f_R(X)$ in each round but the verifier does not read them.
@@ -355,11 +355,11 @@ Let $\ggen$ generate groups $\GG$ of unknown order such that the order of $\GG$ 
 \label{thm:dyadicpolysecurity}	
 \dyadicmaintheorem
 \end{theorem}
-The proof of Theorem~\ref{thm:dyadicpolysecurity} is nearly identical to the proof of Theorem~\ref{thm:polycommitsecurity} but the extracted polynomials are polynomials over the dyadic rationals and not over the integers. This requires the bound on $q$ to be larger by a factor of $p^{\log(d+1)}$. Both proofs are presented in the full version of this paper~\cite[\S A.3 -- \S A.4]{DARK/Supersonic:fullversion}.
+The proof of Theorem~\ref{thm:dyadicpolysecurity} is nearly identical to the proof of Theorem~\ref{thm:polycommitsecurity} but the extracted polynomials are polynomials over the dyadic rationals and not over the integers. This requires the bound on $q$ to be larger by a factor of $p^{\log(d+1)}$. Both proofs are presented in the full version of this paper~\cite[\S A.3 -- \S A.4]{EPRINT:BunFisSze19}.
 
 \subsection{Optimizations and Extensions}
 Out of space constraints, a number of interesting but non-essential sections are omitted.
-The full version of this paper~\cite{DARK/Supersonic:fullversion} presents a range of optimizations for greater prover and verifier efficiency and smaller proof size. It also shows how to achieve extend the commitment to multivariate polynomials and shows how to make the commitment hiding with a ZK evaluation protocol. 
+The full version of this paper~\cite{EPRINT:BunFisSze19} presents a range of optimizations for greater prover and verifier efficiency and smaller proof size. It also shows how to achieve extend the commitment to multivariate polynomials and shows how to make the commitment hiding with a ZK evaluation protocol. 
 %Furthermore, the full version includes a comparison to three alternative strategies (and specific instances of these strategies) for generating polynomial commitment schemes, namely based on bilinear maps, based on discrete logarithms, and based on Merkle trees of Reed-Solomon codewords.
 %\subsection{Optimizations}
 %\label{subsec:optimization}
