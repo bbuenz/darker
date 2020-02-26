@@ -413,8 +413,8 @@ The more general version of the commitment~\cite{EC:BCCGP16} can also give evalu
 
 The FRI protocol~\cite{ICALP:BBHR18} is an efficient interactive oracle proof (IOP) that a committed oracle is close to a Reed-Solomon codeword, meaning that the prover commits to large sequences of field elements and the verifier queries only a few specific elements rather than reading the entire sequence. The abstract functionality is cryptographically compiled with a Merkle tree, which results in constant-size commitments and element queries that are logarithmic in the length of the codeword, \emph{i.e.}, the size of the oracle. FRI has been used in multiple recent zero-knowledge proof systems such as  \textsf{STARK}~\cite{C:BBHR19}, \textsf{Aurora}~\cite{EC:BCRSVW19}, and \textsf{Fractal}~\cite{Fractal}.
 
-Since this oracle is a Reed-Solomon codeword, it represents the evaluations of a low-degree polynomial $f$ on an evaluation set $S \subset \FF$. In order to be used as a polynomial commitment scheme, the protocol needs to permit querying the polynomial outside of the evaluation set. DEEP-FRI~\cite{DEEPFRI} shows that this is possible and a recent note by Vlasov and Panarin \cite{MatterLabs} makes the connection explicit by building a polynomial commitment scheme from FRI. 
-This FRI-based polynomial commitment scheme has evaluation proofs of size and verifier time $O(\lambda \log^2(d))$ where $\lambda$ is the security parameter and $d = \deg(f)$. To date, no extension to multivariate polynomials exists for FRI. The commitment relies only on symmetric cryptography and is plausibly quantum resistant.
+Since this oracle is a Reed-Solomon codeword, it represents the evaluations of a low-degree polynomial $f$ on an evaluation set $S \subset \FF$. In order to be used as a polynomial commitment scheme, the protocol needs to permit querying the polynomial outside of the evaluation set. DEEP-FRI~\cite{DEEPFRI} shows that this is possible and two recent works~\cite{EPRINT:ZXZS19,EPRINT:KatPanVla19} makes the connection explicit by building a polynomial commitment scheme from FRI. 
+This FRI-based polynomial commitment scheme have evaluation proofs of size and verifier time $O(\lambda \log^2(d))$ where $\lambda$ is the security parameter and $d = \deg(f)$. To date, no extension to multivariate polynomials exists for FRI. The commitment relies only on symmetric cryptography and is plausibly quantum resistant.
 
 \subsubsection{Comparison}
 
@@ -433,7 +433,7 @@ Note also that the prover time for the group based schemes could be brought down
     Based on Pairings & no & $d^\mu$ $\GG_{B}$ & $O(d^\mu)\; \textsf{EXP}$  & $\mu\; \textsf{Pairing} $ & $\mu \; \GG_{B}$\\
     \cite[$\sqrt{\cdot}$]{EC:BCCGP16} & yes & $\sqrt{d^\mu}\GG_{P}$ & $O(d^\mu)$ \textsf{EXP} & $O(\sqrt{d^\mu})\textsf{EXP}$ &$O(\sqrt{d^\mu}) \; \GG_P$\\
        \textsf{Bulletproofs} & yes &$2 d^\mu\GG_{P}$& $O(d^\mu)$ \textsf{EXP}& $O(d^\mu)\textsf{EXP}$ &$2 \mu \log(d) \; \GG_P$\\
-       FRI  ($\mu = 1$) & yes & $O(1)$ & $O(\lambda  d)$ $\hash$ & $O(\lambda \log^2(d))$ $\hash$ & $O(\lambda \log^2(d)) \; \hash$
+       FRI-based ($\mu = 1$) & yes & $O(1)$ & $O(\lambda  d)$ $\hash$ & $O(\lambda \log^2(d))$ $\hash$ & $O(\lambda \log^2(d)) \; \hash$
 \end{tabular}
 
 \caption{Comparison table between different polynomial commitment schemes for an $\mu$-variate polynomial of degree $d$.}
