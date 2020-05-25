@@ -17,11 +17,13 @@
 %\usepackage{draftwatermark}
 \usepackage[legalpaper, margin=1in]{geometry}
 \usepackage{comment}
+\usepackage{todonotes}
 \theoremstyle{Definition}
 \newtheorem{theorem}{Theorem}
 \newtheorem{definition}{Definition}
 \newtheorem{lemma}{Lemma}
 \newtheorem{assumption}{Assumption}
+
 
 \title{Darker}
 
@@ -52,23 +54,20 @@ $\textsf{FFTEval}(q,C,d;f(X))$
 \end{mdframed}
 
 \subsection{Computing all PoEs at once}
-Let the subscript $i$ denote proof elements from the $i$th round of the protocol.
-Let $\gr{D}_{i}\gets \gr{C}_{O,i}$ and $\gr{D}_i'\gets \gr{C}_{i}-\gr{C}_{E,i}$ for $i \in [1,\logd]$ such that $q^{2^{\logd-i}} \cdot \gr{D}_i=\gr{D}'_i$ for all $i$. The prover and verifier run the following \textsf{BatchPoE} protocol that the claims hold.
+Let the subscript $i$ denote proof elements from the $i$th round of the protocol. Let $\numrounds=\logd$ be the number of rounds in the protocol.
+Let $\gr{D}_{i}\gets \gr{C}_{O,i}$ and $\gr{D}_{i}'\gets \gr{C}_{i}-\gr{C}_{i}$ for $i \in [1,\numrounds]$ such that $q^{2^{i-1}} \cdot \gr{D}_i=\gr{D}'_i$ for all $i\in [\numrounds]$. The prover and verifier run the following \textsf{BatchPoE} protocol that the claims hold.
 \begin{mdframed}
-Prover and Verifier Input: $[\gr{D}_i,\gr{D}_i']_{i=1}^{\logd},q$\\
-Claim: $q^{2^{\logd-i}}\cdot \gr{D}_i=\gr{D}'_i \forall i \in [\logd]$
+Prover and Verifier Input: $[\gr{D}_i,\gr{D}_i']_{i=1}^{\numrounds},q$\\
+Claim: $q^{2^{i-1}}\cdot \gr{D}_i=\gr{D}'_i \quad \forall i \in [\numrounds]$
 	\begin{enumerate}[nolistsep]
-\item $\gr{X}_{\logd}=\gr{D}_{\logd}$, $\gr{Z}_{\logd}=\gr{D}'_{\logd}$
-\item $\gr{Y}_{\logd}\gets q^{d/4}\cdot \gr{X}_{\logd}$ \pccomment{Computable as $ f_{O,\log_2(d)}\cdot \Generator_{\frac{d}{4}}^{}$ for $\Generator_{\frac{d}{4}}=q^{\frac{d}{4}}\cdot \Generator$}
-\item \prover sends $\gr{Y}_{\logd}$ to $\verifier$
-	\item $\pcfor i \in [\logd-1,2]$
+\item $\gr{X}_{\numrounds}=\gr{D}_{\numrounds-1}$, $\gr{Z}_{\numrounds-1}=\gr{D}'_{\numrounds}$
+	\item $\pcfor i \in [\numrounds-1,2]$
+   \item \pcind[1]$\gr{Y}_{i}\gets q^{2^{i}}\cdot \gr{X}_{i}$ \pccomment{Computable either through multi exponentiation using bases: $\Generator_j=q^{ 2^{j}} \cdot \Generator$ or directly.}
+\item\pcind[1]\prover sends $\gr{Y}_{i}$ to $\verifier$
 	\item \pcind[1]$\verifier$ samples $\alpha,\beta \sample [-2^{\lambda-1} ,2^{\lambda-1}]$ and sends them to $\prover$
-	\item \pcind[1]\prover and \verifier compute  $\gr{X}_{i}\gets  \gr{X}_{i+1}+ \alpha\cdot  \gr{Y}_{i+1}+\beta \cdot\gr{D}_{i}$
-	\item $\pcind[1]$\verifier compute   $\gr{Z}_{i}\gets \gr{Y}_{i+1}+\alpha\cdot \gr{Z}_{i+1}+\beta\cdot \gr{D}_{i}^{'}$
-		\item \pcind[1]\prover computes $\gr{Y}_{i}\gets q^{2^{i-2}}\cdot\gr{X}_{i}$ \pccomment{See discussion below}
-		\item \pcind[1]$\prover$ sends $\gr{Y}_{i}$ to \verifier.
-%\item \verifier samples random $\alpha,\beta \sample [-2^{\lambda-1} ,2^{\lambda-1}]$ and checks that $(\gr{X}_{2} \gr{Y}_{2}^{\alpha}\gr{D}_{1}^{\beta})^q=\gr{Y}_{2}\gr{Z}_{2}^{\alpha}\gr{D}_{1}^{'\beta}$
-\item \verifier checks that $q\cdot \gr{X}_2=\gr{Y}_2$, $q\cdot \gr{Y}_2=\gr{Z}_2$ and $q\cdot \gr{D}_1=\gr{D}_1'$ (These checks can be combined using another pair of challenges).
+	\item \pcind[1]\prover and \verifier compute  $\gr{X}_{i-1}\gets  \gr{X}_{i}+ \alpha\cdot  \gr{Y}_{i}+\beta \cdot\gr{D}_{i-1}$
+	\item $\pcind[1]$\verifier compute   $\gr{Z}_{i-1}\gets \gr{Y}_{i}+\alpha\cdot \gr{Z}_{i}+\beta\cdot \gr{D}_{i-1}^{'}$
+\item \verifier checks that $q\cdot \gr{X}_1=\gr{Z}_1$
 \end{enumerate}
 \end{mdframed}
 
@@ -100,10 +99,11 @@ $\textsf{Commit}(f(X),b):$
 \end{enumerate}
 $\textsf{FFTEval}(q,C,P_0,\dots,P_{b-1},b,d;f_0(X),\dots,f_{b}(X))$
 \begin{enumerate}[nolistsep]
+		\item $\alpha_0=\hash(C,f_0,q,b)$ 
 		\item $\pcfor i=1$ to $\log_2(b)$
 		\item $\pcind[1]$ $C_{O,i}\gets\prod_{j=0}^{\frac{b}{2^i}-1} P_{2j+1}^{q^{j\cdot 2^i}}$ \pccomment{Computed using folding method, Total Cost: $b \log{b}$ $\log_2(q)$-bit exp}.
 		\item \pcind[1] $C_{O,i}'=C_{O,i}^{q^{2^i}}$ \pccomment{Total cost (all iterations) $b$ $q$-bit exp, might as well do W PoE here}
-		\item \pcind[1] $\alpha_i\gets \hash(C_{O,i})$ \pccomment{Fiat-Shamir}
+		\item \pcind[1] $\alpha_i\gets \hash(\alpha_{i-1} C_{O,i})$ \pccomment{Fiat-Shamir}
 		\item $\pcind[1] P_{j}=P_{2j}P_{2j+1}^{\alpha}$ for $j \in [0,\frac{b}{2^i}]$\pccomment{$b$ $\lambda$-bit exp in total}
 		\item $f'(X)\gets \sum_{i=0}^{b-1} f_i(X) \prod_{j=1}^{\log_2(b)} \alpha_j^{j\text{th last bit of }i}$ \pccomment{$f_0(X)+\alpha_1 f_1(X) + \alpha_2 f_2(X)$, Cost: $d$ field ops}
 		\item \pcfor $i=\log_2(b)+1$ to $\logd$
@@ -126,7 +126,7 @@ We state a version of the RSA assumption as described by $\cite{EC:CouPetPoi17}$
     \Pr\left[\ell \cdot \gr{U} = \Generator \wedge \gcd(\ell,|\GG|)=1:
     \begin{array}{l}
          \GG,B \leftarrow \ggen(\lambda)  \\
-         \Generator, \sample \GG, \ell \sample [B]  \\
+         \Generator \sample \GG, \ell \sample [B]  \\
          \gr{U} \in \mathbb{G} \leftarrow \adv(\mathbb{G}, \Generator) \\
     \end{array}\right] \leq \negl \enspace .
 \]
@@ -166,7 +166,7 @@ The setup algorithm $\setup$ on input $\secparam$ and max degree $D$ and prime $
 \end{definition}
 \begin{lemma}[Binding commitment]
 \label{lem:aug-com-binding}
-	The commitment is binding under the RSA assumption. 
+	The commitment is binding under the random order assumption. 
 \end{lemma}
 \begin{proof}
 	Given a commitment $C$ and two openings $f(X),w,\alpha$ and $f'(X),w',\alpha'$ with $f(X)\neq f'(X)$. $f(X),f'(X)$ have bounded coefficients so $f(q)\neq f'(q)\in \ZZ$. This implies that $(f(q)-f'(q))\cdot \Generator+w-w'=0$. 
@@ -175,12 +175,28 @@ The setup algorithm $\setup$ on input $\secparam$ and max degree $D$ and prime $
 	\end{proof}
 	
 	\begin{lemma}[PoEs]
-		The batch PoE protocol on input $[\gr{D}_i,\gr{D}_i']_{i=1}^{\logd}$ is an interactive proof of knowledge for the following relation:
-		$$\mathcal{R}_{POE}=\{([\gr{D}_i,\gr{D}_i']_{i=1}^{\logd},q;\gr{W}_i\in \GG,a_i\in \ZZ): [\gr{D}_i'=q^{2^{\logd-i}}  \cdot \gr{D}_i+\gr{W}_i \wedge a_i\cdot \gr{W}_i=0]_{i=1}^{\logd-1} \}$$
+		The batch PoE protocol on input $[\gr{D}_i,\gr{D}_i']_{i=1}^{\numrounds}$ is an interactive proof of knowledge for the following relation:
+		$$\mathcal{R}_{POE}=\{([\gr{D}_i,\gr{D}_i']_{i=1}^{\numrounds},q;\gr{W}_i\in \GG,a_i\in \ZZ): [\gr{D}_i'=q^{2^{\numrounds-i}}  \cdot \gr{D}_i+\gr{W}_i \wedge a_i\cdot \gr{W}_i=0]_{i=1}^{\numrounds-1} \}$$
 	\end{lemma}
 	\begin{proof}
-		
+	We will prove security by constructing an extractor $E$ that given rewinding access to an adversary $A$ is able to extract a valid witness. 
+The extractor works in a round by round manner using $3$ transcripts with different challenges $\alpha_j$ and $\beta_j$ $j\in\{1,2,3\}$. 
+ 
+\begin{itemize}
+	\item Read $\gr{X}_1$ and $\gr{Z}_1$ from the transcript.
+	\item In each round we have $\gr{X}_i \approx q^i \gr{Z}_i$. We use $\approx$ to denote equality but for an additive shift of a known order element.
+	\item We will show that $\gr{X}_{i+1}\approx \gr{Z}_{i+1}$
+	\item Let $C= \left\{\begin{array}{lll}
+		1 & \alpha_1 & \beta_1\\
+		1 & \alpha_2 & \beta_2\\
+		1 & \alpha_3 & \beta_3
+	\end{array}\right\} $ be the challenge matrix. 
+	\item We find $P$ such that $P C$ is an upper triangle matrix. If it doesn't exist then the extractor aborts.
+\end{itemize}
+	We will show that if $q^{2^i}\cdot \gr{X}_i \cdot \gr{W}_i=\gr{Z}_i$ and $a_i \cdot \gr{W}_i=0$ then the extractor can compute $\gr{X}_{i+1},\gr{Y}_{i+1} \gr{W}_{i+1}, a_{i+1}$ such that $X_{i+1}^q\cdot W_{i+1}=Z_{i+1}$ and $a_{i+1}\cdot \gr{W}_{i+1}=0$.  
+	The extractor rewinds the prover two times per round to get responses for  
 	\end{proof}
+	
 	Proof idea:
 	\begin{itemize}
 		\item  We know that $\gr{D}_1^q=\gr{D}_1'$, $\gr{X}_1^q=\gr{Y}_1$ and $\gr{Y}_1^q=\gr{Z}_1$.
@@ -189,6 +205,19 @@ The setup algorithm $\setup$ on input $\secparam$ and max degree $D$ and prime $
 		\item Use a linear combination of $[(1,\alpha_i,\beta_i)]_{i=1}^3$ (likely full rank). 
 		\item This shows that $\gr{X}_{i+1}= \gr{Y}_{i}$ and ...
 	\end{itemize}
+\subsection{Strong RSA to RSA assumption}
+\begin{itemize}
+\item CRS $\gr{G} \in \GG$
+	\item Prover sends $\gr{C}_1,\gr{C}_2$
+	\item 
+Verifier sends $\alpha \in [0,2^\lambda]$
+\item Prover sends $f' \in \ZZ, \gr{w}\in \GG, \rho \in \ZZ$
+\item Verifier checks that $f' \cdot \gr{G}+\gr{w} =\alpha \cdot \gr{C}_1 +\gr{C}_2$ and $\gr{w}^\rho=1$
+\end{itemize}
+Run the protocol 3 times to compute $\Delta\alpha_1$, $\Delta\alpha_2$ and $\Delta f_1$ and $\Delta f_2$.
+Let $f'_1\gets \frac{\Delta f_1}{\gcd(\Delta \alpha_1,\Delta f_1)}$ ,$\alpha'_1\gets \frac{\Delta \alpha_1}{\gcd(\Delta \alpha_1,\Delta f_1)}$ denote the reduced fractions. For an adversary with success probability $\epsilon$ either $f'_1\leq 8/\epsilon$ or $f'_1 >8/\epsilon$ with non negligible probability ($\approx\epsilon^2$). 
+\paragraph{$f'_1$ is small.}
+In that case we can compute 
 \section{Other ideas (WIP)}
 \subsection{No field elements eval}
 
