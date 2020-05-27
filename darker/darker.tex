@@ -273,6 +273,33 @@ Assume $d+1$ is a power of $2$
       \end{minipage}
 \end{mdframed}
 
+
+\section{Ben's lemmas}
+
+Let $\G$ denote the abelian group (i.e., $\G$ is a $\Z$-module) that contains the space of commitments for the PCS. We first prove an elementary linear algebraic fact. 
+
+\begin{lemma}\label{lem:triangularization}
+Let $\G$ be a $\Z$-module. Let $p$ be a prime and $\F = \Z_p$. Given two vectors $\x, \y \in \G^n$ and a system of equations $\mathbf{A} \x = \y$ for a matrix $\A \in \Z^{n \times n}$ that is invertible over $\F$, there is an efficient algorithm to derive a diagonal matrix $\mathbf{D}$ with diagonal entries  $(d_1,...,d_n) \in \Z^n$, where $d_i \neq 0 \bmod p$ for all $i$, and a matrix $\mathbf{L}$ such that $\mathbf{D} \cdot \x = \mathbf{L} \cdot \y$. In particular, $\mathbf{L} \mathbf{A} = \mathbf{D}$.    
+\end{lemma} 
+\begin{proof} 
+Since $det(\mathbf{A}) \neq 0 \bmod p$, by Gaussian elimination there is a triangularization matrix $\mathbf{P}$ such that $\mathbf{P} \mathbf{A} = \mathbf{T}$ is lower triangular with a diagonal of integer values that are non-zero over $\F$ (i.e., it is in reduced row-echelon form). 
+Since $\mathbf{P} \mathbf{A} \cdot \x = \mathbf{T} \cdot \y= \mathbf{P}\cdot \y$, there exists an integer $d_1$ (i.e., upper left entry of $\mathbf{T}$) such that $d_1 \cdot x_1 =\langle \mathbf{P}_1, \y \rangle$, where $\mathbf{P}_1$ is the first row of $\mathbf{P}$. Denote by $\x^{(i)}$ the vector that swaps the 1st and $i$th coordinates of $\x$. Denote by $\A^{(i)}$ the matrix that results from swapping the first and $i$th columns of $\A$. We have $\A^{(i)} \x^{(i)} = \y$. 
+ For each $i \in [n]$, repeat the triangularization process on $\A^{(i)}$ to get $\mathbf{P}^{(i)}$ such that $\mathbf{P}^{(i)} \cdot \A^{(i)} = \mathbf{T}^{(i)}$ is lower triangular. The upper left entry of $\mathbf{T}^{(i)}$ is an integer $d_i \neq 0 \bmod p$, and $d_i \cdot x_i = \langle \mathbf{P}^{(i)}_1, \y \rangle$.
+  Return the matrix $D$ with diagonal entries $d_1,...,d_n$ and the matrix $L$ with row vectors $\mathbf{P}^{(i)}_1$ for $i \in [n]$. 
+\end{proof} 
+
+The next lemma is a direct result of this fact. 
+
+\begin{lemma}\label{lem:extraction}
+Given two vectors of commitments $\mathbf{C}, \mathbf{C^*} \in \G^n$, a system of equations $\mathbf{A} \mathbf{C} = \mathbf{C^*}$ for an integer matrix $\mathbf{A} \in \Z^{n \times n}$ that is invertible over $\F_p$, and a vector of openings of $\mathbf{C^*}$ to a vector of polynomials $\mathbf{f^*} = (f_1^*,...,f_n^*) \in (\FF)^n$, there is an efficient algorithm to derive polynomials $\mathbf{f} = (f_1,...,f_n) \in (\FF)^n$, integer vector $\mathbf{t} \in \Z^n$ such that $t_i \neq 0 \bmod p$, and openings for each $t_i \cdot \mathbf{C}_i$ to the polynomial $t_i \cdot f_i \bmod p$ such that $\mathbf{A} \cdot \mathbf{f} = \mathbf{f^*} \bmod p$. 
+\end{lemma} 
+\begin{proof} 
+By Lemma~\ref{lem:triangularization}, there exists a diagonal matrix $\mathbf{T}$ with integer entries $t_1,...,t_n \neq 0 \bmod p$ and a matrix $\mathbf{L}$ such that $\mathbf{T} \cdot \mathbf{C} = \mathbf{L} \cdot \mathbf{C}^*$ and $\mathbf{L} \cdot \mathbf{A} = \mathbf{T}$. 
+  From each linear combination of $\mathbf{C^*}$, we use $\add^*$ to derive an opening of $t_i \cdot \mathbf{C}_i$ to a polynomial $g_i = \langle \mathbf{L}_i, \mathbf{f^*} \rangle \in \FX$.
+   Let $\mathbf{g} = (g_1,...,g_n)$. Finally, solve for the vector of polynomials $\mathbf{f}$ such that $\mathbf{A} \cdot \mathbf{f} = \mathbf{f^*}$ by computing $\mathbf{A}^{-1} \bmod p$. Note that $\mathbf{L} \cdot \mathbf{A} \cdot \mathbf{f} = \mathbf{T} \cdot \mathbf{f} = \mathbf{L} \cdot \mathbf{f}^*$ where $\mathbf{T}$ is a diagonal matrix with entries $t_i \neq 0 \bmod p$. Thus, $t_i f_i = g_i$, for which we have a valid opening of $t_i \cdot \mathbf{C}_i$.   
+\end{proof}
+
+
  \bibliographystyle{alpha}
  \bibliography{../cryptobib/abbrev3,../cryptobib/crypto,cryptobib/additional}
 \end{document}
