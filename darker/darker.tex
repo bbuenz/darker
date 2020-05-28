@@ -205,10 +205,10 @@ Note that an honestly generated commitment does not require an additional openin
 	\begin{lemma}[PoEs]
 		Protocol \textsf{BatchPoE} is an interactive proof of knowledge for the following relation:
 		\[ \mathcal{R_\textsf{BPoE}} = \left\{
-\big\langle \{(\gr{G}_i,\gr{G}_i')\}_{i=1}^{\numrounds}, q ; \ \{(\gr{W}_i\in \GG, a_i, d_i\in \ZZ)\}_{i=1}^k  \big\rangle
+\big\langle \{(\gr{G}_i,\gr{G}_i')\}_{i=1}^{\numrounds}, q ; \ \{(\gr{W}_i\in \GG, a_i \in \ZZ)\}_{i=1}^k  \big\rangle
 : \forall i
 \begin{array}{l} 
-d_i \cdot \gr{G}_i' = q^{2^{\numrounds-i}}  \cdot d_i \cdot \gr{G}_i + \gr{W}_i \\ 
+ \gr{G}_i' = q^{2^{\numrounds-i}}  \cdot \gr{G}_i + \gr{W}_i \\ 
 a_i\cdot \gr{W}_i=0
 \end{array}\right\}
 \]
@@ -232,19 +232,19 @@ Since the verifier challenges in the protocol are sampled from $\mathcal{X} = [-
 
 For the root node $\textsf{rt}$, define $\gr{X}_\textsf{rt} \deq \gr{G}_\numrounds$ and $\gr{Z}_\textsf{rt} \deq \gr{G}'_\numrounds$. For any non-leaf node $v$ on level $i$ with parent $w$ on level $i+1$, which has prover message $\gr{Y}_v$ and verifier challenge $\alpha_v$, define $\gr{X}_v \deq \gr{X}_w + \alpha_v \cdot \gr{Y}_w + \alpha^2 \cdot \gr{G}_{i-1}$. Similarly, define $\gr{Z}_v \deq \gr{Y}_w + \alpha \gr{Z}_w + \alpha^2 \gr{G}'_{i-1}$.
 
-We will show that given this tree, the extractor can compute for all nodes $v \in [0, n^{\log 3})$ group elements $\gr{W}_v$ and integers $a_v$ and $d_v$ such that $a_v \cdot \gr{W}_v = 0$ and if $v$ is on the $i$th level then $d_v \cdot \gr{Z}_v = d_v \cdot q^{2^{i-1}} \cdot \gr{X}_v + \gr{W}_v$. It can also compute values $\gr{W}'_v, d'_v$ such that $a_v \cdot \gr{W}'_v = 0$ and $d'_v \cdot \gr{G}'_{i-1} = d'_v \cdot \gr{G}_{i-1} + \gr{W}'_v$. It will do this by starting at the leaves and working its way up the tree.
+We will show that given this tree, the extractor can compute for all nodes $v \in [0, n^{\log 3})$ group elements $\gr{W}_v$ and integers $a_v$ such that $a_v \cdot \gr{W}_v = 0$ and if $v$ is on the $i$th level then $\gr{Z}_v = q^{2^{i-1}} \cdot \gr{X}_v + \gr{W}_v$. It can also compute values $\gr{W}'_v$ and $a'_v$ such that $a'_v \cdot \gr{W}'_v = 0$ and $\gr{G}'_{i-1} = \gr{G}_{i-1} + \gr{W}'_v$. It will do this by starting at the leaves and working its way up the tree.
 For any leaf node $v$, the fact that the transcript is accepting implies $q \cdot \gr{X}_v = \gr{Z}_v$. Now suppose that the appropriate values $\gr{W}_v$ have been computed for all children of a node $w$ on the $i$th level. Denoting the three children of nodes $w$ with indices $v_1, v_2, v_3$ and the three challenges on each by $\alpha_1, \alpha_2, \alpha_3$. This means that $\gr{X}_{v_j} = \gr{X}_w + \alpha_j \cdot \gr{Y}_w + \alpha_j^2 \cdot \gr{G}_{i-1}$ and $\gr{Z}_{v_j} = \gr{Y}_w + \alpha_j \cdot \gr{Z}_w + \alpha^2_j \cdot \gr{G}'_{i-1}$ for each $j \in [3]$.
-Furthermore, $d_{v_j} \cdot \gr{Z}_{v_j} = d_{v_j} \cdot q^{2^{i-1}} \cdot \gr{X}_{v_j} + \gr{W}_{v_j}$ such that $a_{v_j} \cdot \gr{W}_{v_j} = 0$ and $d_{v_j} \neq 0$ for each $j \in [3]$. 
+Furthermore, $\gr{Z}_{v_j} = q^{2^{i-1}} \cdot \gr{X}_{v_j} + \gr{W}_{v_j}$ such that $a_{v_j} \cdot \gr{W}_{v_j} = 0$ for each $j \in [3]$. 
 
-Let $\mathbf{D}$ denote the diagonal matrix with entries $d_{v_1}, d_{v_2}, d_{v_3}$. Let $\mathbf{W} = (\gr{W}_{v_1}, \gr{W}_{v_2}, \gr{W}_{v_3})$ and let $a \deq lcm(a_{v_1}, a_{v_2}, a_{v_3})$. We can summarize these relations in the following matrix equations, where $\mathbf{A} \in \mathbb{Z}^{3\times 3}$ is the integer matrix with rows $(1, \alpha_j, \alpha_j^2)$:
+Let $\mathbf{W} = (\gr{W}_{v_1}, \gr{W}_{v_2}, \gr{W}_{v_3})$ and let $a \deq lcm(a_{v_1}, a_{v_2}, a_{v_3})$. We can summarize these relations in the following matrix equations, where $\mathbf{A} \in \mathbb{Z}^{3\times 3}$ is the integer matrix with rows $(1, \alpha_j, \alpha_j^2)$:
 
-$$\mathbf{D} \cdot \mathbf{A}
+$$\mathbf{A}
 \begin{bmatrix}
 \gr{X}_w \\ 
 \gr{Y}_w \\ 
 \gr{G}_{i-1}
 \end{bmatrix} 
-= \mathbf{D} \cdot 
+=  
 \begin{bmatrix}
 \gr{X}_{v_1} \\ 
 \gr{X}_{v_2} \\ 
@@ -259,7 +259,6 @@ $$\mathbf{D} \cdot \mathbf{A}
 \gr{G}'_{i-1}
 \end{bmatrix} 
 = 
-\mathbf{D} \cdot 
 \begin{bmatrix}
 \gr{Z}_{v_1} \\ 
 \gr{Z}_{v_2} \\ 
@@ -267,7 +266,6 @@ $$\mathbf{D} \cdot \mathbf{A}
 \end{bmatrix} 
 = 
 q^{2^{i-1}} \cdot 
-\mathbf{D} \cdot 
 \begin{bmatrix}
 \gr{X}_{v_1} \\ 
 \gr{X}_{v_2} \\ 
@@ -280,14 +278,14 @@ $$
 
 Substituting for the column vector $(\gr{X}_{v_1}, \gr{X}_{v_2}, \gr{X}_{v_3})$ we get: 
 
-$$ \mathbf{D} \cdot \mathbf{A} \cdot 
+$$  \mathbf{A} \cdot 
 \begin{bmatrix}
 \gr{Y}_w \\ 
 \gr{Z}_w \\ 
 \gr{G}'_{i-1}
 \end{bmatrix} 
 = 
-q^{2^{i-1}} \cdot \mathbf{D} \cdot \mathbf{A} \cdot  
+q^{2^{i-1}} \cdot \mathbf{A} \cdot  
 \begin{bmatrix}
 \gr{X}_{w} \\ 
 \gr{Y}_{w} \\ 
@@ -301,34 +299,30 @@ q^{2^{i-1}} \cdot \mathbf{D} \cdot \mathbf{A} \cdot
 \end{bmatrix}  \ \
 $$
 
-Since $\mathbf{A}$ is a Vandermonde matrix with distinct rows and $\mathbf{D}$ has a non-zero diagonal, $det(\mathbf{A} \cdot \mathbf{D}) \neq 0$. Therefore, by Lemma~\ref{lem:extraction}, there exists a matrix $\mathbf{P}$ such that $\mathbf{P}\cdot \mathbf{A} = \mathbf{D}'$ where $\mathbf{D}$ is a diagonal matrix with non-zero entries $d'_1, d'_2, d'_3$. This means that: 
+Since $\mathbf{A}$ is a Vandermonde matrix with distinct rows, $det(\mathbf{A} \cdot \mathbf{D}) \neq 0$. Therefore, by Lemma~\ref{lem:extraction}, there exists a matrix $\mathbf{P}$ such that $\mathbf{P}\cdot \mathbf{A} = \mathbf{D}$ where $\mathbf{D}$ is a diagonal matrix with non-zero entries $d_1, d_2, d_3$. This means that: 
 
 $$  
 \begin{bmatrix}
-d'_1 \cdot \gr{Y}_w \\ 
-d'_2 \cdot \gr{Z}_w \\ 
-d'_3 \cdot \gr{G}'_{i-1}
+d_1 \cdot \gr{Y}_w \\ 
+d_2 \cdot \gr{Z}_w \\ 
+d_3 \cdot \gr{G}'_{i-1}
 \end{bmatrix} 
 = 
 q^{2^{i-1}} \cdot
 \begin{bmatrix}
-d'_1 \cdot \gr{X}_{w} \\ 
-d'_2 \cdot \gr{Y}_{w} \\ 
-d'_3 \cdot \gr{G}_{i-1}
+d_1 \cdot \gr{X}_{w} \\ 
+d_2 \cdot \gr{Y}_{w} \\ 
+d_3 \cdot \gr{G}_{i-1}
 \end{bmatrix}  \ \
 + 
 \mathbf{P} \cdot 
 \mathbf{W} \ \ \text{and} \ \ a \cdot \mathbf{P} \cdot \mathbf{W} = 0
 $$
 
-Finally, this implies that $d'_1 d'_2 \cdot \gr{Z}_w = q^{2^{i-1}} \cdot (d'_2 d'_1 \cdot q^{2^{i-1}} \cdot \gr{X}_w + \langle \mathbf{P}_1, \mathbf{W} \rangle) + d'_1 \cdot \langle \mathbf{P}_2, \mathbf{W} \rangle$. 
-Therefore, the extractor has obtained the integer $d_w \deq d'_1 d'_2$, group element $\gr{W}_w \deq q^{2^{i-1}} \cdot \langle \mathbf{P}_1, \mathbf{W} \rangle  + d'_1 \cdot \langle \mathbf{P}_2, \mathbf{W} \rangle$, and the integer $a_w \deq a$ such that $d_w \cdot \gr{Z}_w = d_w \cdot q^{2^i} \cdot \gr{X}_w + \gr{W}_w$ such that $a_w \cdot \gr{W}_w = 0$. 
-We also have the relation $d'_w \gr{G}'_{i-1} = q^{2^{i-1}} \cdot d'_w \gr{G}_{i-1} + \gr{W}'_w$ such that $a_w \cdot \gr{W}'_w = 0$, for $d'_w \deq d'_3$ and $\gr{W}'_w \deq \langle \mathbf{P}_3, \mathbf{W} \rangle$. 
-
-
-
-%For the root node $\textsf{rt}$ define $y_{\textsf{rt}} \deq y$, where $y$ is the input. We also define a value $\g_v$ for every node $v$ as follows: if $v$ is the root then $\g_v \deq \g$, else if $v$ has a parent $w$ then $\g_v \deq \g_{w, 0} + \alpha_v \cdot \g_{w, 1}$ where $\g_w = (\g_{w,0}, \g_{w,1})$ is the concatenation of equal length vectors $\g_{w,0}, \g_{w,1}$. If $v$ is a node on the $i$th level up from the leaves then $\g_v \in \G^{2^i}$. By construction, for every root to leaf path of nodes $v_1,...,v_{\log n}$ the sequence of values $(\alpha_{v_i}, y_{v_i,0}, y_{v_i,1})$ form an accepting transcript between the prover and verifier where $(\g_{v_i}, y_{v_i})$ are the verifier's local inputs in the $i$th round. Moreover, the leaf node labels satisfy $[\![  x_v ]\!]_{\g_v} = y_v$. 
-
+This implies that $d_1 d_2 \cdot \gr{Z}_w = q^{2^{i-1}} \cdot (d_2 d_1 \cdot q^{2^{i-1}} \cdot \gr{X}_w + \langle \mathbf{P}_1, \mathbf{W} \rangle) + d_1 \cdot \langle \mathbf{P}_2, \mathbf{W} \rangle$. Let $d \deq d_1 d_2$ and let $\gr{W}_w \deq \gr{Z}_w - q^{2^{i}} \cdot \gr{X}_w$. 
+We have that $d \cdot \gr{W}_w = q^{2^{i-1}} \cdot \langle \mathbf{P}_1, \mathbf{W} \rangle  + d_1 \cdot \langle \mathbf{P}_2, \mathbf{W} \rangle$. Hence, $a \cdot d \cdot \gr{W}_w = 0$. Set $a_w \deq a \cdot a$. 
+ 
+We also have the relation $d_3 \gr{G}'_{i-1} = q^{2^{i-1}} \cdot \gr{G}_{i-1} + \langle \mathbf{P}_3, \mathbf{W} \rangle$. Setting $\gr{W}'_w \deq \gr{G}'_{i-1} - q^{2^{i-1}} \cdot \gr{G}_{i-1}$ we have $d_3 \cdot \gr{W}'_w = \langle \mathbf{P}_3, \mathbf{W} \rangle$, hence $a \cdot d_3 \cdot \gr{W}'_w = 0$. Let $a'_w \deq a \cdot d_3$.  
 	\end{proof}
 
 	
