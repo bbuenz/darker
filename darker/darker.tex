@@ -3,6 +3,7 @@
 \usepackage[operators,lambda,keys,sets,primitives,adversary,asymptotics,advantage]{cryptocode}
 \usepackage{notations}
 %\usepackage{bm}
+\usepackage{comment}
 \usepackage{mdframed}
 \usepackage{enumitem}
 \usepackage{amsthm}
@@ -25,6 +26,15 @@
 \newtheorem{assumption}{Assumption}
 \newtheorem{fact}{Fact}
 
+\newif\ifcomments
+\commentstrue
+\ifcomments
+	\newcommand{\ben}[1]{{\textcolor{red}{[\bf Ben: #1]}}}
+    \else
+	\newcommand{\ben}[1]{}
+	
+\fi
+
 
 \title{Darker}
 
@@ -45,7 +55,7 @@ $\textsf{FFTEval}(q,C,d;f(X))$
 		\item $\pcind[1]$ $\prover$ sends $f=f(X)$
 		\item $\pcind[1]$ $\verifier$ checks that $|f|<2^{\log_2(d_{\max}) \cdot \lambda}$ and that $f \cdot \Generator=\Commitment$\pccomment{$d_{\max}$ is the original degree here}
 		\item $\prover$ computes $f_E(X)$ and $f_O(X)$ s.t. $f_E(X^2)+X \cdot f_O(X^2)=f(X)$\pccomment{Odd and Even coefficients} 
-		\item \prover sends $\Commitment_E\gets \commit(f_E(q^2))$ and $\Commitment_O\gets \commit(f_O(q^2))$ to $\verifier$.
+		\item \prover sends $\Commitment_E\gets \commit(f_E(q^2))$ and $\Commitment_O\gets \commit(f_O(q^2))$ to $\verifier$. 
 		\item $\verifier$ checks that $\Commitment_E+ q\cdot \Commitment_O=\Commitment$ \pccomment{$q$ grows in each round. Outsourced with PoEs. See below}
 		\item $\verifier$ samples $\alpha \sample [-2^{\lambda-1},2^{\lambda-1}]$ and sends it to $\prover$
 		\item \prover and \verifier compute $\Commitment'\gets \Commitment_E+\alpha \cdot \Commitment_O$
@@ -55,25 +65,32 @@ $\textsf{FFTEval}(q,C,d;f(X))$
 \end{mdframed}
 
 \subsection{Computing all PoEs at once}
-Let the subscript $i$ denote proof elements from the $i$th round of the protocol. Let $\numrounds=\logd$ be the number of rounds in the protocol.
-Let $\gr{D}_{i}\gets \gr{C}_{O,i}$ and $\gr{D}_{i}'\gets \gr{C}_{i}-\gr{C}_{i}$ for $i \in [1,\numrounds]$ such that $q^{2^{i-1}} \cdot \gr{D}_i=\gr{D}'_i$ for all $i\in [\numrounds]$. The prover and verifier run the following \textsf{BatchPoE} protocol that the claims hold.
+%Let the subscript $i$ denote proof elements from the $i$th round of the protocol. Let $\numrounds=\logd$ be the number of rounds in the protocol.
+We present a \textsf{BatchPoE} protocol for proving that $\numrounds$ pairs of group elements $\{(\gr{G}_i, \gr{G}'_i)\}_{i=1}^k$ satisfy $q^{2^{i-1}} \cdot \gr{G}_i = \gr{G}'_i$ for all $i \in [\numrounds]$.
+While this could be proved with $k$ independent PoE proofs, the protocol we present saves a factor $k$ in the communication cost over the naive solution.
+%Let $\gr{D}_{i}\gets \gr{C}_{O,i}$ and $\gr{D}_{i}'\gets \gr{C}_{i}-\gr{C}_{i}$ for $i \in [1,\numrounds]$ such that $q^{2^{i-1}} \cdot \gr{D}_i=\gr{D}'_i$ for all $i\in [\numrounds]$. The prover and verifier run the following \textsf{BatchPoE} protocol that the claims hold.
 \begin{mdframed}
-Prover and Verifier Input: $[\gr{D}_i,\gr{D}_i']_{i=1}^{\numrounds},q$\\
-Claim: $q^{2^{i-1}}\cdot \gr{D}_i=\gr{D}'_i \quad \forall i \in [\numrounds]$
+\underline{\textsf{BatchPoE} \textbf{protocol}} \\
+Prover and Verifier Input: $\{(\gr{G}_i,\gr{G}_i')\}_{i=1}^{\numrounds},q$\\
+Claim: $q^{2^{i-1}}\cdot \gr{G}_i=\gr{G}'_i \quad \forall i \in \{1,...,\numrounds\}$
 	\begin{enumerate}[nolistsep]
-\item $\gr{X}_{\numrounds}=\gr{D}_{\numrounds-1}$, $\gr{Z}_{\numrounds-1}=\gr{D}'_{\numrounds}$
-	\item $\pcfor i \in [\numrounds-1,2]$
-   \item \pcind[1]$\gr{Y}_{i}\gets q^{2^{i}}\cdot \gr{X}_{i}$ \pccomment{Computable either through multi exponentiation using bases: $\Generator_j=q^{ 2^{j}} \cdot \Generator$ or directly.}
+\item $\gr{X}_{\numrounds} \deq \gr{G}_{\numrounds}$, $\gr{Z}_{\numrounds} \deq \gr{G}'_{\numrounds}$
+	\item $\pcwhile  i  > 1$
+   \item \pcind[1]\prover computes $\gr{Y}_{i}\deq q^{2^{i-2}}\cdot \gr{X}_{i}$
 \item\pcind[1]\prover sends $\gr{Y}_{i}$ to $\verifier$
-	\item \pcind[1]$\verifier$ samples $\alpha,\beta \sample [-2^{\lambda-1} ,2^{\lambda-1}]$ and sends them to $\prover$
-	\item \pcind[1]\prover and \verifier compute  $\gr{X}_{i-1}\gets  \gr{X}_{i}+ \alpha\cdot  \gr{Y}_{i}+\beta \cdot\gr{D}_{i-1}$
-	\item $\pcind[1]$\verifier compute   $\gr{Z}_{i-1}\gets \gr{Y}_{i}+\alpha\cdot \gr{Z}_{i}+\beta\cdot \gr{D}_{i-1}^{'}$
-\item \verifier checks that $q\cdot \gr{X}_1=\gr{Z}_1$
+	\item \pcind[1]$\verifier$ samples $\alpha \sample [-2^{\lambda-1} ,2^{\lambda-1}]$ and sends them to $\prover$
+	\item \pcind[1]\prover and \verifier compute  $\gr{X}_{i-1} \deq  \gr{X}_{i}+ \alpha\cdot  \gr{Y}_{i}+\alpha^2 \cdot\gr{G}_{i-1}$
+	\item $\pcind[1]$\verifier compute   $\gr{Z}_{i-1}\deq \gr{Y}_{i}+\alpha\cdot \gr{Z}_{i}+\alpha^2 \cdot \gr{G}_{i-1}^{'}$ 
+	     \pccomment{Invariant: $q^{2^{i-2}} \cdot \gr{X}_{i-1} = \gr{Z}_{i-1}$ }
+	\item $\pcind[1] i \deq i - 1$
+\item \verifier outputs \textsf{accept} if and only if $q\cdot \gr{X}_1=\gr{Z}_1$
 \end{enumerate}
 \end{mdframed}
 
+\ben{Leave out comment about how to compute $\gr{Y}_i$ when it has a special form where we apply this in the main protocol, i.e. via multi-exponentiation using bases $\Generator_j=q^{ 2^{j}} \cdot \Generator$ or directly. BathcPoE protocol should be independent. Explain in separate comment how to compute $\gr{Y}_i$ more efficiently when has special structure.}
+
 \subsection{Computational complexity of batch PoE}
-The main prover work is in computing $\gr{Y}_i$. In the first few loops $\gr{Y}_i=g^{h(q)}$ for a sparse polynomial $h(X)$. For example in the first loop $h(X)$ has only a single non-zero coefficient.
+\ben{We analyze the complexity of Batch PoE both in general, and in the special case that...} The main prover work is in computing $\gr{Y}_i$. In the first few loops $\gr{Y}_i=g^{h(q)}$ for a sparse polynomial $h(X)$. For example in the first loop $h(X)$ has only a single non-zero coefficient.
 After $\logd/2$ rounds the polynomial has roughly $\sqrt{d}$ coefficients. It then makes sense to switch to computing $\gr{Y}_i$ using a sequential computation, i.e. $\gr{Y}_i=\gr{X}_i^{q^{2^{i-2}}}$. This now also takes $O(\sqrt{d}\cdot \log{d})$ work. One could also switch earlier from one computation to the other. Additionally it is possible to use Wesolowski PoEs for the second part of the loop, i.e. the first half of the Odd/Even protocol. This leads to a smaller proof size. One possible split may be to only do $\log{\log{d}}$ BatchPoEs at the end. This should give you prover time that is still linear but better proof size. In practice doing BatchPoE for the last $6$ rounds should be good for almost all input sizes.
 \section{$\tilde{O}(\sqrt{d})$ eval}
 The PoEs are efficient and with some caching during the commitment phase we can also make the rest of the eval have $\tilde{O}(\sqrt{d})$ complexity (only group operations). The protocol is parameterized by a bound $b$ which determines the amount of preprocessing. We discuss the perfect choice for $b$ later but for intuition it helps to think of $b=d/b=\sqrt{d}$.
@@ -153,18 +170,21 @@ We state a version of the RSA assumption as described by $\cite{EC:CouPetPoi17}$
 	Given an efficient adversary $\adv_{\textsf{Order}}$ for the random order assumption we will construct an efficient adversary $\adv_{\textsf{RSA}}$ for the RSA assumption. On input $\GG,\Generator,\ell$ to $\adv_{\textsf{RSA}}$ we will forward $\GG,\Generator$ to $\adv_{\textsf{Order}}$. $\adv_{\textsf{Order}}$ outputs $a$ such that $a\cdot \Generator=0$ with non-negligible probability $\epsilon$. 
 	We compute $a'=\frac{a}{\gcd(a,\ell)}$. Note that since $\ell$ is co-prime to the order of $\GG$ and thus also the order of $\Generator$ and $a$ is a multiple of the order of $\Generator$ we have that $a'$ is still a multiple of the order of $\Generator$. Now $\adv_{\textsf{RSA}}$ computes $w\gets \ell^{-1} \bmod a'$ and outputs $\gr{U} \gets w\cdot \Generator$. $\ell \cdot \gr{U}=\Generator$ so $\adv_{\textsf{RSA}}$ succeeds with probability $\epsilon$.
 \end{proof}
-\begin{definition}[Augmented GUO Commitment]
-We describe an augmented polynomial commitment for groups of unknown order.
+
+\begin{definition}[GUO Polynomial Commitment]
+We describe a non-hiding succinct polynomial commitment scheme for polynomials of bounded degree over $\ZZ_p$ using a group of unknown order.
 \begin{itemize}
-	\item 
-The setup algorithm $\setup$ on input $\secparam$ and max degree $D$ and prime $p$ samples a group of unknown order $\GG$ and a $g\sample \GG$ and sets $q=2^k$ for $k \in \NN$ such that $q>p\cdot 2^{\lambda \cdot \logd}$. The algorithm outputs $\crs=(\GG,g,q,p,D)$
+	\item $\setup(\secparam) \rightarrow \crs:$
+The setup algorithm $\setup$ on input $\secparam$ and max degree $d$ and prime $p$ samples a group of unknown order $\GG$ and a $\Generator \sample \GG$ and sets $q=2^k$ for $k \in \NN$ such that $q>p\cdot 2^{\lambda \cdot \logd}$. The algorithm outputs $\crs=(\GG,\Generator,q,p,d)$.
 
-\item The commitment algorithm $\commit$ on input $f(X)\in \ZZ_p$ lifts $f(X)$ to the integer polynomial $\hat{f}(X)$ with coefficients bounded by $p$ and outputs $\Commitment =f(q) \cdot \Generator$
-\item The open algorithm $\open$ outputs $f(X),\gr{W} \in \GG,\alpha \in \NN$
-\item The verify commitment algorithm checks that $\alpha\cdot \gr{W}=0$ and that $\Commitment =f(q)\cdot \Generator +\gr{W}$
+\item $\commit(\crs, f) \rightarrow \Commitment$: The commitment algorithm $\commit$ on input $f(X)\in \ZZ_p$ lifts $f(X)$ to the integer polynomial $\hat{f}(X)$ with coefficients bounded by $p$ and outputs $\Commitment =f(q) \cdot \Generator$
+%\item The open algorithm $\open$ outputs $f(X),\gr{W} \in \GG,\alpha \in \NN$
+\item $\verify(\crs, f, \Commitment, \gr{W}, \alpha) \rightarrow b \in \{0,1\}$: The verification algorithm checks an opening of $\Commitment$ to the polynomial $f \in \ZZ_p$, given the opening hint $(\gr{W}, \alpha)$. It checks that $\alpha\cdot \gr{W}=0$ and that $\Commitment =f(q)\cdot \Generator +\gr{W}$
+\item The evaluation protocol will be describe later.
 \end{itemize}
-
+Note that an honestly generated commitment does not require an additional opening hint as $\Commitment = f(q) \cdot \Generator$. The flexibility in the $\verify$ algorithm is solely for the security analysis of our evaluation protocol, so that the knowledge extractor is allowed to obtain a more general opening hint for the commitment. 
 \end{definition}
+
 \begin{lemma}[Binding commitment]
 \label{lem:aug-com-binding}
 	The commitment is binding under the random order assumption. 
@@ -172,19 +192,148 @@ The setup algorithm $\setup$ on input $\secparam$ and max degree $D$ and prime $
 \begin{proof}
 	Given a commitment $C$ and two openings $f(X),w,\alpha$ and $f'(X),w',\alpha'$ with $f(X)\neq f'(X)$. $f(X),f'(X)$ have bounded coefficients so $f(q)\neq f'(q)\in \ZZ$. This implies that $(f(q)-f'(q))\cdot \Generator+w-w'=0$. 
 	We cancel out the $w$ and the $w'$ term to get $\alpha\cdot \alpha'\cdot (f(q)-f'(q)) \Generator=0$. $\cdot \alpha'\cdot (f(q)-f'(q))$ is a root of $\Generator$ 
-	which breaks the Random Order assumption and by \cref{lem:roa-to-rsa} also the RSA assumption.
+	which breaks the Random Order assumption.
+	% and by \cref{lem:roa-to-rsa} also the RSA assumption.
 	\end{proof}
-	\begin{fact}[Opening group]
-		The GUO commitment is homomorphic with respect to the openings $(f \in \ZZ,\gr{W},\alpha \in \ZZ)$. We define addition as $(f,\gr{W},\alpha)+	(f',\gr{W}',\alpha')=(f+f',\gr{W}+\gr{W}',lcm(\alpha,\alpha'))$ \end{fact}
+	
+	\begin{fact}[Homomorphic property]
+		The GUO commitment is additively homomorphic. Given openings $(f \in \ZZ,\gr{W},\alpha \in \ZZ)$ to $\Commitment$ and $(f',\gr{W}',\alpha')$ to $\Commitment'$, the opening to $\Commitment + \Commitment'$ is $(f + f', \gr{W} + \gr{W}', lcm(\alpha, \alpha'))$.  \end{fact}
 	\begin{proof}
 		Given $f \in \ZZ,\gr{W} \in \GG, \alpha \in \ZZ$
 	\end{proof}
 	
 	\begin{lemma}[PoEs]
-		The batch PoE protocol on input $[\gr{D}_i,\gr{D}_i']_{i=1}^{\numrounds}$ is an interactive proof of knowledge for the following relation:
-		$$\mathcal{R}_{POE}=\{([\gr{D}_i,\gr{D}_i']_{i=1}^{\numrounds},q;\gr{W}_i\in \GG,a_i\in \ZZ): [\gr{D}_i'=q^{2^{\numrounds-i}}  \cdot \gr{D}_i+\gr{W}_i \wedge a_i\cdot \gr{W}_i=0]_{i=1}^{\numrounds-1} \}$$
+		Protocol \textsf{BatchPoE} is an interactive proof of knowledge for the following relation:
+		\[ \mathcal{R_\textsf{BPoE}} = \left\{
+\big\langle \{(\gr{G}_i,\gr{G}_i')\}_{i=1}^{\numrounds}, q ; \ \{(\gr{W}_i\in \GG, a_i, d_i\in \ZZ)\}_{i=1}^k  \big\rangle
+: \forall i
+\begin{array}{l} 
+d_i \cdot \gr{G}_i' = q^{2^{\numrounds-i}}  \cdot d_i \cdot \gr{G}_i + \gr{W}_i \\ 
+a_i\cdot \gr{W}_i=0
+\end{array}\right\}
+\]
+
+
+		%$$\mathcal{R}_{POE}=\{\langle \{(\gr{G}_i,\gr{G}_i')\}_{i=1}^{\numrounds},q ;\{(\gr{W}_i\in \GG,a_i\in \ZZ)\}_{i=1}^k \rangle: \forall i \ \gr{G}_i' = q^{2^{\numrounds-i}}  \cdot \gr{G}_i + \gr{W}_i \ \ \wedge \ \ a_i\cdot \gr{W}_i=0]_{i=1}^{\numrounds-1} \}$$
 	\end{lemma}
 	\begin{proof}
+		We define a knowledge extractor that runs with an adversary $\adv$ who succeeds for public inputs $\{(\gr{G}_i,\gr{G}_i')\}_{i=1}^{\numrounds}$ and $q$ with probability $\epsilon = 1/\poly$. The extractor begins by using the tree-finding algorithm of Lemma~\ref{lem:forking} to generate a tree of accepting transcripts with the following characteristics: 
+
+\begin{itemize}
+\item The tree has depth $\numrounds$ and branching factor $3$. We index nodes by $v \in [0, n^{\log 3})$.
+\item The root is labeled with the publics inputs. 
+\item Each non-leaf node $v$ distinct from the root is labeled with a challenge $\alpha_{v}$ and a prover message $\gr{Y}_v$. 
+\item Each non-leaf node $v$ has three children each labeled with three distinct verifier challenges 
+$\alpha_{v,1} \neq \alpha_{v,2} \neq \alpha_{v,3}$.
+
+\end{itemize} 
+
+Since the verifier challenges in the protocol are sampled from $\mathcal{X} = [-2^{\lambda -1}, 2^{\lambda -1}]$, the probability of a collision over challenges $\alpha_1, \alpha_2 \sample \mathcal{X}$ sampled uniformly and independently is $2^{-\lambda}$. Thus, by Lemma~\ref{lem:forking} the tree-finding algorithm runs for $O(\poly/\epsilon)$ steps and succeeds with probability $1 - \negl/\epsilon$ to return a tree with these characteristics.
+
+For the root node $\textsf{rt}$, define $\gr{X}_\textsf{rt} \deq \gr{G}_\numrounds$ and $\gr{Z}_\textsf{rt} \deq \gr{G}'_\numrounds$. For any non-leaf node $v$ on level $i$ with parent $w$ on level $i+1$, which has prover message $\gr{Y}_v$ and verifier challenge $\alpha_v$, define $\gr{X}_v \deq \gr{X}_w + \alpha_v \cdot \gr{Y}_w + \alpha^2 \cdot \gr{G}_{i-1}$. Similarly, define $\gr{Z}_v \deq \gr{Y}_w + \alpha \gr{Z}_w + \alpha^2 \gr{G}'_{i-1}$.
+
+We will show that given this tree, the extractor can compute for all nodes $v \in [0, n^{\log 3})$ group elements $\gr{W}_v$ and integers $a_v$ and $d_v$ such that $a_v \cdot \gr{W}_v = 0$ and if $v$ is on the $i$th level then $d_v \cdot \gr{Z}_v = d_v \cdot q^{2^{i-1}} \cdot \gr{X}_v + \gr{W}_v$. It can also compute values $\gr{W}'_v, d'_v$ such that $a_v \cdot \gr{W}'_v = 0$ and $d'_v \cdot \gr{G}'_{i-1} = d'_v \cdot \gr{G}_{i-1} + \gr{W}'_v$. It will do this by starting at the leaves and working its way up the tree.
+For any leaf node $v$, the fact that the transcript is accepting implies $q \cdot \gr{X}_v = \gr{Z}_v$. Now suppose that the appropriate values $\gr{W}_v$ have been computed for all children of a node $w$ on the $i$th level. Denoting the three children of nodes $w$ with indices $v_1, v_2, v_3$ and the three challenges on each by $\alpha_1, \alpha_2, \alpha_3$. This means that $\gr{X}_{v_j} = \gr{X}_w + \alpha_j \cdot \gr{Y}_w + \alpha_j^2 \cdot \gr{G}_{i-1}$ and $\gr{Z}_{v_j} = \gr{Y}_w + \alpha_j \cdot \gr{Z}_w + \alpha^2_j \cdot \gr{G}'_{i-1}$ for each $j \in [3]$.
+Furthermore, $d_{v_j} \cdot \gr{Z}_{v_j} = d_{v_j} \cdot q^{2^{i-1}} \cdot \gr{X}_{v_j} + \gr{W}_{v_j}$ such that $a_{v_j} \cdot \gr{W}_{v_j} = 0$ and $d_{v_j} \neq 0$ for each $j \in [3]$. 
+
+Let $\mathbf{D}$ denote the diagonal matrix with entries $d_{v_1}, d_{v_2}, d_{v_3}$. Let $\mathbf{W} = (\gr{W}_{v_1}, \gr{W}_{v_2}, \gr{W}_{v_3})$ and let $a \deq lcm(a_{v_1}, a_{v_2}, a_{v_3})$. We can summarize these relations in the following matrix equations, where $\mathbf{A} \in \mathbb{Z}^{3\times 3}$ is the integer matrix with rows $(1, \alpha_j, \alpha_j^2)$:
+
+$$\mathbf{D} \cdot \mathbf{A}
+\begin{bmatrix}
+\gr{X}_w \\ 
+\gr{Y}_w \\ 
+\gr{G}_{i-1}
+\end{bmatrix} 
+= \mathbf{D} \cdot 
+\begin{bmatrix}
+\gr{X}_{v_1} \\ 
+\gr{X}_{v_2} \\ 
+\gr{X}_{v_3}
+\end{bmatrix}
+\ \ \text{and} \ \ 
+\mathbf{D} \cdot 
+\mathbf{A} \cdot 
+\begin{bmatrix}
+\gr{Y}_w \\ 
+\gr{Z}_w \\ 
+\gr{G}'_{i-1}
+\end{bmatrix} 
+= 
+\mathbf{D} \cdot 
+\begin{bmatrix}
+\gr{Z}_{v_1} \\ 
+\gr{Z}_{v_2} \\ 
+\gr{Z}_{v_3}
+\end{bmatrix} 
+= 
+q^{2^{i-1}} \cdot 
+\mathbf{D} \cdot 
+\begin{bmatrix}
+\gr{X}_{v_1} \\ 
+\gr{X}_{v_2} \\ 
+\gr{X}_{v_3}
+\end{bmatrix}
++ 
+\mathbf{W}  
+\ \text{and} \ \ a \cdot \mathbf{W} = 0
+$$
+
+Substituting for the column vector $(\gr{X}_{v_1}, \gr{X}_{v_2}, \gr{X}_{v_3})$ we get: 
+
+$$ \mathbf{D} \cdot \mathbf{A} \cdot 
+\begin{bmatrix}
+\gr{Y}_w \\ 
+\gr{Z}_w \\ 
+\gr{G}'_{i-1}
+\end{bmatrix} 
+= 
+q^{2^{i-1}} \cdot \mathbf{D} \cdot \mathbf{A} \cdot  
+\begin{bmatrix}
+\gr{X}_{w} \\ 
+\gr{Y}_{w} \\ 
+\gr{G}_{i-1}
+\end{bmatrix}  \ \
++ 
+\begin{bmatrix}
+\gr{W}_{v_1} \\ 
+\gr{W}_{v_2} \\ 
+\gr{W}_{v_3}
+\end{bmatrix}  \ \
+$$
+
+Since $\mathbf{A}$ is a Vandermonde matrix with distinct rows and $\mathbf{D}$ has a non-zero diagonal, $det(\mathbf{A} \cdot \mathbf{D}) \neq 0$. Therefore, by Lemma~\ref{lem:extraction}, there exists a matrix $\mathbf{P}$ such that $\mathbf{P}\cdot \mathbf{A} = \mathbf{D}'$ where $\mathbf{D}$ is a diagonal matrix with non-zero entries $d'_1, d'_2, d'_3$. This means that: 
+
+$$  
+\begin{bmatrix}
+d'_1 \cdot \gr{Y}_w \\ 
+d'_2 \cdot \gr{Z}_w \\ 
+d'_3 \cdot \gr{G}'_{i-1}
+\end{bmatrix} 
+= 
+q^{2^{i-1}} \cdot
+\begin{bmatrix}
+d'_1 \cdot \gr{X}_{w} \\ 
+d'_2 \cdot \gr{Y}_{w} \\ 
+d'_3 \cdot \gr{G}_{i-1}
+\end{bmatrix}  \ \
++ 
+\mathbf{P} \cdot 
+\mathbf{W} \ \ \text{and} \ \ a \cdot \mathbf{P} \cdot \mathbf{W} = 0
+$$
+
+Finally, this implies that $d'_1 d'_2 \cdot \gr{Z}_w = q^{2^{i-1}} \cdot (d'_2 d'_1 \cdot q^{2^{i-1}} \cdot \gr{X}_w + \langle \mathbf{P}_1, \mathbf{W} \rangle) + d'_1 \cdot \langle \mathbf{P}_2, \mathbf{W} \rangle$. 
+Therefore, the extractor has obtained the integer $d_w \deq d'_1 d'_2$, group element $\gr{W}_w \deq q^{2^{i-1}} \cdot \langle \mathbf{P}_1, \mathbf{W} \rangle  + d'_1 \cdot \langle \mathbf{P}_2, \mathbf{W} \rangle$, and the integer $a_w \deq a$ such that $d_w \cdot \gr{Z}_w = d_w \cdot q^{2^i} \cdot \gr{X}_w + \gr{W}_w$ such that $a_w \cdot \gr{W}_w = 0$. 
+We also have the relation $d'_w \gr{G}'_{i-1} = q^{2^{i-1}} \cdot d'_w \gr{G}_{i-1} + \gr{W}'_w$ such that $a_w \cdot \gr{W}'_w = 0$, for $d'_w \deq d'_3$ and $\gr{W}'_w \deq \langle \mathbf{P}_3, \mathbf{W} \rangle$. 
+
+
+
+%For the root node $\textsf{rt}$ define $y_{\textsf{rt}} \deq y$, where $y$ is the input. We also define a value $\g_v$ for every node $v$ as follows: if $v$ is the root then $\g_v \deq \g$, else if $v$ has a parent $w$ then $\g_v \deq \g_{w, 0} + \alpha_v \cdot \g_{w, 1}$ where $\g_w = (\g_{w,0}, \g_{w,1})$ is the concatenation of equal length vectors $\g_{w,0}, \g_{w,1}$. If $v$ is a node on the $i$th level up from the leaves then $\g_v \in \G^{2^i}$. By construction, for every root to leaf path of nodes $v_1,...,v_{\log n}$ the sequence of values $(\alpha_{v_i}, y_{v_i,0}, y_{v_i,1})$ form an accepting transcript between the prover and verifier where $(\g_{v_i}, y_{v_i})$ are the verifier's local inputs in the $i$th round. Moreover, the leaf node labels satisfy $[\![  x_v ]\!]_{\g_v} = y_v$. 
+
+	\end{proof}
+
+	
+	
+	\begin{proof}[Benedikt's sketch]
 	We will prove security by constructing an extractor $E$ that given rewinding access to an adversary $A$ is able to extract a valid witness. 
 The extractor works in a round by round manner using $3$ transcripts with different challenges $\alpha_j$ and $\beta_j$ $j\in\{1,2,3\}$. 
  
@@ -305,6 +454,10 @@ By Lemma~\ref{lem:triangularization}, there exists a diagonal matrix $\mathbf{T}
   From each linear combination of $\mathbf{C^*}$, we use $\add^*$ to derive an opening of $t_i \cdot \mathbf{C}_i$ to a polynomial $g_i = \langle \mathbf{L}_i, \mathbf{f^*} \rangle \in \FX$.
    Let $\mathbf{g} = (g_1,...,g_n)$. Finally, solve for the vector of polynomials $\mathbf{f}$ such that $\mathbf{A} \cdot \mathbf{f} = \mathbf{f^*}$ by computing $\mathbf{A}^{-1} \bmod p$. Note that $\mathbf{L} \cdot \mathbf{A} \cdot \mathbf{f} = \mathbf{T} \cdot \mathbf{f} = \mathbf{L} \cdot \mathbf{f}^*$ where $\mathbf{T}$ is a diagonal matrix with entries $t_i \neq 0 \bmod p$. Thus, $t_i f_i = g_i$, for which we have a valid opening of $t_i \cdot \mathbf{C}_i$.   
 \end{proof}
+
+\begin{lemma}[Forking Lemma]\label{lem:forking}
+Let $(\prover, \verifier)$ be an $r$-round public-coin interactive proof system and $\mathcal{A}$ an adversary such that $\langle \mathcal{A}(\pp, x), \verifier(\pp, x) \rangle = 1$ with probability $\epsilon > \negl(\lambda)$ on public input $x$ and public parameters $\pp$.  Let $\{\pi_i\}_{i =1}^r$ be a set of properties $\pi_i: \mathcal{X}^2 \rightarrow \{0,1\}$ such that $\forall_{i} \ Pr[ \pi(x_1, x_2) = 1: x_1, x_2 \sample \mathcal{X}] > 1 - \negl(\lambda)$. There exists an algorithm $\mathcal{T}$ that runs in time $O(\lambda/\epsilon)$ and outputs an $(n_1,...,n_r)$-tree of accepting transcripts such that with probability $\Omega(1 - \frac{r \cdot\negl(\lambda)}{\epsilon})$ in each $i$th level of the tree every pair of sibling-node challenges $x_1, x_2$ satisfy $\pi_i(x_1, x_2) = 1$. 
+\end{lemma} 
 
 
  \bibliographystyle{alpha}
