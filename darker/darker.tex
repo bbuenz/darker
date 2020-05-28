@@ -23,6 +23,7 @@
 \newtheorem{definition}{Definition}
 \newtheorem{lemma}{Lemma}
 \newtheorem{assumption}{Assumption}
+\newtheorem{fact}{Fact}
 
 
 \title{Darker}
@@ -173,6 +174,11 @@ The setup algorithm $\setup$ on input $\secparam$ and max degree $D$ and prime $
 	We cancel out the $w$ and the $w'$ term to get $\alpha\cdot \alpha'\cdot (f(q)-f'(q)) \Generator=0$. $\cdot \alpha'\cdot (f(q)-f'(q))$ is a root of $\Generator$ 
 	which breaks the Random Order assumption and by \cref{lem:roa-to-rsa} also the RSA assumption.
 	\end{proof}
+	\begin{fact}[Opening group]
+		The GUO commitment is homomorphic with respect to the openings $(f \in \ZZ,\gr{W},\alpha \in \ZZ)$. We define addition as $(f,\gr{W},\alpha)+	(f',\gr{W}',\alpha')=(f+f',\gr{W}+\gr{W}',lcm(\alpha,\alpha'))$ \end{fact}
+	\begin{proof}
+		Given $f \in \ZZ,\gr{W} \in \GG, \alpha \in \ZZ$
+	\end{proof}
 	
 	\begin{lemma}[PoEs]
 		The batch PoE protocol on input $[\gr{D}_i,\gr{D}_i']_{i=1}^{\numrounds}$ is an interactive proof of knowledge for the following relation:
@@ -184,7 +190,7 @@ The extractor works in a round by round manner using $3$ transcripts with differ
  
 \begin{itemize}
 	\item Read $\gr{X}_1$ and $\gr{Z}_1$ from the transcript.
-	\item In each round we have $\gr{X}_i \approx q^i \gr{Z}_i$. We use $\approx$ to denote equality but for an additive shift of a known order element.
+	\item In each round we have $\gr{X}_i = q^i \gr{Z}_i$. We use $\approx$ to denote equality but for an additive shift of a known order element.
 	\item We will show that $\gr{X}_{i+1}\approx \gr{Z}_{i+1}$
 	\item Let $C= \left\{\begin{array}{lll}
 		1 & \alpha_1 & \beta_1\\
