@@ -285,7 +285,8 @@ Assume $d+1$ is a power of $2$
 Let $\G$ denote the abelian group (i.e., $\G$ is a $\Z$-module) that contains the space of commitments for the PCS. We first prove an elementary linear algebraic fact. 
 
 \begin{lemma}\label{lem:triangularization}
-Let $\G$ be a $\Z$-module. Let $p$ be a prime and $\F = \Z_p$. Given two vectors $\x, \y \in \G^n$ and a system of equations $\mathbf{A} \x = \y$ for a matrix $\A \in \Z^{n \times n}$ that is invertible over $\F$, there is an efficient algorithm to derive a diagonal matrix $\mathbf{D}$ with diagonal entries  $(d_1,...,d_n) \in \Z^n$, where $d_i \neq 0 \bmod p$ for all $i$, and a matrix $\mathbf{L}$ such that $\mathbf{D} \cdot \x = \mathbf{L} \cdot \y$. In particular, $\mathbf{L} \mathbf{A} = \mathbf{D}$.    
+Let $\G$ be a $\Z$-module. Let $p$ be a prime and $\F = \Z_p$. Given two vectors $\x, \y \in \G^n$ and a system of equations $\mathbf{A} \x = \y$ for a matrix $\A \in \Z^{n \times n}$ that is invertible over $\F$, 
+there is an efficient algorithm to derive a diagonal matrix $\mathbf{D}$ with diagonal entries  $(d_1,...,d_n) \in \Z^n$, where $d_i \neq 0 \bmod p$ for all $i$, and a matrix $\mathbf{L}$ such that $\mathbf{D} \cdot \x = \mathbf{L} \cdot \y$. In particular, $\mathbf{L} \mathbf{A} = \mathbf{D}$.    
 \end{lemma} 
 \begin{proof} 
 Since $det(\mathbf{A}) \neq 0 \bmod p$, by Gaussian elimination there is a triangularization matrix $\mathbf{P}$ such that $\mathbf{P} \mathbf{A} = \mathbf{T}$ is lower triangular with a diagonal of integer values that are non-zero over $\F$ (i.e., it is in reduced row-echelon form). 
