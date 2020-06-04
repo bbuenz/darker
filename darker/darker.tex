@@ -30,6 +30,8 @@
 \commentstrue
 \ifcomments
 	\newcommand{\ben}[1]{{\textcolor{red}{[\bf Ben: #1]}}}
+		\newcommand{\benedikt}[1]{{\textcolor{blue}{[\bf Benedikt: #1]}}}
+
     \else
 	\newcommand{\ben}[1]{}
 	
@@ -179,7 +181,7 @@ The setup algorithm $\setup$ on input $\secparam$ and max degree $d$ and prime $
 
 \item $\commit(\crs, f) \rightarrow \Commitment$: The commitment algorithm $\commit$ on input $f(X)\in \ZZ_p$ lifts $f(X)$ to the integer polynomial $\hat{f}(X)$ with coefficients bounded by $p$ and outputs $\Commitment =f(q) \cdot \Generator$
 %\item The open algorithm $\open$ outputs $f(X),\gr{W} \in \GG,\alpha \in \NN$
-\item $\verify(\crs, f, \Commitment, \gr{W}, \alpha) \rightarrow b \in \{0,1\}$: The verification algorithm checks an opening of $\Commitment$ to the polynomial $f \in \ZZ_p$, given the opening hint $(\gr{W}, \alpha)$. It checks that $\alpha\cdot \gr{W}=0$ and that $\Commitment =f(q)\cdot \Generator +\gr{W}$
+\item $\verify(\crs, f \in \ZZ_p[X], \Commitment,d \in \ZZ , \gr{W}\in \Group, \alpha \in \ZZ) \rightarrow b \in \{0,1\}$: The verification algorithm checks an opening of $\Commitment$ to the polynomial $f \in \ZZ_p$, given the opening hint $(\gr{W}, \alpha)$. It checks that $\alpha\cdot \gr{W}=0$, computes $f'(X)=f(X)\cdot d^{-1} \in \ZZ_p[X]$ and that $\Commitment^d =f'(q)\cdot \Generator +\gr{W}$
 \item The evaluation protocol will be describe later.
 \end{itemize}
 Note that an honestly generated commitment does not require an additional opening hint as $\Commitment = f(q) \cdot \Generator$. The flexibility in the $\verify$ algorithm is solely for the security analysis of our evaluation protocol, so that the knowledge extractor is allowed to obtain a more general opening hint for the commitment. 
@@ -190,9 +192,14 @@ Note that an honestly generated commitment does not require an additional openin
 	The commitment is binding under the random order assumption. 
 \end{lemma}
 \begin{proof}
-	Given a commitment $C$ and two openings $f(X),w,\alpha$ and $f'(X),w',\alpha'$ with $f(X)\neq f'(X)$. $f(X),f'(X)$ have bounded coefficients so $f(q)\neq f'(q)\in \ZZ$. This implies that $(f(q)-f'(q))\cdot \Generator+w-w'=0$. 
-	We cancel out the $w$ and the $w'$ term to get $\alpha\cdot \alpha'\cdot (f(q)-f'(q)) \Generator=0$. $\cdot \alpha'\cdot (f(q)-f'(q))$ is a root of $\Generator$ 
-	which breaks the Random Order assumption.
+	Given a commitment $\gr{C}$ and two openings $f(X)\in \ZZ[X],d\in \ZZ,\gr{W},\alpha$ and $f'(X),d',\gr{W}',\alpha'$ with $d^{-1}\cdot f(X)\neq d'^{-1} \cdot f'(X)$. $f(X),f'(X),d,d'$ are all bounded such that $\frac{f(q)}{d}\neq \frac{f'(q)}{d'}\in \ZZ$. \benedikt{Formulate precise condition.} 
+	Given $f(q)\cdot \Generator + \gr{W}=\gr{C}^d$ and $f'(q)\cdot \Generator + \gr{W}'=d'\cdot \gr{C}$ we can compute 
+	$$d'\cdot f(q)\cdot \Generator + d'\cdot \gr{W}=d\cdot f'(q)\cdot \Generator + d\cdot \gr{W}'=d \cdot d'\cdot \gr{C}$$
+	This implies that 
+	$$(d'\cdot f(q)- d \cdot f'(q))\cdot \Generator + d'\cdot \gr{W}- d\cdot \gr{W}=0$$
+Further $\frac{f(q)}{d}\neq \frac{f'(q)}/d'\rightarrow (d'\cdot f(q)- d \cdot f'(q))\neq 0$. We can use $\alpha \cdot \alpha'$ to cancel out the $\gr{W}$ terms and get that
+$$\alpha \cdot \alpha'\cdot (d'\cdot f(q)- d \cdot f'(q))\cdot \Generator=0$$
+This gives us a multiple of the order of $\Generator$ which breaks the Random Order assumption.
 	% and by \cref{lem:roa-to-rsa} also the RSA assumption.
 	\end{proof}
 	
