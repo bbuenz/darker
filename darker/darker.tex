@@ -181,7 +181,8 @@ The setup algorithm $\setup$ on input $\secparam$ and max degree $d$ and prime $
 
 \item $\commit(\crs, f) \rightarrow \Commitment$: The commitment algorithm $\commit$ on input $f(X)\in \ZZ_p$ lifts $f(X)$ to the integer polynomial $\hat{f}(X)$ with coefficients bounded by $p$ and outputs $\Commitment =f(q) \cdot \Generator$
 %\item The open algorithm $\open$ outputs $f(X),\gr{W} \in \GG,\alpha \in \NN$
-\item $\verify(\crs, f \in \ZZ_p[X], \Commitment,d \in \ZZ , \gr{W}\in \Group, \alpha \in \ZZ) \rightarrow b \in \{0,1\}$: The verification algorithm checks an opening of $\Commitment$ to the polynomial $f \in \ZZ_p$, given the opening hint $(\gr{W}, \alpha)$. It checks that $\alpha\cdot \gr{W}=0$, computes $f'(X)=f(X)\cdot d^{-1} \in \ZZ_p[X]$ and that $\Commitment^d =f'(q)\cdot \Generator +\gr{W}$
+\item $\verify(\crs, f \in \ZZ_p[X], \Commitment,d \in \ZZ , \gr{W}\in \GG, \alpha \in \ZZ) \rightarrow b \in \{0,1\}$: 
+The verification algorithm checks an opening of $\Commitment$ to the polynomial $f \in \ZZ_p$, given the opening hint $(\gr{W}, \alpha)$. It checks that $\alpha\cdot \gr{W}=0$, computes $f'(X)=f(X)\cdot d^{-1} \in \ZZ_p[X]$ and that $\Commitment^d =f'(q)\cdot \Generator +\gr{W}$
 \item The evaluation protocol will be describe later.
 \end{itemize}
 Note that an honestly generated commitment does not require an additional opening hint as $\Commitment = f(q) \cdot \Generator$. The flexibility in the $\verify$ algorithm is solely for the security analysis of our evaluation protocol, so that the knowledge extractor is allowed to obtain a more general opening hint for the commitment. 
