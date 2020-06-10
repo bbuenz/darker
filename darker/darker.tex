@@ -62,6 +62,7 @@ Contributions:
 \begin{enumerate}
 	\item $\ZZ(b)=\{ z \in \ZZ | |z|<b\}$
 	\item $\QQ(b)=\{\frac{n}{d} \in \QQ | |\frac{n}{\gcd(n,d)}|< b\}$
+	\item $\ZZ^+=\{z \in \ZZ | z>0\}$ are the positive integers.
 	\end{enumerate}
 \section{Sketched Protocol}
 Using additive notation. 
@@ -201,7 +202,8 @@ We state a version of the RSA assumption as described by $\cite{EC:CouPetPoi17}$
 	While $\gcd(a,\ell)>1$, $\adv_{\textsf{RSA}}$ repeatedly computes $a\gets \frac{a}{\gcd(a,\ell)}$. Let $a'$ be the output of this computation. Note that since $\ell$ is co-prime to the order of $\GG$ and thus also the order of $\Generator$ and $a$ is a multiple of the order of $\Generator$ we have that $a'$ is still a multiple of the order of $\Generator$. Now $\adv_{\textsf{RSA}}$ computes $w\gets \ell^{-1} \bmod a'$ and outputs $\gr{U} \gets w\cdot \Generator$. $\ell \cdot \gr{U}=\Generator$ so $\adv_{\textsf{RSA}}$ succeeds with probability $\epsilon$.
 \end{proof}
 \begin{fact}
-Let q be an integer. For any rational $z$ with numerator $n \in ZZ$ such that $|z|<\frac{q^{d+1}}{2}$ there exists a unique degree (at most) d rational polynomial $\hat{h}(X)$ in $\QQ(q)[X]$ such that $h(q) = z$. If $q>p$ then there exists a unique polynomial $h(X) \in \ZZ_p$ such that $\hat{h}\equiv h \bmod p$ \benedikt{$p$ doesn't really have to be prime.}
+\label{fact:encoding}
+Let q be an integer. For any rational $z$ with numerator $n \in \ZZ$ such that $|z|<\frac{q^{d+1}}{2}$ there exists a unique degree (at most) d rational polynomial $\hat{h}(X)$ in $\QQ(q)[X]$ such that $h(q) = z$. If $q>p$ then there exists a unique polynomial $h(X) \in \ZZ_p$ such that $\hat{h}\equiv h \bmod p$ \benedikt{$p$ doesn't really have to be prime.}
 \end{fact}
 \begin{definition}[GUO Polynomial Commitment]
 We describe a non-hiding succinct polynomial commitment scheme for polynomials of bounded degree over $\ZZ_p$ using a group of unknown order.
@@ -211,8 +213,8 @@ The setup algorithm $\setup$ on input $\secparam$ and max degree $d$ and prime $
 
 \item $\commit(\crs, f) \rightarrow \Commitment$: The commitment algorithm $\commit$ on input $f(X)\in \ZZ_p$ lifts $f(X)$ to the integer polynomial $\hat{f}(X)$ with coefficients bounded by $p$ and outputs $\Commitment =\hat{f}(q) \cdot \Generator$
 %\item The open algorithm $\open$ outputs $f(X),\gr{W} \in \GG,\alpha \in \NN$
-\item $\verify(\crs,  \Commitment,f \in \ZZ_p[X],\hint=(\hat{f} \in \ZZ(q/2)[X], d \in \ZZ , \gr{W}\in \GG, \alpha \in \ZZ)) \rightarrow b \in \{0,1\}$: 
-The verification algorithm checks an opening of $\Commitment$ to the polynomial $f \in \ZZ_p$, given the opening hint $\hint=(\hat{f}\in \ZZ(q/2)[X],d \in \ZZ,\gr{W}, \alpha)$. It first checks that $\hat{f}(X) \equiv f(X)\cdot d \bmod p$. Then it checks that $\alpha\cdot \gr{W}=0$ and that $d \cdot \Commitment =\hat{f}(q)\cdot \Generator +\gr{W}$
+\item $\verify(\crs,  \Commitment,f \in \ZZ_p[X],\hint=(\hat{f} \in \ZZ(q/2)[X], d \in \ZZ , \gr{W}\in \GG, \alpha \in \ZZ^+ )) \rightarrow b \in \{0,1\}$: 
+The verification algorithm checks an opening of $\Commitment$ to the polynomial $f \in \ZZ_p$, given the opening hint $\hint=(\hat{f}\in \ZZ(q/2)[X],d \in \ZZ,\gr{W} \in \GG, \alpha \in \ZZ^+)$. It first checks that $\hat{f}(X) \equiv f(X)\cdot d \bmod p$. Then it checks that $\alpha\cdot \gr{W}=0$ and that $d \cdot \Commitment =\hat{f}(q)\cdot \Generator +\gr{W}$
 \item The evaluation protocol will be describe later.
 \end{itemize}
 Note that an honestly generated commitment does not require an additional opening hint as $\Commitment = f(q) \cdot \Generator$. The flexibility in the $\verify$ algorithm is solely for the security analysis of our evaluation protocol, so that the knowledge extractor is allowed to obtain a more general opening hint for the commitment. 
@@ -223,9 +225,9 @@ Note that an honestly generated commitment does not require an additional openin
 	The commitment is binding under the random order assumption. 
 \end{lemma}
 \begin{proof}
-	Given a commitment $\gr{C}$ and two openings $f(X),\tau=(\hat{f}(X)\in \ZZ(b)[X],d\in \ZZ,\gr{W},\alpha)$ and $f'(X),\tau'=(\hat{f}',d',\gr{W}',\alpha')$ with $\hat{f}(X)= d^{-1}\cdot  f(X)\neq d'^{-1} \cdot f'(X)=\hat{f}'(X)$. $\hat{f}$ and $\hat{f}'(X)$ have coefficients bounded by $\frac{q}{2}$ such that $\hat{f}(q)/d \neq f'(q)/d \in \QQ$. 
-	Given $f(q)\cdot \Generator + \gr{W}=\gr{C}^d$ and $f'(q)\cdot \Generator + \gr{W}'=d'\cdot \gr{C}$ we can compute 
-	$$d'\cdot f(q)\cdot \Generator + d'\cdot \gr{W}=d\cdot f'(q)\cdot \Generator + d\cdot \gr{W}'=d \cdot d'\cdot \gr{C}$$
+	Given a commitment $\gr{C}$ and two openings $f(X),\tau=(\hat{f}(X)\in \ZZ(b)[X],d\in \ZZ,\gr{W} \in \GG,\alpha\in \ZZ^+)$ and $f'(X),\tau'=(\hat{f}',d',\gr{W}',\alpha')$ with $\frac{\hat{f}(X)}{d}\equiv_p f(X)\neq f'(X) \equiv_p \hat{f'(X)}{d}$. $\hat{f}$ and $\hat{f}'(X)$ have coefficients bounded by $\frac{q}{2}$ such that $\frac{\hat{f}(q)}{d} \neq \frac{\hat{f}'(q)}{d} \in \QQ$. Otherwise the decoding algorithms from rationals to polynomials would not be unique (see \cref{fact:encoding}). 
+	Given $f(q)\cdot \Generator + \gr{W}=d \cdot \Commitment $ and $f'(q)\cdot \Generator + \gr{W}'=d'\cdot \Commitment$ we can compute 
+	$$d'\cdot f(q)\cdot \Generator + d'\cdot \gr{W}=d\cdot f'(q)\cdot \Generator + d\cdot \gr{W}'=d \cdot d'\cdot \Commitment $$
 	This implies that 
 	$$(d'\cdot f(q)- d \cdot f'(q))\cdot \Generator + d'\cdot \gr{W}- d\cdot \gr{W}=0$$
 Further $\frac{f(q)}{d}\neq \frac{f'(q)}{d'}\rightarrow (d'\cdot f(q)- d \cdot f'(q))\neq 0$. We can use $\alpha \cdot \alpha'$ to cancel out the $\gr{W}$ terms and get that
