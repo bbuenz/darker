@@ -43,13 +43,34 @@
 \begin{document}
 	
 \maketitle
+\section{Introduction}
+\section{Technical Overview}
+Contributions:
+\begin{itemize}
+	\item We reduce the evaluation time of Darker from O(d log(d)) to O(sqrt(d)*log(d))
+	\item The commitment time is O(s) where s is the sparsity 
+	\item Using multiexp techniques this can be computed using O(s*l/log(s*l)) group operations. 
+	\item The size of the precomputed CRS is roughly O(sqrt(d))
+	\item The scheme is secure under the random order assumption, basically the best assumption for groups of unknown order
+	\item The interactive protocol becomes a proof not an argument
+	\item We provide an implementation.
+	\item (Optional) we show how to commit to polynomials in a point value representation
+	\item We discuss applications to vector commitments. 
+\end{itemize}
+
+\section{Preliminaries}
+\begin{enumerate}
+	\item $\ZZ(b)=\{ z \in \ZZ | |z|<b\}$
+	\item $\QQ(b)=\{\frac{n}{d} \in \QQ | |\frac{n}{\gcd(n,d)}|< b\}$
+	\end{enumerate}
 \section{Sketched Protocol}
 Using additive notation. 
+\benedikt{Let's describe the protocol with respect to $\QQ$? }
 
 \subsection{Odd Even Protocol}
 \begin{mdframed}
 Public Input: $C\in \GG$\\
-Witness: $f(X) \in \ZZ_p[X]$ \\
+Witness: $f(X) \in \QQ[X]$ \\
 Claim: $\Commitment =\commit(f(X))$ and $\deg(f(X))<d$	\\
 $\textsf{FFTEval}(q,C,d;f(X))$
 \begin{enumerate}[nolistsep]
@@ -139,6 +160,13 @@ $\textsf{FFTEval}(q,C,P_0,\dots,P_{b-1},b,d;f_0(X),\dots,f_{b}(X))$
 	For $b=\sqrt{d}$ the runtime is $O(d \logd^2)$. A value like $b=\sqrt{d/\log(d)}$ gives roughly $O(d\logd^{1.5})$. Parallelism and multi-exp techniques need to be taken into account and the optimal value is likely best determined numerically. There are limited options anyway as $b$ needs to be a power of $2$.\\ 
 Step 2 in FFTEval is likely a bottleneck. Smaller q value would still help in this protocol.
 \section{Security Proof}
+
+\subsection{Encoding of rationals}
+Let $\QQ_b = \{\frac{n}{d}\in  \QQ | |n \cdot d| < b\}$ be the set of bounded rationals. Let the $\QQ_b[X]$ denote the set of rational polynomials with bounded coefficients. For $q\geq b$ any polynomial $f \in \QQ_b[X]$ can be encoded as $f(q)\in \QQ$. 
+\begin{fact}
+	For any rational $f \in \QQ$ such that 
+\end{fact}
+\subsection{Proof}
 We state a version of the RSA assumption as described by $\cite{EC:CouPetPoi17}$.
 \begin{assumption}[RSA assumption,\cite{RivShaAdl78,EC:CouPetPoi17} ]
 	The RSA assumption states that an efficient adversary cannot compute a random root (co-prime with the order of the group) for a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
@@ -170,7 +198,7 @@ We state a version of the RSA assumption as described by $\cite{EC:CouPetPoi17}$
 	\end{lemma}
 \begin{proof}
 	Given an efficient adversary $\adv_{\textsf{Order}}$ for the random order assumption we will construct an efficient adversary $\adv_{\textsf{RSA}}$ for the RSA assumption. On input $\GG,\Generator,\ell$ to $\adv_{\textsf{RSA}}$ we will forward $\GG,\Generator$ to $\adv_{\textsf{Order}}$. $\adv_{\textsf{Order}}$ outputs $a$ such that $a\cdot \Generator=0$ with non-negligible probability $\epsilon$. 
-	We compute $a'=\frac{a}{\gcd(a,\ell)}$. Note that since $\ell$ is co-prime to the order of $\GG$ and thus also the order of $\Generator$ and $a$ is a multiple of the order of $\Generator$ we have that $a'$ is still a multiple of the order of $\Generator$. Now $\adv_{\textsf{RSA}}$ computes $w\gets \ell^{-1} \bmod a'$ and outputs $\gr{U} \gets w\cdot \Generator$. $\ell \cdot \gr{U}=\Generator$ so $\adv_{\textsf{RSA}}$ succeeds with probability $\epsilon$.
+	While $\gcd(a,\ell)>1$, $\adv_{\textsf{RSA}}$ repeatedly computes $a\gets \frac{a}{\gcd(a,\ell)}$. Let $a'$ be the output of this computation. Note that since $\ell$ is co-prime to the order of $\GG$ and thus also the order of $\Generator$ and $a$ is a multiple of the order of $\Generator$ we have that $a'$ is still a multiple of the order of $\Generator$. Now $\adv_{\textsf{RSA}}$ computes $w\gets \ell^{-1} \bmod a'$ and outputs $\gr{U} \gets w\cdot \Generator$. $\ell \cdot \gr{U}=\Generator$ so $\adv_{\textsf{RSA}}$ succeeds with probability $\epsilon$.
 \end{proof}
 
 \begin{definition}[GUO Polynomial Commitment]
@@ -179,10 +207,10 @@ We describe a non-hiding succinct polynomial commitment scheme for polynomials o
 	\item $\setup(\secparam) \rightarrow \crs:$
 The setup algorithm $\setup$ on input $\secparam$ and max degree $d$ and prime $p$ samples a group of unknown order $\GG$ and a $\Generator \sample \GG$ and sets $q=2^k$ for $k \in \NN$ such that $q>p\cdot 2^{\lambda \cdot \logd}$. The algorithm outputs $\crs=(\GG,\Generator,q,p,d)$.
 
-\item $\commit(\crs, f) \rightarrow \Commitment$: The commitment algorithm $\commit$ on input $f(X)\in \ZZ_p$ lifts $f(X)$ to the integer polynomial $\hat{f}(X)$ with coefficients bounded by $p$ and outputs $\Commitment =f(q) \cdot \Generator$
+\item $\commit(\crs, f) \rightarrow \Commitment$: The commitment algorithm $\commit$ on input $f(X)\in \ZZ_p$ lifts $f(X)$ to the integer polynomial $\hat{f}(X)$ with coefficients bounded by $p$ and outputs $\Commitment =\hat{f}(q) \cdot \Generator$
 %\item The open algorithm $\open$ outputs $f(X),\gr{W} \in \GG,\alpha \in \NN$
-\item $\verify(\crs, f \in \ZZ_p[X], \Commitment,d \in \ZZ , \gr{W}\in \GG, \alpha \in \ZZ) \rightarrow b \in \{0,1\}$: 
-The verification algorithm checks an opening of $\Commitment$ to the polynomial $f \in \ZZ_p$, given the opening hint $(\gr{W}, \alpha)$. It checks that $\alpha\cdot \gr{W}=0$, computes $f'(X)=f(X)\cdot d^{-1} \in \ZZ_p[X]$ and that $\Commitment^d =f'(q)\cdot \Generator +\gr{W}$
+\item $\verify(\crs,  \Commitment,f \in \ZZ_p[X],\hint=(\hat{f} \in \ZZ(q/2)[X], d \in \ZZ , \gr{W}\in \GG, \alpha \in \ZZ)) \rightarrow b \in \{0,1\}$: 
+The verification algorithm checks an opening of $\Commitment$ to the polynomial $f \in \ZZ_p$, given the opening hint $\hint=(\hat{f}\in \ZZ(q/2)[X],d \in \ZZ,\gr{W}, \alpha)$. It first checks that $\hat{f}(X) \equiv f(X)\cdot d \bmod p$. Then it checks that $\alpha\cdot \gr{W}=0$ and that $d \cdot \Commitment =\hat{f}(q)\cdot \Generator +\gr{W}$
 \item The evaluation protocol will be describe later.
 \end{itemize}
 Note that an honestly generated commitment does not require an additional opening hint as $\Commitment = f(q) \cdot \Generator$. The flexibility in the $\verify$ algorithm is solely for the security analysis of our evaluation protocol, so that the knowledge extractor is allowed to obtain a more general opening hint for the commitment. 
@@ -198,7 +226,7 @@ Note that an honestly generated commitment does not require an additional openin
 	$$d'\cdot f(q)\cdot \Generator + d'\cdot \gr{W}=d\cdot f'(q)\cdot \Generator + d\cdot \gr{W}'=d \cdot d'\cdot \gr{C}$$
 	This implies that 
 	$$(d'\cdot f(q)- d \cdot f'(q))\cdot \Generator + d'\cdot \gr{W}- d\cdot \gr{W}=0$$
-Further $\frac{f(q)}{d}\neq \frac{f'(q)}/d'\rightarrow (d'\cdot f(q)- d \cdot f'(q))\neq 0$. We can use $\alpha \cdot \alpha'$ to cancel out the $\gr{W}$ terms and get that
+Further $\frac{f(q)}{d}\neq \frac{f'(q)}{d'}\rightarrow (d'\cdot f(q)- d \cdot f'(q))\neq 0$. We can use $\alpha \cdot \alpha'$ to cancel out the $\gr{W}$ terms and get that
 $$\alpha \cdot \alpha'\cdot (d'\cdot f(q)- d \cdot f'(q))\cdot \Generator=0$$
 This gives us a multiple of the order of $\Generator$ which breaks the Random Order assumption.
 	% and by \cref{lem:roa-to-rsa} also the RSA assumption.
@@ -461,7 +489,7 @@ By Lemma~\ref{lem:triangularization}, there exists a diagonal matrix $\mathbf{T}
 Let $(\prover, \verifier)$ be an $r$-round public-coin interactive proof system and $\mathcal{A}$ an adversary such that $\langle \mathcal{A}(\pp, x), \verifier(\pp, x) \rangle = 1$ with probability $\epsilon > \negl(\lambda)$ on public input $x$ and public parameters $\pp$.  Let $\{\pi_i\}_{i =1}^r$ be a set of properties $\pi_i: \mathcal{X}^2 \rightarrow \{0,1\}$ such that $\forall_{i} \ Pr[ \pi(x_1, x_2) = 1: x_1, x_2 \sample \mathcal{X}] > 1 - \negl(\lambda)$. There exists an algorithm $\mathcal{T}$ that runs in time $O(\lambda/\epsilon)$ and outputs an $(n_1,...,n_r)$-tree of accepting transcripts such that with probability $\Omega(1 - \frac{r \cdot\negl(\lambda)}{\epsilon})$ in each $i$th level of the tree every pair of sibling-node challenges $x_1, x_2$ satisfy $\pi_i(x_1, x_2) = 1$. 
 \end{lemma} 
 
-
+\section{Evaluation}
  \bibliographystyle{alpha}
  \bibliography{../cryptobib/abbrev3,../cryptobib/crypto,cryptobib/additional}
 \end{document}
