@@ -200,7 +200,9 @@ We state a version of the RSA assumption as described by $\cite{EC:CouPetPoi17}$
 	Given an efficient adversary $\adv_{\textsf{Order}}$ for the random order assumption we will construct an efficient adversary $\adv_{\textsf{RSA}}$ for the RSA assumption. On input $\GG,\Generator,\ell$ to $\adv_{\textsf{RSA}}$ we will forward $\GG,\Generator$ to $\adv_{\textsf{Order}}$. $\adv_{\textsf{Order}}$ outputs $a$ such that $a\cdot \Generator=0$ with non-negligible probability $\epsilon$. 
 	While $\gcd(a,\ell)>1$, $\adv_{\textsf{RSA}}$ repeatedly computes $a\gets \frac{a}{\gcd(a,\ell)}$. Let $a'$ be the output of this computation. Note that since $\ell$ is co-prime to the order of $\GG$ and thus also the order of $\Generator$ and $a$ is a multiple of the order of $\Generator$ we have that $a'$ is still a multiple of the order of $\Generator$. Now $\adv_{\textsf{RSA}}$ computes $w\gets \ell^{-1} \bmod a'$ and outputs $\gr{U} \gets w\cdot \Generator$. $\ell \cdot \gr{U}=\Generator$ so $\adv_{\textsf{RSA}}$ succeeds with probability $\epsilon$.
 \end{proof}
-
+\begin{fact}
+Let q be an integer. For any rational $z$ with numerator $n \in ZZ$ such that $|z|<\frac{q^{d+1}}{2}$ there exists a unique degree (at most) d rational polynomial $\hat{h}(X)$ in $\QQ(q)[X]$ such that $h(q) = z$. If $q>p$ then there exists a unique polynomial $h(X) \in \ZZ_p$ such that $\hat{h}\equiv h \bmod p$ \benedikt{$p$ doesn't really have to be prime.}
+\end{fact}
 \begin{definition}[GUO Polynomial Commitment]
 We describe a non-hiding succinct polynomial commitment scheme for polynomials of bounded degree over $\ZZ_p$ using a group of unknown order.
 \begin{itemize}
@@ -221,7 +223,7 @@ Note that an honestly generated commitment does not require an additional openin
 	The commitment is binding under the random order assumption. 
 \end{lemma}
 \begin{proof}
-	Given a commitment $\gr{C}$ and two openings $f(X)\in \ZZ[X],d\in \ZZ,\gr{W},\alpha$ and $f'(X),d',\gr{W}',\alpha'$ with $d^{-1}\cdot f(X)\neq d'^{-1} \cdot f'(X)$. $f(X),f'(X),d,d'$ are all bounded such that $\frac{f(q)}{d}\neq \frac{f'(q)}{d'}\in \ZZ$. \benedikt{Formulate precise condition.} 
+	Given a commitment $\gr{C}$ and two openings $f(X),\tau=(\hat{f}(X)\in \ZZ(b)[X],d\in \ZZ,\gr{W},\alpha)$ and $f'(X),\tau'=(\hat{f}',d',\gr{W}',\alpha')$ with $\hat{f}(X)= d^{-1}\cdot  f(X)\neq d'^{-1} \cdot f'(X)=\hat{f}'(X)$. $\hat{f}$ and $\hat{f}'(X)$ have coefficients bounded by $\frac{q}{2}$ such that $\hat{f}(q)/d \neq f'(q)/d \in \QQ$. 
 	Given $f(q)\cdot \Generator + \gr{W}=\gr{C}^d$ and $f'(q)\cdot \Generator + \gr{W}'=d'\cdot \gr{C}$ we can compute 
 	$$d'\cdot f(q)\cdot \Generator + d'\cdot \gr{W}=d\cdot f'(q)\cdot \Generator + d\cdot \gr{W}'=d \cdot d'\cdot \gr{C}$$
 	This implies that 
