@@ -71,13 +71,13 @@ Using additive notation.
 \subsection{Odd Even Protocol}
 \begin{mdframed}
 Public Input: $C\in \GG$\\
-Witness: $f(X) \in \QQ[X]$ \\
+Witness: $f(X) \in \ZZ(b)[X]$ \\
 Claim: $\Commitment =\commit(f(X))$ and $\deg(f(X))<d$	\\
 $\textsf{FFTEval}(q,C,d;f(X))$
 \begin{enumerate}[nolistsep]
 		\item $\pcif d=0$
-		\item $\pcind[1]$ $\prover$ sends $f=f(X)$
-		\item $\pcind[1]$ $\verifier$ checks that $|f|<2^{\log_2(d_{\max}) \cdot \lambda}$ and that $f \cdot \Generator=\Commitment$\pccomment{$d_{\max}$ is the original degree here}
+		\item $\pcind[1]$ $\prover$ sends $f=f(X) \in \ZZ$
+		\item $\pcind[1]$ $\verifier$ checks that $|f|<2^{\log_2(d_{\max}) \cdot \lambda} \cdot b$ and that $f \cdot \Generator=\Commitment$\pccomment{$d_{\max}$ is the original degree here}
 		\item $\prover$ computes $f_E(X)$ and $f_O(X)$ s.t. $f_E(X^2)+X \cdot f_O(X^2)=f(X)$\pccomment{Odd and Even coefficients} 
 		\item \prover sends $\Commitment_E\gets \commit(f_E(q^2))$ and $\Commitment_O\gets \commit(f_O(q^2))$ to $\verifier$. 
 		\item $\verifier$ checks that $\Commitment_E+ q\cdot \Commitment_O=\Commitment$ \pccomment{$q$ grows in each round. Outsourced with PoEs. See below}
@@ -129,32 +129,32 @@ $f'(X)=\sum_{i=0}^{\frac{b}{2}-1} X^i f'_i(X^{\frac{b}{2}})$. Given the commitme
 \begin{mdframed}
 $\textsf{Preprocess(b)}$:
 \begin{enumerate}[nolistsep]
-	\item $g_i=g^{q^{ib}}$ for $i \in [0,\frac{d}{b}-1]$
-	\item Output $g_0,\dots,g_{\frac{d}{b}-1}$
+	\item $\Generator_i={q^{ib}} \cdot \Generator$ for $i \in [0,\frac{d}{b}-1]$
+	\item Output $\Generator_0,\dots,\Generator_{\frac{d}{b}-1}$
 \end{enumerate}
 $\textsf{Commit}(f(X),b):$
 \begin{enumerate}[nolistsep]
 	\item $f(X)=\sum_{i=0}^{b-1} X^{i} f_i(X^{b})$ \pccomment{$\deg(f_i(X))<\frac{d}{b}$.}
-	\item Let $P_i\gets g^{f_i(q^b)}$ for all $i \in [0,b-1]$\pccomment{ computed using $g_i$; Cost: $d$ $\lambda$-bit exp.}
-	\item Compute $C\gets \prod_{i=0}^{b-1} P_i^{q^i}=((P_{b-1}^q P_{b-2})^q P_{b-3})^q...P_0$ \pccomment{Cost: $b$ $\log_2(q)$-bit exp.}
-	\item Output $C$ and $P_{0}\dots,P_{b-1}$
+	\item Let $\gr{P}_i\gets f_i(q^b) \cdot \Generator$ for all $i \in [0,b-1]$\pccomment{ computed using $\Generator_i$; Cost: $d$ $\lambda$-bit exp.}
+	\item Compute $\gr{C}\gets \sum_{i=0}^{b-1} q^i \cdot \gr{P}_i=(( \gr{P}_{b-1}\cdot q+\gr{P}_{b-2})\cdot q + \gr{P}_{b-3}) \cdot q+...\gr{P}_0$ \pccomment{Cost: $b$ $\log_2(q)$-bit exp.}
+	\item Output $\gr{C}$ and $\gr{P}_{0}\dots,\gr{P}_{b-1}$
 \end{enumerate}
-$\textsf{FFTEval}(q,C,P_0,\dots,P_{b-1},b,d;f_0(X),\dots,f_{b}(X))$
+$\textsf{FFTEval}(q,\gr{C},\gr{P}_0,\dots,\gr{P}_{b-1},b,d;f_0(X),\dots,f_{b}(X))$
 \begin{enumerate}[nolistsep]
-		\item $\alpha_0=\hash(C,f_0,q,b)$ 
+		\item $\alpha_0=\hash(\gr{C},f_0,q,b)$ 
 		\item $\pcfor i=1$ to $\log_2(b)$
-		\item $\pcind[1]$ $C_{O,i}\gets\prod_{j=0}^{\frac{b}{2^i}-1} P_{2j+1}^{q^{j\cdot 2^i}}$ \pccomment{Computed using folding method, Total Cost: $b \log{b}$ $\log_2(q)$-bit exp}.
-		\item \pcind[1] $C_{O,i}'=C_{O,i}^{q^{2^i}}$ \pccomment{Total cost (all iterations) $b$ $q$-bit exp, might as well do W PoE here}
-		\item \pcind[1] $\alpha_i\gets \hash(\alpha_{i-1} C_{O,i})$ \pccomment{Fiat-Shamir}
-		\item $\pcind[1] P_{j}=P_{2j}P_{2j+1}^{\alpha}$ for $j \in [0,\frac{b}{2^i}]$\pccomment{$b$ $\lambda$-bit exp in total}
+		\item $\pcind[1]$ $\gr{C}_{O,i}\gets\sum_{j=0}^{\frac{b}{2^i}-1} q^{j\cdot 2^i}\cdot \gr{P}_{2j+1}^{}$ \pccomment{Computed using folding method, Total Cost: $b \log{b}$ $\log_2(q)$-bit exp}.
+		\item \pcind[1] $\gr{C}_{O,i}'= q^{2^i} \cdot \gr{C}_{O,i}^{}$ \pccomment{Total cost (all iterations) $b$ $q$-bit exp, might as well do W PoE here}
+		\item \pcind[1] $\alpha_i\gets \hash(\alpha_{i-1} \gr{C}_{O,i})$ \pccomment{Fiat-Shamir}
+		\item $\pcind[1] \gr{P}_{j}=\gr{P}_{2j}+ \alpha \cdot \gr{P}_{2j+1}^{}$ for $j \in [0,\frac{b}{2^i}]$\pccomment{$b$ $\lambda$-bit exp in total}
 		\item $f'(X)\gets \sum_{i=0}^{b-1} f_i(X) \prod_{j=1}^{\log_2(b)} \alpha_j^{j\text{th last bit of }i}$ \pccomment{$f_0(X)+\alpha_1 f_1(X) + \alpha_2 f_2(X)$, Cost: $d$ field ops}
 		\item \pcfor $i=\log_2(b)+1$ to $\logd$
 		\item \pcind[1] $f'(X)=f_E(X^2)+Xf_O(X^2)$
-		\item \pcind[1] $C_{O,i}\gets g^{f_O(q^{2^i})}$ \pccomment{Cost: $\frac{d}{b}$ times $\log_2(b) \lambda$-bit multiexp}
-		\item  \pcind[1] $C_{O,i}'\gets g^{q^{2^{i-1}} \cdot f_O(q^{2^i})}$ \pccomment{Cost: $\frac{d}{b}$ times $\log_2(b) \lambda$-bit multiexp using $g_i$}
-		\item \pcind[1] $\alpha_i\gets\hash(C_{O,i},C_{O,i}')$
+		\item \pcind[1] $\gr{C}_{O,i}\gets f_O(q^{2^i}) \cdot \Generator$ \pccomment{Cost: $\frac{d}{b}$ times $\log_2(b) \lambda$-bit multiexp}
+		\item  \pcind[1] $\gr{C}_{O,i}'\gets q^{2^{i-1}} \cdot f_O(q^{2^i}) \cdot \Generator$ \pccomment{Cost: $\frac{d}{b}$ times $\log_2(b) \lambda$-bit multiexp using the preprocessed $\Generator_i$s}
+		\item \pcind[1] $\alpha_i\gets\hash(\gr{C}_{O,i},\gr{C}_{O,i}')$
 		\item \pcind[1] $f'(X)=f_E(X)+\alpha_i f_O(X)$
-		\item Proof is $C_{O,1},\dots,C_{O,\logd}$ and $C_O$'s
+		\item Proof is $\gr{C}_{O,1},\dots,\gr{C}_{O,\logd}$ and $\gr{C}_O$'s
 		\item Add $f'=f'(X)$ to proof.
 	\end{enumerate}
 	\end{mdframed}
@@ -162,11 +162,8 @@ $\textsf{FFTEval}(q,C,P_0,\dots,P_{b-1},b,d;f_0(X),\dots,f_{b}(X))$
 Step 2 in FFTEval is likely a bottleneck. Smaller q value would still help in this protocol.
 \section{Security Proof}
 
-\subsection{Encoding of rationals}
-Let $\QQ_b = \{\frac{n}{d}\in  \QQ | |n \cdot d| < b\}$ be the set of bounded rationals. Let the $\QQ_b[X]$ denote the set of rational polynomials with bounded coefficients. For $q\geq b$ any polynomial $f \in \QQ_b[X]$ can be encoded as $f(q)\in \QQ$. 
-\begin{fact}
-	For any rational $f \in \QQ$ such that 
-\end{fact}
+.
+
 \subsection{Proof}
 We state a version of the RSA assumption as described by $\cite{EC:CouPetPoi17}$.
 \begin{assumption}[RSA assumption,\cite{RivShaAdl78,EC:CouPetPoi17} ]
@@ -203,7 +200,7 @@ We state a version of the RSA assumption as described by $\cite{EC:CouPetPoi17}$
 \end{proof}
 \begin{fact}
 \label{fact:encoding}
-Let q be an integer. For any rational $z$ with numerator $n \in \ZZ$ such that $|z|<\frac{q^{d+1}}{2}$ there exists a unique degree (at most) d rational polynomial $\hat{h}(X)$ in $\QQ(q)[X]$ such that $h(q) = z$. If $q>p$ then there exists a unique polynomial $h(X) \in \ZZ_p$ such that $\hat{h}\equiv h \bmod p$ \benedikt{$p$ doesn't really have to be prime.}
+Let q be an integer. For any rational $z$ with numerator $n \in \ZZ$ such that $|z|<\frac{q^{d+1}}{2}$ there exists a unique degree (at most) d rational polynomial $\hat{h}(X)$ in $\QQ(q)[X]$ such that $\hat{h}(q) = z$. If $q>n$ then there exists a unique polynomial $h(X) \in \ZZ/p\ZZ$ such that $\hat{h}\equiv h \bmod p$ 
 \end{fact}
 \begin{definition}[GUO Polynomial Commitment]
 We describe a non-hiding succinct polynomial commitment scheme for polynomials of bounded degree over $\ZZ_p$ using a group of unknown order.
