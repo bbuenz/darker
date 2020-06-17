@@ -67,6 +67,7 @@ Contributions:
 \section{Sketched Protocol}
 Using additive notation. 
 \benedikt{Let's describe the protocol with respect to $\QQ$? }
+\ben{On the contrary I think we should avoid all mention of $\QQ$. It just makes things more complicated = harder to follow} 
 
 \subsection{Odd Even Protocol}
 \begin{mdframed}
@@ -198,10 +199,29 @@ We state a version of the RSA assumption as described by $\cite{EC:CouPetPoi17}$
 	Given an efficient adversary $\adv_{\textsf{Order}}$ for the random order assumption we will construct an efficient adversary $\adv_{\textsf{RSA}}$ for the RSA assumption. On input $\GG,\Generator,\ell$ to $\adv_{\textsf{RSA}}$ we will forward $\GG,\Generator$ to $\adv_{\textsf{Order}}$. $\adv_{\textsf{Order}}$ outputs $a$ such that $a\cdot \Generator=0$ with non-negligible probability $\epsilon$. 
 	While $\gcd(a,\ell)>1$, $\adv_{\textsf{RSA}}$ repeatedly computes $a\gets \frac{a}{\gcd(a,\ell)}$. Let $a'$ be the output of this computation. Note that since $\ell$ is co-prime to the order of $\GG$ and thus also the order of $\Generator$ and $a$ is a multiple of the order of $\Generator$ we have that $a'$ is still a multiple of the order of $\Generator$. Now $\adv_{\textsf{RSA}}$ computes $w\gets \ell^{-1} \bmod a'$ and outputs $\gr{U} \gets w\cdot \Generator$. $\ell \cdot \gr{U}=\Generator$ so $\adv_{\textsf{RSA}}$ succeeds with probability $\epsilon$.
 \end{proof}
+
+\ben{Needs editing..}
+
 \begin{fact}
 \label{fact:encoding}
-Let q be an integer. For any rational $z$ with numerator $n \in \ZZ$ such that $|z|<\frac{q^{d+1}}{2}$ there exists a unique degree (at most) d rational polynomial $\hat{h}(X)$ in $\QQ(q)[X]$ such that $\hat{h}(q) = z$. If $q>n$ then there exists a unique polynomial $h(X) \in \ZZ/p\ZZ$ such that $\hat{h}\equiv h \bmod p$ 
-\end{fact}
+Let $q \in \ZZ$ be any positive integer. For any integer $E \in \ZZ$ such that $|E|<\frac{q^{d+1}}{2}$ there exists a unique integer polynomial $f \in \ZZ[X]$ with $||f||_\infty < q/2$ such that $f(q) = E$. 
+\end{fact} 
+
+\begin{lemma}
+\label{lem:encoding}
+Let $q \in \Z$ be any positive integer. For any integers $z_1, z_2 \in \ZZ$ and integer polynomials $f_1, f_2 \in \ZZ[X]$ of degree at most $d$ with bounded coefficients such that $||f_1||_\infty < q/2$ and $||f_2||_\infty < q/2$, if $gcd(f_i(q), z_i) = 1$ and $z_2 \cdot f_1(q) = z_1 \cdot f_2(q)$ then 
+$f_1 = f_2$ and $z_1 = z_2$. 
+\end{lemma}
+\begin{proof}
+The rational numbers $\frac{f_1(q)}{z_1} = \frac{f_2(q)}{z_2} \in \QQ$ are in reduced rational form, hence $f_1(q) = f_2(q)$ and $z_1 = z_2$. The integers $f_1(q)$ and $f_2(q)$ have absolute value bounded by $\frac{q^{d+1}}{2}$, and thus $f_1 = f_2$ by Fact~\ref{fact:encoding}.
+\end{proof}
+
+
+%\begin{fact}
+%\label{fact:encoding}
+%Let q be an integer. For any rational $z$ with numerator $n \in \ZZ$ such that $|z|<\frac{q^{d+1}}{2}$ there exists a unique degree (at most) d rational polynomial $\hat{h}(X)$ in $\QQ(q)[X]$ such that $\hat{h}(q) = z$. If $q>n$ then there exists a unique polynomial $h(X) \in \ZZ/p\ZZ$ such that $\hat{h}\equiv h \bmod p$ 
+%\end{fact}
+
 \begin{definition}[GUO Polynomial Commitment]
 We describe a non-hiding succinct polynomial commitment scheme for polynomials of bounded degree over $\ZZ_p$ using a group of unknown order.
 \begin{itemize}
@@ -210,11 +230,11 @@ The setup algorithm $\setup$ on input $\secparam$ and max degree $d$ and prime $
 
 \item $\commit(\crs, f) \rightarrow \Commitment$: The commitment algorithm $\commit$ on input $f(X)\in \ZZ_p$ lifts $f(X)$ to the integer polynomial $\hat{f}(X)$ with coefficients bounded by $p$ and outputs $\Commitment =\hat{f}(q) \cdot \Generator$
 %\item The open algorithm $\open$ outputs $f(X),\gr{W} \in \GG,\alpha \in \NN$
-\item $\verify(\crs,  \Commitment,f \in \ZZ_p[X],\hint=(\hat{f} \in \ZZ(q/2)[X], d \in \ZZ , \gr{W}\in \GG, \alpha \in \ZZ^+ )) \rightarrow b \in \{0,1\}$: 
-The verification algorithm checks an opening of $\Commitment$ to the polynomial $f \in \ZZ_p$, given the opening hint $\hint=(\hat{f}\in \ZZ(q/2)[X],d \in \ZZ,\gr{W} \in \GG, \alpha \in \ZZ^+)$. It first checks that $\hat{f}(X) \equiv f(X)\cdot d \bmod p$. Then it checks that $\alpha\cdot \gr{W}=0$ and that $d \cdot \Commitment =\hat{f}(q)\cdot \Generator +\gr{W}$
-\item The evaluation protocol will be describe later.
+\item $\verify(\crs, \Commitment, f, (\hat{f}, d,  \gr{W}, \alpha)) \rightarrow b$: 
+The verification algorithm checks an opening of $\Commitment$ to the polynomial $f \in \ZZ_p[X]$, given the opening hint consisting of $\hat{f}\in \ZZ[X]$, $d \in \ZZ$, $\gr{W} \in \GG$, and $\alpha \in \ZZ$. It checks that $\alpha > 0$, $||\hat{f}||_\infty < \frac{q}{2}$, $\hat{f}(X) \equiv f(X)\cdot d \bmod p$, $\alpha\cdot \gr{W}=0$, $gcd(\hat{f}(q), d) = 1$, and $d \cdot \Commitment =\hat{f}(q)\cdot \Generator +\gr{W}$. If these checks pass it outputs $1$, and otherwise it outputs $0$. 
+\item The evaluation protocol will be described later.
 \end{itemize}
-Note that an honestly generated commitment does not require an additional opening hint as $\Commitment = f(q) \cdot \Generator$. The flexibility in the $\verify$ algorithm is solely for the security analysis of our evaluation protocol, so that the knowledge extractor is allowed to obtain a more general opening hint for the commitment. 
+Note that an honestly generated commitment does not require an additional opening hint as $\Commitment = f(q) \cdot \Generator$. The flexibility in the $\verify$ algorithm is mainly for the security analysis of our evaluation protocol, so that the knowledge extractor is allowed to obtain a more general opening hint for the commitment. 
 \end{definition}
 
 \begin{lemma}[Binding commitment]
@@ -222,15 +242,12 @@ Note that an honestly generated commitment does not require an additional openin
 	The commitment is binding under the random order assumption. 
 \end{lemma}
 \begin{proof}
-	Given a commitment $\gr{C}$ and two openings $f(X),\tau=(\hat{f}(X)\in \ZZ(b)[X],d\in \ZZ,\gr{W} \in \GG,\alpha\in \ZZ^+)$ and $f'(X),\tau'=(\hat{f}',d',\gr{W}',\alpha')$ with $\frac{\hat{f}(X)}{d}\equiv_p f(X)\neq f'(X) \equiv_p \hat{f'(X)}{d}$. $\hat{f}$ and $\hat{f}'(X)$ have coefficients bounded by $\frac{q}{2}$ such that $\frac{\hat{f}(q)}{d} \neq \frac{\hat{f}'(q)}{d} \in \QQ$. Otherwise the decoding algorithms from rationals to polynomials would not be unique (see \cref{fact:encoding}). 
-	Given $f(q)\cdot \Generator + \gr{W}=d \cdot \Commitment $ and $f'(q)\cdot \Generator + \gr{W}'=d'\cdot \Commitment$ we can compute 
-	$$d'\cdot f(q)\cdot \Generator + d'\cdot \gr{W}=d\cdot f'(q)\cdot \Generator + d\cdot \gr{W}'=d \cdot d'\cdot \Commitment $$
-	This implies that 
-	$$(d'\cdot f(q)- d \cdot f'(q))\cdot \Generator + d'\cdot \gr{W}- d\cdot \gr{W}=0$$
-Further $\frac{f(q)}{d}\neq \frac{f'(q)}{d'}\rightarrow (d'\cdot f(q)- d \cdot f'(q))\neq 0$. We can use $\alpha \cdot \alpha'$ to cancel out the $\gr{W}$ terms and get that
-$$\alpha \cdot \alpha'\cdot (d'\cdot f(q)- d \cdot f'(q))\cdot \Generator=0$$
-This gives us a multiple of the order of $\Generator$ which breaks the Random Order assumption.
-	% and by \cref{lem:roa-to-rsa} also the RSA assumption.
+	Suppose a polynomial time adversary is able to compute a commitment $\gr{C}$ and two valid opening hints $(\hat{f}_1, d_1, \gr{W}_1, \alpha_1)$ and $(\hat{f}_2, d_2, \gr{W}_2, \alpha_2)$ that open $\gr{C}$ to distinct values in $\ZZ_p[X]$, i.e. such that $\hat{f}_1 \cdot d_1^{-1} \neq \hat{f}_2 \cdot d_2^{-1} \bmod p$. This implies $\hat{f}_1 \cdot d_2 \neq \hat{f}_2 \cdot d_1$. Moreover, since $||\hat{f}_1||_\infty < q/2$, $||\hat{f}_2||_\infty < q/2$, $gcd(\hat{f}_1(q), d_1) = 1$, and $gcd(\hat{f}_1(q), d_1) = 1$, by the contrapositive of Lemma~\ref{lem:encoding} this implies $\hat{f}_1(q) \cdot d_2 \neq \hat{f}_2(q) \cdot d_1$. Validity of the hints further implies $\alpha_1 \cdot \gr{W}_1 = 0$, $\alpha_2 \cdot \gr{W}_2 = 0$, and: 
+	
+	$$d_2 \cdot d_1 \cdot C = d_2 (\hat{f}_1(q) \cdot \gr{G} + \gr{W}_1) = d_1(\hat{f}_2(q) \cdot \gr{G} + \gr{W}_2)$$
+	
+	The adversary may therefore compute $\Delta = \alpha_1 \alpha_2 (d_2 \cdot \hat{f}_1(q)  - d_1 \cdot \hat{f}_2(q)) \neq 0$, which satisfies $\Delta \cdot \gr{G} = 0$. $\Delta$ is a multiple of the order of the element $\gr{G}$, which contradicts the Random Order Assumption. 
+	 
 	\end{proof}
 	
 	\begin{fact}[Homomorphic property]
@@ -257,7 +274,7 @@ a_i\cdot \gr{W}_i=0
 		We define a knowledge extractor that runs with an adversary $\adv$ who succeeds for public inputs $\{(\gr{G}_i,\gr{G}_i')\}_{i=1}^{\numrounds}$ and $q$ with probability $\epsilon = 1/\poly$. The extractor begins by using the tree-finding algorithm of Lemma~\ref{lem:forking} to generate a tree of accepting transcripts with the following characteristics: 
 
 \begin{itemize}
-\item The tree has depth $\numrounds$ and branching factor $3$. We index nodes by $v \in [0, n^{\log 3})$.
+\item The tree has depth $\numrounds$ and branching factor $3$. We index nodes by $v \in [0, 3^k]$.
 \item The root is labeled with the publics inputs. 
 \item Each non-leaf node $v$ distinct from the root is labeled with a challenge $\alpha_{v}$ and a prover message $\gr{Y}_v$. 
 \item Each non-leaf node $v$ has three children each labeled with three distinct verifier challenges 
@@ -269,7 +286,7 @@ Since the verifier challenges in the protocol are sampled from $\mathcal{X} = [-
 
 For the root node $\textsf{rt}$, define $\gr{X}_\textsf{rt} \deq \gr{G}_\numrounds$ and $\gr{Z}_\textsf{rt} \deq \gr{G}'_\numrounds$. For any non-leaf node $v$ on level $i$ with parent $w$ on level $i+1$, which has prover message $\gr{Y}_v$ and verifier challenge $\alpha_v$, define $\gr{X}_v \deq \gr{X}_w + \alpha_v \cdot \gr{Y}_w + \alpha^2 \cdot \gr{G}_{i-1}$. Similarly, define $\gr{Z}_v \deq \gr{Y}_w + \alpha \gr{Z}_w + \alpha^2 \gr{G}'_{i-1}$.
 
-We will show that given this tree, the extractor can compute for all nodes $v \in [0, n^{\log 3})$ group elements $\gr{W}_v$ and integers $a_v$ such that $a_v \cdot \gr{W}_v = 0$ and if $v$ is on the $i$th level then $\gr{Z}_v = q^{2^{i-1}} \cdot \gr{X}_v + \gr{W}_v$. It can also compute values $\gr{W}'_v$ and $a'_v$ such that $a'_v \cdot \gr{W}'_v = 0$ and $\gr{G}'_{i-1} = \gr{G}_{i-1} + \gr{W}'_v$. It will do this by starting at the leaves and working its way up the tree.
+We will show that given this tree, the extractor can compute for all nodes $v \in [0, 3^k]$ group elements $\gr{W}_v$ and integers $a_v$ such that $a_v \cdot \gr{W}_v = 0$ and if $v$ is on the $i$th level then $\gr{Z}_v = q^{2^{i-1}} \cdot \gr{X}_v + \gr{W}_v$. It can also compute values $\gr{W}'_v$ and $a'_v$ such that $a'_v \cdot \gr{W}'_v = 0$ and $\gr{G}'_{i-1} = \gr{G}_{i-1} + \gr{W}'_v$. It will do this by starting at the leaves and working its way up the tree.
 For any leaf node $v$, the fact that the transcript is accepting implies $q \cdot \gr{X}_v = \gr{Z}_v$. Now suppose that the appropriate values $\gr{W}_v$ have been computed for all children of a node $w$ on the $i$th level. Denoting the three children of nodes $w$ with indices $v_1, v_2, v_3$ and the three challenges on each by $\alpha_1, \alpha_2, \alpha_3$. This means that $\gr{X}_{v_j} = \gr{X}_w + \alpha_j \cdot \gr{Y}_w + \alpha_j^2 \cdot \gr{G}_{i-1}$ and $\gr{Z}_{v_j} = \gr{Y}_w + \alpha_j \cdot \gr{Z}_w + \alpha^2_j \cdot \gr{G}'_{i-1}$ for each $j \in [3]$.
 Furthermore, $\gr{Z}_{v_j} = q^{2^{i-1}} \cdot \gr{X}_{v_j} + \gr{W}_{v_j}$ such that $a_{v_j} \cdot \gr{W}_{v_j} = 0$ for each $j \in [3]$. 
 
