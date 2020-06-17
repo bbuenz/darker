@@ -69,8 +69,9 @@ Using additive notation.
 \benedikt{Let's describe the protocol with respect to $\QQ$? }
 
 \subsection{Odd Even Protocol}
+\label{sec:oddeven}
 \begin{mdframed}
-Public Input: $C\in \GG$\\
+Public Input: $C\in \GG, d \in \NN, b\in \NN$\\
 Witness: $f(X) \in \ZZ(b)[X]$ \\
 Claim: $\Commitment =\commit(f(X))$ and $\deg(f(X))<d$	\\
 $\textsf{FFTEval}(q,C,d;f(X))$
@@ -90,27 +91,28 @@ $\textsf{FFTEval}(q,C,d;f(X))$
 
 \subsection{Computing all PoEs at once}
 %Let the subscript $i$ denote proof elements from the $i$th round of the protocol. Let $\numrounds=\logd$ be the number of rounds in the protocol.
-We present a \textsf{BatchPoE} protocol for proving that $\numrounds$ pairs of group elements $\{(\gr{G}_i, \gr{G}'_i)\}_{i=1}^k$ satisfy $q^{2^{i-1}} \cdot \gr{G}_i = \gr{G}'_i$ for all $i \in [\numrounds]$.
+We present a \textsf{BatchPoE} protocol for proving that $\numrounds$ pairs of group elements $\{(\gr{C}_i, \gr{C}'_i)\}_{i=1}^k$ satisfy $q^{2^{i-1}} \cdot \gr{C}_i = \gr{C}'_i$ for all $i \in [\numrounds]$.
 While this could be proved with $k$ independent PoE proofs, the protocol we present saves a factor $k$ in the communication cost over the naive solution.
 %Let $\gr{D}_{i}\gets \gr{C}_{O,i}$ and $\gr{D}_{i}'\gets \gr{C}_{i}-\gr{C}_{i}$ for $i \in [1,\numrounds]$ such that $q^{2^{i-1}} \cdot \gr{D}_i=\gr{D}'_i$ for all $i\in [\numrounds]$. The prover and verifier run the following \textsf{BatchPoE} protocol that the claims hold.
 \begin{mdframed}
 \underline{\textsf{BatchPoE} \textbf{protocol}} \\
-Prover and Verifier Input: $\{(\gr{G}_i,\gr{G}_i')\}_{i=1}^{\numrounds},q$\\
-Claim: $q^{2^{i-1}}\cdot \gr{G}_i=\gr{G}'_i \quad \forall i \in \{1,...,\numrounds\}$
+Prover and Verifier Input: $\{(\gr{C}_i,\gr{C}_i')\}_{i=1}^{\numrounds},q$\\
+Claim: $q^{2^{i-1}}\cdot \gr{C}_i=\gr{C}'_i \quad \forall i \in \{1,...,\numrounds\}$
 	\begin{enumerate}[nolistsep]
-\item $\gr{X}_{\numrounds} \deq \gr{G}_{\numrounds}$, $\gr{Z}_{\numrounds} \deq \gr{G}'_{\numrounds}$
+\item $\gr{X}_{\numrounds} \deq \gr{C}_{\numrounds}$, $\gr{Z}_{\numrounds} \deq \gr{C}'_{\numrounds}$
 	\item $\pcwhile  i  > 1$
    \item \pcind[1]\prover computes $\gr{Y}_{i}\deq q^{2^{i-2}}\cdot \gr{X}_{i}$
 \item\pcind[1]\prover sends $\gr{Y}_{i}$ to $\verifier$
 	\item \pcind[1]$\verifier$ samples $\alpha \sample [-2^{\lambda-1} ,2^{\lambda-1}]$ and sends them to $\prover$
-	\item \pcind[1]\prover and \verifier compute  $\gr{X}_{i-1} \deq  \gr{X}_{i}+ \alpha\cdot  \gr{Y}_{i}+\alpha^2 \cdot\gr{G}_{i-1}$
-	\item $\pcind[1]$\verifier compute   $\gr{Z}_{i-1}\deq \gr{Y}_{i}+\alpha\cdot \gr{Z}_{i}+\alpha^2 \cdot \gr{G}_{i-1}^{'}$ 
+	\item \pcind[1]\prover and \verifier compute  $\gr{X}_{i-1} \deq  \gr{X}_{i}+ \alpha\cdot  \gr{Y}_{i}+\alpha^2 \cdot\gr{C}_{i-1}$
+	\item $\pcind[1]$\verifier compute   $\gr{Z}_{i-1}\deq \gr{Y}_{i}+\alpha\cdot \gr{Z}_{i}+\alpha^2 \cdot \gr{C}_{i-1}^{'}$ 
 	     \pccomment{Invariant: $q^{2^{i-2}} \cdot \gr{X}_{i-1} = \gr{Z}_{i-1}$ }
 	\item $\pcind[1] i \deq i - 1$
 \item \verifier outputs \textsf{accept} if and only if $q\cdot \gr{X}_1=\gr{Z}_1$
 \end{enumerate}
 \end{mdframed}
-
+\paragraph{Challenge distribution}
+Instead of using $\alpha$ and $\alpha^2$ as challenges it is also possible to use independently sampled $\alpha$ and $\beta$. The security argument is slightly more complicated as one needs to argue that the challenge matrix remains diagnosable. The main benefit is that it is decreases the verifier complexity slightly as $\alpha^2 \in \ZZ$ is about twice the size of $\alpha$ and $\beta$. \benedikt{@Ben add more here}
 \ben{Leave out comment about how to compute $\gr{Y}_i$ when it has a special form where we apply this in the main protocol, i.e. via multi-exponentiation using bases $\Generator_j=q^{ 2^{j}} \cdot \Generator$ or directly. BathcPoE protocol should be independent. Explain in separate comment how to compute $\gr{Y}_i$ more efficiently when has special structure.}
 
 \subsection{Computational complexity of batch PoE}
@@ -242,10 +244,10 @@ This gives us a multiple of the order of $\Generator$ which breaks the Random Or
 	\begin{lemma}[PoEs]
 		Protocol \textsf{BatchPoE} is an interactive proof of knowledge for the following relation:
 		\[ \mathcal{R_\textsf{BPoE}} = \left\{
-\big\langle \{(\gr{G}_i,\gr{G}_i')\}_{i=1}^{\numrounds}, q ; \ \{(\gr{W}_i\in \GG, a_i \in \ZZ)\}_{i=1}^k  \big\rangle
+\big\langle \{(\gr{C}_i,\gr{C}_i')\}_{i=1}^{\numrounds}, q ; \ \{(\gr{W}_i\in \GG, a_i \in \ZZ)\}_{i=1}^k  \big\rangle
 : \forall i
 \begin{array}{l} 
- \gr{G}_i' = q^{2^{\numrounds-i}}  \cdot \gr{G}_i + \gr{W}_i \\ 
+ \gr{C}_i' = q^{2^{\numrounds-i}}  \cdot \gr{C}_i + \gr{W}_i \\ 
 a_i\cdot \gr{W}_i=0
 \end{array}\right\}
 \]
@@ -255,9 +257,9 @@ a_i\cdot \gr{W}_i=0
 	\end{lemma}
 	\begin{proof}
 		We define a knowledge extractor that runs with an adversary $\adv$ who succeeds for public inputs $\{(\gr{G}_i,\gr{G}_i')\}_{i=1}^{\numrounds}$ and $q$ with probability $\epsilon = 1/\poly$. The extractor begins by using the tree-finding algorithm of Lemma~\ref{lem:forking} to generate a tree of accepting transcripts with the following characteristics: 
-
+\benedikt{Update proof to use challenges alpha and beta}
 \begin{itemize}
-\item The tree has depth $\numrounds$ and branching factor $3$. We index nodes by $v \in [0, n^{\log 3})$.
+\item The tree has depth $\numrounds$ and branching factor $3$. We index nodes by $v \in [0,3^\numrounds)$.
 \item The root is labeled with the publics inputs. 
 \item Each non-leaf node $v$ distinct from the root is labeled with a challenge $\alpha_{v}$ and a prover message $\gr{Y}_v$. 
 \item Each non-leaf node $v$ has three children each labeled with three distinct verifier challenges 
@@ -391,19 +393,119 @@ The extractor works in a round by round manner using $3$ transcripts with differ
 		\item Use a linear combination of $[(1,\alpha_i,\beta_i)]_{i=1}^3$ (likely full rank). 
 		\item This shows that $\gr{X}_{i+1}= \gr{Y}_{i}$ and ...
 	\end{itemize}
-\subsection{Strong RSA to RSA assumption}
+	$\Relation_\PC=\{ (\Commitment,d,b; f(X) \in \ZZ(b)[X]) \Commitment=\commit(f(X)) \wedge \deg(f(X))<d \} $
+\begin{lemma}[Security Odd Even Dark]
+	The protocol presented in \cref{sec:oddeven} is an interactive proof of knowledge for the $\Relation_\PC$ relation.
+\end{lemma}
+\begin{proof}
+		We define a knowledge extractor that runs with an adversary $\adv$ who succeeds for public inputs $\{\Commitment,d,b \}$ and $q$ with probability $\epsilon = 1/\poly$. The extractor begins by using the tree-finding algorithm of Lemma~\ref{lem:forking} to generate a tree of accepting transcripts with the following characteristics: 
 \begin{itemize}
-\item CRS $\gr{G} \in \GG$
-	\item Prover sends $\gr{C}_1,\gr{C}_2$
-	\item 
-Verifier sends $\alpha \in [0,2^\lambda]$
-\item Prover sends $f' \in \ZZ, \gr{w}\in \GG, \rho \in \ZZ$
-\item Verifier checks that $f' \cdot \gr{G}+\gr{w} =\alpha \cdot \gr{C}_1 +\gr{C}_2$ and $\gr{w}^\rho=1$
-\end{itemize}
-Run the protocol 3 times to compute $\Delta\alpha_1$, $\Delta\alpha_2$ and $\Delta f_1$ and $\Delta f_2$.
-Let $f'_1\gets \frac{\Delta f_1}{\gcd(\Delta \alpha_1,\Delta f_1)}$ ,$\alpha'_1\gets \frac{\Delta \alpha_1}{\gcd(\Delta \alpha_1,\Delta f_1)}$ denote the reduced fractions. For an adversary with success probability $\epsilon$ either $f'_1\leq 8/\epsilon$ or $f'_1 >8/\epsilon$ with non negligible probability ($\approx\epsilon^2$). 
-\paragraph{$f'_1$ is small.}
-In that case we can compute 
+\item The tree has depth $\logd$ and branching factor $2$. We index nodes by $v \in [0, d^2)$.
+\item The root is labeled with the publics inputs. 
+\item Each non-leaf node $v$ distinct from the root is labeled with a challenge $\alpha_{v}$ and a prover message $\gr{C}_{E,v},\gr{C}_{O,v}$. 
+\item Each non-leaf node $v$ has two children each labeled with two distinct verifier challenges 
+$\alpha_{v} \neq \alpha_{v}'$.
+
+\end{itemize} 
+
+Since the verifier challenges in the protocol are sampled from $\mathcal{X} = [-2^{\lambda -1}, 2^{\lambda -1}]$, the probability of a collision over challenges $\alpha_1, \alpha_2 \sample \mathcal{X}$ sampled uniformly and independently is $2^{-\lambda}$. Thus, by Lemma~\ref{lem:forking} the tree-finding algorithm runs for $O(\poly/\epsilon)$ steps and succeeds with probability $1 - \negl/\epsilon$ to return a tree with these characteristics.
+
+For the root node $\textsf{rt}$, define $\gr{X}_\textsf{rt} \deq \gr{G}_\numrounds$ and $\gr{Z}_\textsf{rt} \deq \gr{G}'_\numrounds$. For any non-leaf node $v$ on level $i$ with parent $w$ on level $i+1$, which has prover message $\gr{Y}_v$ and verifier challenge $\alpha_v$, define $\gr{X}_v \deq \gr{X}_w + \alpha_v \cdot \gr{Y}_w + \alpha^2 \cdot \gr{G}_{i-1}$. Similarly, define $\gr{Z}_v \deq \gr{Y}_w + \alpha \gr{Z}_w + \alpha^2 \gr{G}'_{i-1}$.
+
+We will show that given this tree, the extractor can compute for all nodes $v \in [0, n^{\log 3})$ group elements $\gr{W}_v$ and integers $a_v$ such that $a_v \cdot \gr{W}_v = 0$ and if $v$ is on the $i$th level then $\gr{Z}_v = q^{2^{i-1}} \cdot \gr{X}_v + \gr{W}_v$. It can also compute values $\gr{W}'_v$ and $a'_v$ such that $a'_v \cdot \gr{W}'_v = 0$ and $\gr{G}'_{i-1} = \gr{G}_{i-1} + \gr{W}'_v$. It will do this by starting at the leaves and working its way up the tree.
+For any leaf node $v$, the fact that the transcript is accepting implies $q \cdot \gr{X}_v = \gr{Z}_v$. Now suppose that the appropriate values $\gr{W}_v$ have been computed for all children of a node $w$ on the $i$th level. Denoting the three children of nodes $w$ with indices $v_1, v_2, v_3$ and the three challenges on each by $\alpha_1, \alpha_2, \alpha_3$. This means that $\gr{X}_{v_j} = \gr{X}_w + \alpha_j \cdot \gr{Y}_w + \alpha_j^2 \cdot \gr{G}_{i-1}$ and $\gr{Z}_{v_j} = \gr{Y}_w + \alpha_j \cdot \gr{Z}_w + \alpha^2_j \cdot \gr{G}'_{i-1}$ for each $j \in [3]$.
+Furthermore, $\gr{Z}_{v_j} = q^{2^{i-1}} \cdot \gr{X}_{v_j} + \gr{W}_{v_j}$ such that $a_{v_j} \cdot \gr{W}_{v_j} = 0$ for each $j \in [3]$. 
+
+Let $\mathbf{W} = (\gr{W}_{v_1}, \gr{W}_{v_2}, \gr{W}_{v_3})$ and let $a \deq lcm(a_{v_1}, a_{v_2}, a_{v_3})$. We can summarize these relations in the following matrix equations, where $\mathbf{A} \in \mathbb{Z}^{3\times 3}$ is the integer matrix with rows $(1, \alpha_j, \alpha_j^2)$:
+
+$$\mathbf{A}
+\begin{bmatrix}
+\gr{X}_w \\ 
+\gr{Y}_w \\ 
+\gr{G}_{i-1}
+\end{bmatrix} 
+=  
+\begin{bmatrix}
+\gr{X}_{v_1} \\ 
+\gr{X}_{v_2} \\ 
+\gr{X}_{v_3}
+\end{bmatrix}
+\ \ \text{and} \ \ 
+\mathbf{D} \cdot 
+\mathbf{A} \cdot 
+\begin{bmatrix}
+\gr{Y}_w \\ 
+\gr{Z}_w \\ 
+\gr{G}'_{i-1}
+\end{bmatrix} 
+= 
+\begin{bmatrix}
+\gr{Z}_{v_1} \\ 
+\gr{Z}_{v_2} \\ 
+\gr{Z}_{v_3}
+\end{bmatrix} 
+= 
+q^{2^{i-1}} \cdot 
+\begin{bmatrix}
+\gr{X}_{v_1} \\ 
+\gr{X}_{v_2} \\ 
+\gr{X}_{v_3}
+\end{bmatrix}
++ 
+\mathbf{W}  
+\ \text{and} \ \ a \cdot \mathbf{W} = 0
+$$
+
+Substituting for the column vector $(\gr{X}_{v_1}, \gr{X}_{v_2}, \gr{X}_{v_3})$ we get: 
+
+$$  \mathbf{A} \cdot 
+\begin{bmatrix}
+\gr{Y}_w \\ 
+\gr{Z}_w \\ 
+\gr{G}'_{i-1}
+\end{bmatrix} 
+= 
+q^{2^{i-1}} \cdot \mathbf{A} \cdot  
+\begin{bmatrix}
+\gr{X}_{w} \\ 
+\gr{Y}_{w} \\ 
+\gr{G}_{i-1}
+\end{bmatrix}  \ \
++ 
+\begin{bmatrix}
+\gr{W}_{v_1} \\ 
+\gr{W}_{v_2} \\ 
+\gr{W}_{v_3}
+\end{bmatrix}  \ \
+$$
+
+Since $\mathbf{A}$ is a Vandermonde matrix with distinct rows, $det(\mathbf{A} \cdot \mathbf{D}) \neq 0$. Therefore, by Lemma~\ref{lem:extraction}, there exists a matrix $\mathbf{P}$ such that $\mathbf{P}\cdot \mathbf{A} = \mathbf{D}$ where $\mathbf{D}$ is a diagonal matrix with non-zero entries $d_1, d_2, d_3$. This means that: 
+
+$$  
+\begin{bmatrix}
+d_1 \cdot \gr{Y}_w \\ 
+d_2 \cdot \gr{Z}_w \\ 
+d_3 \cdot \gr{G}'_{i-1}
+\end{bmatrix} 
+= 
+q^{2^{i-1}} \cdot
+\begin{bmatrix}
+d_1 \cdot \gr{X}_{w} \\ 
+d_2 \cdot \gr{Y}_{w} \\ 
+d_3 \cdot \gr{G}_{i-1}
+\end{bmatrix}  \ \
++ 
+\mathbf{P} \cdot 
+\mathbf{W} \ \ \text{and} \ \ a \cdot \mathbf{P} \cdot \mathbf{W} = 0
+$$
+
+This implies that $d_1 d_2 \cdot \gr{Z}_w = q^{2^{i-1}} \cdot (d_2 d_1 \cdot q^{2^{i-1}} \cdot \gr{X}_w + \langle \mathbf{P}_1, \mathbf{W} \rangle) + d_1 \cdot \langle \mathbf{P}_2, \mathbf{W} \rangle$. Let $d \deq d_1 d_2$ and let $\gr{W}_w \deq \gr{Z}_w - q^{2^{i}} \cdot \gr{X}_w$. 
+We have that $d \cdot \gr{W}_w = q^{2^{i-1}} \cdot \langle \mathbf{P}_1, \mathbf{W} \rangle  + d_1 \cdot \langle \mathbf{P}_2, \mathbf{W} \rangle$. Hence, $a \cdot d \cdot \gr{W}_w = 0$. Set $a_w \deq a \cdot a$. 
+ 
+We also have the relation $d_3 \gr{G}'_{i-1} = q^{2^{i-1}} \cdot \gr{G}_{i-1} + \langle \mathbf{P}_3, \mathbf{W} \rangle$. Setting $\gr{W}'_w \deq \gr{G}'_{i-1} - q^{2^{i-1}} \cdot \gr{G}_{i-1}$ we have $d_3 \cdot \gr{W}'_w = \langle \mathbf{P}_3, \mathbf{W} \rangle$, hence $a \cdot d_3 \cdot \gr{W}'_w = 0$. Let $a'_w \deq a \cdot d_3$.  
+	\end{proof}
+
+
 \section{Other ideas (WIP)}
 \subsection{No field elements eval}
 
