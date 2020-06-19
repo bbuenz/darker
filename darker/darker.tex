@@ -244,7 +244,7 @@ Note that an honestly generated commitment does not require an additional openin
 	The commitment is binding under the random order assumption. 
 \end{lemma}
 \begin{proof}
-	Suppose a polynomial time adversary is able to compute a commitment $\gr{C}$ and two valid opening hints $(\hat{f}_1, d_1, \gr{W}_1, \alpha_1)$ and $(\hat{f}_2, d_2, \gr{W}_2, \alpha_2)$ that open $\gr{C}$ to distinct values in $\ZZ_p[X]$, i.e. such that $\hat{f}_1 \cdot d_1^{-1} \neq \hat{f}_2 \cdot d_2^{-1} \bmod p$. This implies $\hat{f}_1 \cdot d_2 \neq \hat{f}_2 \cdot d_1$. Moreover, since $||\hat{f}_1||_\infty < q/2$, $||\hat{f}_2||_\infty < q/2$, $gcd(\hat{f}_1(q), d_1) = 1$, and $gcd(\hat{f}_1(q), d_1) = 1$, by the contrapositive of Lemma~\ref{lem:encoding} this implies $\hat{f}_1(q) \cdot d_2 \neq \hat{f}_2(q) \cdot d_1$. Validity of the hints further implies $\alpha_1 \cdot \gr{W}_1 = 0$, $\alpha_2 \cdot \gr{W}_2 = 0$, and: 
+	Suppose a polynomial time adversary is able to compute a commitment $\gr{C}$ and two valid opening hints $(\hat{f}_1, d_1, \gr{W}_1, \alpha_1)$ and $(\hat{f}_2, d_2, \gr{W}_2, \alpha_2)$ that open $\gr{C}$ to distinct values in $\ZZ_p[X]$, i.e. such that $\hat{f}_1 \cdot d_1^{-1} \neq \hat{f}_2 \cdot d_2^{-1} \bmod p$. This implies $\hat{f}_1 \cdot d_2 \neq \hat{f}_2 \cdot d_1$. Moreover, since $||\hat{f}_1||_\infty < q/2$, $||\hat{f}_2||_\infty < q/2$, $\gcd(\hat{f}_1(q), d_1) = 1$, and $\gcd(\hat{f}_1(q), d_1) = 1$, by the contrapositive of Lemma~\ref{lem:encoding} this implies $\hat{f}_1(q) \cdot d_2 \neq \hat{f}_2(q) \cdot d_1$. Validity of the hints further implies $\alpha_1 \cdot \gr{W}_1 = 0$, $\alpha_2 \cdot \gr{W}_2 = 0$, and: 
 	
 	$$d_2 \cdot d_1 \cdot C = d_2 (\hat{f}_1(q) \cdot \gr{G} + \gr{W}_1) = d_1(\hat{f}_2(q) \cdot \gr{G} + \gr{W}_2)$$
 	
@@ -264,7 +264,7 @@ Note that an honestly generated commitment does not require an additional openin
 \big\langle \{(\gr{C}_i,\gr{C}_i')\}_{i=1}^{\numrounds}, q ; \ \{(\gr{W}_i\in \GG, a_i \in \ZZ)\}_{i=1}^k  \big\rangle
 : \forall i
 \begin{array}{l} 
- \gr{C}_i' = q^{2^{\numrounds-i}}  \cdot \gr{C}_i + \gr{W}_i \\ 
+ \Commitment_i' = q^{2^{\numrounds-i}}  \cdot \Commitment_i + \gr{W}_i \\ 
 a_i\cdot \gr{W}_i=0
 \end{array}\right\}
 \]
@@ -273,7 +273,7 @@ a_i\cdot \gr{W}_i=0
 		%$$\mathcal{R}_{POE}=\{\langle \{(\gr{G}_i,\gr{G}_i')\}_{i=1}^{\numrounds},q ;\{(\gr{W}_i\in \GG,a_i\in \ZZ)\}_{i=1}^k \rangle: \forall i \ \gr{G}_i' = q^{2^{\numrounds-i}}  \cdot \gr{G}_i + \gr{W}_i \ \ \wedge \ \ a_i\cdot \gr{W}_i=0]_{i=1}^{\numrounds-1} \}$$
 	\end{lemma}
 	\begin{proof}
-		We define a knowledge extractor that runs with an adversary $\adv$ who succeeds for public inputs $\{(\gr{G}_i,\gr{G}_i')\}_{i=1}^{\numrounds}$ and $q$ with probability $\epsilon = 1/\poly$. The extractor begins by using the tree-finding algorithm of Lemma~\ref{lem:forking} to generate a tree of accepting transcripts with the following characteristics: 
+		We define a knowledge extractor that runs with an adversary $\adv$ who succeeds for public inputs $\{(\Commitment_i,\Commitment_i')\}_{i=1}^{\numrounds}$ and $q$ with probability $\epsilon = 1/\poly$. The extractor begins by using the tree-finding algorithm of Lemma~\ref{lem:forking} to generate a tree of accepting transcripts with the following characteristics: 
 \benedikt{Update proof to use challenges alpha and beta}
 \begin{itemize}
 \item The tree has depth $\numrounds$ and branching factor $3$. We index nodes by $v \in [0,3^\numrounds)$.
@@ -287,10 +287,10 @@ $\alpha_{v,1} \neq \alpha_{v,2} \neq \alpha_{v,3}$.
 
 Since the verifier challenges in the protocol are sampled from $\mathcal{X} = [-2^{\lambda -1}, 2^{\lambda -1}]$, the probability of a collision over challenges $\alpha_1, \alpha_2 \sample \mathcal{X}$ sampled uniformly and independently is $2^{-\lambda}$. Thus, by Lemma~\ref{lem:forking} the tree-finding algorithm runs for $O(\poly/\epsilon)$ steps and succeeds with probability $1 - \negl/\epsilon$ to return a tree with these characteristics.
 
-For the root node $\textsf{rt}$, define $\gr{X}_\textsf{rt} \deq \gr{G}_\numrounds$ and $\gr{Z}_\textsf{rt} \deq \gr{G}'_\numrounds$. For any non-leaf node $v$ on level $i$ with parent $w$ on level $i+1$, which has prover message $\gr{Y}_v$ and verifier challenge $\alpha_v$, define $\gr{X}_v \deq \gr{X}_w + \alpha_v \cdot \gr{Y}_w + \alpha^2 \cdot \gr{G}_{i-1}$. Similarly, define $\gr{Z}_v \deq \gr{Y}_w + \alpha \gr{Z}_w + \alpha^2 \gr{G}'_{i-1}$.
+For the root node $\textsf{rt}$, define $\gr{X}_\textsf{rt} \deq \Commitment_\numrounds$ and $\gr{Z}_\textsf{rt} \deq \Commitment'_\numrounds$. For any non-leaf node $v$ on level $i$ with parent $w$ on level $i+1$, which has prover message $\gr{Y}_v$ and verifier challenge $\alpha_v$, define $\gr{X}_v \deq \gr{X}_w + \alpha_v \cdot \gr{Y}_w + \alpha^2 \cdot \Commitment_{i-1}$. Similarly, define $\gr{Z}_v \deq \gr{Y}_w + \alpha \cdot \gr{Z}_w + \alpha^2\cdot  \Commitment'_{i-1}$.
 
-We will show that given this tree, the extractor can compute for all nodes $v \in [0, 3^k]$ group elements $\gr{W}_v$ and integers $a_v$ such that $a_v \cdot \gr{W}_v = 0$ and if $v$ is on the $i$th level then $\gr{Z}_v = q^{2^{i-1}} \cdot \gr{X}_v + \gr{W}_v$. It can also compute values $\gr{W}'_v$ and $a'_v$ such that $a'_v \cdot \gr{W}'_v = 0$ and $\gr{G}'_{i-1} = \gr{G}_{i-1} + \gr{W}'_v$. It will do this by starting at the leaves and working its way up the tree.
-For any leaf node $v$, the fact that the transcript is accepting implies $q \cdot \gr{X}_v = \gr{Z}_v$. Now suppose that the appropriate values $\gr{W}_v$ have been computed for all children of a node $w$ on the $i$th level. Denoting the three children of nodes $w$ with indices $v_1, v_2, v_3$ and the three challenges on each by $\alpha_1, \alpha_2, \alpha_3$. This means that $\gr{X}_{v_j} = \gr{X}_w + \alpha_j \cdot \gr{Y}_w + \alpha_j^2 \cdot \gr{G}_{i-1}$ and $\gr{Z}_{v_j} = \gr{Y}_w + \alpha_j \cdot \gr{Z}_w + \alpha^2_j \cdot \gr{G}'_{i-1}$ for each $j \in [3]$.
+We will show that given this tree, the extractor can compute for all nodes $v \in [0, 3^\numrounds]$ group elements $\gr{W}_v$ and integers $a_v$ such that $a_v \cdot \gr{W}_v = 0$ and if $v$ is on the $i$th level then $\gr{Z}_v = q^{2^{i-1}} \cdot \gr{X}_v + \gr{W}_v$. It can also compute values $\gr{W}'_v$ and $a'_v$ such that $a'_v \cdot \gr{W}'_v = 0$ and $\Commitment'_{i-1} = \Commitment_{i-1} + \gr{W}'_v$. It will do this by starting at the leaves and working its way up the tree.
+For any leaf node $v$, the fact that the transcript is accepting implies $q \cdot \gr{X}_v = \gr{Z}_v$. Now suppose that the appropriate values $\gr{W}_v$ have been computed for all children of a node $w$ on the $i$th level. Denoting the three children of nodes $w$ with indices $v_1, v_2, v_3$ and the three challenges on each by $\alpha_1, \alpha_2, \alpha_3$. This means that $\gr{X}_{v_j} = \gr{X}_w + \alpha_j \cdot \gr{Y}_w + \alpha_j^2 \cdot \Commitment_{i-1}$ and $\gr{Z}_{v_j} = \gr{Y}_w + \alpha_j \cdot \gr{Z}_w + \alpha^2_j \cdot \Commitment'_{i-1}$ for each $j \in [3]$.
 Furthermore, $\gr{Z}_{v_j} = q^{2^{i-1}} \cdot \gr{X}_{v_j} + \gr{W}_{v_j}$ such that $a_{v_j} \cdot \gr{W}_{v_j} = 0$ for each $j \in [3]$. 
 
 Let $\mathbf{W} = (\gr{W}_{v_1}, \gr{W}_{v_2}, \gr{W}_{v_3})$ and let $a \deq lcm(a_{v_1}, a_{v_2}, a_{v_3})$. We can summarize these relations in the following matrix equations, where $\mathbf{A} \in \mathbb{Z}^{3\times 3}$ is the integer matrix with rows $(1, \alpha_j, \alpha_j^2)$:
@@ -299,7 +299,7 @@ $$\mathbf{A}
 \begin{bmatrix}
 \gr{X}_w \\ 
 \gr{Y}_w \\ 
-\gr{G}_{i-1}
+\Commitment_{i-1}
 \end{bmatrix} 
 =  
 \begin{bmatrix}
@@ -313,7 +313,7 @@ $$\mathbf{A}
 \begin{bmatrix}
 \gr{Y}_w \\ 
 \gr{Z}_w \\ 
-\gr{G}'_{i-1}
+\Commitment'_{i-1}
 \end{bmatrix} 
 = 
 \begin{bmatrix}
@@ -339,14 +339,14 @@ $$  \mathbf{A} \cdot
 \begin{bmatrix}
 \gr{Y}_w \\ 
 \gr{Z}_w \\ 
-\gr{G}'_{i-1}
+\Commitment'_{i-1}
 \end{bmatrix} 
 = 
 q^{2^{i-1}} \cdot \mathbf{A} \cdot  
 \begin{bmatrix}
 \gr{X}_{w} \\ 
 \gr{Y}_{w} \\ 
-\gr{G}_{i-1}
+\Commitment_{i-1}
 \end{bmatrix}  \ \
 + 
 \begin{bmatrix}
@@ -362,14 +362,14 @@ $$
 \begin{bmatrix}
 d_1 \cdot \gr{Y}_w \\ 
 d_2 \cdot \gr{Z}_w \\ 
-d_3 \cdot \gr{G}'_{i-1}
+d_3 \cdot \Commitment'_{i-1}
 \end{bmatrix} 
 = 
 q^{2^{i-1}} \cdot
 \begin{bmatrix}
 d_1 \cdot \gr{X}_{w} \\ 
 d_2 \cdot \gr{Y}_{w} \\ 
-d_3 \cdot \gr{G}_{i-1}
+d_3 \cdot \Commitment_{i-1}
 \end{bmatrix}  \ \
 + 
 \mathbf{P} \cdot 
@@ -379,39 +379,10 @@ $$
 This implies that $d_1 d_2 \cdot \gr{Z}_w = q^{2^{i-1}} \cdot (d_2 d_1 \cdot q^{2^{i-1}} \cdot \gr{X}_w + \langle \mathbf{P}_1, \mathbf{W} \rangle) + d_1 \cdot \langle \mathbf{P}_2, \mathbf{W} \rangle$. Let $d \deq d_1 d_2$ and let $\gr{W}_w \deq \gr{Z}_w - q^{2^{i}} \cdot \gr{X}_w$. 
 We have that $d \cdot \gr{W}_w = q^{2^{i-1}} \cdot \langle \mathbf{P}_1, \mathbf{W} \rangle  + d_1 \cdot \langle \mathbf{P}_2, \mathbf{W} \rangle$. Hence, $a \cdot d \cdot \gr{W}_w = 0$. Set $a_w \deq a \cdot a$. 
  
-We also have the relation $d_3 \gr{G}'_{i-1} = q^{2^{i-1}} \cdot \gr{G}_{i-1} + \langle \mathbf{P}_3, \mathbf{W} \rangle$. Setting $\gr{W}'_w \deq \gr{G}'_{i-1} - q^{2^{i-1}} \cdot \gr{G}_{i-1}$ we have $d_3 \cdot \gr{W}'_w = \langle \mathbf{P}_3, \mathbf{W} \rangle$, hence $a \cdot d_3 \cdot \gr{W}'_w = 0$. Let $a'_w \deq a \cdot d_3$.  
+We also have the relation $d_3 \Commitment'_{i-1} = q^{2^{i-1}} \cdot \Commitment_{i-1} + \langle \mathbf{P}_3, \mathbf{W} \rangle$. Setting $\gr{W}'_w \deq \Commitment'_{i-1} - q^{2^{i-1}} \cdot \Commitment_{i-1}$ we have $d_3 \cdot \gr{W}'_w = \langle \mathbf{P}_3, \mathbf{W} \rangle$, hence $a \cdot d_3 \cdot \gr{W}'_w = 0$. Let $a'_w \deq a \cdot d_3$.  
 	\end{proof}
 
 	
-	
-	\begin{proof}[Benedikt's sketch]
-	We will prove security by constructing an extractor $E$ that given rewinding access to an adversary $A$ is able to extract a valid witness. 
-The extractor works in a round by round manner using $3$ transcripts with different challenges $\alpha_j$ and $\beta_j$ $j\in\{1,2,3\}$. 
- 
-\begin{itemize}
-	\item Read $\gr{X}_1$ and $\gr{Z}_1$ from the transcript.
-	\item In each round we have $\gr{X}_i = q^i \gr{Z}_i$. We use $\approx$ to denote equality but for an additive shift of a known order element.
-	\item We will show that $\gr{X}_{i+1}\approx \gr{Z}_{i+1}$
-	\item Let $C= \left\{\begin{array}{lll}
-		1 & \alpha_1 & \beta_1\\
-		1 & \alpha_2 & \beta_2\\
-		1 & \alpha_3 & \beta_3
-	\end{array}\right\} $ be the challenge matrix. 
-	\item We find $P$ such that $P C$ is an upper triangle matrix. If it doesn't exist then the extractor aborts.
-\end{itemize}
-	We will show that if $q^{2^i}\cdot \gr{X}_i \cdot \gr{W}_i=\gr{Z}_i$ and $a_i \cdot \gr{W}_i=0$ then the extractor can compute $\gr{X}_{i+1},\gr{Y}_{i+1} \gr{W}_{i+1}, a_{i+1}$ such that $X_{i+1}^q\cdot W_{i+1}=Z_{i+1}$ and $a_{i+1}\cdot \gr{W}_{i+1}=0$.  
-	The extractor rewinds the prover two times per round to get responses for  
-	\end{proof}
-	
-	Proof idea:
-	\begin{itemize}
-		\item  We know that $\gr{D}_1^q=\gr{D}_1'$, $\gr{X}_1^q=\gr{Y}_1$ and $\gr{Y}_1^q=\gr{Z}_1$.
-		\item Rewind the prover to get three challenge pairs $\alpha$ and $\beta$ per round.
-		\item $q\cdot (\gr{X}_{i+1} +\alpha \gr{Y}_{i+1} +\beta \gr{D}_{i}')= \gr{Y}_{i} +\alpha \gr{Z}_{i} +\beta \gr{D}_{i}$
-		\item Use a linear combination of $[(1,\alpha_i,\beta_i)]_{i=1}^3$ (likely full rank). 
-		\item This shows that $\gr{X}_{i+1}= \gr{Y}_{i}$ and ...
-	\end{itemize}
-	$\Relation_\PC=\{ (\Commitment,d,b; f(X) \in \ZZ(b)[X]) \Commitment=\commit(f(X)) \wedge \deg(f(X))<d \} $
 \begin{lemma}[Security Odd Even Dark]
 	The protocol presented in \cref{sec:oddeven} is an interactive proof of knowledge for the $\Relation_\PC$ relation.
 \end{lemma}
@@ -420,19 +391,24 @@ The extractor works in a round by round manner using $3$ transcripts with differ
 \begin{itemize}
 \item The tree has depth $\logd$ and branching factor $2$. We index nodes by $v \in [0, d^2)$.
 \item The root is labeled with the publics inputs. 
-\item Each non-leaf node $v$ distinct from the root is labeled with a challenge $\alpha_{v}$ and a prover message $\gr{C}_{E,v},\gr{C}_{O,v}$. 
+\item Each non-leaf node $v$ distinct from the root is labeled with a challenge $\alpha_{v}$ and a prover message $\gr{C}_{E,v},\gr{C}_{O,v}$.
 \item Each non-leaf node $v$ has two children each labeled with two distinct verifier challenges 
 $\alpha_{v} \neq \alpha_{v}'$.
 
-\end{itemize} 
 
+\end{itemize} 
+\benedikt{Currently assuming the PoE relations are checked directly}
 Since the verifier challenges in the protocol are sampled from $\mathcal{X} = [-2^{\lambda -1}, 2^{\lambda -1}]$, the probability of a collision over challenges $\alpha_1, \alpha_2 \sample \mathcal{X}$ sampled uniformly and independently is $2^{-\lambda}$. Thus, by Lemma~\ref{lem:forking} the tree-finding algorithm runs for $O(\poly/\epsilon)$ steps and succeeds with probability $1 - \negl/\epsilon$ to return a tree with these characteristics.
 
-For the root node $\textsf{rt}$, define $\gr{X}_\textsf{rt} \deq \gr{G}_\numrounds$ and $\gr{Z}_\textsf{rt} \deq \gr{G}'_\numrounds$. For any non-leaf node $v$ on level $i$ with parent $w$ on level $i+1$, which has prover message $\gr{Y}_v$ and verifier challenge $\alpha_v$, define $\gr{X}_v \deq \gr{X}_w + \alpha_v \cdot \gr{Y}_w + \alpha^2 \cdot \gr{G}_{i-1}$. Similarly, define $\gr{Z}_v \deq \gr{Y}_w + \alpha \gr{Z}_w + \alpha^2 \gr{G}'_{i-1}$.
+For the root node $\textsf{rt}$, define $\gr{C}_\textsf{rt} \deq \Commitment$. For any non-leaf node $v$ on level $i$ with parent $w$ on level $i+1$, which has prover message $\gr{C}_{E,v},\Commitment_{O,v}$ and verifier challenge $\alpha_v$, define $\gr{C}_v \deq \gr{C}_{E,w} + \alpha_v \cdot \gr{C}_{O,w}$.
 
-We will show that given this tree, the extractor can compute for all nodes $v \in [0, n^{\log 3})$ group elements $\gr{W}_v$ and integers $a_v$ such that $a_v \cdot \gr{W}_v = 0$ and if $v$ is on the $i$th level then $\gr{Z}_v = q^{2^{i-1}} \cdot \gr{X}_v + \gr{W}_v$. It can also compute values $\gr{W}'_v$ and $a'_v$ such that $a'_v \cdot \gr{W}'_v = 0$ and $\gr{G}'_{i-1} = \gr{G}_{i-1} + \gr{W}'_v$. It will do this by starting at the leaves and working its way up the tree.
-For any leaf node $v$, the fact that the transcript is accepting implies $q \cdot \gr{X}_v = \gr{Z}_v$. Now suppose that the appropriate values $\gr{W}_v$ have been computed for all children of a node $w$ on the $i$th level. Denoting the three children of nodes $w$ with indices $v_1, v_2, v_3$ and the three challenges on each by $\alpha_1, \alpha_2, \alpha_3$. This means that $\gr{X}_{v_j} = \gr{X}_w + \alpha_j \cdot \gr{Y}_w + \alpha_j^2 \cdot \gr{G}_{i-1}$ and $\gr{Z}_{v_j} = \gr{Y}_w + \alpha_j \cdot \gr{Z}_w + \alpha^2_j \cdot \gr{G}'_{i-1}$ for each $j \in [3]$.
-Furthermore, $\gr{Z}_{v_j} = q^{2^{i-1}} \cdot \gr{X}_{v_j} + \gr{W}_{v_j}$ such that $a_{v_j} \cdot \gr{W}_{v_j} = 0$ for each $j \in [3]$. 
+We will show that given this tree, the extractor can compute for all nodes $v \in [0, d^{2})$ an opening hint $(\hat{f}_v \in \ZZ(b)[X],d_v \in \ZZ,\gr{W}_v \in \GG,\alpha_v \in \NN\setminus \{0\})$ for $\gr{C}_v$.   That is $\gr{C}_v^d=\Generator^{\hat{f}_v(q)}+\gr{W}_v$ and $\gr{W}_v^{\alpha_v}=0$ for $\alpha_v>0$. At level $i$, $||\hat{f}||_\infty \leq b\cdot 2^{(\log_2(d)+2(\logd-i)) \cdot \lambda}$
+It will do this by starting at the leaves and working its way up the tree.
+For any leaf node $v$, the fact that the transcript is accepting implies $\Commitment_v=f\cdot \Generator$ for $f\leq b \cdot 2^{\logd \lambda}$. $f$ can be decoded to a constant polynomial with a coefficient bounded by $b \cdot 2^{\logd \lambda}$. $(f,1,0,1)$ is therefore a valid opening for $\Commitment_v$.
+ Now suppose that the appropriate openings have been computed for all children of a node $w$ on the $i$th level. Denoting the two children of nodes $w$ with indices $v_1, v_2$ and the two challenges on each by $\alpha_1, \alpha_2$ \benedikt{use $\alpha$, $\alpha$'}. This means that $\gr{C}_{v_1} = \gr{C}_{E,w} + \alpha_1 \cdot \gr{C}_{O,w}$ and $\gr{C}_{v_2} = \gr{C}_{E,w} + \alpha_2 \cdot \gr{C}_{O,w}$.
+Furthermore openings $(\hat{f}_{v_1},d_{v_1},\gr{W}_{v_1},\alpha_{v_1})$ for $\gr{C}_{v_1}$ and  $(\hat{f}_{v_2},d_{v_2},\gr{W}_{v_2},\alpha_{v_2})$ for $\gr{C}_{v_2}$ have been computed. 
+\benedikt{Fix challenge/order overflow}
+\benedikt{Old stuff below}
 
 Let $\mathbf{W} = (\gr{W}_{v_1}, \gr{W}_{v_2}, \gr{W}_{v_3})$ and let $a \deq lcm(a_{v_1}, a_{v_2}, a_{v_3})$. We can summarize these relations in the following matrix equations, where $\mathbf{A} \in \mathbb{Z}^{3\times 3}$ is the integer matrix with rows $(1, \alpha_j, \alpha_j^2)$:
 
