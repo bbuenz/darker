@@ -232,8 +232,8 @@ The setup algorithm $\setup$ on input $\secparam$ and max degree $d$ and prime $
 
 \item $\commit(\crs, f) \rightarrow \Commitment$: The commitment algorithm $\commit$ on input $f(X)\in \ZZ_p$ lifts $f(X)$ to the integer polynomial $\hat{f}(X)$ with coefficients bounded by $p$ and outputs $\Commitment =\hat{f}(q) \cdot \Generator$
 %\item The open algorithm $\open$ outputs $f(X),\gr{W} \in \GG,\alpha \in \NN$
-\item $\verify(\crs, \Commitment, f, (\hat{f}, d,  \gr{W}, \alpha)) \rightarrow b$: 
-The verification algorithm checks an opening of $\Commitment$ to the polynomial $f \in \ZZ_p[X]$, given the opening hint consisting of $\hat{f}\in \ZZ[X]$, $d \in \ZZ$, $\gr{W} \in \GG$, and $\alpha \in \ZZ$. It checks that $\alpha > 0$, $||\hat{f}||_\infty < \frac{q}{2}$, $\hat{f}(X) \equiv f(X)\cdot d \bmod p$, $\alpha\cdot \gr{W}=0$, $gcd(\hat{f}(q), d) = 1$, and $d \cdot \Commitment =\hat{f}(q)\cdot \Generator +\gr{W}$. If these checks pass it outputs $1$, and otherwise it outputs $0$. 
+\item $\verify(\crs, \Commitment, f, (\hat{f}, \denom,  \gr{W}, a)) \rightarrow b$: 
+The verification algorithm checks an opening of $\Commitment$ to the polynomial $f \in \ZZ_p[X]$, given the opening hint consisting of $\hat{f}\in \ZZ[X]$, $\denom \in \ZZ$, $\gr{W} \in \GG$, and $\alpha \in \ZZ$. It checks that $\alpha > 0$, $||\hat{f}||_\infty < \frac{q}{2}$, $\hat{f}(X) \equiv f(X)\cdot \denom \bmod p$, $\alpha\cdot \gr{W}=0$, $gcd(\hat{f}(q), \denom) = 1$, and $\denom \cdot \Commitment =\hat{f}(q)\cdot \Generator +\gr{W}$. If these checks pass it outputs $1$, and otherwise it outputs $0$. 
 \item The evaluation protocol will be described later.
 \end{itemize}
 Note that an honestly generated commitment does not require an additional opening hint as $\Commitment = f(q) \cdot \Generator$. The flexibility in the $\verify$ algorithm is mainly for the security analysis of our evaluation protocol, so that the knowledge extractor is allowed to obtain a more general opening hint for the commitment. 
@@ -244,20 +244,16 @@ Note that an honestly generated commitment does not require an additional openin
 	The commitment is binding under the random order assumption. 
 \end{lemma}
 \begin{proof}
-	Suppose a polynomial time adversary is able to compute a commitment $\gr{C}$ and two valid opening hints $(\hat{f}_1, d_1, \gr{W}_1, \alpha_1)$ and $(\hat{f}_2, d_2, \gr{W}_2, \alpha_2)$ that open $\gr{C}$ to distinct values in $\ZZ_p[X]$, i.e. such that $\hat{f}_1 \cdot d_1^{-1} \neq \hat{f}_2 \cdot d_2^{-1} \bmod p$. This implies $\hat{f}_1 \cdot d_2 \neq \hat{f}_2 \cdot d_1$. Moreover, since $||\hat{f}_1||_\infty < q/2$, $||\hat{f}_2||_\infty < q/2$, $\gcd(\hat{f}_1(q), d_1) = 1$, and $\gcd(\hat{f}_1(q), d_1) = 1$, by the contrapositive of Lemma~\ref{lem:encoding} this implies $\hat{f}_1(q) \cdot d_2 \neq \hat{f}_2(q) \cdot d_1$. Validity of the hints further implies $\alpha_1 \cdot \gr{W}_1 = 0$, $\alpha_2 \cdot \gr{W}_2 = 0$, and: 
+	Suppose a polynomial time adversary is able to compute a commitment $\gr{C}$ and two valid opening hints $(\hat{f}_1, \denom_1, \gr{W}_1, \alpha_1)$ and $(\hat{f}_2, \denom_2, \gr{W}_2, \alpha_2)$ that open $\gr{C}$ to distinct values in $\ZZ_p[X]$, i.e. such that $\hat{f}_1 \cdot \denom_1^{-1} \neq \hat{f}_2 \cdot d_2^{-1} \bmod p$. 
+	This implies $\hat{f}_1 \cdot \denom_2 \neq \hat{f}_2 \cdot \denom_1$. Moreover, since $||\hat{f}_1||_\infty < q/2$, $||\hat{f}_2||_\infty < q/2$, $\gcd(\hat{f}_1(q), \denom_1) = 1$, and $\gcd(\hat{f}_1(q), \denom_1) = 1$, by the contrapositive of Lemma~\ref{lem:encoding} this implies $\hat{f}_1(q) \cdot \denom_2 \neq \hat{f}_2(q) \cdot \denom_1$. Validity of the hints further implies $\alpha_1 \cdot \gr{W}_1 = 0$, $\alpha_2 \cdot \gr{W}_2 = 0$, and: 
 	
-	$$d_2 \cdot d_1 \cdot C = d_2 (\hat{f}_1(q) \cdot \gr{G} + \gr{W}_1) = d_1(\hat{f}_2(q) \cdot \gr{G} + \gr{W}_2)$$
+	$$\denom_2 \cdot \denom_1 \cdot C = \denom_2 (\hat{f}_1(q) \cdot \gr{G} + \gr{W}_1) = \denom_1(\hat{f}_2(q) \cdot \gr{G} + \gr{W}_2)$$ 
 	
-	The adversary may therefore compute $\Delta = \alpha_1 \alpha_2 (d_2 \cdot \hat{f}_1(q)  - d_1 \cdot \hat{f}_2(q)) \neq 0$, which satisfies $\Delta \cdot \gr{G} = 0$. $\Delta$ is a multiple of the order of the element $\gr{G}$, which contradicts the Random Order Assumption. 
+	The adversary may therefore compute $\Delta = \alpha_1 \alpha_2 (\denom_2 \cdot \hat{f}_1(q)  - \denom_1 \cdot \hat{f}_2(q)) \neq 0$, which satisfies $\Delta \cdot \gr{G} = 0$. $\Delta$ is a multiple of the order of the element $\gr{G}$, which contradicts the Random Order Assumption. 
 	 
 	\end{proof}
 	
-	\begin{fact}[Homomorphic property]
-		The GUO commitment is additively homomorphic. Given openings $(f \in \ZZ,\gr{W},\alpha \in \ZZ)$ to $\Commitment$ and $(f',\gr{W}',\alpha')$ to $\Commitment'$, the opening to $\Commitment + \Commitment'$ is $(f + f', \gr{W} + \gr{W}', lcm(\alpha, \alpha'))$.  \end{fact}
-	\begin{proof}
-		Given $f \in \ZZ,\gr{W} \in \GG, \alpha \in \ZZ$
-	\end{proof}
-	
+		
 	\begin{lemma}[PoEs]
 		Protocol \textsf{BatchPoE} is an interactive proof of knowledge for the following relation:
 		\[ \mathcal{R_\textsf{BPoE}} = \left\{
@@ -402,12 +398,24 @@ Since the verifier challenges in the protocol are sampled from $\mathcal{X} = [-
 
 For the root node $\textsf{rt}$, define $\gr{C}_\textsf{rt} \deq \Commitment$. For any non-leaf node $v$ on level $i$ with parent $w$ on level $i+1$, which has prover message $\gr{C}_{E,v},\Commitment_{O,v}$ and verifier challenge $\alpha_v$, define $\gr{C}_v \deq \gr{C}_{E,w} + \alpha_v \cdot \gr{C}_{O,w}$.
 
-We will show that given this tree, the extractor can compute for all nodes $v \in [0, d^{2})$ an opening hint $(\hat{f}_v \in \ZZ(b)[X],d_v \in \ZZ,\gr{W}_v \in \GG,\alpha_v \in \NN\setminus \{0\})$ for $\gr{C}_v$.   That is $\gr{C}_v^d=\Generator^{\hat{f}_v(q)}+\gr{W}_v$ and $\gr{W}_v^{\alpha_v}=0$ for $\alpha_v>0$. At level $i$, $||\hat{f}||_\infty \leq b\cdot 2^{(\log_2(d)+2(\logd-i)) \cdot \lambda}$
+We will show that given this tree, the extractor can compute for all nodes $v \in [0, d^{2})$ an opening hint $(\hat{f}_v \in \ZZ(b)[X],\denom_v \in \ZZ,\gr{W}_v \in \GG,a_v \in \NN\setminus \{0\})$ for $\gr{C}_v$.   That is $\gr{C}_v^\denom=\Generator^{\hat{f}_v(q)}+\gr{W}_v$ and $\gr{C}_v^{a_v}=0$ for $a_v>0$. At level $i$, $||\hat{f}||_\infty \leq b\cdot 2^{(\log_2(d)+2(\logd-i)) \cdot \lambda}$
 It will do this by starting at the leaves and working its way up the tree.
 For any leaf node $v$, the fact that the transcript is accepting implies $\Commitment_v=f\cdot \Generator$ for $f\leq b \cdot 2^{\logd \lambda}$. $f$ can be decoded to a constant polynomial with a coefficient bounded by $b \cdot 2^{\logd \lambda}$. $(f,1,0,1)$ is therefore a valid opening for $\Commitment_v$.
  Now suppose that the appropriate openings have been computed for all children of a node $w$ on the $i$th level. Denoting the two children of nodes $w$ with indices $v_1, v_2$ and the two challenges on each by $\alpha_1, \alpha_2$ \benedikt{use $\alpha$, $\alpha$'}. This means that $\gr{C}_{v_1} = \gr{C}_{E,w} + \alpha_1 \cdot \gr{C}_{O,w}$ and $\gr{C}_{v_2} = \gr{C}_{E,w} + \alpha_2 \cdot \gr{C}_{O,w}$.
-Furthermore openings $(\hat{f}_{v_1},d_{v_1},\gr{W}_{v_1},\alpha_{v_1})$ for $\gr{C}_{v_1}$ and  $(\hat{f}_{v_2},d_{v_2},\gr{W}_{v_2},\alpha_{v_2})$ for $\gr{C}_{v_2}$ have been computed. 
-\benedikt{Fix challenge/order overflow}
+Furthermore openings $(\hat{f}_{v_1},\denom_{v_1},\gr{W}_{v_1},a_{v_1})$ for $\gr{C}_{v_1}$ and  $(\hat{f}_{v_2},\denom_{v_2},\gr{W}_{v_2},a_{v_2})$ for $\gr{C}_{v_2}$ have been computed. 
+
+This gives us the opening eqality
+$$\hat{f}_{v_i}(q) \cdot \Generator + \gr{W}_i = \denom_i \cdot \Commitment_{E,w} + \denom_i \cdot \alpha_i \cdot \Commitment_{O,w} \quad i \in \{1,2\}$$
+from which we can derive:
+$$(\denom_2 \hat{f}_{v_1}(q)-\denom_1 \hat{f}_{v_2}(q)) \Generator + \gr{W}_w=\denom_1 \denom_2 (\alpha_1-\alpha_2) \Commitment_{O,w}$$
+for $\gr{W}_w= \denom_2 \gr{W}_1 - \denom_1 \gr{W}_2$ an element of order $a_w=\lcm(a_{v_1},a_{v_2})$.
+$\frac{\hat{f}_w}{\denom_w}=\frac{\denom_2 \hat{f}_{v_1}(q)-\denom_1 \hat{f}_{v_2}(q)}{\denom_1 \denom_2 (\alpha_1-\alpha_2)} \in \QQ$ encodes a polynomial in $\ZZ[X]$ with bounded coefficients of degree $2^{\logd-i}$. 
+
+\begin{itemize}
+	\item Compute opening of $\Commitment_{E,w}$. 
+	\item Use PoE to argue that we can compute an opening to $\Commitment_w$
+	\item Argue bounded size
+\end{itemize}
 \benedikt{Old stuff below}
 
 Let $\mathbf{W} = (\gr{W}_{v_1}, \gr{W}_{v_2}, \gr{W}_{v_3})$ and let $a \deq lcm(a_{v_1}, a_{v_2}, a_{v_3})$. We can summarize these relations in the following matrix equations, where $\mathbf{A} \in \mathbb{Z}^{3\times 3}$ is the integer matrix with rows $(1, \alpha_j, \alpha_j^2)$:
