@@ -70,6 +70,8 @@ Using additive notation.
 \ben{On the contrary I think we should avoid all mention of $\QQ$. It just makes things more complicated = harder to follow} 
 
 \subsection{Odd Even Protocol}
+\ben{Either include $q$ as a public input or set $q$ based on $b$. I also prefer using capital $B$ for a bound rather than lower case $b$. } 
+
 \label{sec:oddeven}
 \begin{mdframed}
 Public Input: $C\in \GG, d \in \NN, b\in \NN$\\
@@ -80,6 +82,7 @@ $\textsf{FFTEval}(q,C,d;f(X))$
 		\item $\pcif d=0$
 		\item $\pcind[1]$ $\prover$ sends $f=f(X) \in \ZZ$
 		\item $\pcind[1]$ $\verifier$ checks that $|f|<2^{\log_2(d_{\max}) \cdot \lambda} \cdot b$ and that $f \cdot \Generator=\Commitment$\pccomment{$d_{\max}$ is the original degree here}
+		\item $\pcelse$
 		\item $\prover$ computes $f_E(X)$ and $f_O(X)$ s.t. $f_E(X^2)+X \cdot f_O(X^2)=f(X)$\pccomment{Odd and Even coefficients} 
 		\item \prover sends $\Commitment_E\gets \commit(f_E(q^2))$ and $\Commitment_O\gets \commit(f_O(q^2))$ to $\verifier$. 
 		\item $\verifier$ checks that $\Commitment_E+ q\cdot \Commitment_O=\Commitment$ \pccomment{$q$ grows in each round. Outsourced with PoEs. See below}
@@ -113,7 +116,7 @@ Claim: $q^{2^{i-1}}\cdot \gr{C}_i=\gr{C}'_i \quad \forall i \in \{1,...,\numroun
 \end{enumerate}
 \end{mdframed}
 \paragraph{Challenge distribution}
-Instead of using $\alpha$ and $\alpha^2$ as challenges it is also possible to use independently sampled $\alpha$ and $\beta$. The security argument is slightly more complicated as one needs to argue that the challenge matrix remains diagnosable. The main benefit is that it is decreases the verifier complexity slightly as $\alpha^2 \in \ZZ$ is about twice the size of $\alpha$ and $\beta$. \benedikt{@Ben add more here}
+Instead of using $\alpha$ and $\alpha^2$ as challenges it is also possible to use independently sampled $\alpha$ and $\beta$. The security argument is slightly more complicated as one needs to argue that the challenge matrix remains diagnosable. \ben{In particular, it remains to be seen whether it is possible to diagnose the matrix with Covid-19 or not, pending further statistical studies on the efficacy of the current Covid-19 tests on square integer matrices, which has been held back due to lack of data.} The main benefit is that it is decreases the verifier complexity slightly as $\alpha^2 \in \ZZ$ is about twice the size of $\alpha$ and $\beta$. \benedikt{@Ben add more here}
 \ben{Leave out comment about how to compute $\gr{Y}_i$ when it has a special form where we apply this in the main protocol, i.e. via multi-exponentiation using bases $\Generator_j=q^{ 2^{j}} \cdot \Generator$ or directly. BathcPoE protocol should be independent. Explain in separate comment how to compute $\gr{Y}_i$ more efficiently when has special structure.}
 
 \subsection{Computational complexity of batch PoE}
@@ -202,8 +205,6 @@ We state a version of the RSA assumption as described by $\cite{EC:CouPetPoi17}$
 	$\adv_{\textsf{RSA}}$ computes computes $a'\gets \frac{a}{\gcd(a,\ell^k)}$ for $k=\lceil\log_\ell(a)\rceil$. Note that since $\ell$ is co-prime to the order of $\GG$ and thus also the order of $\Generator$ and $a$ is a multiple of the order of $\Generator$ we have that $a'$ is still a multiple of the order of $\Generator$. Now $\adv_{\textsf{RSA}}$ computes $w\gets \ell^{-1} \bmod a'$ and outputs $\gr{U} \gets w\cdot \Generator$. $\ell \cdot \gr{U}=\Generator$ so $\adv_{\textsf{RSA}}$ succeeds with probability $\epsilon$.
 \end{proof}
 
-\ben{Needs editing..}
-
 \begin{fact}
 \label{fact:encoding}
 Let $q \in \ZZ$ be any positive integer. For any integer $E \in \ZZ$ such that $|E|<\frac{q^{d+1}}{2}$ there exists a unique integer polynomial $f \in \ZZ[X]$ with $||f||_\infty < q/2$ such that $f(q) = E$. 
@@ -275,7 +276,7 @@ a_i\cdot \gr{W}_i=0
 \item The tree has depth $\numrounds$ and branching factor $3$. We index nodes by $v \in [0,3^\numrounds)$.
 
 \item The root is labeled with the publics inputs. 
-\item Each non-leaf node $v$ distinct from the root is labeled with a challenge $\alpha_{v}$ and a prover message $\gr{Y}_v$. 
+\item Each node $v$ distinct from the root is labeled with a challenge $\alpha_{v}$ and a prover message $\gr{Y}_v$. \ben{Check how to label leaves} 
 \item Each non-leaf node $v$ has three children each labeled with three distinct verifier challenges 
 $\alpha_{v,1} \neq \alpha_{v,2} \neq \alpha_{v,3}$.
 
@@ -283,7 +284,7 @@ $\alpha_{v,1} \neq \alpha_{v,2} \neq \alpha_{v,3}$.
 
 Since the verifier challenges in the protocol are sampled from $\mathcal{X} = [-2^{\lambda -1}, 2^{\lambda -1}]$, the probability of a collision over challenges $\alpha_1, \alpha_2 \sample \mathcal{X}$ sampled uniformly and independently is $2^{-\lambda}$. Thus, by Lemma~\ref{lem:forking} the tree-finding algorithm runs for $O(\poly/\epsilon)$ steps and succeeds with probability $1 - \negl/\epsilon$ to return a tree with these characteristics.
 
-For the root node $\textsf{rt}$, define $\gr{X}_\textsf{rt} \deq \Commitment_\numrounds$ and $\gr{Z}_\textsf{rt} \deq \Commitment'_\numrounds$. For any non-leaf node $v$ on level $i$ with parent $w$ on level $i+1$, which has prover message $\gr{Y}_v$ and verifier challenge $\alpha_v$, define $\gr{X}_v \deq \gr{X}_w + \alpha_v \cdot \gr{Y}_w + \alpha^2 \cdot \Commitment_{i-1}$. Similarly, define $\gr{Z}_v \deq \gr{Y}_w + \alpha \cdot \gr{Z}_w + \alpha^2\cdot  \Commitment'_{i-1}$.
+For the root node $\textsf{rt}$, define $\gr{X}_\textsf{rt} \deq \Commitment_\numrounds$ and $\gr{Z}_\textsf{rt} \deq \Commitment'_\numrounds$. For any node $v$ on level $i$ with parent $w$ on level $i+1$, which has prover message $\gr{Y}_v$ and verifier challenge $\alpha_v$, define $\gr{X}_v \deq \gr{X}_w + \alpha_v \cdot \gr{Y}_w + \alpha^2 \cdot \Commitment_{i-1}$. Similarly, define $\gr{Z}_v \deq \gr{Y}_w + \alpha \cdot \gr{Z}_w + \alpha^2\cdot  \Commitment'_{i-1}$.
 
 We will show that given this tree, the extractor can compute for all nodes $v \in [0, 3^\numrounds]$ group elements $\gr{W}_v$ and integers $a_v$ such that $a_v \cdot \gr{W}_v = 0$ and if $v$ is on the $i$th level then $\gr{Z}_v = q^{2^{i-1}} \cdot \gr{X}_v + \gr{W}_v$. It can also compute values $\gr{W}'_v$ and $a'_v$ such that $a'_v \cdot \gr{W}'_v = 0$ and $\Commitment'_{i-1} = \Commitment_{i-1} + \gr{W}'_v$. It will do this by starting at the leaves and working its way up the tree.
 For any leaf node $v$, the fact that the transcript is accepting implies $q \cdot \gr{X}_v = \gr{Z}_v$. Now suppose that the appropriate values $\gr{W}_v$ have been computed for all children of a node $w$ on the $i$th level. Denoting the three children of nodes $w$ with indices $v_1, v_2, v_3$ and the three challenges on each by $\alpha_1, \alpha_2, \alpha_3$. This means that $\gr{X}_{v_j} = \gr{X}_w + \alpha_j \cdot \gr{Y}_w + \alpha_j^2 \cdot \Commitment_{i-1}$ and $\gr{Z}_{v_j} = \gr{Y}_w + \alpha_j \cdot \gr{Z}_w + \alpha^2_j \cdot \Commitment'_{i-1}$ for each $j \in [3]$.
@@ -382,31 +383,35 @@ We also have the relation $d_3 \Commitment'_{i-1} = q^{2^{i-1}} \cdot \Commitmen
 \begin{lemma}[Security Odd Even Dark]
 	The protocol presented in \cref{sec:oddeven} is an interactive proof of knowledge for the $\Relation_\PC$ relation.
 \end{lemma}
+\ben{$\Relation_\PC$ is not yet defined anywhere else...}
 \begin{proof}
 		We define a knowledge extractor that runs with an adversary $\adv$ who succeeds for public inputs $\{\Commitment,d,b \}$ and $q$ with probability $\epsilon = 1/\poly$. The extractor begins by using the tree-finding algorithm of Lemma~\ref{lem:forking} to generate a tree of accepting transcripts with the following characteristics: 
 \begin{itemize}
-\item The tree has depth $\logd$ and branching factor $2$. We index nodes by $v \in [0, d^2)$.
+\item The tree has depth $\logd$ and branching factor $2$. We index nodes by $v \in [0, d)$.
 \item The root is labeled with the publics inputs. 
 \item Each non-leaf node $v$ distinct from the root is labeled with a challenge $\alpha_{v}$ and a prover message $\gr{C}_{E,v},\gr{C}_{O,v}$.
 \item Each non-leaf node $v$ has two children each labeled with two distinct verifier challenges 
 $\alpha_{v} \neq \alpha_{v}'$.
+\item Each leaf node $v$ is labelled with the message $\hat{f}_v$ sent in a final round of the protocol. 
 
 
 \end{itemize} 
 \benedikt{Currently assuming the PoE relations are checked directly}
 Since the verifier challenges in the protocol are sampled from $\mathcal{X} = [-2^{\lambda -1}, 2^{\lambda -1}]$, the probability of a collision over challenges $\alpha_1, \alpha_2 \sample \mathcal{X}$ sampled uniformly and independently is $2^{-\lambda}$. Thus, by Lemma~\ref{lem:forking} the tree-finding algorithm runs for $O(\poly/\epsilon)$ steps and succeeds with probability $1 - \negl/\epsilon$ to return a tree with these characteristics.
 
-For the root node $\textsf{rt}$, define $\gr{C}_\textsf{rt} \deq \Commitment$. For any non-leaf node $v$ on level $i$ with parent $w$ on level $i+1$, which has prover message $\gr{C}_{E,v},\Commitment_{O,v}$ and verifier challenge $\alpha_v$, define $\gr{C}_v \deq \gr{C}_{E,w} + \alpha_v \cdot \gr{C}_{O,w}$.
+For the root node $\textsf{rt}$, define $\gr{C}_\textsf{rt} \deq \Commitment$. For any node $v$ on level $i$ which has verifier challenge $\alpha_v$ and a parent $w$ on level $i+1$ with prover message $\gr{C}_{E,w},\Commitment_{O,w}$, define $\gr{C}_v \deq \gr{C}_{E,w} + \alpha_v \cdot \gr{C}_{O,w}$.
+We will show that given this tree, the extractor can compute for all nodes $v \in [0, d)$ an opening hint $(\hat{f}_v \in \ZZ(b)[X],\denom_v \in \ZZ,\gr{W}_v \in \GG,a_v \in \ZZ^+)$ for $\gr{C}_v$. That is: $\denom_v \cdot \gr{C}_v=\hat{f}_v(q) \cdot \Generator +\gr{W}_v$ and $a_v \cdot \gr{C}_v=0$. Additionally, for $v$ at level $i$, $||\hat{f}_v||_\infty \leq b\cdot 2^{(\log_2(d)+2(\logd-i)) \cdot \lambda}$.
 
-We will show that given this tree, the extractor can compute for all nodes $v \in [0, d^{2})$ an opening hint $(\hat{f}_v \in \ZZ(b)[X],\denom_v \in \ZZ,\gr{W}_v \in \GG,a_v \in \NN\setminus \{0\})$ for $\gr{C}_v$.   That is $\gr{C}_v^\denom=\Generator^{\hat{f}_v(q)}+\gr{W}_v$ and $\gr{C}_v^{a_v}=0$ for $a_v>0$. At level $i$, $||\hat{f}||_\infty \leq b\cdot 2^{(\log_2(d)+2(\logd-i)) \cdot \lambda}$
 It will do this by starting at the leaves and working its way up the tree.
-For any leaf node $v$, the fact that the transcript is accepting implies $\Commitment_v=f\cdot \Generator$ for $f\leq b \cdot 2^{\logd \lambda}$. $f$ can be decoded to a constant polynomial with a coefficient bounded by $b \cdot 2^{\logd \lambda}$. $(f,1,0,1)$ is therefore a valid opening for $\Commitment_v$.
- Now suppose that the appropriate openings have been computed for all children of a node $w$ on the $i$th level. Denoting the two children of nodes $w$ with indices $v_1, v_2$ and the two challenges on each by $\alpha_1, \alpha_2$ \benedikt{use $\alpha$, $\alpha$'}. This means that $\gr{C}_{v_1} = \gr{C}_{E,w} + \alpha_1 \cdot \gr{C}_{O,w}$ and $\gr{C}_{v_2} = \gr{C}_{E,w} + \alpha_2 \cdot \gr{C}_{O,w}$.
+For any leaf node $v$, the fact that the transcript is accepting implies $\Commitment_v= \hat{f}_v \cdot \Generator$ for $\hat{f}_v \leq b \cdot 2^{\logd \lambda}$. Recall $\hat{f}_v$ is a constant bounded by $b \cdot 2^{\logd \lambda}$. Therefore, $(f,1,0,1)$ is a valid opening for $\Commitment_v$.
+
+ Next, suppose that the appropriate openings have been computed for all children of a node $w$ on the $i$th level. Denoting the two children of nodes $w$ with indices $v_1, v_2$ and the two challenges on each by $\alpha_1, \alpha_2$ \benedikt{use $\alpha$, $\alpha$'}. This means that $\gr{C}_{v_1} = \gr{C}_{E,w} + \alpha_1 \cdot \gr{C}_{O,w}$ and $\gr{C}_{v_2} = \gr{C}_{E,w} + \alpha_2 \cdot \gr{C}_{O,w}$.
 Furthermore openings $(\hat{f}_{v_1},\denom_{v_1},\gr{W}_{v_1},a_{v_1})$ for $\gr{C}_{v_1}$ and  $(\hat{f}_{v_2},\denom_{v_2},\gr{W}_{v_2},a_{v_2})$ for $\gr{C}_{v_2}$ have been computed. 
 
-This gives us the opening eqality
-$$\hat{f}_{v_i}(q) \cdot \Generator + \gr{W}_i = \denom_i \cdot \Commitment_{E,w} + \denom_i \cdot \alpha_i \cdot \Commitment_{O,w} \quad i \in \{1,2\}$$
-from which we can derive:
+This gives us the equality: 
+$$\hat{f}_{v_i}(q) \cdot \Generator + \gr{W}_i = r_i \cdot C_{v_i} = \denom_i \cdot (\Commitment_{E,w} + \alpha_i \cdot \Commitment_{O,w}) \quad \text{for} \ i \in \{1,2\}$$
+
+From which we can derive:
 $$(\denom_2 \hat{f}_{v_1}(q)-\denom_1 \hat{f}_{v_2}(q)) \Generator + \gr{W}_w=\denom_1 \denom_2 (\alpha_1-\alpha_2) \Commitment_{O,w}$$
 for $\gr{W}_w= \denom_2 \gr{W}_1 - \denom_1 \gr{W}_2$ an element of order $a_w=\lcm(a_{v_1},a_{v_2})$.
 $\frac{\hat{f}_w}{\denom_w}=\frac{\denom_2 \hat{f}_{v_1}(q)-\denom_1 \hat{f}_{v_2}(q)}{\denom_1 \denom_2 (\alpha_1-\alpha_2)} \in \QQ$ encodes a polynomial in $\ZZ[X]$ with bounded coefficients of degree $2^{\logd-i}$. 
