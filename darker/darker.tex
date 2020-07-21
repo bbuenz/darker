@@ -116,8 +116,7 @@ Claim: $q^{2^{i-1}}\cdot \gr{C}_i=\gr{C}'_i \quad \forall i \in \{1,...,\numroun
 \end{enumerate}
 \end{mdframed}
 \paragraph{Challenge distribution}
-Instead of using $\alpha$ and $\alpha^2$ as challenges it is also possible to use independently sampled $\alpha$ and $\beta$. The security argument is slightly more complicated as one needs to argue that the challenge matrix remains diagnosable. \ben{In particular, it remains to be seen whether it is possible to diagnose the matrix with Covid-19 or not, pending further statistical studies on the efficacy of the current Covid-19 tests on square integer matrices, which has been held back due to lack of data.} The main benefit is that it is decreases the verifier complexity slightly as $\alpha^2 \in \ZZ$ is about twice the size of $\alpha$ and $\beta$. \benedikt{@Ben add more here}
-\ben{Leave out comment about how to compute $\gr{Y}_i$ when it has a special form where we apply this in the main protocol, i.e. via multi-exponentiation using bases $\Generator_j=q^{ 2^{j}} \cdot \Generator$ or directly. BathcPoE protocol should be independent. Explain in separate comment how to compute $\gr{Y}_i$ more efficiently when has special structure.}
+Instead of using $\alpha$ and $\alpha^2$ as challenges it is also possible to use independently sampled $\alpha$ and $\beta$. The security argument is slightly more complicated as one needs to argue that the challenge matrix remains diagonalizable. The main benefit is that it decreases the verifier complexity slightly as $\alpha^2 \in \ZZ$ is about twice the size of $\alpha$ and $\beta$. 
 
 \subsection{Computational complexity of batch PoE}
 \ben{We analyze the complexity of Batch PoE both in general, and in the special case that...} The main prover work is in computing $\gr{Y}_i$. In the first few loops $\gr{Y}_i=g^{h(q)}$ for a sparse polynomial $h(X)$. For example in the first loop $h(X)$ has only a single non-zero coefficient.
@@ -204,7 +203,11 @@ We state a version of the RSA assumption as described by $\cite{EC:CouPetPoi17}$
 	Given an efficient adversary $\adv_{\textsf{Order}}$ for the random order assumption we will construct an efficient adversary $\adv_{\textsf{RSA}}$ for the RSA assumption. On input $\GG,\Generator,\ell$ to $\adv_{\textsf{RSA}}$ we will forward $\GG,\Generator$ to $\adv_{\textsf{Order}}$. $\adv_{\textsf{Order}}$ outputs $a$ such that $a\cdot \Generator=0$ with non-negligible probability $\epsilon$. 
 	$\adv_{\textsf{RSA}}$ computes computes $a'\gets \frac{a}{\gcd(a,\ell^k)}$ for $k=\lceil\log_\ell(a)\rceil$. Note that since $\ell$ is co-prime to the order of $\GG$ and thus also the order of $\Generator$ and $a$ is a multiple of the order of $\Generator$ we have that $a'$ is still a multiple of the order of $\Generator$. Now $\adv_{\textsf{RSA}}$ computes $w\gets \ell^{-1} \bmod a'$ and outputs $\gr{U} \gets w\cdot \Generator$. $\ell \cdot \gr{U}=\Generator$ so $\adv_{\textsf{RSA}}$ succeeds with probability $\epsilon$.
 \end{proof}
-
+\begin{fact}[Known order elements]
+	\label{fact:knownorder}
+	Given a two elements in a group and multiples of the order of these elements there exists an efficient algorithm computing the order of any linear combination of the elements.
+\end{fact}
+Let $\gr{W}_1,\gr{W}_2 \in \GG$ be such that $\alpha_1 \cdot \gr{W}_1=0$ and $\alpha_2 \cdot \gr{W}_2=0$ then for $\gr{W}'=a\gr{W}_1 + b \gr{W}_2$ we have that for $\alpha'=\lcm(\alpha_1,\alpha_2)$, $\alpha' \cdot \gr{W}'=0$
 \begin{fact}
 \label{fact:encoding}
 Let $q \in \ZZ$ be any positive integer. For any integer $E \in \ZZ$ such that $|E|<\frac{q^{d+1}}{2}$ there exists a unique integer polynomial $f \in \ZZ[X]$ with $||f||_\infty < q/2$ such that $f(q) = E$. 
@@ -385,6 +388,8 @@ We also have the relation $d_3 \Commitment'_{i-1} = q^{2^{i-1}} \cdot \Commitmen
 \end{lemma}
 \ben{$\Relation_\PC$ is not yet defined anywhere else...}
 \begin{proof}
+
+~\paragraph{Extractor construction}
 		We define a knowledge extractor that runs with an adversary $\adv$ who succeeds for public inputs $\{\Commitment,d,b \}$ and $q$ with probability $\epsilon = 1/\poly$. The extractor begins by using the tree-finding algorithm of Lemma~\ref{lem:forking} to generate a tree of accepting transcripts with the following characteristics: 
 \begin{itemize}
 \item The tree has depth $\logd$ and branching factor $2$. We index nodes by $v \in [0, d)$.
@@ -393,9 +398,8 @@ We also have the relation $d_3 \Commitment'_{i-1} = q^{2^{i-1}} \cdot \Commitmen
 \item Each non-leaf node $v$ has two children each labeled with two distinct verifier challenges 
 $\alpha_{v} \neq \alpha_{v}'$.
 \item Each leaf node $v$ is labelled with the message $\hat{f}_v$ sent in a final round of the protocol. 
-
-
 \end{itemize} 
+
 \benedikt{Currently assuming the PoE relations are checked directly}
 Since the verifier challenges in the protocol are sampled from $\mathcal{X} = [-2^{\lambda -1}, 2^{\lambda -1}]$, the probability of a collision over challenges $\alpha_1, \alpha_2 \sample \mathcal{X}$ sampled uniformly and independently is $2^{-\lambda}$. Thus, by Lemma~\ref{lem:forking} the tree-finding algorithm runs for $O(\poly/\epsilon)$ steps and succeeds with probability $1 - \negl/\epsilon$ to return a tree with these characteristics.
 
@@ -412,104 +416,23 @@ This gives us the equality:
 $$\hat{f}_{v_i}(q) \cdot \Generator + \gr{W}_i = r_i \cdot C_{v_i} = \denom_i \cdot (\Commitment_{E,w} + \alpha_i \cdot \Commitment_{O,w}) \quad \text{for} \ i \in \{1,2\}$$
 
 From which we can derive:
-$$(\denom_2 \hat{f}_{v_1}(q)-\denom_1 \hat{f}_{v_2}(q)) \Generator + \gr{W}_w=\denom_1 \denom_2 (\alpha_1-\alpha_2) \Commitment_{O,w}$$
-for $\gr{W}_w= \denom_2 \gr{W}_1 - \denom_1 \gr{W}_2$ an element of order $a_w=\lcm(a_{v_1},a_{v_2})$.
-$\frac{\hat{f}_w}{\denom_w}=\frac{\denom_2 \hat{f}_{v_1}(q)-\denom_1 \hat{f}_{v_2}(q)}{\denom_1 \denom_2 (\alpha_1-\alpha_2)} \in \QQ$ encodes a polynomial in $\ZZ[X]$ with bounded coefficients of degree $2^{\logd-i}$. 
+$$(\denom_2 \hat{f}_{v_1}(q)-\denom_1 \hat{f}_{v_2}(q)) \Generator + \gr{W}_{O,w}=\denom_1 \denom_2 (\alpha_1-\alpha_2) \Commitment_{O,w}$$
+and additionally
+$$(\alpha_2 \denom_2 \hat{f}_{v_1}(q)-\alpha_1  \denom_1 \hat{f}_{v_2}(q)) \Generator + \gr{W}_{E,w}=\denom_1 \denom_2 (\alpha_2-\alpha_1) \Commitment_{E,w}$$
+
+for $\gr{W}_{E,w}$ and $\gr{W}_{O,w}$ being elements of known order.
+Using the extractor of the Batch PoE protocol we get that 
+$$\gr{C}_w= \gr{C}_{E,w}+q^{2^i} \gr{C}_{O,w}+\gr{W}'$$
+Let $\denom_w=\denom_1 \denom_2 (\alpha_22 − \alpha_1 )$. 
+Further $\frac{\hat{f}_w}{\denom_w}=\frac{\denom_2 \hat{f}_{v_1}(q)-\denom_1 \hat{f}_{v_2}(q)}{\denom_1 \denom_2 (\alpha_1-\alpha_2)} \in \QQ$ is the reduced rational that encodes a polynomial in $\ZZ[X]$ with bounded coefficients. We will later argue about the size of the coefficients under different assumptions. 
 
 \begin{itemize}
 	\item Compute opening of $\Commitment_{E,w}$. 
 	\item Use PoE to argue that we can compute an opening to $\Commitment_w$
 	\item Argue bounded size
 \end{itemize}
-\benedikt{Old stuff below}
-
-Let $\mathbf{W} = (\gr{W}_{v_1}, \gr{W}_{v_2}, \gr{W}_{v_3})$ and let $a \deq lcm(a_{v_1}, a_{v_2}, a_{v_3})$. We can summarize these relations in the following matrix equations, where $\mathbf{A} \in \mathbb{Z}^{3\times 3}$ is the integer matrix with rows $(1, \alpha_j, \alpha_j^2)$:
-
-$$\mathbf{A}
-\begin{bmatrix}
-\gr{X}_w \\ 
-\gr{Y}_w \\ 
-\gr{G}_{i-1}
-\end{bmatrix} 
-=  
-\begin{bmatrix}
-\gr{X}_{v_1} \\ 
-\gr{X}_{v_2} \\ 
-\gr{X}_{v_3}
-\end{bmatrix}
-\ \ \text{and} \ \ 
-\mathbf{D} \cdot 
-\mathbf{A} \cdot 
-\begin{bmatrix}
-\gr{Y}_w \\ 
-\gr{Z}_w \\ 
-\gr{G}'_{i-1}
-\end{bmatrix} 
-= 
-\begin{bmatrix}
-\gr{Z}_{v_1} \\ 
-\gr{Z}_{v_2} \\ 
-\gr{Z}_{v_3}
-\end{bmatrix} 
-= 
-q^{2^{i-1}} \cdot 
-\begin{bmatrix}
-\gr{X}_{v_1} \\ 
-\gr{X}_{v_2} \\ 
-\gr{X}_{v_3}
-\end{bmatrix}
-+ 
-\mathbf{W}  
-\ \text{and} \ \ a \cdot \mathbf{W} = 0
-$$
-
-Substituting for the column vector $(\gr{X}_{v_1}, \gr{X}_{v_2}, \gr{X}_{v_3})$ we get: 
-
-$$  \mathbf{A} \cdot 
-\begin{bmatrix}
-\gr{Y}_w \\ 
-\gr{Z}_w \\ 
-\gr{G}'_{i-1}
-\end{bmatrix} 
-= 
-q^{2^{i-1}} \cdot \mathbf{A} \cdot  
-\begin{bmatrix}
-\gr{X}_{w} \\ 
-\gr{Y}_{w} \\ 
-\gr{G}_{i-1}
-\end{bmatrix}  \ \
-+ 
-\begin{bmatrix}
-\gr{W}_{v_1} \\ 
-\gr{W}_{v_2} \\ 
-\gr{W}_{v_3}
-\end{bmatrix}  \ \
-$$
-
-Since $\mathbf{A}$ is a Vandermonde matrix with distinct rows, $det(\mathbf{A} \cdot \mathbf{D}) \neq 0$. Therefore, by Lemma~\ref{lem:extraction}, there exists a matrix $\mathbf{P}$ such that $\mathbf{P}\cdot \mathbf{A} = \mathbf{D}$ where $\mathbf{D}$ is a diagonal matrix with non-zero entries $d_1, d_2, d_3$. This means that: 
-
-$$  
-\begin{bmatrix}
-d_1 \cdot \gr{Y}_w \\ 
-d_2 \cdot \gr{Z}_w \\ 
-d_3 \cdot \gr{G}'_{i-1}
-\end{bmatrix} 
-= 
-q^{2^{i-1}} \cdot
-\begin{bmatrix}
-d_1 \cdot \gr{X}_{w} \\ 
-d_2 \cdot \gr{Y}_{w} \\ 
-d_3 \cdot \gr{G}_{i-1}
-\end{bmatrix}  \ \
-+ 
-\mathbf{P} \cdot 
-\mathbf{W} \ \ \text{and} \ \ a \cdot \mathbf{P} \cdot \mathbf{W} = 0
-$$
-
-This implies that $d_1 d_2 \cdot \gr{Z}_w = q^{2^{i-1}} \cdot (d_2 d_1 \cdot q^{2^{i-1}} \cdot \gr{X}_w + \langle \mathbf{P}_1, \mathbf{W} \rangle) + d_1 \cdot \langle \mathbf{P}_2, \mathbf{W} \rangle$. Let $d \deq d_1 d_2$ and let $\gr{W}_w \deq \gr{Z}_w - q^{2^{i}} \cdot \gr{X}_w$. 
-We have that $d \cdot \gr{W}_w = q^{2^{i-1}} \cdot \langle \mathbf{P}_1, \mathbf{W} \rangle  + d_1 \cdot \langle \mathbf{P}_2, \mathbf{W} \rangle$. Hence, $a \cdot d \cdot \gr{W}_w = 0$. Set $a_w \deq a \cdot a$. 
- 
-We also have the relation $d_3 \gr{G}'_{i-1} = q^{2^{i-1}} \cdot \gr{G}_{i-1} + \langle \mathbf{P}_3, \mathbf{W} \rangle$. Setting $\gr{W}'_w \deq \gr{G}'_{i-1} - q^{2^{i-1}} \cdot \gr{G}_{i-1}$ we have $d_3 \cdot \gr{W}'_w = \langle \mathbf{P}_3, \mathbf{W} \rangle$, hence $a \cdot d_3 \cdot \gr{W}'_w = 0$. Let $a'_w \deq a \cdot d_3$.  
+\paragraph{Coefficient size}
+We will argue about the size of the extracted coefficients. Under the strong RSA assumption $\denom_w=1$ as otherwise by \benedikt{Fill in Lemma} we can compute a non trivial root of $\gr{G}$. This means in the extraction step the coefficient of $f_w(X)$ is less than the coefficients of $f_{v_1}$ and $f_{v_2}$ \benedikt{Exclude the case that $\alpha_1-\alpha_2=1$}. 
 	\end{proof}
 
 
@@ -600,6 +523,8 @@ Let $(\prover, \verifier)$ be an $r$-round public-coin interactive proof system 
 \end{lemma} 
 
 \section{Evaluation}
+
+We evaluate 
  \bibliographystyle{alpha}
  \bibliography{../cryptobib/abbrev3,../cryptobib/crypto,cryptobib/additional}
 \end{document}
