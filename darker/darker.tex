@@ -30,9 +30,9 @@
 \commentstrue
 \ifcomments
 	\newcommand{\ben}[1]{{\textcolor{red}{[\bf Ben: #1]}}}
-		\newcommand{\benedikt}[1]{{\textcolor{blue}{[\bf Benedikt: #1]}}}
-
-    \else
+	\newcommand{\benedikt}[1]{{\textcolor{blue}{[\bf Benedikt: #1]}}}
+	\newcommand{\alan}[1]{{\textcolor{green!50!black}{[ \bg Alan: #1]}}}
+\else
 	\newcommand{\ben}[1]{}
 	
 \fi
@@ -44,6 +44,12 @@
 	
 \maketitle
 \section{Introduction}
+Owing to their myriad applications in the context of cryptocurrencies, SNARKs (Succinct Non-interactive ARguments of Knowledge) have received an extroardinary amount of attention in recent years. These proof systems enable a prover to convince a resource-constrained verifier of the correct evaluation of some program or circuit. The verifier should be capable of verifying the short proof without interaction and with much less effort than is required to naïvely re-run the original computation. Extending the proof system with zero-knowledge (ZK) allows the prover to use secret information without leaking any of it to the verifier. As a result, zk-SNARKs can address two of the biggest challenges cryptocurrencies face today: scalability and privacy.
+
+One of the obstacles hampering the adoption of SNARKs in cryptocurrencies and elsewhere is the strong trust assumptions they typically require. The smallest proofs resulting from the Groth16 construction require a circuit-specific trusted setup to generate a structured reference string (SRS). If the participants of this trusted setup ceremony fail to securely delete their randomness, then they can forge proofs of falsehoods. The first step to mitigate this drawback is made by universal and updateable SNARKs, in which the SRS serves only to instantiate a variant of the KGZ polynomial commitment scheme. As a result, \emph{all trust assumptions are confined to the polynomial commitment scheme}. The next logical step is to replace the polynomial commitment scheme with one that requires no trusted setup altogether, such as the DARK polynomial commitment scheme~\cite{EC:BFS20} or one based on FRI~\cite{}; the result is a \emph{transparent SNARK}.
+
+This paper takes a closer look at the DARK polynomial commitment scheme. We report on several results in this context.
+
 \section{Technical Overview}
 Contributions:
 \begin{itemize}
