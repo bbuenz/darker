@@ -44,21 +44,21 @@
 	
 \maketitle
 \section{Introduction}
-SNARKs\footnote{Succinct Non-interactive ARguments of Knowledge} have received an extroardinary amount of attention in recent years, owing to their many applications in a cryptocurrency context. These proof systems enable a prover to convince a resource-constrained verifier of the correct evaluation of some program or circuit. The verifier should be capable of verifying the short proof without interaction and with much less effort than is required to naïvely re-run the original computation. Extending the proof system with zero-knowledge (ZK) allows the prover access to secret information without leaking any of it to the verifier. As a result, zk-SNARKs can address two of the biggest challenges cryptocurrencies face today: scalability and privacy.
+One of the obstacles hampering the adoption of SNARKs in cryptocurrencies and elsewhere is the strong trust assumptions they require. Fortunately, recent results show how to avoid the trusted setup ceremony and eliminate the resulting cryptographic toxic waste altogether. The solution consists of two steps: First, the cryptographic assumptions and trust assumptions are restricted to the generation of a polynomial commitment scheme, from which the remainder of the SNARK is constructed. Second, the pairing-based polynomial commitment scheme is exchanged for one based on alternative mathematical tools, tools that do not require trust assumptions in order to make a compelling argument for security. The result is a \emph{transparent} SNARK.
 
-One of the obstacles hampering the adoption of SNARKs in cryptocurrencies and elsewhere is the strong trust assumptions they typically require. The smallest proofs resulting from the Groth16 construction need a circuit-specific trusted setup to generate a structured reference string (SRS). If the participants of this trusted setup ceremony fail to securely delete their randomness, then they can forge proofs of falsehoods. This trust assumption flies in the face of one of the core tenets of cryptocurrencies: trusting mathematics instead of people.
+To date, two branches of mathematics are known to admit transparent polynomial commitment schemes and SNARKs. First, coding theory captures tests of codeword proximity and low-degreeness such as the FRI protocol~\cite{} and SNARKs built on top of it~\cite{}. Second, groups of unknown order naturally give rise to integer commitment schemes and hence \emph{Diophantine arguments of knowledge (DARKs)}, which in turn give rise to polynomial commitment schemes and SNARKs.
 
-The first step to mitigate this drawback is made by universal and updateable SNARKs, in which the SRS serves only to instantiate a variant of the KGZ polynomial commitment scheme. In other words, \emph{all trust assumptions are confined to the polynomial commitment scheme}. The next logical step is to replace the polynomial commitment scheme with one that requires no trusted setup altogether, such as the DARK polynomial commitment scheme~\cite{EC:BFS20} or one based on FRI~\cite{}; the result is a \emph{transparent SNARK}.
+This paper takes another look at DARK polynomial commitment schemes, following in the footsteps of the scheme proposed by Supersonic~\cite{}. We report several results in this context, on several fronts.
 
-This paper takes a closer look at the DARK polynomial commitment scheme. We report several results in this context, on several fronts.
+\begin{itemize}
+\item[1.] We present a new set of DARK protocols --- one for preprocessing, one for committing to a polynomial, and one for evaluating it. The key distinguishing feature of the new commitment algorithm is that it produces two outputs: one is the commitment itself, to be sent to the verifier; and the other is a list of group elements that constitute secret helper data. By relying on this secret helper input , the complexity of the evaluation protocol drops from $O(d \cdot \log d)$ to $O(\sqrt{d} \cdot \log d)$, where $d$ is the degree of the polynomial. After obtaining the uniform reference string (URS) from the (untrusted) preprocessing phase, the complexity of the commitment algorithm is linear in $s$, the number of nonzero coefficients of the polynomial.
 
-First, we present a new set of protocols --- one for preprocessing, one for committing to a polynomial, and one for evaluating it. The key distinguishing feature of the new commitment algorithm is that it produces two outputs: one is the commitment itself, to be sent to the verifier; and the other is a list of partial commitments, to be kept secret. By using these partial commitments as a secret helper input f or the prover, the complexity of the evaluation protocol drops from $O(d \cdot \log d)$ to $O(\sqrt{d} \cdot \log d)$, where $d$ is the degree of the polynomial. After obtaining the uniform reference string (URS) from the (untrusted) preprocessing phase, the complexity of the commitment algorithm is linear in $s$, the number of nonzero elements.
+\item[2.] We prove the security of these protocols in the random oracle model under the Strong RSA Assumption alone. The previous DARK scheme was only provably secure in the random oracle model when assuming both the Strong RSA Assumption and the Adaptive Root Assumption. Importantly, this assumption is only necessary for the security of the commitment scheme. The interactive evaluation protocol has unconditional security, although after the Fiat-Shamir transform is applied to make it non-interactive, this security is again computational.
 
-Second, we prove the security of these protocols in the random oracle model under the Strong RSA Assumption alone. The previous DARK scheme was only provably secure in the random oracle model when assuming both the Strong RSA Assumption and the Adaptive Root Assumption. Importantly, this assumption is only necessary for the security of the commitment scheme. The interactive evaluation protocol has unconditional security, although after the Fiat-Shamir transform is applied to make it non-interactive, this security is again computational.
+\item[3.] We report on a python implementation of these protocols, complete with performance statistics. We comment on various implementation aspects and optimizations, and even take the opportunity to compare the performance of various groups of unknown order: RSA groups, class groups, and hyperelliptic Jacobian groups.
 
-Third, we report on a python implementation of these protocols, complete with performance statistics. We comment on various implementation aspects and optimizations, and even take the opportunity to compare the performance of various groups of unknown order: RSA groups, class groups, and hyperelliptic Jacobian groups.
-
-Fourth, we discuss a few extensions and applications of these new and improved protocols, such as batching evaluation proofs, committing to polynomials in point-value representation, and applications to vector commitments.
+\item[4.] We discuss a few extensions and applications of these new and improved protocols, such as batching evaluation proofs, committing to polynomials in point-value representation, and applications to vector commitments.
+\end{itemize}
 
 \section{Technical Overview}
 Contributions:
@@ -75,11 +75,25 @@ Contributions:
 \end{itemize}
 
 \section{Preliminaries}
+\subsection{Notation}
 \begin{enumerate}
 	\item $\ZZ(b)=\{ z \in \ZZ | |z|<b\}$
 	\item $\QQ(b)=\{\frac{n}{d} \in \QQ | |\frac{n}{\gcd(n,d)}|< b\}$
 	\item $\ZZ^+=\{z \in \ZZ | z>0\}$ are the positive integers.
 	\end{enumerate}
+	
+\subsection{Definitions}
+
+\subsection{Technical Overview}
+
+\subsection{Preprocessing}
+
+\subsection{Committing to a Polynomial}
+
+\subsection{Evaluating the Polynomial}
+
+\subsection{Aggregating the Proofs of Correct Exponentiation}
+
 \section{Sketched Protocol}
 Using additive notation. 
 \benedikt{Let's describe the protocol with respect to $\QQ$? }
