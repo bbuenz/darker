@@ -84,7 +84,24 @@ Contributions:
 	
 \subsection{Definitions}
 
-\subsection{Technical Overview}
+\section{New Protocols}
+
+The new algorithms result from a cascade of changes that originate from three distinct ideas.
+
+\vspace{0.25cm}
+\textit{Idea 1: odd-even split instead of left-right split.} The original DARK polynomial evaluation protocol relies on an interactive random self-reduction derived from splitting the working polynomial $f(X)$ into a left and a right half, $f_L(X)$ and $f_R(X)$ such that $f(X) = f_L(X) + X^{d'}\cdot{}f_R(X)$. After receiving commitments to both halves, the verifier supplies a random scalar $\alpha$ and the protocol repeats the process recursively using $f'(X) = f_L(X) + \alpha \cdot f_R(X)$ as the new working polynomial. The new protocol opts instead for a split in terms of even and odd powers of $X$: $f(X) = f_E(X^2) + Xf_O(X)$. To highlight the similarity with the Fast Fourier Transform, we refer to this evaluation protocol as $\mathsf{FFTEval}$.
+
+The verifier has to verify that the two commitments he receives match the commitment to the working polynomial that he already possesses. To achieve this goal, the Kronecker substitution is used: the polynomial $f(X) \in \mathbb{F}_p[X]$ is lifted to the integrs $\hat{f}(X) \in \mathbb{Z}[X]$ and then evaluated in number $q \gg p$ that is large enough to guarantee that overflow will never be a factor. The resulting integers are committed to using an integer commitment scheme, which is trivial to obtain from a group of unknown order. In the original DARK evaluation protocol, the verifier checks that $\mathsf{C} = \mathsf{C}_L \cdot \mathsf{C}_R^{q^{d'}}$. The expensive exponentiation can be outsourced to the prover with a proof of correct exponentiation ($\mathsf{PoE}$), which is cheap to verify. So in every round, the prover sends a tuple $(\mathsf{C}_R, \mathsf{C}_R^{q^{d'}}, \pi)$, where $\mathsf{C}_R$ is the commitment to the right polynomial and $\pi$ is the $\mathsf{PoE}$.
+
+The situation changes slightly for the novel DARK evaluation protocol presented here. First, the parameter $q$ changes each round; in the next round it is the square of its value the round before. Second, the prover would now need to transmit a tuple $(\mathsf{C}_O, \mathsf{C}_O^q, \pi)$ in every round, where $\mathsf{C}_O$ is the commitment to the polynomial's odd terms, and $\pi$ is the $\mathsf{PoE}$. Note that the exponent shrinks in the left-right protocol, but grows in the even-odd protocol. In fact, the optimal strategy is to benefit from both worlds: start with the even-odd protocol, then switch to the left-right protocol.
+
+\vspace{0.25cm}
+\textit{Idea 2: Batch-Pietrzak Proof of Exponentiation.} The shortest proof results from applying Wesolowski's batched $\mathsf{PoE}$~\cite{}. However, it is possible to forego the Adaptive Root Assumption by opting instead for Pietrzak's $\mathsf{PoE}$, in which case only one such $\mathsf{PoE}$ is needed.
+
+Pietrzak's $\mathsf{PoE}$ establishes that $\mathsf{b} = \mathsf{a}^{e}$ with an interative random self-reduction. The prover sends $\mathsf{c} = \mathsf{a}^{\sqrt{e}}$. The verifier sends a random scalar $\alpha$ and the protocol proceeds to the next step of the recursion to show that $\mathsf{b} \cdot \mathsf{c}^{\alpha} = (\mathsf{c} \cdot \mathsf{a}^{\alpha})^{\sqrt{e}}$.
+
+\vspace{0.25cm}
+\textit{Idea 3: square-root preprocessing.}
 
 \subsection{Preprocessing}
 
