@@ -86,28 +86,31 @@ Contributions:
 
 \section{New Protocols}
 
-The new algorithms result from a cascade of changes that originate from three distinct ideas.
+Our new algorithms introduce three distinct ideas.
+\begin{itemize}
+\item[1.] Mix even-odd split with left-right split. This combination reduces the total number of bits in the exponent and thus the number of group operations the prover needs to compute.
+\item[2.] Batch with Pietrzak $\mathsf{PoE}$. By switching from Wesolowski's $\mathsf{PoE}$ to Pietrzak's $\mathsf{PoE}$, we can merge all $\mathsf{PoE}$s into one for free. Additionally, the security guarantee becomes stronger.
+\item[3.] Caching during commitment. The commitment algorithm also outputs secret helper data, which allows the prover to produce evaluation proofs in much less work.
+\end{itemize}
+We discuss each item separately before presenting the protocols that incorporate all these changes formally.
 
-\vspace{0.25cm}
-\textit{Idea 1: odd-even split instead of left-right split.} The original DARK polynomial evaluation protocol relies on an interactive random self-reduction derived from splitting the working polynomial $f(X)$ into a left and a right half, $f_L(X)$ and $f_R(X)$ such that $f(X) = f_L(X) + X^{d'}\cdot{}f_R(X)$. After receiving commitments to both halves, the verifier supplies a random scalar $\alpha$ and the protocol repeats the process recursively using $f'(X) = f_L(X) + \alpha \cdot f_R(X)$ as the new working polynomial. The new protocol opts instead for a split in terms of even and odd powers of $X$: $f(X) = f_E(X^2) + Xf_O(X)$. To highlight the similarity with the Fast Fourier Transform, we refer to this evaluation protocol as $\mathsf{FFTEval}$.
+\subsection{Replace Left-Right Split with Even-Odd Split}
+The original DARK polynomial evaluation protocol relies on an interactive random self-reduction derived from splitting the working polynomial $f(X)$ into a left and a right half, $f_L(X)$ and $f_R(X)$ such that $f(X) = f_L(X) + X^{d'} \cdot f_R(X)$. After receiving commitments to both halves, the verifier supplies a random scalar $\alpha$ and the protocol repeats the process recursively using $f'(X) = f_L(X) + \alpha \cdot f_R(X)$ as the new working polynomial. The new protocol opts instead for a split in terms of even and odd powers of $X$: $f(X) = f_E(X^2) + Xf_O(X^2)$, similar to the Fast Fourier Transform.
 
-The verifier has to verify that the two commitments he receives match the commitment to the working polynomial that he already possesses. To achieve this goal, the Kronecker substitution is used: the polynomial $f(X) \in \mathbb{F}_p[X]$ is lifted to the integrs $\hat{f}(X) \in \mathbb{Z}[X]$ and then evaluated in number $q \gg p$ that is large enough to guarantee that overflow will never be a factor. The resulting integers are committed to using an integer commitment scheme, which is trivial to obtain from a group of unknown order. In the original DARK evaluation protocol, the verifier checks that $\mathsf{C} = \mathsf{C}_L \cdot \mathsf{C}_R^{q^{d'}}$. The expensive exponentiation can be outsourced to the prover with a proof of correct exponentiation ($\mathsf{PoE}$), which is cheap to verify. So in every round, the prover sends a tuple $(\mathsf{C}_R, \mathsf{C}_R^{q^{d'}}, \pi)$, where $\mathsf{C}_R$ is the commitment to the right polynomial and $\pi$ is the $\mathsf{PoE}$.
+The verifier has to verify that the two commitments he receives match the commitment to the working polynomial that he already possesses. To achieve this goal, the Kronecker substitution is used: the polynomial $f(X) \in \mathbb{F}_p[X]$ is lifted to the integers $\hat{f}(X) \in \mathbb{Z}[X]$ and then evaluated in number $q \gg p$ that is large enough to guarantee that overflow will never be a factor. The commitment to the polynomial $f(X)$ is then given by $\mathsf{C} = \hat{f}(q) \cdot \mathsf{g}$, where $\mathsf{g}$ is a designated element of the group and the group is denoted additively. In the left-right split, the verifier checks that $\mathsf{C} = \mathsf{C}_L + q^{d'} \cdot \mathsf{C}_R$. The parameter $q$ is static, but $d'$ shrinks with each round. The expensive exponentiation\footnote{Since we denote the group additively, the correct term might be ``multiplication'' or ``scalar multiplication''. However, we use the term ``exponentiation'' and ``exponent'' for compatibility with prior terminology --- for instance, ``proofs of correct exponentiation''.} can be outsourced to the prover with a proof of correct exponentiation ($\mathsf{PoE}$), which is cheap to verify. So in every round, the prover sends a tuple $(\mathsf{C}_R, q^{d'} \cdot \mathsf{C}_R)$, and needs to establish their correct relation with a $\mathsf{PoE}$.
 
-The situation changes slightly for the novel DARK evaluation protocol presented here. First, the parameter $q$ changes each round; in the next round it is the square of its value the round before. Second, the prover would now need to transmit a tuple $(\mathsf{C}_O, \mathsf{C}_O^q, \pi)$ in every round, where $\mathsf{C}_O$ is the commitment to the polynomial's odd terms, and $\pi$ is the $\mathsf{PoE}$. Note that the exponent shrinks in the left-right protocol, but grows in the even-odd protocol. In fact, the optimal strategy is to benefit from both worlds: start with the even-odd protocol, then switch to the left-right protocol.
+The situation changes slightly for the even-odd split. First, the parameter $q$ changes each round; in the next round it is the square of its value the round before. Second, the prover now needs to transmit a tuple $(\mathsf{C}_O, q \cdot \mathsf{C}_O)$ in every round, and establish their correct relation using a $\mathsf{PoE}$. Note that the exponent shrinks in the left-right protocol, but grows in the even-odd protocol. In order to minimize the total number of bits in the exponents, the optimal strategy is to benefit from both worlds: start with the even-odd protocol, then switch to the left-right protocol. However, the performance improvements resulting from cached partial commitments requires an even-odd split throughout.
 
-\vspace{0.25cm}
-\textit{Idea 2: Batch-Pietrzak Proof of Exponentiation.} The shortest proof results from applying Wesolowski's batched $\mathsf{PoE}$~\cite{}. However, it is possible to forego the Adaptive Root Assumption by opting instead for Pietrzak's $\mathsf{PoE}$, in which case only one such $\mathsf{PoE}$ is needed.
+\subsection{Batching with Pietrzak's Proof of Exponentiation}
+The shortest proof results from applying Wesolowski's batched $\mathsf{PoE}$~\cite{}. However, it is possible to forego the Adaptive Root Assumption by opting instead for Pietrzak's $\mathsf{PoE}$, in which case only one such $\mathsf{PoE}$ is needed.
 
-Pietrzak's $\mathsf{PoE}$ establishes that $\mathsf{b} = \mathsf{a}^{e}$ with an interative random self-reduction. The prover sends $\mathsf{c} = \mathsf{a}^{\sqrt{e}}$. The verifier sends a random scalar $\alpha$ and the protocol proceeds to the next step of the recursion to show that $\mathsf{b} \cdot \mathsf{c}^{\alpha} = (\mathsf{c} \cdot \mathsf{a}^{\alpha})^{\sqrt{e}}$.
+Pietrzak's $\mathsf{PoE}$ establishes that $\mathsf{C} = e \cdot \mathsf{A}$ with an interative random self-reduction, where $e$ is a power of two. The prover sends $\mathsf{B} = \sqrt{e} \cdot \mathsf{A}$. The verifier sends a random scalar $\alpha$ and the protocol proceeds to the next step of the recursion to show that $\alpha \cdot \mathsf{B} + \mathsf{C} = \sqrt{e} \cdot (\alpha \cdot \mathsf{A} + \mathsf{B})$.
 
-\vspace{0.25cm}
-\textit{Idea 3: square-root preprocessing.}
+The sequence of exponents arising from one run of the Pietrzak protocol is exactly the same as the sequence of exponents arising from one run of the evaluation protocol, regardless of which split is used. This observation suggests the following strategy: start with the largest $\mathsf{PoE}$ relation to be proved and run one round of the Pietrzak protocol. Now combine the working commitments of the Pietrzak protocol with the second-largest $\mathsf{PoE}$ relation to be proved, using a random coefficient supplied by the verifier. Proceed with the next round of the Pietrzak protocol, and so forth.
 
-\subsection{Preprocessing}
+\subsection{Caching during Commitment}
 
-\subsection{Committing to a Polynomial}
-
-\subsection{Evaluating the Polynomial}
+The key to achieving $\sqrt{d}$ complexity in the evaluation protocol is to produce an additional output in the commitment phase. This second output is not transmitted to the verifier; instead it is an additional secret input for the prover during the evaluation phase.
 
 \subsection{Aggregating the Proofs of Correct Exponentiation}
 
