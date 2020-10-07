@@ -112,6 +112,16 @@ The sequence of exponents arising from one run of the Pietrzak protocol is exact
 
 The key to achieving $\sqrt{d}$ complexity in the evaluation protocol is to produce an additional output in the commitment phase. This second output is not transmitted to the verifier; instead it is an additional secret input for the prover during the evaluation phase.
 
+Let $b$ be a parameter that determines the amount of preprocessing and whose value is a power of two. We discuss the optimal choice for $b$ later but for intuition it helps to think of $b \approx d/b \approx \sqrt{d}$. In the preprocessing phase, the values $\mathsf{G}_i = q^{ib} \cdot \mathsf{G}$ are computed for $i \in \{0, \ldots, \lceil\frac{d}{b} \rceil - 1\}$, where $\mathsf{G} \in \mathbb{G}$ is the designated base element of the group of unknown order. The SRS consists of $(\mathsf{G} = \mathsf{G}_0, \mathsf{G}_1, \ldots, \mathsf{G}_{\lceil\frac{d}{b}\rceil - 1})$.
+
+The key idea is to generalize the even-odd split to a $b$-wise split. Specifically, the polynomial $f(X)$ is split as
+\begin{equation}
+f(X) = \sum_{i=0}^{b-1} X^i f_i(X^b) \quad \textnormal{such that} \quad \forall i \in \{0,\ldots,b-1\} : \textnormal{deg}(f_i) \leq \frac{d}{b} \enspace .
+\end{equation}
+In the commitment phase, the prover stores commitments to these polynomial parts --- specifically $\mathsf{P}_i = \hat{f_i}(q^b) \cdot \mathsf{G}$ for $i \in \{0, \ldots, b-1\}$. The prover can compute all $b$ cached commitments from the SRS and only $s$ exponentiations of $1+\lfloor\log_2 p\rfloor$ bits, where $s \leq d$ is the number of nonzero coefficients in $f(X)$. In fact, the total number of bits in the exponent can be even less if the prover uses multi-exponentiation techniques, but we ignore those for the time being. The actual commitment $\mathsf{C}$ to the polynomial $f(X)$ is best computed backwards from $\mathsf{C}_{b-1} = \mathsf{P}_{b-1}$ using the recursion rule $\mathsf{C}_{i} = \mathsf{P}_i + q \cdot \mathsf{C}_{i+1}$, in which case $\mathsf{C} = \mathsf{C}_0$. This strategy requires another $b$ exponentiations of $1 + \lfloor \log_2 q \rfloor$ bits.
+
+Since $b$ is a power of two, the exact same strategy can be used in the evaluation protocol to compute $\mathsf{C}_O$, the commitment to $f_O(X) = \frac{f(X) - f(-X)}{2}$, the odd part of the even-odd split.
+
 \subsection{Aggregating the Proofs of Correct Exponentiation}
 
 \section{Sketched Protocol}
