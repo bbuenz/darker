@@ -1,4 +1,4 @@
-\documentclass[12pt]{article}
+\documentclass[11pt]{article}
 \pagestyle{plain} 
 \usepackage[operators,lambda,keys,sets,primitives,adversary,asymptotics,advantage]{cryptocode}
 \usepackage{notations}
@@ -84,7 +84,7 @@ Contributions:
 	
 \subsection{Definitions}
 
-\section{New Protocols}
+\section{Technical Overview}
 
 Our new algorithms introduce three distinct ideas.
 \begin{itemize}
@@ -102,11 +102,34 @@ The verifier has to verify that the two commitments he receives match the commit
 The situation changes slightly for the even-odd split. First, the parameter $q$ changes each round; in the next round it is the square of its value the round before. Second, the prover now needs to transmit a tuple $(\mathsf{C}_O, q \cdot \mathsf{C}_O)$ in every round, and establish their correct relation using a $\mathsf{PoE}$. Note that the exponent shrinks in the left-right protocol, but grows in the even-odd protocol. In order to minimize the total number of bits in the exponents, the optimal strategy is to benefit from both worlds: start with the even-odd protocol, then switch to the left-right protocol. However, the performance improvements resulting from cached partial commitments requires an even-odd split throughout.
 
 \subsection{Batching with Pietrzak's Proof of Exponentiation}
-The shortest proof results from applying Wesolowski's batched $\mathsf{PoE}$~\cite{Wesolowski19}. However, it is possible to forego the Adaptive Root Assumption by opting instead for Pietrzak's $\mathsf{PoE}$\cite{Pietrzak19a}, in which case only one such $\mathsf{PoE}$ is needed.
+The shortest proof results from applying Wesolowski's batched $\mathsf{PoE}$~\cite{Wesolowski19} to all $\mathsf{PoE}$-relations at once. However, it is possible to forego the Adaptive Root Assumption by opting instead for Pietrzak's $\mathsf{PoE}$~\cite{Pietrzak19a}, in which case only one such $\mathsf{PoE}$ is needed.
 
 Pietrzak's $\mathsf{PoE}$ establishes that $\mathsf{C} = e \cdot \mathsf{A}$ with an interative random self-reduction, where $e$ is a power of two. The prover sends $\mathsf{B} = \sqrt{e} \cdot \mathsf{A}$. The verifier sends a random scalar $\alpha$ and the protocol proceeds to the next step of the recursion to show that $\alpha \cdot \mathsf{B} + \mathsf{C} = \sqrt{e} \cdot (\alpha \cdot \mathsf{A} + \mathsf{B})$.
 
-The sequence of exponents arising from one run of the Pietrzak protocol is exactly the same as the sequence of exponents arising from one run of the evaluation protocol, regardless of which split is used. This observation suggests the following strategy: start with the largest $\mathsf{PoE}$ relation to be proved and run one round of the Pietrzak protocol. Now combine the working commitments of the Pietrzak protocol with the second-largest $\mathsf{PoE}$ relation of the $\mathsf{Eval}$, using a random coefficient supplied by the verifier. Proceed with the next round of the Pietrzak protocol, and so forth.
+The sequence of exponents arising from one run of the Pietrzak protocol is exactly the same as the sequence of exponents arising from one run of the evaluation protocol, regardless of which split is used. This observation suggests the following strategy: start with the largest $\mathsf{PoE}$ relation to be proved and run one round of the Pietrzak protocol. Now combine the working commitments of the Pietrzak protocol with the second-largest $\mathsf{PoE}$ relation of the $\mathsf{Eval}$, using a random coefficient supplied by the verifier. Proceed with the next round of the Pietrzak protocol, and so on. Figure~\ref{figure:batch-pietrzak} depicts one round of this adapted protocol.
+
+\begin{figure}[!htp]
+\centering
+\begin{tikzpicture}
+\node[anchor=west] (working claim text) at (0,0) {working $\mathsf{PoE}$-relation:};
+\node[anchor=west] (working claim) at (5, 0) {$(\mathsf{A}, e \cdot \mathsf{A})$};
+\node[anchor=west] (split small) at (5.5, -0.5) {$(\mathsf{A}, \sqrt{e} \cdot \mathsf{A})$};
+\node[anchor=west] (split large) at (5.5, -1) {$(\sqrt{e}\cdot \mathsf{A}, e \cdot \mathsf{A})$};
+\node[anchor=west] (from eval text) at (0, -1.5) {$\mathsf{PoE}$-relation from $\mathsf{Eval}$:};
+\node[anchor=west] (from eval) at (5.5, -1.5) {$(\mathsf{C}, \sqrt{e} \cdot \mathsf{C})$};
+\node[anchor=west] (random linear combo text) at (0, -2.25) {random linear combination:};
+\node[anchor=west] (random linear combo) at (5.5, -2.25) {$(\mathsf{B}, \sqrt{e} \cdot \mathsf{B})$};
+\draw[-] (5.5, -1.875) -- (9, -1.875) {};
+\node[anchor=north west] (is new working poe relation) at (random linear combo text.south west) {(= new working $\mathsf{PoE}$-relation)};
+\draw[->] (5.25, -0.25) -- (5.25, -0.75) -- (5.5, -0.5) {};
+\draw[->] (5.25, -0.75) -- (5.5, -1) {};
+\draw[->, transform canvas={xshift=0.5cm, yshift=-2.25cm}] (5.25, -0.25) -- (5.25, -0.75) -- (5.5, -0.5) {};
+\draw[->, transform canvas={xshift=0.5cm, yshift=-2.25cm}] (5.25, -0.75) -- (5.5, -1) {};
+\draw[dashed] (6.25, -3.25) -- (6.5, -3.75) {};
+\end{tikzpicture}
+\caption{One round of the Pietrzak batch $\mathsf{PoE}$}
+\label{figure:batch-pietrzak}
+\end{figure}
 
 \subsection{Caching during Commitment}
 
@@ -121,8 +144,6 @@ f(X) = \sum_{i=0}^{b-1} X^i f_i(X^b) \quad \textnormal{such that} \quad \forall 
 In the commitment phase, the prover stores commitments to these polynomial parts --- specifically $\mathsf{P}_i = \hat{f_i}(q^b) \cdot \mathsf{G}$ for $i \in \{0, \ldots, b-1\}$. The prover can compute all $b$ cached commitments from the common reference string and only $s$ exponentiations of $1+\lfloor\log_2 p\rfloor$ bits, where $s \leq d$ is the number of nonzero coefficients in $f(X)$. In fact, the total number of bits in the exponent can be even less if the prover uses multi-exponentiation techniques, but we ignore those for the time being. The actual commitment $\mathsf{C}$ to the polynomial $f(X)$ is best computed backwards from $\mathsf{C}_{b-1} = \mathsf{P}_{b-1}$ using the recursion rule $\mathsf{C}_{i} = \mathsf{P}_i + q \cdot \mathsf{C}_{i+1}$, in which case $\mathsf{C} = \mathsf{C}_0$. This strategy requires another $b$ exponentiations of $1 + \lfloor \log_2 q \rfloor$ bits.
 
 Since $b$ is a power of two, the exact same strategy can be used in the evaluation protocol to compute $\mathsf{C}_O$, the commitment to $f_O(X) = \frac{f(X) - f(-X)}{2}$, the odd part of the even-odd split.
-
-\subsection{Aggregating the Proofs of Correct Exponentiation}
 
 \section{Sketched Protocol}
 Using additive notation. 
