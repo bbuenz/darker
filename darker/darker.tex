@@ -66,22 +66,20 @@ Contributions:
 	\end{enumerate}
 \section{Sketched Protocol}
 Using additive notation. 
-\benedikt{Let's describe the protocol with respect to $\QQ$? }
-\ben{On the contrary I think we should avoid all mention of $\QQ$. It just makes things more complicated = harder to follow} 
 
 \subsection{Odd Even Protocol}
 \ben{Either include $q$ as a public input or set $q$ based on $b$. I also prefer using capital $B$ for a bound rather than lower case $b$. } 
 
 \label{sec:oddeven}
 \begin{mdframed}
-Public Input: $C\in \GG, d \in \NN, b\in \NN$\\
-Witness: $f(X) \in \ZZ(b)[X]$ \\
+Public Input: $C\in \GG, d \in \NN, \Bound\in \NN$\\
+Witness: $f(X) \in \ZZ(\Bound)[X]$ \\
 Claim: $\Commitment =\commit(f(X))$ and $\deg(f(X))<d$	\\
 $\textsf{FFTEval}(q,C,d;f(X))$
 \begin{enumerate}[nolistsep]
 		\item $\pcif d=0$
 		\item $\pcind[1]$ $\prover$ sends $f=f(X) \in \ZZ$
-		\item $\pcind[1]$ $\verifier$ checks that $|f|<2^{\log_2(d_{\max}) \cdot \lambda} \cdot b$ and that $f \cdot \Generator=\Commitment$\pccomment{$d_{\max}$ is the original degree here}
+		\item $\pcind[1]$ $\verifier$ checks that $|f|<2^{\log_2(d_{\max}) \cdot \lambda} \cdot \Bound$ and that $f \cdot \Generator=\Commitment$\pccomment{$d_{\max}$ is the original degree here}
 		\item $\pcelse$
 		\item $\prover$ computes $f_E(X)$ and $f_O(X)$ s.t. $f_E(X^2)+X \cdot f_O(X^2)=f(X)$\pccomment{Odd and Even coefficients} 
 		\item \prover sends $\Commitment_E\gets \commit(f_E(q^2))$ and $\Commitment_O\gets \commit(f_O(q^2))$ to $\verifier$. 
@@ -183,6 +181,7 @@ We state a version of the RSA assumption as described by $\cite{EC:CouPetPoi17}$
 \]
 
 \end{assumption}
+	\benedikt{Overload of $B$}
 
 \begin{assumption}[Random order assumption]
 	The random order assumption states that an efficient adversary cannot compute a multiple of the order of a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
@@ -390,7 +389,7 @@ We also have the relation $d_3 \Commitment'_{i-1} = q^{2^{i-1}} \cdot \Commitmen
 \begin{proof}
 
 ~\paragraph{Extractor construction}
-		We define a knowledge extractor that runs with an adversary $\adv$ who succeeds for public inputs $\{\Commitment,d,b \}$ and $q$ with probability $\epsilon = 1/\poly$. The extractor begins by using the tree-finding algorithm of Lemma~\ref{lem:forking} to generate a tree of accepting transcripts with the following characteristics: 
+		We define a knowledge extractor that runs with an adversary $\adv$ who succeeds for public inputs $\{\Commitment,d,\Bound \}$ and $q$ with probability $\epsilon = 1/\poly$. The extractor begins by using the tree-finding algorithm of Lemma~\ref{lem:forking} to generate a tree of accepting transcripts with the following characteristics: 
 \begin{itemize}
 \item The tree has depth $\logd$ and branching factor $2$. We index nodes by $v \in [0, d)$.
 \item The root is labeled with the publics inputs. 
@@ -407,7 +406,7 @@ For the root node $\textsf{rt}$, define $\gr{C}_\textsf{rt} \deq \Commitment$. F
 We will show that given this tree, the extractor can compute for all nodes $v \in [0, d)$ an opening hint $(\hat{f}_v \in \ZZ(b)[X],\denom_v \in \ZZ,\gr{W}_v \in \GG,a_v \in \ZZ^+)$ for $\gr{C}_v$. That is: $\denom_v \cdot \gr{C}_v=\hat{f}_v(q) \cdot \Generator +\gr{W}_v$ and $a_v \cdot \gr{C}_v=0$. Additionally, for $v$ at level $i$, $||\hat{f}_v||_\infty \leq b\cdot 2^{(\log_2(d)+2(\logd-i)) \cdot \lambda}$.
 
 It will do this by starting at the leaves and working its way up the tree.
-For any leaf node $v$, the fact that the transcript is accepting implies $\Commitment_v= \hat{f}_v \cdot \Generator$ for $\hat{f}_v \leq b \cdot 2^{\logd \lambda}$. Recall $\hat{f}_v$ is a constant bounded by $b \cdot 2^{\logd \lambda}$. Therefore, $(f,1,0,1)$ is a valid opening for $\Commitment_v$.
+For any leaf node $v$, the fact that the transcript is accepting implies $\Commitment_v= \hat{f}_v \cdot \Generator$ for $\hat{f}_v \leq b \cdot 2^{\logd \lambda}$. Recall $\hat{f}_v$ is a constant bounded by $\Bound \cdot 2^{\logd \lambda}$. Therefore, $(f,1,0,1)$ is a valid opening for $\Commitment_v$.
 
  Next, suppose that the appropriate openings have been computed for all children of a node $w$ on the $i$th level. Denoting the two children of nodes $w$ with indices $v_1, v_2$ and the two challenges on each by $\alpha_1, \alpha_2$ \benedikt{use $\alpha$, $\alpha$'}. This means that $\gr{C}_{v_1} = \gr{C}_{E,w} + \alpha_1 \cdot \gr{C}_{O,w}$ and $\gr{C}_{v_2} = \gr{C}_{E,w} + \alpha_2 \cdot \gr{C}_{O,w}$.
 Furthermore openings $(\hat{f}_{v_1},\denom_{v_1},\gr{W}_{v_1},a_{v_1})$ for $\gr{C}_{v_1}$ and  $(\hat{f}_{v_2},\denom_{v_2},\gr{W}_{v_2},a_{v_2})$ for $\gr{C}_{v_2}$ have been computed. 
