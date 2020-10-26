@@ -1,4 +1,4 @@
-\documentclass[12pt]{article}
+\documentclass[11pt]{article}
 \pagestyle{plain} 
 \usepackage[operators,lambda,keys,sets,primitives,adversary,asymptotics,advantage]{cryptocode}
 \usepackage{notations}
@@ -30,9 +30,9 @@
 \commentstrue
 \ifcomments
 	\newcommand{\ben}[1]{{\textcolor{red}{[\bf Ben: #1]}}}
-		\newcommand{\benedikt}[1]{{\textcolor{blue}{[\bf Benedikt: #1]}}}
-
-    \else
+	\newcommand{\benedikt}[1]{{\textcolor{blue}{[\bf Benedikt: #1]}}}
+	\newcommand{\alan}[1]{{\textcolor{green!50!black}{[ \bg Alan: #1]}}}
+\else
 	\newcommand{\ben}[1]{}
 	
 \fi
@@ -44,6 +44,22 @@
 	
 \maketitle
 \section{Introduction}
+SNARKs typically require strong trust assumptions. Fortunately, recent results show how to avoid the trusted setup ceremony and eliminate the resulting cryptographic toxic waste altogether. The solution consists of two steps: First, the cryptographic hardness assumptions and trust assumptions are restricted to the generation of a polynomial commitment scheme, from which the remainder of the SNARK is constructed. Second, the pairing-based polynomial commitment scheme is exchanged for one based on alternative mathematical tools, tools that do not require trust assumptions in order to make a compelling argument for security. The result is a \emph{transparent} SNARK.
+
+Groups of unknown order constitute one of the branches of mathematics that admit polynomial commitment schemes, along with a variety of protocols called \emph{Diophantine Arguments of Knowledge (DARKs)}. When the scheme is instantiated with a transparent group of unknown order, \emph{i.e.}, one that requires no trusted setup, the resulting polynomial commitment scheme is likewise transparent --- and the same property holds for the SNARK derived from it.
+
+This paper takes another look at DARK polynomial commitment schemes, following in the footsteps of the scheme proposed by Supersonic~\cite{BFS20}. We report several results in this context, on several fronts.
+
+\begin{itemize}
+\item[1.] We present a new set of DARK protocols --- one for preprocessing, one for committing to a polynomial, and one for evaluating it. The key distinguishing feature of the new commitment algorithm is that it produces two outputs: one is the commitment itself, to be sent to the verifier; and the other is a secret cache consisting of group elements. By relying on this secret helper input, the complexity of the evaluation protocol drops from $O(d \cdot \log d)$ to $O(\sqrt{d} \cdot \log d)$, where $d$ is the degree of the polynomial. After obtaining the common reference string (whether uniform or structured) from the preprocessing phase, the complexity of the commitment algorithm is linear in $s$, the number of nonzero coefficients of the polynomial.
+
+\item[2.] We prove the security of these protocols in the random oracle model under the Strong RSA Assumption alone. The previous DARK scheme was only provably secure in the random oracle model when assuming both the Strong RSA Assumption and the Adaptive Root Assumption. Importantly, this assumption is only necessary for the security of the commitment scheme. The interactive evaluation protocol has unconditional security, although after the Fiat-Shamir transform is applied to make it non-interactive, this security is again computational.
+
+\item[3.] We report on a python implementation of these protocols, complete with performance statistics. We comment on various implementation aspects and optimizations, and even take the opportunity to compare the performance of various groups of unknown order: the multiplicative group of integers modulo an RSA modulus, ideal or form class groups, and hyperelliptic Jacobian groups.
+
+\item[4.] We discuss a few extensions and applications of these new and improved protocols, such as batching evaluation proofs, committing to polynomials in point-value representation, and applications to vector commitments.
+\end{itemize}
+
 \section{Technical Overview}
 Contributions:
 \begin{itemize}
@@ -59,11 +75,76 @@ Contributions:
 \end{itemize}
 
 \section{Preliminaries}
+\subsection{Notation}
 \begin{enumerate}
 	\item $\ZZ(b)=\{ z \in \ZZ | |z|<b\}$
 	\item $\QQ(b)=\{\frac{n}{d} \in \QQ | |\frac{n}{\gcd(n,d)}|< b\}$
 	\item $\ZZ^+=\{z \in \ZZ | z>0\}$ are the positive integers.
 	\end{enumerate}
+	
+\subsection{Definitions}
+
+\section{Technical Overview}
+
+Our new algorithms introduce three distinct ideas.
+\begin{itemize}
+\item[1.] Mix even-odd split with left-right split. This combination reduces the total number of bits in the exponent and thus the number of group operations the prover needs to compute.
+\item[2.] Batching with Pietrzak $\mathsf{PoE}$. By switching from Wesolowski's $\mathsf{PoE}$ to Pietrzak's $\mathsf{PoE}$, we can merge all $\mathsf{PoE}$s into one for free. Additionally, the security guarantee becomes stronger.
+\item[3.] Caching during commitment. The commitment algorithm also outputs secret cache, which allows the prover to produce evaluation proofs in much less work.
+\end{itemize}
+We discuss each item separately before presenting the protocols that incorporate all these changes formally.
+
+\subsection{Replace Left-Right Split with Even-Odd Split}
+The original DARK polynomial evaluation protocol relies on an interactive random self-reduction derived from splitting the working polynomial $f(X)$ into a left and a right half, $f_L(X)$ and $f_R(X)$ such that $f(X) = f_L(X) + X^{d'} \cdot f_R(X)$. After receiving commitments to both halves, the verifier supplies a random scalar $\alpha$ and the protocol repeats the process recursively using $f'(X) = f_L(X) + \alpha \cdot f_R(X)$ as the new working polynomial. The new protocol opts instead for a split in terms of even and odd powers of $X$: $f(X) = f_E(X^2) + Xf_O(X^2)$, similar to the Fast Fourier Transform.
+
+The verifier has to verify that the two commitments he receives match the commitment to the working polynomial that he already possesses. To achieve this goal, the Kronecker substitution is used: the polynomial $f(X) \in \mathbb{F}_p[X]$ is lifted to the integers $\hat{f}(X) \in \mathbb{Z}[X]$ and then evaluated in number $q \gg p$ that is large enough to guarantee that overflow will never be a factor. The commitment to the polynomial $f(X)$ is then given by $\mathsf{C} = \hat{f}(q) \cdot \mathsf{g}$, where $\mathsf{g}$ is a designated element of the group and the group is denoted additively. In the left-right split, the verifier checks that $\mathsf{C} = \mathsf{C}_L + q^{d'} \cdot \mathsf{C}_R$. The parameter $q$ is static, but $d'$ shrinks with each round. The expensive exponentiation\footnote{Since we denote the group additively, the correct term might be ``multiplication'' or ``scalar multiplication''. However, we use the term ``exponentiation'' and ``exponent'' for compatibility with prior terminology --- for instance, ``proofs of correct exponentiation''.} can be outsourced to the prover with a proof of correct exponentiation ($\mathsf{PoE}$), which is cheap to verify. So in every round, the prover sends a tuple $(\mathsf{C}_R, q^{d'} \cdot \mathsf{C}_R)$, and needs to establish their correct relation with a $\mathsf{PoE}$.
+
+The situation changes slightly for the even-odd split. First, the parameter $q$ changes each round; in the next round it is the square of its value the round before. Second, the prover now needs to transmit a tuple $(\mathsf{C}_O, q \cdot \mathsf{C}_O)$ in every round, and establish their correct relation using a $\mathsf{PoE}$. Note that the exponent shrinks in the left-right protocol, but grows in the even-odd protocol. In order to minimize the total number of bits in the exponents, the optimal strategy is to benefit from both worlds: start with the even-odd protocol, then switch to the left-right protocol. However, the performance improvements resulting from cached partial commitments requires an even-odd split throughout.
+
+\subsection{Batching with Pietrzak's Proof of Exponentiation}
+The shortest proof results from applying Wesolowski's batched $\mathsf{PoE}$~\cite{Wesolowski19} to all $\mathsf{PoE}$-relations at once. However, it is possible to forego the Adaptive Root Assumption by opting instead for Pietrzak's $\mathsf{PoE}$~\cite{Pietrzak19a}, in which case only one such $\mathsf{PoE}$ is needed.
+
+Pietrzak's $\mathsf{PoE}$ establishes that $\mathsf{C} = e \cdot \mathsf{A}$ with an interative random self-reduction, where $e$ is a power of two. The prover sends $\mathsf{B} = \sqrt{e} \cdot \mathsf{A}$. The verifier sends a random scalar $\alpha$ and the protocol proceeds to the next step of the recursion to show that $\alpha \cdot \mathsf{B} + \mathsf{C} = \sqrt{e} \cdot (\alpha \cdot \mathsf{A} + \mathsf{B})$.
+
+The sequence of exponents arising from one run of the Pietrzak protocol is exactly the same as the sequence of exponents arising from one run of the evaluation protocol, regardless of which split is used. This observation suggests the following strategy: start with the largest $\mathsf{PoE}$ relation to be proved and run one round of the Pietrzak protocol. Now combine the working commitments of the Pietrzak protocol with the second-largest $\mathsf{PoE}$ relation of the $\mathsf{Eval}$, using a random coefficient supplied by the verifier. Proceed with the next round of the Pietrzak protocol, and so on. Figure~\ref{figure:batch-pietrzak} depicts one round of this adapted protocol.
+
+\begin{figure}[!htp]
+\centering
+\begin{tikzpicture}
+\node[anchor=west] (working claim text) at (0,0) {working $\mathsf{PoE}$-relation:};
+\node[anchor=west] (working claim) at (5, 0) {$(\mathsf{A}, e \cdot \mathsf{A})$};
+\node[anchor=west] (split small) at (5.5, -0.5) {$(\mathsf{A}, \sqrt{e} \cdot \mathsf{A})$};
+\node[anchor=west] (split large) at (5.5, -1) {$(\sqrt{e}\cdot \mathsf{A}, e \cdot \mathsf{A})$};
+\node[anchor=west] (from eval text) at (0, -1.5) {$\mathsf{PoE}$-relation from $\mathsf{Eval}$:};
+\node[anchor=west] (from eval) at (5.5, -1.5) {$(\mathsf{C}, \sqrt{e} \cdot \mathsf{C})$};
+\node[anchor=west] (random linear combo text) at (0, -2.25) {random linear combination:};
+\node[anchor=west] (random linear combo) at (5.5, -2.25) {$(\mathsf{B}, \sqrt{e} \cdot \mathsf{B})$};
+\draw[-] (5.5, -1.875) -- (9, -1.875) {};
+\node[anchor=north west] (is new working poe relation) at (random linear combo text.south west) {(= new working $\mathsf{PoE}$-relation)};
+\draw[->] (5.25, -0.25) -- (5.25, -0.75) -- (5.5, -0.5) {};
+\draw[->] (5.25, -0.75) -- (5.5, -1) {};
+\draw[->, transform canvas={xshift=0.5cm, yshift=-2.25cm}] (5.25, -0.25) -- (5.25, -0.75) -- (5.5, -0.5) {};
+\draw[->, transform canvas={xshift=0.5cm, yshift=-2.25cm}] (5.25, -0.75) -- (5.5, -1) {};
+\draw[dashed] (6.25, -3.25) -- (6.5, -3.75) {};
+\end{tikzpicture}
+\caption{One round of the Pietrzak batch $\mathsf{PoE}$}
+\label{figure:batch-pietrzak}
+\end{figure}
+
+\subsection{Caching during Commitment}
+
+The key to achieving $\sqrt{d}$ complexity in the evaluation protocol is to produce an additional output in the commitment phase. This second output is not transmitted to the verifier; instead it is an additional secret input for the prover during the evaluation phase.
+
+Let $b$ be a parameter that determines the amount of preprocessing and whose value is a power of two. We discuss the optimal choice for $b$ later but for intuition it helps to think of $b \approx d/b \approx \sqrt{d}$. In the preprocessing phase, the values $\mathsf{G}_i = q^{ib} \cdot \mathsf{G}$ are computed for $i \in \{0, \ldots, \lceil\frac{d}{b} \rceil - 1\}$, where $\mathsf{G} \in \mathbb{G}$ is the designated base element of the group of unknown order. The common reference string consists of $(\mathsf{G} = \mathsf{G}_0, \mathsf{G}_1, \ldots, \mathsf{G}_{\lceil\frac{d}{b}\rceil - 1})$.
+
+The key idea is to generalize the even-odd split to a $b$-wise split. Specifically, the polynomial $f(X)$ is split as
+\begin{equation}
+f(X) = \sum_{i=0}^{b-1} X^i f_i(X^b) \quad \textnormal{such that} \quad \forall i \in \{0,\ldots,b-1\} : \textnormal{deg}(f_i) \leq \frac{d}{b} \enspace .
+\end{equation}
+In the commitment phase, the prover stores commitments to these polynomial parts --- specifically $\mathsf{P}_i = \hat{f_i}(q^b) \cdot \mathsf{G}$ for $i \in \{0, \ldots, b-1\}$. The prover can compute all $b$ cached commitments from the common reference string and only $s$ exponentiations of $1+\lfloor\log_2 p\rfloor$ bits, where $s \leq d$ is the number of nonzero coefficients in $f(X)$. In fact, the total number of bits in the exponent can be even less if the prover uses multi-exponentiation techniques, but we ignore those for the time being. The actual commitment $\mathsf{C}$ to the polynomial $f(X)$ is best computed backwards from $\mathsf{C}_{b-1} = \mathsf{P}_{b-1}$ using the recursion rule $\mathsf{C}_{i} = \mathsf{P}_i + q \cdot \mathsf{C}_{i+1}$, in which case $\mathsf{C} = \mathsf{C}_0$. This strategy requires another $b$ exponentiations of $1 + \lfloor \log_2 q \rfloor$ bits.
+
+Since $b$ is a power of two, the exact same strategy can be used in the evaluation protocol to compute $\mathsf{C}_O$, the commitment to $f_O(X) = \frac{f(X) - f(-X)}{2}$, the odd part of the even-odd split.
+
 \section{Sketched Protocol}
 Using additive notation. 
 
