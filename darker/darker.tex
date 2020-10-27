@@ -163,7 +163,7 @@ $\mathsf{Commit}(\left(\mathsf{G}_0, \ldots, \mathsf{G}_{\frac{d+1}{b} - 1}\righ
 	\item \textbf{for} $i$ \textbf{from} $0$ \textbf{to} $b-1$ \textbf{:}
 	\item $\mathsf{P}_i \gets 0$
 	\item \pcind \textbf{for each} nonzero term $\hat{h_j} X^{j}$ of $\mathsf{lift}(f_i(X^b))$ \textbf{:}
-	\item \pcind \pcind $\mathsf{P}_i \gets \mathsf{P}_i + (\hat{h_j} + q^{j - \lfloor j / b \rfloor \cdot b}) \cdot \mathsf{G}_{\lfloor j / b \rfloor}$ 
+	\item \pcind \pcind $\mathsf{P}_i \gets \mathsf{P}_i + \hat{h_j} \cdot \mathsf{G}_{\lfloor j / b \rfloor}$ 
 	\item $\mathsf{C} \gets \mathsf{P}_{b-1}$
 	\item \textbf{for} $i$ \textbf{from} $b-2$ \textbf{down to} $0$ \textbf{:}
 	\item \pcind $\mathsf{C} \gets \mathsf{P}_{i} + q \cdot \mathsf{C}$
