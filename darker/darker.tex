@@ -143,7 +143,55 @@ f(X) = \sum_{i=0}^{b-1} X^i f_i(X^b) \quad \textnormal{such that} \quad \forall 
 \end{equation}
 In the commitment phase, the prover stores commitments to these polynomial parts --- specifically $\mathsf{P}_i = \hat{f_i}(q^b) \cdot \mathsf{G}$ for $i \in \{0, \ldots, b-1\}$. The prover can compute all $b$ cached commitments from the common reference string and only $s$ exponentiations of $1+\lfloor\log_2 p\rfloor$ bits, where $s \leq d$ is the number of nonzero coefficients in $f(X)$. In fact, the total number of bits in the exponent can be even less if the prover uses multi-exponentiation techniques, but we ignore those for the time being. The actual commitment $\mathsf{C}$ to the polynomial $f(X)$ is best computed backwards from $\mathsf{C}_{b-1} = \mathsf{P}_{b-1}$ using the recursion rule $\mathsf{C}_{i} = \mathsf{P}_i + q \cdot \mathsf{C}_{i+1}$, in which case $\mathsf{C} = \mathsf{C}_0$. This strategy requires another $b$ exponentiations of $1 + \lfloor \log_2 q \rfloor$ bits.
 
-Since $b$ is a power of two, the exact same strategy can be used in the evaluation protocol to compute $\mathsf{C}_O$, the commitment to $f_O(X) = \frac{f(X) - f(-X)}{2}$, the odd part of the even-odd split.
+Since $b$ is a power of two, the exact same strategy can be used in the evaluation protocol to compute $\mathsf{C}_O$, the commitment to $f_O(X) = \frac{f(X) - f(-X)}{2}$, the odd part of the even-odd split. With respect to the commitments $q^{2^i} \cdot \mathsf{C}_O$, the situation is more subtle. In the first $\log_2 b$ rounds, these commitments can be computed from $\mathsf{C}_O$ because the exponents are relatively small. In the other half of the rounds, the polynomial$f_O(X)$ has at most $d/b$ nonzero coefficients, and $q^{2^i} \cdot \mathsf{C}_O$ can be computed from the common reference string elements $\mathsf{G}_i$ and roughly $\frac{d}{b} \cdot \log p$ exponent bits.
+
+\section{Protocols}
+
+The protocols and algorithms are presented below. We use additive notation for the groups and denote the identity element by 0. Furthermore, we present the interactive evaluation protocol as two non-interactive algorithms, $\mathsf{EvalProve}$ and $\mathsf{EvalVerify}$, for notational convenience. In argument lists and return values, we use the semicolon to distinguish public values (on the left) from secret ones (on the right). All algorithms have access to the (implicit) public parameters $(\mathbb{G}, \mathsf{G}, d, b)$ and without loss of generality the degree $d$ of the polynomial $f(X)$ is one less than a power of two. The function $\mathsf{lift} : \mathbb{F}_p[X] \rightarrow \mathbb{Z}[X]$ lifts a polynomial defined over a field to its canonical representative over the integers.
+
+\begin{mdframed}
+$\mathsf{Preprocess}()$\textbf{:}
+\begin{enumerate}[nolistsep]
+	\item $\mathsf{G}_0 \gets \mathsf{G}$
+	\item \textbf{for} $i$ \textbf{from} $1$ \textbf{to} $\frac{d+1}{b}$ \textbf{:}
+	\item \pcind $\mathsf{G}_i \gets q^{b} \cdot \mathsf{G}_{i-1}$
+	\item \textbf{return} $\left(\mathsf{G}_0, \ldots, \mathsf{G}_{\frac{d+1}{b} - 1}\right)$
+\end{enumerate}
+$\mathsf{Commit}(\left(\mathsf{G}_0, \ldots, \mathsf{G}_{\frac{d+1}{b} - 1}\right), b; f(X) \in \mathbb{F}_p[X])$ \textbf{:}
+\begin{enumerate}[nolistsep]
+	\item $f_0, \ldots, f_{b-1} \gets \mathsf{split}(f(X))$ such that $f(X) = \sum_{i=0}^{b-1} X^i f_i(X^b)$ and $\deg(f_i) < \frac{d+1}{b}$
+	\item \textbf{for} $i$ \textbf{from} $0$ \textbf{to} $b-1$ \textbf{:}
+	\item $\mathsf{P}_i \gets 0$
+	\item \pcind \textbf{for each} nonzero term $\hat{h_j} X^{j}$ of $\mathsf{lift}(f_i(X^b))$ \textbf{:}
+	\item \pcind \pcind $\mathsf{P}_i \gets \mathsf{P}_i + (\hat{h_j} + q^{j - \lfloor j / b \rfloor \cdot b}) \cdot \mathsf{G}_{\lfloor j / b \rfloor}$ 
+	\item $\mathsf{C} \gets \mathsf{P}_{b-1}$
+	\item \textbf{for} $i$ \textbf{from} $b-2$ \textbf{down to} $0$ \textbf{:}
+	\item \pcind $\mathsf{C} \gets \mathsf{P}_{i} + q \cdot \mathsf{C}$
+	\item \textbf{return} $(\mathsf{C}; \left(\mathsf{P}_0, \ldots, \mathsf{P}_{b-1}\right))$
+\end{enumerate}
+$\mathsf{EvalProve}(\mathsf{C}, \mathbf{z}, \mathbf{y}; f(X), (f_0(X), \ldots, f_{b-1}(X)), \left(\mathsf{P}_0, \ldots, \mathsf{P}_{b-1}\right))$ \textbf{:}
+\begin{enumerate}[nolistsep]
+	\item $\pi \gets \varnothing$
+	\item \textbf{for} $i$ \textbf{from} $0$ \textbf{to} $\log_2(d) - 1$ \textbf{:}
+	\item \pcind $\hat{f}_E \gets \frac{\hat{f}(X) + \hat{f}(-X)}{2}$ and $\hat{f}_O \gets \hat{f}(X) - \hat{f}_E(X)$
+	\item \pcind $\mathbf{y}_O \gets \hat{f}_O(\mathbf{z})$
+	\item \pcind \textbf{if} $i < \log_2 b$ \textbf{:}
+	\item \pcind \pcind $\mathsf{C}_O \gets \mathsf{P}_{b-1}$
+	\item \pcind \pcind \textbf{for} $j$ \textbf{from} $0$ \textbf{to} $b/2-1$ \textbf{:}
+	\item \pcind \pcind \pcind $\mathsf{C}_O \gets \mathsf{P}_{b-1-2j} + q^{2^i} \cdot \mathsf{C}_O$
+	\item \pcind \pcind $\mathsf{C}_O' \gets q \cdot \mathsf{C_O}$
+	\item \pcind \textbf{else:}
+	\item \pcind \pcind $\mathsf{C}_O \gets 0$ and $\mathsf{C}_O' \gets 0$
+	\item \pcind \pcind \textbf{for all} nonzero terms $\hat{h}_jX^j$ in $\hat{f}_O(X^{2^i})$ \textbf{:}
+	\item \pcind \pcind \pcind $\mathsf{C}_O \gets \mathsf{C}_O + \hat{h}_j \cdot \mathsf{G}_{\lfloor j/b \rfloor}$
+	\item \pcind \pcind \pcind $\mathsf{C}_O' \gets \mathsf{C}_O' + \hat{h}_j \cdot \mathsf{G}_{\lfloor (j+2^i)/b\rfloor}$
+	\item \pcind $\pi \gets \pi \Vert \mathbf{y}_O \Vert \mathsf{C}_O \Vert \mathsf{C}_O'$
+	\item \pcind $\alpha \gets \mathsf{H}(\mathsf{C} \Vert \mathbf{z} \Vert \mathbf{y} \Vert \pi)$  \pccomment{Fiat-Shamir}
+	\item \pcind $\hat{f} \gets \hat{f}_E(X) + \alpha \cdot \hat{f}_O(X)$
+\end{enumerate}
+\end{mdframed}
+
+
 
 \section{Sketched Protocol}
 Using additive notation. 
