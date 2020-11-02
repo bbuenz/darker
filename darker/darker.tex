@@ -178,8 +178,8 @@ $\mathsf{Eval.Prove}(\mathsf{C}, \mathbf{z}, \mathbf{y}; f(X), (f_0(X), \ldots, 
 \begin{enumerate}[nolistsep]
 	\item $\pi_{\mathsf{Eval}} \gets \varnothing$
 	\item \textbf{for} $i$ \textbf{from} $0$ \textbf{to} $\log_2(d) - 1$ \textbf{:}
-	\item \pcind $\hat{f}_E \gets \frac{\hat{f}(X) + \hat{f}(-X)}{2}$ and $\hat{f}_O \gets \hat{f}(X) - \hat{f}_E(X)$
-	\item \pcind $\mathbf{y}_O^{(i)} \gets \hat{f}_O(\mathbf{z})$
+	\item \pcind $\hat{f}_E \gets \frac{\hat{f}(X) + \hat{f}(-X)}{2}$ and $\hat{f}_O^{(i)} \gets \hat{f}(X) - \hat{f}_E(X)$
+	\item \pcind $\mathbf{y}_O^{(i)} \gets \hat{f}_O^{(i)}(\mathbf{z})$
 	\item \pcind \textbf{if} $i < \log_2 b$ \textbf{:}
 	\item \pcind \pcind $\mathsf{C}_O^{(i)} \gets \mathsf{P}_{b-1}$
 	\item \pcind \pcind \textbf{for} $j$ \textbf{from} $0$ \textbf{to} $b/2^i-1$ \textbf{:}
@@ -187,15 +187,15 @@ $\mathsf{Eval.Prove}(\mathsf{C}, \mathbf{z}, \mathbf{y}; f(X), (f_0(X), \ldots, 
 	\item \pcind \pcind $\mathsf{C}_O^{\prime(i)} \gets q \cdot \mathsf{C}_O^{(i)}$ \label{line:evalprove-firsthalf-shift}
 	\item \pcind \textbf{else:}
 	\item \pcind \pcind $\mathsf{C}_O^{(i)} \gets 0$ and $\mathsf{C}_O^{\prime(i)} \gets 0$
-	\item \pcind \pcind \textbf{for all} nonzero terms $\hat{h}_jX^j$ of $\hat{f}_O(X^{2^i})$ \textbf{:}
+	\item \pcind \pcind \textbf{for all} nonzero terms $\hat{h}_jX^j$ of $\hat{f}_O^{(i)}(X^{2^i})$ \textbf{:}
 	\item \pcind \pcind \pcind $\mathsf{C}_O^{(i)} \gets \mathsf{C}_O^{(i)} + \hat{h}_j \cdot \mathsf{G}_{\lfloor j/b \rfloor}$ \label{line:evalprove-secondhalf-regular}
 	\item \pcind \pcind \pcind $\mathsf{C}_O^{\prime(i)} \gets \mathsf{C}_O^{\prime(i)} + \hat{h}_j \cdot \mathsf{G}_{\lfloor (j+2^i)/b\rfloor}$ \label{line:evalprove-secondhalf-prime}
 	\item \pcind $\pi_{\mathsf{Eval}} \gets \pi_{\mathsf{Eval}} \Vert \mathbf{y}_O^{(i)} \Vert \mathsf{C}_O^{(i)} \Vert \mathsf{C}_O^{\prime(i)}$
 	\item \pcind $\alpha \gets \mathsf{H}(\mathsf{C} \Vert \mathbf{z} \Vert \mathbf{y} \Vert \pi_{\mathsf{Eval}})$  \pccomment{Fiat-Shamir}
-	\item \pcind $\hat{f} \gets \hat{f}_E(X) + \alpha \cdot \hat{f}_O(X)$
+	\item \pcind $\hat{f} \gets \hat{f}_E(X) + \alpha \cdot \hat{f}_O^{(i)}(X)$
 	\item \pcind \textbf{for} $j$ \textbf{from} $0$ \textbf{to} $b/2^{i+1}-1$ \textbf{:}
 	\item \pcind \pcind $\mathsf{P}_j \gets \mathsf{P}_j + \alpha \cdot \mathsf{P}_{b/2^{i+1}+j}$ \label{line:evalprover-maintenance}
-	\item $\pi_{\mathsf{PoE}} \gets \mathsf{BatchPoE.Prove}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots, \mathsf{C}_O^{(\log_2(d)-1)}, \mathsf{C}_O^{\prime(\log_2(d)-1)})$ \label{line:evalprove-batchpoe}
+	\item $\pi_{\mathsf{PoE}} \gets \mathsf{BatchPoE.Prove}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots, \mathsf{C}_O^{(\lfloor\log_2(d)\rfloor)}, \mathsf{C}_O^{\prime(\lfloor\log_2 d\rfloor)}); (\hat{f}_O^{(\lfloor \log_2 d\rfloor)}, \ldots, \hat{f}_O^{(\log_2 b)}))$ \label{line:evalprove-batchpoe}
 	\item $\pi_{\mathsf{Eval}} \gets \pi_{\mathsf{Eval}} \Vert \pi_{\mathsf{PoE}} \Vert \hat{f}$
 	\item \textbf{return} $\pi_{\mathsf{Eval}}$
 \end{enumerate}
@@ -218,16 +218,22 @@ $\mathsf{Eval.Verify}(\mathsf{C}, \mathbf{z}, \mathbf{y}, \pi_{\mathsf{Eval}})$ 
 
 
 \begin{mdframed}
-$\mathsf{BatchPoE.Prove}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots, \mathsf{C}_O^{(\log_2(d)-1)}, \mathsf{C}_O^{\prime(\log_2(d)-1)}))$ \textbf{:}
+$\mathsf{BatchPoE.Prove}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots, \mathsf{C}_O^{\lfloor\log_2 d \rfloor)}, \mathsf{C}_O^{\prime(\lfloor\log_2 d\rfloor)}); (\hat{f}_O^{(\lfloor \log_2 d\rfloor)}, \ldots, \hat{f}_O^{(\log_2 b)}))$ \textbf{:}
 \begin{enumerate}[nolistsep]
-	\item $\pi \gets \varnothing$
-	\item $\mathsf{X} \gets \mathsf{C}_O^{(\log_2(d)-1)}$ and $\mathsf{Z} \gets \mathsf{C}_O^{\prime(\log_2(d)-1)}$
-	\item \textbf{for} $i$ \textbf{from} $\log_2(d) - 1$ \textbf{down to} $1$ \textbf{:}
-	\item \pcind $\mathsf{Y}^{(i)} \gets q^{2^{i-1}} \cdot \mathsf{X}$ \label{line:batchpoeverify-q} $<---$ can't be right
-	\item \pcind $\pi \gets \pi \Vert \mathsf{Y}^{(i)}$
+	\item $\pi_{\mathsf{PoE}} \gets \varnothing$
+	\item $\mathsf{X} \gets \mathsf{C}_O^{(\log_2(d)-1)}$ and $\mathsf{Z} \gets \mathsf{C}_O^{\prime(\log_2(d)-1)}$ and $\hat{f} \gets \hat{f}_O^{(\lfloor \log_2 d \rfloor)}$
+	\item \textbf{for} $i$ \textbf{from} $\lfloor \log_2 d \rfloor$ \textbf{down to} $1$ \textbf{:}
+	\item \pcind \textbf{if} $i \geq \log_2 b$ \textbf{:} 
+	\item \pcind \pcind $\mathsf{Y}^{(i)} \gets 0$
+	\item \pcind \pcind \textbf{for all} nonzero terms $\hat{h}_jX^j$ of $\hat{f}(X^{2^i})$ \textbf{:}
+	\item \pcind \pcind \pcind $\mathsf{Y}^{(i)} \gets \mathsf{Y}^{(i)} + \hat{h}_j \cdot \mathsf{G}_{(j+2^{i-1})/b}$
+	\item \pcind \textbf{else :}
+	\item \pcind \pcind $\mathsf{Y}^{(i)} \gets q^{2^{i-1}} \cdot \mathsf{X}$ \label{line:batchpoeverify-q}
+	\item \pcind $\pi_{\mathsf{PoE}} \gets \pi_{\mathsf{PoE}} \Vert \mathsf{Y}^{(i)}$
 	\item \pcind $\alpha, \beta \gets \mathsf{H}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots, \mathsf{C}_O^{(\log_2(d)-1)}, \mathsf{C}_O^{\prime(\log_2(d)-1)}) \Vert \pi)$ \pccomment{Fiat-Shamir}
 	\item \pcind $\mathsf{X} \gets \mathsf{X} + \alpha \cdot \mathsf{Y}^{(i)} + \beta \cdot \mathsf{C}_O^{(i)}$ \label{line:batchpoeverify-regular}
 	\item \pcind $\mathsf{Z} \gets \mathsf{Y}^{(i)} + \alpha \cdot \mathsf{Z} + \beta \cdot \mathsf{C}_O^{\prime(i)}$\label{line:batchpoeverify-prime}
+	\item \pcind $\hat{f} \gets \hat{f}(X) + \alpha \cdot X^{2^{i-1}} \cdot \hat{f}(X) + \beta \cdot \hat{f}^{(i)}_O(X)$
 	\item \textbf{return} $\pi$
 \end{enumerate}
 $\mathsf{BatchPoE.Verify}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots, \mathsf{C}_O^{(\log_2(d)-1)}, \mathsf{C}_O^{\prime(\log_2(d)-1)}), \pi_{\mathsf{PoE}})$ \textbf{:}
@@ -236,7 +242,7 @@ $\mathsf{BatchPoE.Verify}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots,
 	\item $\mathsf{X} \gets \mathsf{C}_O^{(\log_2(d)-1)}$ and $\mathsf{Z} \gets \mathsf{C}_O^{\prime(\log_2(d)-1)}$
 	\item \textbf{for} $i$ \textbf{from} $\log_2(d) - 1$ \textbf{down to} $1$ \textbf{:}
 	\item \pcind $\pi \gets \pi \Vert \mathsf{Y}^{(i)}$
-	\item \pcind $\alpha, \beta \gets \mathsf{H}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots, \mathsf{C}_O^{(\log_2(d)-1)}, \mathsf{C}_O^{\prime(\log_2(d)-1)}) \Vert \pi)$ \pccomment{Fiat-Shamir}
+	\item \pcind $\alpha, \beta \gets \mathsf{H}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots, \mathsf{C}_O^{(\log_2(d)-1)}, \mathsf{C}_O^{\prime(\log_2(d)-1)}) \Vert \pi_{\mathsf{PoE}})$ \pccomment{Fiat-Shamir}
 	\item \pcind $\mathsf{X} \gets \mathsf{X} + \alpha \cdot \mathsf{Y}^{(i)} + \beta \cdot \mathsf{C}_O^{(i)}$
 	\item \pcind $\mathsf{Z} \gets \mathsf{Y}^{(i)} + \alpha \cdot \mathsf{Z} + \beta \cdot \mathsf{C}_O^{\prime(i)}$
 	\item \textbf{if} $q \cdot \mathsf{X} = \mathsf{Z}$ \textbf{:}
