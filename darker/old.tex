@@ -1,0 +1,25 @@
+
+
+\section{Technical Overview}
+Contributions:
+\begin{itemize}
+	\item We reduce the evaluation time of Darker from O(d log(d)) to O(sqrt(d)*log(d))
+	\item The commitment time is O(s) where s is the sparsity 
+	\item Using multiexp techniques this can be computed using O(s*l/log(s*l)) group operations. 
+	\item The size of the precomputed CRS is roughly O(sqrt(d))
+	\item The scheme is secure under the random order assumption, basically the best assumption for groups of unknown order
+	\item The interactive protocol becomes a proof not an argument
+	\item We provide an implementation.
+	\item (Optional) we show how to commit to polynomials in a point value representation
+	\item We discuss applications to vector commitments. 
+\end{itemize}
+
+\section{Preliminaries}
+\subsection{Notation}
+\begin{enumerate}
+	\item $\ZZ(b)=\{ z \in \ZZ | |z|<b\}$
+	\item $\QQ(b)=\{\frac{n}{d} \in \QQ | |\frac{n}{\gcd(n,d)}|< b\}$
+	\item $\ZZ^+=\{z \in \ZZ | z>0\}$ are the positive integers.
+	\end{enumerate}
+	
+\subsection{Definitions}

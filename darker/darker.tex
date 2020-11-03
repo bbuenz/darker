@@ -48,6 +48,8 @@ SNARKs typically require strong trust assumptions. Fortunately, recent results s
 
 Groups of unknown order constitute one of the branches of mathematics that admit polynomial commitment schemes, along with a variety of protocols called \emph{Diophantine Arguments of Knowledge (DARKs)}. When the scheme is instantiated with a transparent group of unknown order, \emph{i.e.}, one that requires no trusted setup, the resulting polynomial commitment scheme is likewise transparent --- and the same property holds for the SNARK derived from it.
 
+[todo: line about sparse polynomials arising in natural computations; PCSs therefore should accomodate]
+
 This paper takes another look at DARK polynomial commitment schemes, following in the footsteps of the scheme proposed by Supersonic~\cite{BFS20}. We report several results in this context, on several fronts.
 
 \begin{itemize}
@@ -59,30 +61,6 @@ This paper takes another look at DARK polynomial commitment schemes, following i
 
 \item[4.] We discuss a few extensions and applications of these new and improved protocols, such as batching evaluation proofs, committing to polynomials in point-value representation, and applications to vector commitments.
 \end{itemize}
-
-\section{Technical Overview}
-Contributions:
-\begin{itemize}
-	\item We reduce the evaluation time of Darker from O(d log(d)) to O(sqrt(d)*log(d))
-	\item The commitment time is O(s) where s is the sparsity 
-	\item Using multiexp techniques this can be computed using O(s*l/log(s*l)) group operations. 
-	\item The size of the precomputed CRS is roughly O(sqrt(d))
-	\item The scheme is secure under the random order assumption, basically the best assumption for groups of unknown order
-	\item The interactive protocol becomes a proof not an argument
-	\item We provide an implementation.
-	\item (Optional) we show how to commit to polynomials in a point value representation
-	\item We discuss applications to vector commitments. 
-\end{itemize}
-
-\section{Preliminaries}
-\subsection{Notation}
-\begin{enumerate}
-	\item $\ZZ(b)=\{ z \in \ZZ | |z|<b\}$
-	\item $\QQ(b)=\{\frac{n}{d} \in \QQ | |\frac{n}{\gcd(n,d)}|< b\}$
-	\item $\ZZ^+=\{z \in \ZZ | z>0\}$ are the positive integers.
-	\end{enumerate}
-	
-\subsection{Definitions}
 
 \section{Technical Overview}
 
@@ -177,7 +155,7 @@ For notational convenience, we present the evaluation protocol in four parts. Fi
 $\mathsf{Eval.Prove}(\mathsf{C}, \mathbf{z}, \mathbf{y}; f(X), (f_0(X), \ldots, f_{b-1}(X)), \left(\mathsf{P}_0, \ldots, \mathsf{P}_{b-1}\right))$ \textbf{:}
 \begin{enumerate}[nolistsep]
 	\item $\pi_{\mathsf{Eval}} \gets \varnothing$
-	\item \textbf{for} $i$ \textbf{from} $0$ \textbf{to} $\log_2(d) - 1$ \textbf{:}
+	\item \textbf{for} $i$ \textbf{from} $0$ \textbf{to} $\lfloor\log_2 d \rfloor$ \textbf{:}
 	\item \pcind $\hat{f}_E \gets \frac{\hat{f}(X) + \hat{f}(-X)}{2}$ and $\hat{f}_O^{(i)} \gets \hat{f}(X) - \hat{f}_E(X)$
 	\item \pcind $\mathbf{y}_O^{(i)} \gets \hat{f}_O^{(i)}(\mathbf{z})$
 	\item \pcind \textbf{if} $i < \log_2 b$ \textbf{:}
@@ -201,7 +179,7 @@ $\mathsf{Eval.Prove}(\mathsf{C}, \mathbf{z}, \mathbf{y}; f(X), (f_0(X), \ldots, 
 \end{enumerate}
 $\mathsf{Eval.Verify}(\mathsf{C}, \mathbf{z}, \mathbf{y}, \pi_{\mathsf{Eval}})$ \textbf{:}
 \begin{enumerate}[nolistsep]
-	\item $\mathsf{C}_O^{(0)} \Vert \mathsf{C}_O^{\prime(0)} \Vert \mathbf{y}_O^{(0)} \Vert \cdots \Vert \mathsf{C}_O^{(\log_2(d) - 1)} \Vert \mathsf{C}_O^{\prime(\log_2(d)-1)} \Vert \mathbf{y}_O^{(\log_2 (d) - 1)} \Vert \pi_{\mathsf{PoE}} \Vert \hat{f} \gets \pi_{\mathsf{Eval}}$
+	\item $\mathsf{C}_O^{(0)} \Vert \mathsf{C}_O^{\prime(0)} \Vert \mathbf{y}_O^{(0)} \Vert \cdots \Vert \mathsf{C}_O^{(\log_2(d) - 1)} \Vert \mathsf{C}_O^{\prime(\lfloor\log_2 d\rfloor)} \Vert \mathbf{y}_O^{(\lfloor\log_2 d\rfloor)} \Vert \pi_{\mathsf{PoE}} \Vert \hat{f} \gets \pi_{\mathsf{Eval}}$
 	\item $\tau \gets \mathsf{C} \Vert \mathbf{z} \Vert \mathbf{y}$
 	\item \textbf{for} $i$ \textbf{from} $0$ \textbf{to} $\log_2(d)-1$ \textbf{:}
 	\item \pcind $\tau \gets \tau \Vert \mathbf{y}_O^{(i)} \Vert \mathsf{C}_O^{(i)} \Vert \mathsf{C}_O^{\prime(i)}$
@@ -238,11 +216,11 @@ $\mathsf{BatchPoE.Prove}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots, 
 \end{enumerate}
 $\mathsf{BatchPoE.Verify}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots, \mathsf{C}_O^{(\log_2(d)-1)}, \mathsf{C}_O^{\prime(\log_2(d)-1)}), \pi_{\mathsf{PoE}})$ \textbf{:}
 \begin{enumerate}[nolistsep]
-	\item $\mathsf{Y}^{(\log_2(d)-1)} \Vert \cdots \Vert \mathsf{Y}^{(1)} \gets \pi_{\mathsf{PoE}}$
+	\item $\mathsf{Y}^{(\lfloor\log_2 d\rfloor)} \Vert \cdots \Vert \mathsf{Y}^{(1)} \gets \pi_{\mathsf{PoE}}$
 	\item $\mathsf{X} \gets \mathsf{C}_O^{(\log_2(d)-1)}$ and $\mathsf{Z} \gets \mathsf{C}_O^{\prime(\log_2(d)-1)}$
 	\item \textbf{for} $i$ \textbf{from} $\log_2(d) - 1$ \textbf{down to} $1$ \textbf{:}
 	\item \pcind $\pi \gets \pi \Vert \mathsf{Y}^{(i)}$
-	\item \pcind $\alpha, \beta \gets \mathsf{H}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots, \mathsf{C}_O^{(\log_2(d)-1)}, \mathsf{C}_O^{\prime(\log_2(d)-1)}) \Vert \pi_{\mathsf{PoE}})$ \pccomment{Fiat-Shamir}
+	\item \pcind $\alpha, \beta \gets \mathsf{H}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots, \mathsf{C}_O^{(\lfloor\log_2 d\rfloor)}, \mathsf{C}_O^{\prime(\lfloor\log_2 d\rfloor)}) \Vert \pi_{\mathsf{PoE}})$ \pccomment{Fiat-Shamir}
 	\item \pcind $\mathsf{X} \gets \mathsf{X} + \alpha \cdot \mathsf{Y}^{(i)} + \beta \cdot \mathsf{C}_O^{(i)}$
 	\item \pcind $\mathsf{Z} \gets \mathsf{Y}^{(i)} + \alpha \cdot \mathsf{Z} + \beta \cdot \mathsf{C}_O^{\prime(i)}$
 	\item \textbf{if} $q \cdot \mathsf{X} = \mathsf{Z}$ \textbf{:}
@@ -259,8 +237,8 @@ The performance of all algorithms is dominated by the number of group operations
 \begin{itemize}
 \item $\mathsf{Preprocess}$ involves $b$ exponentiations of $d/b$, or $d$ exponent bits in total. The common reference string consists of $b$ group elements.
 \item $\mathsf{Commit}$ performs $s$ exponentiations of $1+\lfloor \log_2 p \rfloor$ bits on line~\ref{line:commit-coefficient}, and $b-1$ exponentiations of $1+\lfloor \log_2 q \rfloor$ bits on line~\ref{line:commit-shift}. The commitment itself consists of a single group element, whereas the cache contains $b$ group elements.
-\item $\mathsf{BatchPoE.Prove}$ has $\log_2(d+1)-1$ iterations with $i \in \{1, \ldots, \log_2(d+1)-1\}$. In each iteration there is one exponent of $q^{2^i}$ bits (line~\ref{line:batchpoeverify-q}) and four exponentiations of $\lambda$ bits (lines~\ref{line:batchpoeverify-regular} and~\ref{line:batchpoeverify-prime}). In total this amounts to $2d + \lfloor \log_2 q \rfloor + 1 + 4\cdot\log_2(d+1)\cdots\lambda$ bits !?!
-\item $\mathsf{BatchPoE.Verify}$ has $\log_2(d+1)-1$ iterations and in every iteration there are four $\lambda$-bit exponentiations. Finally, there is a test involving $1+\lfloor \log_2 q \rfloor$ exponent bits.
+\item $\mathsf{BatchPoE.Prove}$ has $\lfloor \log_2 d \rfloor$ iterations with $i \in \{1, \ldots, \lfloor \log_2 d \rfloor\}$. In each iteration there is one exponent of $q^{2^i}$ bits (line~\ref{line:batchpoeverify-q}) and four exponentiations of $\lambda$ bits (lines~\ref{line:batchpoeverify-regular} and~\ref{line:batchpoeverify-prime}). In total this amounts to $2d + \lfloor \log_2 q \rfloor + 1 + 4\cdot\log_2(d+1)\cdots\lambda$ bits !?!
+\item $\mathsf{BatchPoE.Verify}$ has $\lfloor \log_2 d \rfloor$ iterations and in every iteration there are four $\lambda$-bit exponentiations. Finally, there is a test involving $1+\lfloor \log_2 q \rfloor$ exponent bits.
 \item $\mathsf{Eval.Prove}$ has exponentiations in several places. The outer loop of line~\ref{line:evalprove-firsthalf-bigstep} has $\log_2 b$ iterations; the inner loop has $b/2^i$ exponentiations where $i \in \{0, \ldots, \log_2(b)-1\}$ is the index of the outer loop. In all of these exponentiations, the exponent is $q^{2^i}$. So in every iteration of the outer loop there are $b/2^i \cdot (1 + \lfloor 2^i \cdot \log_2 q\rfloor) < b \cdot ( 1 + \log_2 q ) - 2$ exponent bits. The total number of exponent bits of this line across all iterations is therefore $\log_2 b$ times this number. \\
 Line~\ref{line:evalprove-firsthalf-shift} $\log_2 b$ exponents of size $1 + \lfloor \log_2 q \rfloor$ each. \\
 Lines~\ref{line:evalprove-secondhalf-regular} and \ref{line:evalprove-secondhalf-prime} each have at most $s$ (the number if nonzero coefficients of $f$) exponents of length at most $i \cdot \lambda + 1 + \lfloor \log_2 p \rfloor$, for each iteration in a loop iterating over $i \in \{\log_2 b, \ldots, \log_2(d)-1\}$. This gives $\log_2(b) \cdot ( 1 + \log_2 p ) + (\log_2(b) + \log_2(d)-1) \cdot \lambda / 2$ exponent bits in total for each line. \\
@@ -282,9 +260,6 @@ total: & ??? \\
 \item $\mathsf{Eval.Verify}$ has $\log_2(d+1)$ exponentiations in line~\ref{line:evalverify-alpha}, involving $\lambda$ exponent bits for each iteration. Additionally, line~\ref{line:evalverify-batchpoe} invokes $\mathsf{BatchPoE.Verify}$, which comes with another $4 (\log_2(d+1) - 1) \lambda + 1 + \lfloor \log_2 q \rfloor$ exponent bits.
 \end{itemize}
 
-\subsubsection{$\mathsf{Eval.Verify}$}
-\subsubsection{$\mathsf{BatchPoE.Prove}$}
-\subsubsection{$\mathsf{BatchPoE.Verify}$}
 
 \subsection{Security}
 
