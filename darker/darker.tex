@@ -204,15 +204,15 @@ $\mathsf{BatchPoE.Prove}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots, 
 	\item \pcind \textbf{if} $i \geq \log_2 b$ \textbf{:} 
 	\item \pcind \pcind $\mathsf{Y}^{(i)} \gets 0$
 	\item \pcind \pcind \textbf{for all} nonzero terms $\hat{h}_jX^j$ of $\hat{f}(X^{2^i})$ \textbf{:}
-	\item \pcind \pcind \pcind $\mathsf{Y}^{(i)} \gets \mathsf{Y}^{(i)} + \hat{h}_j \cdot \mathsf{G}_{(j+2^{i-1})/b}$
+	\item \pcind \pcind \pcind $\mathsf{Y}^{(i)} \gets \mathsf{Y}^{(i)} + \hat{h}_j \cdot \mathsf{G}_{(j+2^{i-1})/b}$ \label{line:batchpoeprove-big}
 	\item \pcind \textbf{else :}
-	\item \pcind \pcind $\mathsf{Y}^{(i)} \gets q^{2^{i-1}} \cdot \mathsf{X}$ \label{line:batchpoeverify-q}
+	\item \pcind \pcind $\mathsf{Y}^{(i)} \gets q^{2^{i-1}} \cdot \mathsf{X}$ \label{line:batchpoeprove-small}
 	\item \pcind $\pi_{\mathsf{PoE}} \gets \pi_{\mathsf{PoE}} \Vert \mathsf{Y}^{(i)}$
 	\item \pcind $\alpha, \beta \gets \mathsf{H}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots, \mathsf{C}_O^{(\log_2(d)-1)}, \mathsf{C}_O^{\prime(\log_2(d)-1)}) \Vert \pi)$ \pccomment{Fiat-Shamir}
-	\item \pcind $\mathsf{X} \gets \mathsf{X} + \alpha \cdot \mathsf{Y}^{(i)} + \beta \cdot \mathsf{C}_O^{(i)}$ \label{line:batchpoeverify-regular}
-	\item \pcind $\mathsf{Z} \gets \mathsf{Y}^{(i)} + \alpha \cdot \mathsf{Z} + \beta \cdot \mathsf{C}_O^{\prime(i)}$\label{line:batchpoeverify-prime}
+	\item \pcind $\mathsf{X} \gets \mathsf{X} + \alpha \cdot \mathsf{Y}^{(i)} + \beta \cdot \mathsf{C}_O^{(i)}$ \label{line:batchpoeprove-regular}
+	\item \pcind $\mathsf{Z} \gets \mathsf{Y}^{(i)} + \alpha \cdot \mathsf{Z} + \beta \cdot \mathsf{C}_O^{\prime(i)}$\label{line:batchpoeprove-prime}
 	\item \pcind $\hat{f} \gets \hat{f}(X) + \alpha \cdot X^{2^{i-1}} \cdot \hat{f}(X) + \beta \cdot \hat{f}^{(i)}_O(X)$
-	\item \textbf{return} $\pi$
+	\item \textbf{return} $\pi_{\mathsf{PoE}}$
 \end{enumerate}
 $\mathsf{BatchPoE.Verify}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots, \mathsf{C}_O^{(\log_2(d)-1)}, \mathsf{C}_O^{\prime(\log_2(d)-1)}), \pi_{\mathsf{PoE}})$ \textbf{:}
 \begin{enumerate}[nolistsep]
@@ -232,32 +232,40 @@ $\mathsf{BatchPoE.Verify}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots,
 
 \subsection{Complexity}
 
-The performance of all algorithms is dominated by the number of group operations. Therefore, we restrict our attention to exponentiations and count the total number of bits in all exponents.
+The performance of all algorithms is dominated by the number of group operations. Therefore, we restrict our attention to exponentiations and count the total number of bits in all exponents. For the asymptotic expressions we simplify using the approximations $q \approx \lambda \cdot \log d$, $\lambda \approx p$, and $b \approx \sqrt{d}$.
 
 \begin{itemize}
-\item $\mathsf{Preprocess}$ involves $b$ exponentiations of $d/b$, or $d$ exponent bits in total. The common reference string consists of $b$ group elements.
-\item $\mathsf{Commit}$ performs $s$ exponentiations of $1+\lfloor \log_2 p \rfloor$ bits on line~\ref{line:commit-coefficient}, and $b-1$ exponentiations of $1+\lfloor \log_2 q \rfloor$ bits on line~\ref{line:commit-shift}. The commitment itself consists of a single group element, whereas the cache contains $b$ group elements.
-\item $\mathsf{BatchPoE.Prove}$ has $\lfloor \log_2 d \rfloor$ iterations with $i \in \{1, \ldots, \lfloor \log_2 d \rfloor\}$. In each iteration there is one exponent of $q^{2^i}$ bits (line~\ref{line:batchpoeverify-q}) and four exponentiations of $\lambda$ bits (lines~\ref{line:batchpoeverify-regular} and~\ref{line:batchpoeverify-prime}). In total this amounts to $2d + \lfloor \log_2 q \rfloor + 1 + 4\cdot\log_2(d+1)\cdots\lambda$ bits !?!
-\item $\mathsf{BatchPoE.Verify}$ has $\lfloor \log_2 d \rfloor$ iterations and in every iteration there are four $\lambda$-bit exponentiations. Finally, there is a test involving $1+\lfloor \log_2 q \rfloor$ exponent bits.
-\item $\mathsf{Eval.Prove}$ has exponentiations in several places. The outer loop of line~\ref{line:evalprove-firsthalf-bigstep} has $\log_2 b$ iterations; the inner loop has $b/2^i$ exponentiations where $i \in \{0, \ldots, \log_2(b)-1\}$ is the index of the outer loop. In all of these exponentiations, the exponent is $q^{2^i}$. So in every iteration of the outer loop there are $b/2^i \cdot (1 + \lfloor 2^i \cdot \log_2 q\rfloor) < b \cdot ( 1 + \log_2 q ) - 2$ exponent bits. The total number of exponent bits of this line across all iterations is therefore $\log_2 b$ times this number. \\
-Line~\ref{line:evalprove-firsthalf-shift} $\log_2 b$ exponents of size $1 + \lfloor \log_2 q \rfloor$ each. \\
-Lines~\ref{line:evalprove-secondhalf-regular} and \ref{line:evalprove-secondhalf-prime} each have at most $s$ (the number if nonzero coefficients of $f$) exponents of length at most $i \cdot \lambda + 1 + \lfloor \log_2 p \rfloor$, for each iteration in a loop iterating over $i \in \{\log_2 b, \ldots, \log_2(d)-1\}$. This gives $\log_2(b) \cdot ( 1 + \log_2 p ) + (\log_2(b) + \log_2(d)-1) \cdot \lambda / 2$ exponent bits in total for each line. \\
-The inner loop of line~\ref{line:evalprover-maintenance} is run in its entirety $\log_2 d$ times, for all $i \in \{0, \ldots, \log_2(d)-1\}$. It runs for $b/2^{i+1}$ iterations and involves a single exponent of length $\lambda$ in each iteration. This gives $\frac{b}{2} \cdot (1 - 2^{-\log_2 d}) \cdot \lambda$ total exponent bits. \\
-Line~\ref{line:evalprove-batchpoe} invokes $\mathsf{BatchPoE.Prove}$ which comes with $ bla$ \\
-By summing all terms, we have a total of $blac \in O(b log b log q)$ bits in exponents. \\
+\item $\mathsf{Preprocess}$ involves $\frac{d+1}{b}$ exponentiations of $b \cdot (1 + \lfloor \log_2 q \rfloor)$ bits, or $(d+1) \cdot (1 + \lfloor \log_2 q \rfloor) \in O_\lambda(d \log d)$ exponent bits in total. The common reference string consists of $\frac{d+1}{b}$ group elements.
+\item $\mathsf{Commit}$ performs $s$ exponentiations of $1+\lfloor \log_2 p \rfloor$ bits on line~\ref{line:commit-coefficient}, and $b-1$ exponentiations of $1+\lfloor \log_2 q \rfloor$ bits on line~\ref{line:commit-shift}. Asymptotically speaking, the total number of exponent bits amounts to $O_\lambda(\sqrt{d} \log d + s)$. The commitment itself consists of a single group element, whereas the cache contains $b$ group elements.
+\item $\mathsf{BatchPoE.Prove}$ has $\lfloor \log_2 d \rfloor$ iterations with $i \in \{1, \ldots, \lfloor \log_2 d \rfloor\}$. When $i \in \{1, \ldots, \log_2(b)-1\}$ there is one exponent of $(1 + \lfloor \log_2 q \rfloor) \cdot {2^{i-1}}$ bits (line~\ref{line:batchpoeprove-small}), totalling $(1+\lfloor \log_2 q \rfloor) \cdot (b-1)$ exponent bits. \\
+When $i \in \{\log_2 b, \ldots, \lfloor \log_2 d \rfloor\}$ there are at most $s$ exponentiations of $i \cdot \lambda + 1 + \lfloor \log_2 p \rfloor$ bits (line~\ref{line:batchpoeprove-big}), or $s \cdot (\lfloor \log_2 d \rfloor - \log_2(b) + 1) \cdot (1 + \lfloor \log_2 p \rfloor) + s \cdot \lambda \cdot (\lfloor \log_2 d \rfloor + \log_2 b) \cdot (\lfloor \log_2 d \rfloor - \log_2(b) + 1)/2$ in total. (In fact, there are only at most $\max(s, \, 2^{\lfloor \log_2 d \rfloor - i})$ such exponentiations, but we take the easy upper bound $s$ for formulaic convenience.) \\
+In each of these $\lfloor \log_2 d \rfloor$ iterations there are four more exponentiations of $\lambda$ bits (lines~\ref{line:batchpoeprove-regular} and~\ref{line:batchpoeprove-prime}). In total this amounts to $(1+\lfloor \log_2 q \rfloor) \cdot (b-1)  +  s \cdot (\lfloor \log_2 d \rfloor - \log_2(b) + 1) \cdot (1 + \lfloor \log_2 p \rfloor) + s \cdot \lambda \cdot (\lfloor \log_2 d \rfloor + \log_2 b) \cdot (\lfloor \log_2 d \rfloor - \log_2(b) + 1)/2  +  4 \cdot \lambda \cdot \lfloor \log_2 d \rfloor$ exponent bits, or $O_\lambda(\sqrt{d} \log d + s (\log d)^2)$ asymptotically.
+\item $\mathsf{BatchPoE.Verify}$ has $\lfloor \log_2 d \rfloor$ iterations and in every iteration there are four $\lambda$-bit exponentiations. Finally, there is a test involving $1+\lfloor \log_2 q \rfloor$ exponent bits. The asymptotic total is therefore $O_\lambda(\log d)$.
+\item $\mathsf{Eval.Prove}$ has exponentiations in several places. The outer loop of line~\ref{line:evalprove-firsthalf-bigstep} has $\log_2 b$ iterations; the inner loop has $b/2^i$ exponentiations where $i \in \{0, \ldots, \log_2(b)-1\}$ is the index of the outer loop. In all of these exponentiations, the exponent is $q^{2^i}$. So in every iteration of the outer loop there are $b/2^i \cdot 2^i \cdot (1 + \lfloor \log_2 q\rfloor) = b \cdot ( 1 + \lfloor \log_2 q \rfloor)$ exponent bits. The total number of exponent bits of this line across all iterations is therefore $\log_2 b$ times this number. \\
+Line~\ref{line:evalprove-firsthalf-shift} has $\log_2 b$ exponents of size $1 + \lfloor \log_2 q \rfloor$ each. \\
+Lines~\ref{line:evalprove-secondhalf-regular} and \ref{line:evalprove-secondhalf-prime} each have at most $s$ exponents of length at most $i \cdot \lambda + 1 + \lfloor \log_2 p \rfloor$, for each iteration in a loop iterating over $i \in \{\log_2 b, \ldots, \lfloor\log_2(d)\rfloor\}$. This gives $(\lfloor \log_2 d \rfloor - \log_2(b) + 1) \cdot (1 + \lfloor \log_2 p \rfloor + (\lfloor \log_2 d \rfloor + \log_2 b) \cdot \frac{\lambda}{2}) \cdot s$ exponent bits in total for each line. \\
+The loop of line~\ref{line:evalprover-maintenance} is run in its entirety $1 + \lfloor \log_2 d \rfloor$ times, for all $i \in \{0, \ldots, \lfloor \log_2 d \rfloor\}$. It runs for $b/2^{i+1}$ iterations and involves a single exponent of length $\lambda$ in each iteration. This gives $(b + \frac{b}{d}) \cdot \lambda$ total exponent bits. \\
+Line~\ref{line:evalprove-batchpoe} invokes $\mathsf{BatchPoE.Prove}$, for which the number of exponent bits has already been counted. \\
+By summing all terms, we have a total number of bits in exponents whose exact count is given below. Using the above approximations, this total number is asymptotically $O_\lambda(\sqrt{d} \cdot \log d + s \cdot (\log d)^2)$ \\
 \begin{center}
 \begin{tabular}{rrl} \\
-line~\ref{line:evalprove-firsthalf-bigstep}: & $b \cdot ( 1 + \log_2 q ) - 2$ \\
+line~\ref{line:evalprove-firsthalf-bigstep}: & $b \cdot ( 1 + \lfloor \log_2 q \rfloor )$ \\
 line~\ref{line:evalprove-firsthalf-shift}: & $\log_2(b) \cdot (1 + \lfloor \log_2 q \rfloor)$ \\
-line~\ref{line:evalprove-secondhalf-regular}: & $\log_2(b) \cdot ( 1 + \log_2 p ) + (\log_2(b) + \log_2(d)-1) \cdot \lambda / 2$ \\
-line~\ref{line:evalprove-secondhalf-prime}: & $\log_2(b) \cdot ( 1 + \log_2 p ) + (\log_2(b) + \log_2(d)-1) \cdot \lambda / 2$ \\
-line~\ref{line:evalprover-maintenance}: & $\frac{b}{2} \cdot (1 - 2^{-\log_2 d}) \cdot \lambda$ \\
-line~\ref{line:evalprove-batchpoe}: & ? \\ \hline
-total: & ??? \\
- & $\in O(?)$ 
+line~\ref{line:evalprove-secondhalf-regular}: & $(\lfloor \log_2 d \rfloor - \log_2(b) + 1) \cdot (1 + \lfloor \log_2 p \rfloor + (\lfloor \log_2 d \rfloor + \log_2 b) \cdot \frac{\lambda}{2}) \cdot s$ \\
+line~\ref{line:evalprove-secondhalf-prime}: & $(\lfloor \log_2 d \rfloor - \log_2(b) + 1) \cdot (1 + \lfloor \log_2 p \rfloor + (\lfloor \log_2 d \rfloor + \log_2 b) \cdot \frac{\lambda}{2}) \cdot s$ \\
+line~\ref{line:evalprover-maintenance}: & $(b + \frac{b}{d}) \cdot \lambda$ \\
+line~\ref{line:evalprove-batchpoe}: & $(1+\lfloor \log_2 q \rfloor) \cdot (b-1) $\\
+ & $ +  s \cdot (\lfloor \log_2 d \rfloor - \log_2(b) + 1) \cdot (1 + \lfloor \log_2 p \rfloor) $ \\
+ & $ + s \cdot \lambda \cdot (\lfloor \log_2 d \rfloor + \log_2 b) \cdot (\lfloor \log_2 d \rfloor - \log_2(b) + 1)/2 $ \\
+ & $ +  4 \cdot \lambda \cdot \lfloor \log_2 d \rfloor$ \\ \hline
+total: & $(2b + \log_2(b) - 1) \cdot (1 + \lfloor \log_2 q \rfloor)$ \\
+ & $+ 3s \cdot (\lfloor \log_2 d \rfloor - \log_2(b) + 1) \cdot ( 1 + \lfloor \log_2 p \rfloor )$ \\
+ & $ + \big(b + \frac{d}{b} + 4 \lfloor \log_2 d \rfloor \quad \quad$ \\
+  & $ + \frac{s}{2} \cdot ( \lfloor \log_2 d \rfloor - \log_2(b) + 1) \cdot (\lfloor \log_2 d \rfloor + \log_2 b)\big) \cdot \lambda$ \\
+ & $\in O_\lambda(\sqrt{d} \cdot \log d + s \cdot (\log d)^2)$ 
 \end{tabular}
 \end{center}
-\item $\mathsf{Eval.Verify}$ has $\log_2(d+1)$ exponentiations in line~\ref{line:evalverify-alpha}, involving $\lambda$ exponent bits for each iteration. Additionally, line~\ref{line:evalverify-batchpoe} invokes $\mathsf{BatchPoE.Verify}$, which comes with another $4 (\log_2(d+1) - 1) \lambda + 1 + \lfloor \log_2 q \rfloor$ exponent bits.
+\item $\mathsf{Eval.Verify}$ has $\lfloor \log_2 d \rfloor$ exponentiations in line~\ref{line:evalverify-alpha}, involving $\lambda$ exponent bits for each iteration. Additionally, line~\ref{line:evalverify-batchpoe} invokes $\mathsf{BatchPoE.Verify}$, which comes with another $4 \cdot \lfloor \log_2 d \rfloor \cdot \lambda + 1 + \lfloor \log_2 q \rfloor$ exponent bits. With the above approximations, this total is asymptotically $O_\lambda(\log d)$.
 \end{itemize}
 
 
