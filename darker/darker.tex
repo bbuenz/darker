@@ -37,6 +37,8 @@
 	
 \fi
 
+\newcommand{\dollar}{\$}
+\newcommand{\random}{\xleftarrow{\dollar}}
 
 \title{Darker}
 
@@ -125,7 +127,30 @@ Since $b$ is a power of two, the exact same strategy can be used in the evaluati
 
 \section{Protocols}
 
-The protocols and algorithms are presented below. We use additive notation for the groups and denote the identity element by 0. In argument lists and return values, we use the semicolon to distinguish public values (on the left) from secret ones (on the right). All algorithms have access to the (implicit) public parameters $(\mathbb{G}, \mathsf{G}, d)$ and without loss of generality the degree $d$ of the polynomial $f(X)$ is one less than a power of two. The function $\mathsf{lift} : \mathbb{F}_p[X] \rightarrow \mathbb{Z}[X]$ lifts a polynomial defined over a field to its canonical representative over the integers.
+The protocols and algorithms are presented below. We use additive notation for the groups and denote the identity element by 0. In argument lists and return values, we use the semicolon to distinguish public values (on the left) from secret ones (on the right). All algorithms have access to the (implicit) public parameters $(\mathbb{G}, \mathsf{G}, d)$ and without loss of generality the degree $d$ of the polynomial $f(X)$ is one less than a power of two. The function $\mathsf{lift} : \mathbb{F}_p[X] \rightarrow \mathbb{Z}[X]$ lifts a polynomial defined over a field to its canonical representative over the integers. The function $\mathsf{terms} : \mathbb{Z}[X] \rightarrow (\mathbb{Z}[X])^*$ takes a (sparse) polynomial and returns a list of its nonzero terms: $\mathsf{terms}(\sum_{i=0}^{s-1} c_i \cdot X^{e_i}) = (c_i \cdot X^{e_i})_{i=0}^{s-1}$ if all $c_i \neq 0$.
+
+The main reason for our algorithms' good performance is the clever use of multi-exponentiation techniques, where a single group element is computed from a list of disparate terms and coefficients.
+For notational and comprehensive convenience, we factor out these multi-exponentiation steps. Concretely, we use the following procedure to compute a single multi-exponentiation. When two subsequent invocations have identical loops and loop indices, a single loop is implied rather than two.
+\begin{mdframed}
+$\mathsf{MultiExp}(\{(c_i, \mathsf{G}_i)\}_{i=0}^{t-1})$ \textbf{:}
+\begin{enumerate}[nolistsep]
+\item $\mathsf{H} \gets 0$
+\item \textbf{for} $i$ \textbf{from} $0$ \textbf{to} $t-1$ \textbf{:}
+\item \pcind $\mathsf{H} \gets \mathsf{H} + c_i \cdot \mathsf{G}_i$
+\item \textbf{return} $\mathsf{H}$
+\end{enumerate}
+\end{mdframed}
+
+Another recurring procedure worth factoring out captures the recursive folding rule described earlier. While the output is again a single group element, the input is different: it consists of a list of group elements and a single coefficient. Furthermore, this procedure is inherently sequential because the coefficient is applied to the accumulator variable and not the various group elements in the argument.
+\begin{mdframed}
+$\mathsf{Fold}(c, (\mathsf{G}_i)_{i=0}^{t-1})$ \textbf{:}
+\begin{enumerate}[nolistsep]
+\item $\mathsf{H} \gets \mathsf{G}_0$
+\item \textbf{for} $i$ \textbf{from} $0$ \textbf{to} $t-1$ \textbf{:}
+\item \pcind $\mathsf{H} \gets c \cdot \mathsf{H} + \mathsf{G}_i$
+\item \textbf{return} $\mathsf{H}$
+\end{enumerate}
+\end{mdframed}
 
 \begin{mdframed}
 $\mathsf{Preprocess}()$\textbf{:}
@@ -133,60 +158,75 @@ $\mathsf{Preprocess}()$\textbf{:}
 	\item $\mathsf{G}_0 \gets \mathsf{G}$
 	\item \textbf{for} $i$ \textbf{from} $1$ \textbf{to} $\frac{d+1}{b}$ \textbf{:}
 	\item \pcind $\mathsf{G}_i \gets q^{b} \cdot \mathsf{G}_{i-1}$
-	\item \textbf{return} $\left(\mathsf{G}_0, \ldots, \mathsf{G}_{\frac{d+1}{b} - 1}\right)$
-\end{enumerate}
-$\mathsf{Commit}(\left(\mathsf{G}_0, \ldots, \mathsf{G}_{\frac{d+1}{b} - 1}\right), b; f(X) \in \mathbb{F}_p[X])$ \textbf{:}
-\begin{enumerate}[nolistsep]
-	\item $f_0, \ldots, f_{b-1} \gets \mathsf{split}(f(X))$ such that $f(X) = \sum_{i=0}^{b-1} X^i f_i(X^b)$ and $\deg(f_i) < \frac{d+1}{b}$
-	\item \textbf{for} $i$ \textbf{from} $0$ \textbf{to} $b-1$ \textbf{:}
-	\item $\mathsf{P}_i \gets 0$
-	\item \pcind \textbf{for each} nonzero term $\hat{h_j} X^{j}$ of $\mathsf{lift}(f_i(X^b))$ \textbf{:}
-	\item \pcind \pcind $\mathsf{P}_i \gets \mathsf{P}_i + \hat{h_j} \cdot \mathsf{G}_{\lfloor j / b \rfloor}$ \label{line:commit-coefficient}
-	\item $\mathsf{C} \gets \mathsf{P}_{b-1}$
-	\item \textbf{for} $i$ \textbf{from} $b-2$ \textbf{down to} $0$ \textbf{:}
-	\item \pcind $\mathsf{C} \gets \mathsf{P}_{i} + q \cdot \mathsf{C}$ \label{line:commit-shift}
-	\item \textbf{return} $(\mathsf{C}; \left(\mathsf{P}_0, \ldots, \mathsf{P}_{b-1}\right))$
+	\item \textbf{return} $\left(\mathsf{G}_i\right)_{i=0}^{\frac{d+1}{b} - 1}$
 \end{enumerate}
 \end{mdframed}
 
-For notational convenience, we present the evaluation protocol in four parts. Firstly, the protocol is split into two parts. The first part, $\mathsf{Eval}$, establishes that the evaluation of the committed polynomial in a vector of points $\mathbf{z} \in \mathbb{F}_p^s$ equals another vector $\mathbf{y} \in \mathbb{F}_p^s$. The second part, $\mathsf{BatchPoE}$, is establishes that the $\mathsf{PoE}$-relations arising from the first are valid. Secondly, both protocols are presented in non-interactive form as the result of the Fiat-Shamir transform. This transformation gives rise to a prover and a verifier for both parts.
+\begin{mdframed}
+$\mathsf{Commit}(\left(\mathsf{G}_i\right)_{i=0}^{\frac{d+1}{b} - 1}, b; f(X) \in \mathbb{F}_p[X])$ \textbf{:}
+\begin{enumerate}[nolistsep]
+	\item $f_0, \ldots, f_{b-1} \gets \mathsf{split}(f(X))$ such that $f(X) = \sum_{i=0}^{b-1} X^i f_i(X^b)$ and $\deg(f_i) < \frac{d+1}{b}$
+	\item \textbf{for} $i$ \textbf{from} $0$ \textbf{to} $b-1$ \textbf{:}
+	%\item \pcind $\mathsf{P}_i \gets 0$
+	%\item \pcind \textbf{for each} nonzero term $\hat{h_j} X^{j}$ of $\mathsf{lift}(f_i(X^b))$ \textbf{:}
+	%\item \pcind \pcind $\mathsf{P}_i \gets \mathsf{P}_i + \hat{h_j} \cdot \mathsf{G}_{\lfloor j / b \rfloor}$ \label{line:commit-coefficient}
+	\item \pcind $\mathsf{P}_i \gets \mathsf{MultiExp}(\{(\hat{h}_j, \mathsf{G}_{\lfloor j/b \rfloor}) \, | \, \hat{h}_jX^j \in \mathsf{terms}(\mathsf{lift}(f_i(X^b)))\})$ \label{line:commit-coefficient}
+	%\item $\mathsf{C} \gets \mathsf{P}_{b-1}$
+	%\item \textbf{for} $i$ \textbf{from} $b-2$ \textbf{down to} $0$ \textbf{:}
+	%\item \pcind $\mathsf{C} \gets \mathsf{P}_{i} + q \cdot \mathsf{C}$ \label{line:commit-shift}
+	\item $\mathsf{C} \gets \mathsf{Fold}(q, (\mathsf{P}_{b-1-i})_{i=0}^{b-1})$ \label{line:commit-shift}
+	\item \textbf{return} $(\mathsf{C}; \left(\mathsf{P}_i\right)_{i=0}^{b-1})$
+\end{enumerate}
+\end{mdframed}
+
+We can now present the evaluation protocol. However, rather than presenting one big protocol, we divide it into functional pieces.
+
+First, the interactive protocol is split into two parts. The first part, $\mathsf{Eval}$, establishes that the evaluation of the committed polynomial in a vector of points $\mathbf{z} \in \mathbb{F}_p^t$ equals another vector $\mathbf{y} \in \mathbb{F}_p^t$. The second part, $\mathsf{BatchPoE}$, is establishes that the $\mathsf{PoE}$-relations arising from the first are valid.
+
+Second, both protocols are presented in non-interactive form as the result of the Fiat-Shamir transform. Concretely, the random challenges from the verifier are now determined by the hash of all prior protocol messages up until that point. We omit the details in the pseudocode and write $\alpha \random \mathsf{H}(\cdots)$ or $\alpha, \beta \in \mathsf{H}(\cdots)$. Note that all $\alpha, \beta \in \mathbb{Z}(2^{\lambda-1}) = \{-2^{\lambda-1}, \ldots, 2^{\lambda-1}-1\}$. This transformation gives rise to a prover and a verifier for both parts.
 
 \begin{mdframed}
-$\mathsf{Eval.Prove}(\mathsf{C}, \mathbf{z}, \mathbf{y}; f(X), (f_0(X), \ldots, f_{b-1}(X)), \left(\mathsf{P}_0, \ldots, \mathsf{P}_{b-1}\right))$ \textbf{:}
+$\mathsf{Eval.Prove}(\mathsf{C}, \mathbf{z}, \mathbf{y}; f(X), (f_i(X))_{i=0}^{b-1}), \left(\mathsf{P}_i\right)_{i=0}^{b-1})$ \textbf{:}
 \begin{enumerate}[nolistsep]
-	\item $\pi_{\mathsf{Eval}} \gets \varnothing$
+	%\item $\pi_{\mathsf{Eval}} \gets \varnothing$
 	\item \textbf{for} $i$ \textbf{from} $0$ \textbf{to} $\lfloor\log_2 d \rfloor$ \textbf{:}
 	\item \pcind $\hat{f}_E \gets \frac{\hat{f}(X) + \hat{f}(-X)}{2}$ and $\hat{f}_O^{(i)} \gets \hat{f}(X) - \hat{f}_E(X)$
 	\item \pcind $\mathbf{y}_O^{(i)} \gets \hat{f}_O^{(i)}(\mathbf{z})$
 	\item \pcind \textbf{if} $i < \log_2 b$ \textbf{:}
-	\item \pcind \pcind $\mathsf{C}_O^{(i)} \gets \mathsf{P}_{b-1}$
-	\item \pcind \pcind \textbf{for} $j$ \textbf{from} $0$ \textbf{to} $b/2^i-1$ \textbf{:}
-	\item \pcind \pcind \pcind $\mathsf{C}_O^{(i)} \gets \mathsf{P}_{b-1-2j} + q^{2^i} \cdot \mathsf{C}_O^{(i)}$ \label{line:evalprove-firsthalf-bigstep}
+	%\item \pcind \pcind $\mathsf{C}_O^{(i)} \gets \mathsf{P}_{b-1}$
+	%\item \pcind \pcind \textbf{for} $j$ \textbf{from} $0$ \textbf{to} $b/2^i-1$ \textbf{:}
+	%\item \pcind \pcind \pcind $\mathsf{C}_O^{(i)} \gets \mathsf{P}_{b-1-2j} + q^{2^i} \cdot \mathsf{C}_O^{(i)}$ \label{line:evalprove-firsthalf-bigstep}
+	\item \pcind \pcind $\mathsf{C}_O^{(i)} \gets \mathsf{Fold}(q^{2^{i}}, (\mathsf{P}_{b/2^i-1-2j})_{j=0}^{b/2^{i+1}-1})$ \label{line:evalprove-firsthalf-bigstep}
 	\item \pcind \pcind $\mathsf{C}_O^{\prime(i)} \gets q \cdot \mathsf{C}_O^{(i)}$ \label{line:evalprove-firsthalf-shift}
 	\item \pcind \textbf{else:}
-	\item \pcind \pcind $\mathsf{C}_O^{(i)} \gets 0$ and $\mathsf{C}_O^{\prime(i)} \gets 0$
-	\item \pcind \pcind \textbf{for all} nonzero terms $\hat{h}_jX^j$ of $\hat{f}_O^{(i)}(X^{2^i})$ \textbf{:}
-	\item \pcind \pcind \pcind $\mathsf{C}_O^{(i)} \gets \mathsf{C}_O^{(i)} + \hat{h}_j \cdot \mathsf{G}_{\lfloor j/b \rfloor}$ \label{line:evalprove-secondhalf-regular}
-	\item \pcind \pcind \pcind $\mathsf{C}_O^{\prime(i)} \gets \mathsf{C}_O^{\prime(i)} + \hat{h}_j \cdot \mathsf{G}_{\lfloor (j+2^i)/b\rfloor}$ \label{line:evalprove-secondhalf-prime}
-	\item \pcind $\pi_{\mathsf{Eval}} \gets \pi_{\mathsf{Eval}} \Vert \mathbf{y}_O^{(i)} \Vert \mathsf{C}_O^{(i)} \Vert \mathsf{C}_O^{\prime(i)}$
-	\item \pcind $\alpha \gets \mathsf{H}(\mathsf{C} \Vert \mathbf{z} \Vert \mathbf{y} \Vert \pi_{\mathsf{Eval}})$  \pccomment{Fiat-Shamir}
+	%\item \pcind \pcind $\mathsf{C}_O^{(i)} \gets 0$ and $\mathsf{C}_O^{\prime(i)} \gets 0$
+	%\item \pcind \pcind \textbf{for all} nonzero terms $\hat{h}_jX^j$ of $\hat{f}_O^{(i)}(X^{2^i})$ \textbf{:}
+	%\item \pcind \pcind \pcind $\mathsf{C}_O^{(i)} \gets \mathsf{C}_O^{(i)} + \hat{h}_j \cdot \mathsf{G}_{\lfloor j/b \rfloor}$ \label{line:evalprove-secondhalf-regular}
+	%\item \pcind \pcind \pcind $\mathsf{C}_O^{\prime(i)} \gets \mathsf{C}_O^{\prime(i)} + \hat{h}_j \cdot \mathsf{G}_{\lfloor (j+2^i)/b\rfloor}$ \label{line:evalprove-secondhalf-prime}
+	\item \pcind \pcind $\mathsf{C}_O^{(i)} \gets \mathsf{MultiExp}(\{(\hat{h}_j, \mathsf{G}_{\lfloor j/b \rfloor}) \, | \, \hat{h}_j \cdot X^j \in \mathsf{terms}(\hat{f}_O^{(i)}(X^{2^i}))\})$ \label{line:evalprove-secondhalf-regular}
+	\item \pcind \pcind $\mathsf{C}_O^{(i)} \gets \mathsf{MultiExp}(\{(\hat{h}_j, \mathsf{G}_{\lfloor (j+2^i)/b\rfloor}) \, | \, \hat{h}_j \cdot X^j \in \mathsf{terms}(\hat{f}_O^{(i)}(X^{2^i}))\})$ \label{line:evalprove-secondhalf-prime}
+	%\item \pcind $\pi_{\mathsf{Eval}} \gets \pi_{\mathsf{Eval}} \Vert \mathbf{y}_O^{(i)} \Vert \mathsf{C}_O^{(i)} \Vert \mathsf{C}_O^{\prime(i)}$
+	%\item \pcind $\alpha \gets \mathsf{H}(\mathsf{C} \Vert \mathbf{z} \Vert \mathbf{y} \Vert \pi_{\mathsf{Eval}})$  \pccomment{Fiat-Shamir}
+	\item \pcind $\alpha \gets \mathsf{H}(\cdots)$
 	\item \pcind $\hat{f} \gets \hat{f}_E(X) + \alpha \cdot \hat{f}_O^{(i)}(X)$
 	\item \pcind \textbf{for} $j$ \textbf{from} $0$ \textbf{to} $b/2^{i+1}-1$ \textbf{:}
 	\item \pcind \pcind $\mathsf{P}_j \gets \mathsf{P}_j + \alpha \cdot \mathsf{P}_{b/2^{i+1}+j}$ \label{line:evalprover-maintenance}
-	\item $\pi_{\mathsf{PoE}} \gets \mathsf{BatchPoE.Prove}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots, \mathsf{C}_O^{(\lfloor\log_2(d)\rfloor)}, \mathsf{C}_O^{\prime(\lfloor\log_2 d\rfloor)}); (\hat{f}_O^{(\lfloor \log_2 d\rfloor)}, \ldots, \hat{f}_O^{(\log_2 b)}))$ \label{line:evalprove-batchpoe}
-	\item $\pi_{\mathsf{Eval}} \gets \pi_{\mathsf{Eval}} \Vert \pi_{\mathsf{PoE}} \Vert \hat{f}$
-	\item \textbf{return} $\pi_{\mathsf{Eval}}$
+	%\item $\pi_{\mathsf{PoE}} \gets \mathsf{BatchPoE.Prove}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots, \mathsf{C}_O^{(\lfloor\log_2(d)\rfloor)}, \mathsf{C}_O^{\prime(\lfloor\log_2 d\rfloor)}); (\hat{f}_O^{(\lfloor \log_2 d\rfloor)}, \ldots, \hat{f}_O^{(\log_2 b)}))$
+	\item $\pi_{\mathsf{PoE}} \gets \mathsf{BatchPoE.Prove}(((\mathsf{C}_O^{(i)}, \mathsf{C}_O^{\prime(i)}))_{i=0}^{\lfloor \log_2 d\rfloor}; (\hat{f}_O^{(i)})_{i = \log_2 b}^{(\lfloor \log_2 d\rfloor)})$ \label{line:evalprove-batchpoe}
+	%\item $\pi_{\mathsf{Eval}} \gets \pi_{\mathsf{Eval}} \Vert \pi_{\mathsf{PoE}} \Vert \hat{f}$
+	\item $\pi_{\mathsf{Eval}} = \Big\Vert_{i=0}^{\lfloor \log_2 d \rfloor} (\mathbf{y}_O^{(i)} \Vert \mathsf{C}_O^{(i)} \Vert \mathsf{C}_O^{\prime(i)})$
+	\item \textbf{return} $\pi = \pi_{\mathsf{Eval}} \Vert \pi_{\mathsf{PoE}} \Vert f$
 \end{enumerate}
-$\mathsf{Eval.Verify}(\mathsf{C}, \mathbf{z}, \mathbf{y}, \pi_{\mathsf{Eval}})$ \textbf{:}
+$\mathsf{Eval.Verify}(\mathsf{C}, \mathbf{z}, \mathbf{y}, \pi)$ \textbf{:}
 \begin{enumerate}[nolistsep]
-	\item $\mathsf{C}_O^{(0)} \Vert \mathsf{C}_O^{\prime(0)} \Vert \mathbf{y}_O^{(0)} \Vert \cdots \Vert \mathsf{C}_O^{(\log_2(d) - 1)} \Vert \mathsf{C}_O^{\prime(\lfloor\log_2 d\rfloor)} \Vert \mathbf{y}_O^{(\lfloor\log_2 d\rfloor)} \Vert \pi_{\mathsf{PoE}} \Vert \hat{f} \gets \pi_{\mathsf{Eval}}$
-	\item $\tau \gets \mathsf{C} \Vert \mathbf{z} \Vert \mathbf{y}$
+	\item parse $\pi$
+	%\item $\tau \gets \mathsf{C} \Vert \mathbf{z} \Vert \mathbf{y}$
 	\item \textbf{for} $i$ \textbf{from} $0$ \textbf{to} $\log_2(d)-1$ \textbf{:}
-	\item \pcind $\tau \gets \tau \Vert \mathbf{y}_O^{(i)} \Vert \mathsf{C}_O^{(i)} \Vert \mathsf{C}_O^{\prime(i)}$
-	\item \pcind $\alpha \gets \mathsf{H}(\tau)$ \pccomment{Fiat-Shamir}
+	%\item \pcind $\tau \gets \tau \Vert \mathbf{y}_O^{(i)} \Vert \mathsf{C}_O^{(i)} \Vert \mathsf{C}_O^{\prime(i)}$
+	\item \pcind $\alpha \gets \mathsf{H}(\cdots)$
 	\item \pcind $\mathsf{C} \gets \mathsf{C} - \mathsf{C}_O^{\prime(i)} + \alpha \cdot \mathsf{C}_O^{(i)}$ \label{line:evalverify-alpha}
 	\item \pcind $\mathbf{y} \gets \mathbf{y} - \mathbf{z} \circ \mathbf{y}_O^{(i)} + \alpha \cdot \mathbf{y}_O^{(i)} \mod p$
-	\item $b_{\mathsf{PoE}} \gets \mathsf{BatchPoE.Verify}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots, \mathsf{C}_O^{(\log_2(d)-1)}, \mathsf{C}_O^{\prime(\log_2(d)-1)}))$ \label{line:evalverify-batchpoe}
+	\item $b_{\mathsf{PoE}} \gets \mathsf{BatchPoE.Verify}(((\mathsf{C}_O^{(i)}, \mathsf{C}_O^{\prime(i)}))_{i=0}^{\lfloor \log_2 d \rfloor}, \pi_{\mathsf{PoE}})$ \label{line:evalverify-batchpoe}
 	\item \textbf{if} $y_0 = \cdots = y_{s-1} = \hat{f} \mod p$ \textbf{and} $|\hat{f}| < B$ \textbf{and} $\hat{f} \cdot \mathsf{G} = \mathsf{C}$ \textbf{and} $b_{\mathsf{PoE}} = \mathsf{true}$ \textbf{:}
 	\item \pcind \textbf{return} $\mathsf{true}$
 	\item \textbf{else :}
@@ -196,31 +236,32 @@ $\mathsf{Eval.Verify}(\mathsf{C}, \mathbf{z}, \mathbf{y}, \pi_{\mathsf{Eval}})$ 
 
 
 \begin{mdframed}
-$\mathsf{BatchPoE.Prove}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots, \mathsf{C}_O^{\lfloor\log_2 d \rfloor)}, \mathsf{C}_O^{\prime(\lfloor\log_2 d\rfloor)}); (\hat{f}_O^{(\lfloor \log_2 d\rfloor)}, \ldots, \hat{f}_O^{(\log_2 b)}))$ \textbf{:}
+$\mathsf{BatchPoE.Prove}(((\mathsf{C}_O^{(i)}, \mathsf{C}_O^{\prime(i)}))_{i=0}^{\lfloor \log_2 d\rfloor}; (\hat{f}_O^{(i)})_{i = \log_2 b}^{(\lfloor \log_2 d\rfloor)})$ \textbf{:}
 \begin{enumerate}[nolistsep]
 	\item $\pi_{\mathsf{PoE}} \gets \varnothing$
 	\item $\mathsf{X} \gets \mathsf{C}_O^{(\log_2(d)-1)}$ and $\mathsf{Z} \gets \mathsf{C}_O^{\prime(\log_2(d)-1)}$ and $\hat{f} \gets \hat{f}_O^{(\lfloor \log_2 d \rfloor)}$
 	\item \textbf{for} $i$ \textbf{from} $\lfloor \log_2 d \rfloor$ \textbf{down to} $1$ \textbf{:}
 	\item \pcind \textbf{if} $i \geq \log_2 b$ \textbf{:} 
-	\item \pcind \pcind $\mathsf{Y}^{(i)} \gets 0$
-	\item \pcind \pcind \textbf{for all} nonzero terms $\hat{h}_jX^j$ of $\hat{f}(X^{2^i})$ \textbf{:}
-	\item \pcind \pcind \pcind $\mathsf{Y}^{(i)} \gets \mathsf{Y}^{(i)} + \hat{h}_j \cdot \mathsf{G}_{(j+2^{i-1})/b}$ \label{line:batchpoeprove-big}
+	%\item \pcind \pcind $\mathsf{Y}^{(i)} \gets 0$
+	%\item \pcind \pcind \textbf{for all} nonzero terms $\hat{h}_jX^j$ of $\hat{f}(X^{2^i})$ \textbf{:}
+	%\item \pcind \pcind \pcind $\mathsf{Y}^{(i)} \gets \mathsf{Y}^{(i)} + \hat{h}_j \cdot \mathsf{G}_{(j+2^{i-1})/b}$ \label{line:batchpoeprove-big}
+	\item \pcind \pcind $\mathsf{Y}^{(i)} \gets \mathsf{MultiExp}(\{(\hat{h}_j, \mathsf{G}_{(j+2^{i-1})/b}) \, | \, \hat{h}_j \cdot X^j \in \mathsf{terms}(\hat{f}(X^{2^i})) \})$ \label{line:batchpoeprove-big}
 	\item \pcind \textbf{else :}
 	\item \pcind \pcind $\mathsf{Y}^{(i)} \gets q^{2^{i-1}} \cdot \mathsf{X}$ \label{line:batchpoeprove-small}
 	\item \pcind $\pi_{\mathsf{PoE}} \gets \pi_{\mathsf{PoE}} \Vert \mathsf{Y}^{(i)}$
-	\item \pcind $\alpha, \beta \gets \mathsf{H}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots, \mathsf{C}_O^{(\log_2(d)-1)}, \mathsf{C}_O^{\prime(\log_2(d)-1)}) \Vert \pi)$ \pccomment{Fiat-Shamir}
+	\item \pcind $\alpha, \beta \gets \mathsf{H}(\cdots)$ 
 	\item \pcind $\mathsf{X} \gets \mathsf{X} + \alpha \cdot \mathsf{Y}^{(i)} + \beta \cdot \mathsf{C}_O^{(i)}$ \label{line:batchpoeprove-regular}
 	\item \pcind $\mathsf{Z} \gets \mathsf{Y}^{(i)} + \alpha \cdot \mathsf{Z} + \beta \cdot \mathsf{C}_O^{\prime(i)}$\label{line:batchpoeprove-prime}
 	\item \pcind $\hat{f} \gets \hat{f}(X) + \alpha \cdot X^{2^{i-1}} \cdot \hat{f}(X) + \beta \cdot \hat{f}^{(i)}_O(X)$
 	\item \textbf{return} $\pi_{\mathsf{PoE}}$
 \end{enumerate}
-$\mathsf{BatchPoE.Verify}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots, \mathsf{C}_O^{(\log_2(d)-1)}, \mathsf{C}_O^{\prime(\log_2(d)-1)}), \pi_{\mathsf{PoE}})$ \textbf{:}
+$\mathsf{BatchPoE.Verify}(((\mathsf{C}_O^{(i)}, \mathsf{C}_O^{\prime(i)}))_{i=0}^{\lfloor \log_2 d \rfloor}), \pi_{\mathsf{PoE}})$ \textbf{:}
 \begin{enumerate}[nolistsep]
 	\item $\mathsf{Y}^{(\lfloor\log_2 d\rfloor)} \Vert \cdots \Vert \mathsf{Y}^{(1)} \gets \pi_{\mathsf{PoE}}$
 	\item $\mathsf{X} \gets \mathsf{C}_O^{(\log_2(d)-1)}$ and $\mathsf{Z} \gets \mathsf{C}_O^{\prime(\log_2(d)-1)}$
 	\item \textbf{for} $i$ \textbf{from} $\log_2(d) - 1$ \textbf{down to} $1$ \textbf{:}
 	\item \pcind $\pi \gets \pi \Vert \mathsf{Y}^{(i)}$
-	\item \pcind $\alpha, \beta \gets \mathsf{H}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots, \mathsf{C}_O^{(\lfloor\log_2 d\rfloor)}, \mathsf{C}_O^{\prime(\lfloor\log_2 d\rfloor)}) \Vert \pi_{\mathsf{PoE}})$ \pccomment{Fiat-Shamir}
+	\item \pcind $\alpha, \beta \gets \mathsf{H}(\cdots)$
 	\item \pcind $\mathsf{X} \gets \mathsf{X} + \alpha \cdot \mathsf{Y}^{(i)} + \beta \cdot \mathsf{C}_O^{(i)}$
 	\item \pcind $\mathsf{Z} \gets \mathsf{Y}^{(i)} + \alpha \cdot \mathsf{Z} + \beta \cdot \mathsf{C}_O^{\prime(i)}$
 	\item \textbf{if} $q \cdot \mathsf{X} = \mathsf{Z}$ \textbf{:}
