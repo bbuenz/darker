@@ -1,4 +1,4 @@
-\documentclass[11pt]{article}
+\documentclass[10pt,conference]{IEEEtran} 
 \pagestyle{plain} 
 \usepackage[operators,lambda,keys,sets,primitives,adversary,asymptotics,advantage]{cryptocode}
 \usepackage{notations}
@@ -99,7 +99,7 @@ The sequence of exponents arising from one run of the Pietrzak protocol is exact
 \node[anchor=west] (from eval) at (5.5, -1.5) {$(\mathsf{C}, \sqrt{e} \cdot \mathsf{C})$};
 \node[anchor=west] (random linear combo text) at (0, -2.25) {random linear combination:};
 \node[anchor=west] (random linear combo) at (5.5, -2.25) {$(\mathsf{B}, \sqrt{e} \cdot \mathsf{B})$};
-\draw[-] (5.5, -1.875) -- (9, -1.875) {};
+\draw[-] (5.5, -1.875) -- (8, -1.875) {};
 \node[anchor=north west] (is new working poe relation) at (random linear combo text.south west) {(= new working $\mathsf{PoE}$-relation)};
 \draw[->] (5.25, -0.25) -- (5.25, -0.75) -- (5.5, -0.5) {};
 \draw[->] (5.25, -0.75) -- (5.5, -1) {};
@@ -119,9 +119,11 @@ Let $b$ be a parameter that determines the amount of preprocessing and whose val
 
 The key idea is to generalize the even-odd split to a $b$-wise split. Specifically, the polynomial $f(X)$ is split as
 \begin{equation}
-f(X) = \sum_{i=0}^{b-1} X^i f_i(X^b) \quad \textnormal{such that} \quad \forall i \in \{0,\ldots,b-1\} : \textnormal{deg}(f_i) \leq \frac{d}{b} \enspace .
+f(X) = \sum_{i=0}^{b-1} X^i f_i(X^b)
 \end{equation}
-In the commitment phase, the prover stores commitments to these polynomial parts --- specifically $\mathsf{P}_i = \hat{f_i}(q^b) \cdot \mathsf{G}$ for $i \in \{0, \ldots, b-1\}$. The prover can compute all $b$ cached commitments from the common reference string and only $s$ exponentiations of $1+\lfloor\log_2 p\rfloor$ bits, where $s \leq d$ is the number of nonzero coefficients in $f(X)$. In fact, the total number of bits in the exponent can be even less if the prover uses multi-exponentiation techniques, but we ignore those for the time being. The actual commitment $\mathsf{C}$ to the polynomial $f(X)$ is best computed backwards from $\mathsf{C}_{b-1} = \mathsf{P}_{b-1}$ using the recursion rule $\mathsf{C}_{i} = \mathsf{P}_i + q \cdot \mathsf{C}_{i+1}$, in which case $\mathsf{C} = \mathsf{C}_0$. This strategy requires another $b$ exponentiations of $1 + \lfloor \log_2 q \rfloor$ bits.
+such that for all $i \in \{0,\ldots,b-1\} : \textnormal{deg}(f_i) \leq \frac{d}{b} \enspace .$
+
+In the commitment phase, the prover stores commitments to these polynomial parts --- specifically $\mathsf{P}_i = \hat{f_i}(q^b) \cdot \mathsf{G}$ for $i \in \{0, \ldots, b-1\}$. The prover can compute all $b$ cached commitments from the common reference string and only $s$ exponentiations of $1+\lfloor\log_2 p\rfloor$ bits, where $s \leq d$ is the number of nonzero coefficients in $f(X)$. In fact, the total number of bits in the exponent can be even less if the prover uses multi-exponentiation techniques, but we ignore those for the time being. The actual commitment $\mathsf{C}$ to the polynomial $f(X)$ is best computed backwards from $\mathsf{C}_{b-1} = \mathsf{P}_{b-1}$ using the folding recursion rule $\mathsf{C}_{i} = \mathsf{P}_i + q \cdot \mathsf{C}_{i+1}$, with $\mathsf{C} = \mathsf{C}_0$. This strategy requires another $b$ exponentiations of $1 + \lfloor \log_2 q \rfloor$ bits.
 
 Since $b$ is a power of two, the exact same strategy can be used in the evaluation protocol to compute $\mathsf{C}_O$, the commitment to $f_O(X) = \frac{f(X) - f(-X)}{2}$, the odd part of the even-odd split. With respect to the commitments $q^{2^i} \cdot \mathsf{C}_O$, the situation is more subtle. In the first $\log_2 b$ rounds, these commitments can be computed from $\mathsf{C}_O$ because the exponents are relatively small. In the other half of the rounds, the polynomial$f_O(X)$ has at most $d/b$ nonzero coefficients, and $q^{2^i} \cdot \mathsf{C}_O$ can be computed from the common reference string elements $\mathsf{G}_i$ and roughly $\frac{d}{b} \cdot \log p$ exponent bits.
 
@@ -129,8 +131,8 @@ Since $b$ is a power of two, the exact same strategy can be used in the evaluati
 
 The protocols and algorithms are presented below. We use additive notation for the groups and denote the identity element by 0. In argument lists and return values, we use the semicolon to distinguish public values (on the left) from secret ones (on the right). All algorithms have access to the (implicit) public parameters $(\mathbb{G}, \mathsf{G}, d)$ and without loss of generality the degree $d$ of the polynomial $f(X)$ is one less than a power of two. The function $\mathsf{lift} : \mathbb{F}_p[X] \rightarrow \mathbb{Z}[X]$ lifts a polynomial defined over a field to its canonical representative over the integers. The function $\mathsf{terms} : \mathbb{Z}[X] \rightarrow (\mathbb{Z}[X])^*$ takes a (sparse) polynomial and returns a list of its nonzero terms: $\mathsf{terms}(\sum_{i=0}^{s-1} c_i \cdot X^{e_i}) = (c_i \cdot X^{e_i})_{i=0}^{s-1}$ if all $c_i \neq 0$.
 
-The main reason for our algorithms' good performance is the clever use of multi-exponentiation techniques, where a single group element is computed from a list of disparate terms and coefficients.
-For notational and comprehensive convenience, we factor out these multi-exponentiation steps. Concretely, we use the following procedure to compute a single multi-exponentiation. When two subsequent invocations have identical loops and loop indices, a single loop is implied rather than two.
+One of the reasons for our algorithms' good performance is the clever use of multi-exponentiation techniques, where a single group element is computed from a list of disparate terms and coefficients.
+For notational and comprehensive convenience, we factor out these multi-exponentiation steps into a separate procedure. Concretely, we use the following procedure to compute a single multi-exponentiation. When two subsequent invocations have identical loops and loop indices, a single loop is implied rather than two.
 \begin{mdframed}
 $\mathsf{MultiExp}(\{(c_i, \mathsf{G}_i)\}_{i=0}^{t-1})$ \textbf{:}
 \begin{enumerate}[nolistsep]
@@ -179,7 +181,7 @@ $\mathsf{Commit}(\left(\mathsf{G}_i\right)_{i=0}^{\frac{d+1}{b} - 1}, b; f(X) \i
 \end{enumerate}
 \end{mdframed}
 
-We can now present the evaluation protocol. However, rather than presenting one big protocol, we divide it into functional pieces.
+We can now present the evaluation protocol in several functional parts.
 
 First, the interactive protocol is split into two parts. The first part, $\mathsf{Eval}$, establishes that the evaluation of the committed polynomial in a vector of points $\mathbf{z} \in \mathbb{F}_p^t$ equals another vector $\mathbf{y} \in \mathbb{F}_p^t$. The second part, $\mathsf{BatchPoE}$, is establishes that the $\mathsf{PoE}$-relations arising from the first are valid.
 
@@ -212,7 +214,7 @@ $\mathsf{Eval.Prove}(\mathsf{C}, \mathbf{z}, \mathbf{y}; f(X), (f_i(X))_{i=0}^{b
 	\item \pcind \textbf{for} $j$ \textbf{from} $0$ \textbf{to} $b/2^{i+1}-1$ \textbf{:}
 	\item \pcind \pcind $\mathsf{P}_j \gets \mathsf{P}_j + \alpha \cdot \mathsf{P}_{b/2^{i+1}+j}$ \label{line:evalprover-maintenance}
 	%\item $\pi_{\mathsf{PoE}} \gets \mathsf{BatchPoE.Prove}((\mathsf{C}_O^{(0)}, \mathsf{C}_O^{\prime(0)}, \ldots, \mathsf{C}_O^{(\lfloor\log_2(d)\rfloor)}, \mathsf{C}_O^{\prime(\lfloor\log_2 d\rfloor)}); (\hat{f}_O^{(\lfloor \log_2 d\rfloor)}, \ldots, \hat{f}_O^{(\log_2 b)}))$
-	\item $\pi_{\mathsf{PoE}} \gets \mathsf{BatchPoE.Prove}(((\mathsf{C}_O^{(i)}, \mathsf{C}_O^{\prime(i)}))_{i=0}^{\lfloor \log_2 d\rfloor}; (\hat{f}_O^{(i)})_{i = \log_2 b}^{(\lfloor \log_2 d\rfloor)})$ \label{line:evalprove-batchpoe}
+	\item $\pi_{\mathsf{PoE}} \gets \mathsf{BatchPoE.Prove}(((\mathsf{C}_O^{(i)}, \mathsf{C}_O^{\prime(i)}))_{i=0}^{\lfloor \log_2 d\rfloor};$ $(\hat{f}_O^{(i)})_{i = \log_2 b}^{(\lfloor \log_2 d\rfloor)})$ \label{line:evalprove-batchpoe}
 	%\item $\pi_{\mathsf{Eval}} \gets \pi_{\mathsf{Eval}} \Vert \pi_{\mathsf{PoE}} \Vert \hat{f}$
 	\item $\pi_{\mathsf{Eval}} = \Big\Vert_{i=0}^{\lfloor \log_2 d \rfloor} (\mathbf{y}_O^{(i)} \Vert \mathsf{C}_O^{(i)} \Vert \mathsf{C}_O^{\prime(i)})$
 	\item \textbf{return} $\pi = \pi_{\mathsf{Eval}} \Vert \pi_{\mathsf{PoE}} \Vert f$
@@ -226,7 +228,7 @@ $\mathsf{Eval.Verify}(\mathsf{C}, \mathbf{z}, \mathbf{y}, \pi)$ \textbf{:}
 	\item \pcind $\alpha \gets \mathsf{H}(\cdots)$
 	\item \pcind $\mathsf{C} \gets \mathsf{C} - \mathsf{C}_O^{\prime(i)} + \alpha \cdot \mathsf{C}_O^{(i)}$ \label{line:evalverify-alpha}
 	\item \pcind $\mathbf{y} \gets \mathbf{y} - \mathbf{z} \circ \mathbf{y}_O^{(i)} + \alpha \cdot \mathbf{y}_O^{(i)} \mod p$
-	\item $b_{\mathsf{PoE}} \gets \mathsf{BatchPoE.Verify}(((\mathsf{C}_O^{(i)}, \mathsf{C}_O^{\prime(i)}))_{i=0}^{\lfloor \log_2 d \rfloor}, \pi_{\mathsf{PoE}})$ \label{line:evalverify-batchpoe}
+	\item $b_{\mathsf{PoE}} \gets \mathsf{BatchPoE.Verify}(((\mathsf{C}_O^{(i)}, \mathsf{C}_O^{\prime(i)}))_{i=0}^{\lfloor \log_2 d \rfloor},$ $\pi_{\mathsf{PoE}})$ \label{line:evalverify-batchpoe}
 	\item \textbf{if} $y_0 = \cdots = y_{s-1} = \hat{f} \mod p$ \textbf{and} $|\hat{f}| < B$ \textbf{and} $\hat{f} \cdot \mathsf{G} = \mathsf{C}$ \textbf{and} $b_{\mathsf{PoE}} = \mathsf{true}$ \textbf{:}
 	\item \pcind \textbf{return} $\mathsf{true}$
 	\item \textbf{else :}
@@ -236,7 +238,7 @@ $\mathsf{Eval.Verify}(\mathsf{C}, \mathbf{z}, \mathbf{y}, \pi)$ \textbf{:}
 
 
 \begin{mdframed}
-$\mathsf{BatchPoE.Prove}(((\mathsf{C}_O^{(i)}, \mathsf{C}_O^{\prime(i)}))_{i=0}^{\lfloor \log_2 d\rfloor}; (\hat{f}_O^{(i)})_{i = \log_2 b}^{(\lfloor \log_2 d\rfloor)})$ \textbf{:}
+$\mathsf{BatchPoE.Prove}(((\mathsf{C}_O^{(i)}, \mathsf{C}_O^{\prime(i)}))_{i=0}^{\lfloor \log_2 d\rfloor};$ $(\hat{f}_O^{(i)})_{i = \log_2 b}^{(\lfloor \log_2 d\rfloor)})$ \textbf{:}
 \begin{enumerate}[nolistsep]
 	\item $\pi_{\mathsf{PoE}} \gets \varnothing$
 	\item $\mathsf{X} \gets \mathsf{C}_O^{(\log_2(d)-1)}$ and $\mathsf{Z} \gets \mathsf{C}_O^{\prime(\log_2(d)-1)}$ and $\hat{f} \gets \hat{f}_O^{(\lfloor \log_2 d \rfloor)}$
@@ -257,7 +259,7 @@ $\mathsf{BatchPoE.Prove}(((\mathsf{C}_O^{(i)}, \mathsf{C}_O^{\prime(i)}))_{i=0}^
 \end{enumerate}
 $\mathsf{BatchPoE.Verify}(((\mathsf{C}_O^{(i)}, \mathsf{C}_O^{\prime(i)}))_{i=0}^{\lfloor \log_2 d \rfloor}), \pi_{\mathsf{PoE}})$ \textbf{:}
 \begin{enumerate}[nolistsep]
-	\item $\mathsf{Y}^{(\lfloor\log_2 d\rfloor)} \Vert \cdots \Vert \mathsf{Y}^{(1)} \gets \pi_{\mathsf{PoE}}$
+	\item parse $\pi_{\mathsf{PoE}}$
 	\item $\mathsf{X} \gets \mathsf{C}_O^{(\log_2(d)-1)}$ and $\mathsf{Z} \gets \mathsf{C}_O^{\prime(\log_2(d)-1)}$
 	\item \textbf{for} $i$ \textbf{from} $\log_2(d) - 1$ \textbf{down to} $1$ \textbf{:}
 	\item \pcind $\pi \gets \pi \Vert \mathsf{Y}^{(i)}$
@@ -292,17 +294,21 @@ By summing all terms, we have a total number of bits in exponents whose exact co
 \begin{tabular}{rrl} \\
 line~\ref{line:evalprove-firsthalf-bigstep}: & $b \cdot ( 1 + \lfloor \log_2 q \rfloor )$ \\
 line~\ref{line:evalprove-firsthalf-shift}: & $\log_2(b) \cdot (1 + \lfloor \log_2 q \rfloor)$ \\
-line~\ref{line:evalprove-secondhalf-regular}: & $(\lfloor \log_2 d \rfloor - \log_2(b) + 1) \cdot (1 + \lfloor \log_2 p \rfloor + (\lfloor \log_2 d \rfloor + \log_2 b) \cdot \frac{\lambda}{2}) \cdot \frac{d}{b}$ \\
-line~\ref{line:evalprove-secondhalf-prime}: & $(\lfloor \log_2 d \rfloor - \log_2(b) + 1) \cdot (1 + \lfloor \log_2 p \rfloor + (\lfloor \log_2 d \rfloor + \log_2 b) \cdot \frac{\lambda}{2}) \cdot \frac{d}{b}$ \\
+line~\ref{line:evalprove-secondhalf-regular}: & $(\lfloor \log_2 d \rfloor - \log_2(b) + 1) \cdot (1 + \lfloor \log_2 p \rfloor$ \\
+ & $ + (\lfloor \log_2 d \rfloor + \log_2 b) \cdot \frac{\lambda}{2}) \cdot \frac{d}{b}$ \\
+line~\ref{line:evalprove-secondhalf-prime}: & $(\lfloor \log_2 d \rfloor - \log_2(b) + 1) \cdot (1 + \lfloor \log_2 p \rfloor $ \\
+ & $+ (\lfloor \log_2 d \rfloor + \log_2 b) \cdot \frac{\lambda}{2}) \cdot \frac{d}{b}$ \\
 line~\ref{line:evalprover-maintenance}: & $(b + \frac{b}{d}) \cdot \lambda$ \\
-line~\ref{line:evalprove-batchpoe}: & $(1+\lfloor \log_2 q \rfloor) \cdot (b-1) $\\
- & $ +  \frac{d}{b} \cdot (\lfloor \log_2 d \rfloor - \log_2(b) + 1) \cdot (1 + \lfloor \log_2 p \rfloor) $ \\
- & $ + \frac{d}{b} \cdot \lambda \cdot (\lfloor \log_2 d \rfloor + \log_2 b) \cdot (\lfloor \log_2 d \rfloor - \log_2(b) + 1)/2 $ \\
+line~\ref{line:evalprove-batchpoe}: & $(1+\lfloor \log_2 q \rfloor) \cdot (b-1)  +  \frac{d}{b} \cdot (\lfloor \log_2 d \rfloor $ \\
+ & $- \log_2(b) + 1) \cdot (1 + \lfloor \log_2 p \rfloor) $ \\
+ & $ + \frac{d}{b} \cdot \lambda \cdot (\lfloor \log_2 d \rfloor + \log_2 b)$ \\
+ & $ \cdot (\lfloor \log_2 d \rfloor - \log_2(b) + 1)/2 $ \\
  & $ +  4 \cdot \lambda \cdot \lfloor \log_2 d \rfloor$ \\ \hline
 total: & $(2b + \log_2(b) - 1) \cdot (1 + \lfloor \log_2 q \rfloor)$ \\
- & $+ 3\frac{d}{b} \cdot (\lfloor \log_2 d \rfloor - \log_2(b) + 1) \cdot ( 1 + \lfloor \log_2 p \rfloor )$ \\
- & $ + \big(b + \frac{d}{b} + 4 \lfloor \log_2 d \rfloor \quad \quad$ \\
-  & $ + \frac{d}{2b} \cdot ( \lfloor \log_2 d \rfloor - \log_2(b) + 1) \cdot (\lfloor \log_2 d \rfloor + \log_2 b)\big) \cdot \lambda$ \\
+ & $+ 3\frac{d}{b} \cdot (\lfloor \log_2 d \rfloor - \log_2(b) + 1)$ \\
+ & $ \cdot ( 1 + \lfloor \log_2 p \rfloor ) + \big(b + \frac{d}{b} + 4 \lfloor \log_2 d \rfloor$ \\
+ & $ + \frac{d}{2b} \cdot ( \lfloor \log_2 d \rfloor - \log_2(b) + 1)$ \\
+  & $ \cdot (\lfloor \log_2 d \rfloor + \log_2 b)\big) \cdot \lambda$ \\
  & $\in O_\lambda(\sqrt{d} \cdot (\log d)^2)$ 
 \end{tabular}
 \end{center}
@@ -772,6 +778,6 @@ Let $(\prover, \verifier)$ be an $r$-round public-coin interactive proof system 
 \section{Evaluation}
 
 We evaluate 
- \bibliographystyle{alpha}
+ \bibliographystyle{IEEEtran}
  \bibliography{../cryptobib/abbrev3,../cryptobib/crypto,cryptobib/additional}
 \end{document}
