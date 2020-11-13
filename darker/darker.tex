@@ -316,7 +316,54 @@ total: & $(2b + \log_2(b) - 1) \cdot (1 + \lfloor \log_2 q \rfloor)$ \\
 \end{itemize}
 
 
-\subsection{Security}
+\section{Security}
+
+The security of our scheme is provable under the Random Order Assumption. We first show that this assumption is implied by the RSA Assumption as captured by Couteau~\emph{et al.}~\cite{EC:CouPetPoi17}. In this formalism, the exponent $\ell$ is drawn from a distribution, which is itself a parameter of the assumption. In our case we take the uniform distribution over $[N] = \{1, \ldots, N\}$ for some large enough $N \in \mathbb{N}$ determined by the group generator $\ggen$
+
+\begin{assumption}[RSA assumption, \cite{RivShaAdl78,EC:CouPetPoi17}]
+	The RSA assumption states that an efficient adversary cannot compute a random root (co-prime with the order of the group) for a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
+	\[
+    \Pr\left[
+    \begin{array}{l}
+    \ell \cdot \gr{U} = \Generator \, \wedge \\
+    \gcd(\ell,|\GG|)=1
+    \end{array} :
+    \begin{array}{l}
+         \GG, N \leftarrow \ggen(\lambda)  \\
+         \Generator \sample \GG, \ell \sample [N]  \\
+         \gr{U} \in \mathbb{G} \leftarrow \adv(\mathbb{G}, \Generator) \\
+    \end{array}\right] \leq \negl \enspace .
+\]
+
+\end{assumption}
+
+\begin{assumption}[Random Order Assumption]
+	The random order assumption states that an efficient adversary cannot compute a multiple of the order of a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
+	\[
+    \Pr\left[a\cdot \Generator =0:
+    \begin{array}{l}
+         \GG, N \leftarrow \ggen(\lambda)  \\
+         \Generator, \sample \GG\\
+         a \in \NN \leftarrow \adv(\mathbb{G},N, \Generator) \\
+    \end{array}\right] \leq \negl \enspace .
+    \]
+\end{assumption}
+\begin{lemma}
+\label{lem:roa-to-rsa}
+	The RSA Assumption for $\ggen$ implies the Random Order Assumption
+	\end{lemma}
+\begin{proof}
+	Given an efficient adversary $\adv_{\textsf{Order}}$ for the random order assumption we will construct an efficient adversary $\adv_{\textsf{RSA}}$ for the RSA assumption. On input $\GG,\Generator,\ell$ to $\adv_{\textsf{RSA}}$ we will forward $\GG,\Generator$ to $\adv_{\textsf{Order}}$. $\adv_{\textsf{Order}}$ outputs $a$ such that $a\cdot \Generator=0$ with non-negligible probability $\epsilon$. 
+	$\adv_{\textsf{RSA}}$ computes computes $a'\gets \frac{a}{\gcd(a,\ell^k)}$ for $k=\lceil\log_\ell(a)\rceil$. Note that since $\ell$ is co-prime to the order of $\GG$ and thus also the order of $\Generator$ and $a$ is a multiple of the order of $\Generator$ we have that $a'$ is still a multiple of the order of $\Generator$. Now $\adv_{\textsf{RSA}}$ computes $w\gets \ell^{-1} \bmod a'$ and outputs $\gr{U} \gets w\cdot \Generator$. Now we have $\ell \cdot \gr{U}=\Generator$ so $\adv_{\textsf{RSA}}$ succeeds with probability $\epsilon$.
+\end{proof}
+
+\begin{lemma}[Binding commitment]
+\label{lem:aug-com-binding}
+The commitment scheme is binding under the Random Order Assumption. 
+\end{lemma}
+\begin{proof}
+Suppose a polynomial time adversary is able to compute a commitment $\gr{C}$ and two polynomials $\hat{f}_0(X) \neq \hat{f}_1(X) \in \mathbb{Z}[X]$ with coefficients in $\mathbb{Z}(q/2)$ and such that $\hat{f}_0(q) \cdot \mathsf{G} = \hat{f}_1(q) \cdot \mathsf{G} = \mathsf{C}$. Then $\hat{f}_0(q) - \hat{f}_1(q) \neq 0$ is a multiple of the order of $\mathsf{G}$.
+\end{proof}
 
 \section{Sketched Protocol}
 Using additive notation. 
@@ -422,40 +469,7 @@ Step 2 in FFTEval is likely a bottleneck. Smaller q value would still help in th
 .
 
 \subsection{Proof}
-We state a version of the RSA assumption as described by $\cite{EC:CouPetPoi17}$.
-\begin{assumption}[RSA assumption,\cite{RivShaAdl78,EC:CouPetPoi17} ]
-	The RSA assumption states that an efficient adversary cannot compute a random root (co-prime with the order of the group) for a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
-	\[
-    \Pr\left[\ell \cdot \gr{U} = \Generator \wedge \gcd(\ell,|\GG|)=1:
-    \begin{array}{l}
-         \GG,B \leftarrow \ggen(\lambda)  \\
-         \Generator \sample \GG, \ell \sample [B]  \\
-         \gr{U} \in \mathbb{G} \leftarrow \adv(\mathbb{G}, \Generator) \\
-    \end{array}\right] \leq \negl \enspace .
-\]
 
-\end{assumption}
-	\benedikt{Overload of $B$}
-
-\begin{assumption}[Random order assumption]
-	The random order assumption states that an efficient adversary cannot compute a multiple of the order of a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
-	\[
-    \Pr\left[a\cdot \Generator =0:
-    \begin{array}{l}
-         \GG,B \leftarrow \ggen(\lambda)  \\
-         \Generator, \sample \GG\\
-         a \in \NN \leftarrow \adv(\mathbb{G},B, \Generator) \\
-    \end{array}\right] \leq \negl \enspace .
-    \]
-\end{assumption}
-\begin{lemma}
-\label{lem:roa-to-rsa}
-	The RSA assumption for $\ggen$ implies the random order assumption
-	\end{lemma}
-\begin{proof}
-	Given an efficient adversary $\adv_{\textsf{Order}}$ for the random order assumption we will construct an efficient adversary $\adv_{\textsf{RSA}}$ for the RSA assumption. On input $\GG,\Generator,\ell$ to $\adv_{\textsf{RSA}}$ we will forward $\GG,\Generator$ to $\adv_{\textsf{Order}}$. $\adv_{\textsf{Order}}$ outputs $a$ such that $a\cdot \Generator=0$ with non-negligible probability $\epsilon$. 
-	$\adv_{\textsf{RSA}}$ computes computes $a'\gets \frac{a}{\gcd(a,\ell^k)}$ for $k=\lceil\log_\ell(a)\rceil$. Note that since $\ell$ is co-prime to the order of $\GG$ and thus also the order of $\Generator$ and $a$ is a multiple of the order of $\Generator$ we have that $a'$ is still a multiple of the order of $\Generator$. Now $\adv_{\textsf{RSA}}$ computes $w\gets \ell^{-1} \bmod a'$ and outputs $\gr{U} \gets w\cdot \Generator$. $\ell \cdot \gr{U}=\Generator$ so $\adv_{\textsf{RSA}}$ succeeds with probability $\epsilon$.
-\end{proof}
 \begin{fact}[Known order elements]
 	\label{fact:knownorder}
 	Given a two elements in a group and multiples of the order of these elements there exists an efficient algorithm computing the order of any linear combination of the elements.
@@ -481,34 +495,6 @@ The rational numbers $\frac{f_1(q)}{z_1} = \frac{f_2(q)}{z_2} \in \QQ$ are in re
 %Let q be an integer. For any rational $z$ with numerator $n \in \ZZ$ such that $|z|<\frac{q^{d+1}}{2}$ there exists a unique degree (at most) d rational polynomial $\hat{h}(X)$ in $\QQ(q)[X]$ such that $\hat{h}(q) = z$. If $q>n$ then there exists a unique polynomial $h(X) \in \ZZ/p\ZZ$ such that $\hat{h}\equiv h \bmod p$ 
 %\end{fact}
 
-\begin{definition}[GUO Polynomial Commitment]
-We describe a non-hiding succinct polynomial commitment scheme for polynomials of bounded degree over $\ZZ_p$ using a group of unknown order.
-\begin{itemize}
-	\item $\setup(\secparam) \rightarrow \crs:$
-The setup algorithm $\setup$ on input $\secparam$ and max degree $d$ and prime $p$ samples a group of unknown order $\GG$ and a $\Generator \sample \GG$ and sets $q=2^k$ for $k \in \NN$ such that $q>p\cdot 2^{\lambda \cdot \logd}$. The algorithm outputs $\crs=(\GG,\Generator,q,p,d)$.
-
-\item $\commit(\crs, f) \rightarrow \Commitment$: The commitment algorithm $\commit$ on input $f(X)\in \ZZ_p$ lifts $f(X)$ to the integer polynomial $\hat{f}(X)$ with coefficients bounded by $p$ and outputs $\Commitment =\hat{f}(q) \cdot \Generator$
-%\item The open algorithm $\open$ outputs $f(X),\gr{W} \in \GG,\alpha \in \NN$
-\item $\verify(\crs, \Commitment, f, (\hat{f}, \denom,  \gr{W}, a)) \rightarrow b$: 
-The verification algorithm checks an opening of $\Commitment$ to the polynomial $f \in \ZZ_p[X]$, given the opening hint consisting of $\hat{f}\in \ZZ[X]$, $\denom \in \ZZ$, $\gr{W} \in \GG$, and $\alpha \in \ZZ$. It checks that $\alpha > 0$, $||\hat{f}||_\infty < \frac{q}{2}$, $\hat{f}(X) \equiv f(X)\cdot \denom \bmod p$, $\alpha\cdot \gr{W}=0$, $gcd(\hat{f}(q), \denom) = 1$, and $\denom \cdot \Commitment =\hat{f}(q)\cdot \Generator +\gr{W}$. If these checks pass it outputs $1$, and otherwise it outputs $0$. 
-\item The evaluation protocol will be described later.
-\end{itemize}
-Note that an honestly generated commitment does not require an additional opening hint as $\Commitment = f(q) \cdot \Generator$. The flexibility in the $\verify$ algorithm is mainly for the security analysis of our evaluation protocol, so that the knowledge extractor is allowed to obtain a more general opening hint for the commitment. 
-\end{definition}
-
-\begin{lemma}[Binding commitment]
-\label{lem:aug-com-binding}
-	The commitment is binding under the random order assumption. 
-\end{lemma}
-\begin{proof}
-	Suppose a polynomial time adversary is able to compute a commitment $\gr{C}$ and two valid opening hints $(\hat{f}_1, \denom_1, \gr{W}_1, \alpha_1)$ and $(\hat{f}_2, \denom_2, \gr{W}_2, \alpha_2)$ that open $\gr{C}$ to distinct values in $\ZZ_p[X]$, i.e. such that $\hat{f}_1 \cdot \denom_1^{-1} \neq \hat{f}_2 \cdot d_2^{-1} \bmod p$. 
-	This implies $\hat{f}_1 \cdot \denom_2 \neq \hat{f}_2 \cdot \denom_1$. Moreover, since $||\hat{f}_1||_\infty < q/2$, $||\hat{f}_2||_\infty < q/2$, $\gcd(\hat{f}_1(q), \denom_1) = 1$, and $\gcd(\hat{f}_1(q), \denom_1) = 1$, by the contrapositive of Lemma~\ref{lem:encoding} this implies $\hat{f}_1(q) \cdot \denom_2 \neq \hat{f}_2(q) \cdot \denom_1$. Validity of the hints further implies $\alpha_1 \cdot \gr{W}_1 = 0$, $\alpha_2 \cdot \gr{W}_2 = 0$, and: 
-	
-	$$\denom_2 \cdot \denom_1 \cdot C = \denom_2 (\hat{f}_1(q) \cdot \gr{G} + \gr{W}_1) = \denom_1(\hat{f}_2(q) \cdot \gr{G} + \gr{W}_2)$$ 
-	
-	The adversary may therefore compute $\Delta = \alpha_1 \alpha_2 (\denom_2 \cdot \hat{f}_1(q)  - \denom_1 \cdot \hat{f}_2(q)) \neq 0$, which satisfies $\Delta \cdot \gr{G} = 0$. $\Delta$ is a multiple of the order of the element $\gr{G}$, which contradicts the Random Order Assumption. 
-	 
-	\end{proof}
 	
 		
 	\begin{lemma}[PoEs]
