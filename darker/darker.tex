@@ -129,7 +129,7 @@ Since $b$ is a power of two, the exact same strategy can be used in the evaluati
 
 \section{Protocols}
 
-The protocols and algorithms are presented below. We use additive notation for the groups and denote the identity element by 0. In argument lists and return values, we use the semicolon to distinguish public values (on the left) from secret ones (on the right). All algorithms have access to the (implicit) public parameters $(\mathbb{G}, \mathsf{G}, d)$ and without loss of generality the degree $d$ of the polynomial $f(X)$ is one less than a power of two. The function $\mathsf{lift} : \mathbb{F}_p[X] \rightarrow \mathbb{Z}[X]$ lifts a polynomial defined over a field to its canonical representative over the integers. The function $\mathsf{terms} : \mathbb{Z}[X] \rightarrow (\mathbb{Z}[X])^*$ takes a (sparse) polynomial and returns a list of its nonzero terms: $\mathsf{terms}(\sum_{i=0}^{s-1} c_i \cdot X^{e_i}) = (c_i \cdot X^{e_i})_{i=0}^{s-1}$ if all $c_i \neq 0$.
+The protocols and algorithms are presented below. We use additive notation for the groups and denote the identity element by 0. In argument lists and return values, we use the semicolon to distinguish public values (on the left) from secret ones (on the right). All algorithms have access to the (implicit) public parameters $(\mathbb{G}, \mathsf{G}, d)$ and without loss of generality the degree $d$ of the polynomial $f(X)$ is one less than a power of two. The function $\mathsf{lift} : \mathbb{F}_p[X] \rightarrow \mathbb{Z}[X]$ lifts a polynomial defined over a field to its canonical representative over the integers, with coefficients from $\mathbb{F}_p$ being represented by the range $\mathbb{Z}(\frac{p-1}{2}) = \{-\frac{p-1}{2}, \ldots, \frac{p-1}{2}\}$. The function $\mathsf{terms} : \mathbb{Z}[X] \rightarrow (\mathbb{Z}[X])^*$ takes a (sparse) polynomial and returns a list of its nonzero terms: $\mathsf{terms}(\sum_{i=0}^{s-1} c_i \cdot X^{e_i}) = (c_i \cdot X^{e_i})_{i=0}^{s-1}$ if all $c_i \neq 0$.
 
 One of the reasons for our algorithms' good performance is the clever use of multi-exponentiation techniques, where a single group element is computed from a list of disparate terms and coefficients.
 For notational and comprehensive convenience, we factor out these multi-exponentiation steps into a separate procedure. Concretely, we use the following procedure to compute a single multi-exponentiation. When two subsequent invocations have identical loops and loop indices, a single loop is implied rather than two.
@@ -363,6 +363,34 @@ The commitment scheme is binding under the Random Order Assumption.
 \end{lemma}
 \begin{proof}
 Suppose a polynomial time adversary is able to compute a commitment $\gr{C}$ and two polynomials $\hat{f}_0(X) \neq \hat{f}_1(X) \in \mathbb{Z}[X]$ with coefficients in $\mathbb{Z}(q/2)$ and such that $\hat{f}_0(q) \cdot \mathsf{G} = \hat{f}_1(q) \cdot \mathsf{G} = \mathsf{C}$. Then $\hat{f}_0(q) - \hat{f}_1(q) \neq 0$ is a multiple of the order of $\mathsf{G}$.
+\end{proof}
+
+\begin{theorem}[knowledge-soundness of $\mathsf{Eval}$]
+If $\mathsf{BatchPoE}$ is sound, and if the RSA Assumption is true, then the interactive protocol $\mathsf{Eval}$ is a proof of knowledge for the relation $\mathcal{R}_{\mathsf{PC}} =$
+$$ \left\{ \langle (\mathsf{C}, \mathbf{z}, \mathbf{y}, d), (f(X), \hat{f})\rangle : \begin{array}{l}
+\mathsf{deg}(f(X)) \leq d \\
+f(\mathbf{z}) = \mathbf{y} \\
+\hat{f} \cdot \mathsf{G} = \mathsf{C} \\
+\mathsf{Dec}(\hat{f}) = f(X)
+\end{array} \right\} \, .$$
+\end{theorem}
+
+\begin{proof}
+We describe the operation of the PPT extractor machine \extractor, which has rewinding access to a possibly malicious prover $\prover^*$, which in turn succeeds with overwhelming probability in convincing the verifier. Consider the binary tree of depth $\lfloor \log d \rfloor$ where every node is labelled with a message from the prover and every edge is labelled with a message from the verifier. Every path from root to leaf corresponds to a transcript. \extractor dynamically generates this tree and computes a polynomial $\hat{f}^{(i)}(X)$ for every node such that $\hat{f}(q) \cdot \mathsf{G} = \mathsf{C}^{(i)}$ where $\mathsf{C}^{(i)}$ corresponds to the value of the variable $\mathsf{C}$ of the verifier in round $i$.
+
+\extractor\, computes $\hat{f}^{(\lfloor \log_2 d \rfloor)}(X)$ by reading the corresponding leaf. For every non-leaf node, \extractor computes $\hat{f}^{(i)}(X)$ from the polynomials $\hat{f}^{(i+1)}(X)$ and $\hat{f}^{\prime (i+1)}(X)$, corresponding to the node's two children. Let $\alpha^{(i)}$ and $\alpha^{\prime (i)}$ be the verifier's challenges on the edges that connect the node to its children. Let $f_O = \frac{\hat{f}^{(i+1)}(q) - \hat{f}^{\prime (i+1)}(q)}{\alpha^{(i)} - \alpha^{\prime (i)}}$ such that $(\alpha^{(i)} - \alpha^{\prime (i)}) f_O \cdot \mathsf{G} = \mathsf{C}_O^{(i+1)} - \mathsf{C}_O^{\prime (i+1)}$.
+
+We have
+$$ \left( \begin{matrix}
+1 & \alpha^{(i)} \\
+1 & \alpha^{\prime (i)} \\
+\end{matrix} \right) \left( \begin{matrix}
+\hat{f}_E(X) \\
+\hat{f}_O(X)
+\end{matrix} \right) = \left( \begin{matrix}
+\hat{f}^{(i+1)}(X) \\
+\hat{f}^{\prime (i+1)}(X) 
+\end{matrix} \right) \enspace . $$
 \end{proof}
 
 \section{Sketched Protocol}
