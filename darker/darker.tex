@@ -1,4 +1,5 @@
-\documentclass[10pt,conference]{IEEEtran} 
+%\documentclass[10pt,conference]{IEEEtran} 
+\documentclass{article}
 \pagestyle{plain} 
 \usepackage[operators,lambda,keys,sets,primitives,adversary,asymptotics,advantage]{cryptocode}
 \usepackage{notations}
@@ -275,10 +276,10 @@ $\mathsf{BatchPoE.Verify}(((\mathsf{C}_O^{(i)}, \mathsf{C}_O^{\prime(i)}))_{i=0}
 
 \subsection{Complexity}
 
-The performance of all algorithms is dominated by the number of group operations. Therefore, we restrict our attention to exponentiations and count the total number of bits in all exponents. For the asymptotic expressions we simplify using the approximations $q \approx \lambda \cdot \log d$, $\lambda \approx p$, and $b \approx \sqrt{d}$.
+The performance of all algorithms \benedikt{Well this isn't technically true anymore. For eval one needs to evaluate $f(X)$ which can take $O(d)$ time.} is dominated by the number of group operations. Therefore, we restrict our attention to exponentiations and count the total number of bits in all exponents. For the asymptotic expressions we simplify using the approximations $q \approx \lambda \cdot \log d$, $\lambda \approx p$, and $b \approx \sqrt{d}$.
 
 \begin{itemize}
-\item $\mathsf{Preprocess}$ involves $\frac{d+1}{b}$ exponentiations of $b \cdot (1 + \lfloor \log_2 q \rfloor)$ bits, or $(d+1) \cdot (1 + \lfloor \log_2 q \rfloor) \in O_\lambda(d \log d)$ exponent bits in total. The common reference string consists of $\frac{d+1}{b}$ group elements.
+\item $\mathsf{Preprocess}$ involves $\frac{d+1}{b}$ exponentiations of $b \cdot (1 + \lfloor \log_2 q \rfloor)$ bits, or $(d+1) \cdot (1 + \lfloor \log_2 q \rfloor) \in O_\lambda(d \log d)$ exponent bits in total. The common reference string consists of $\frac{d+1}{b}\approx\sqrt{d}$ group elements.
 \item $\mathsf{Commit}$ performs $s$ exponentiations of $1+\lfloor \log_2 p \rfloor$ bits on line~\ref{line:commit-coefficient}, and $b-1$ exponentiations of $1+\lfloor \log_2 q \rfloor$ bits on line~\ref{line:commit-shift}. Asymptotically speaking, the total number of exponent bits amounts to $O_\lambda(\sqrt{d} \log d + s)$. The commitment itself consists of a single group element, whereas the cache contains $b$ group elements.
 \item $\mathsf{BatchPoE.Prove}$ has $\lfloor \log_2 d \rfloor$ iterations with $i \in \{1, \ldots, \lfloor \log_2 d \rfloor\}$. When $i \in \{1, \ldots, \log_2(b)-1\}$ there is one exponent of $(1 + \lfloor \log_2 q \rfloor) \cdot {2^{i-1}}$ bits (line~\ref{line:batchpoeprove-small}), totalling $(1+\lfloor \log_2 q \rfloor) \cdot (b-1)$ exponent bits. \\
 When $i \in \{\log_2 b, \ldots, \lfloor \log_2 d \rfloor\}$ there are at most $s$ exponentiations of $i \cdot \lambda + 1 + \lfloor \log_2 p \rfloor$ bits (line~\ref{line:batchpoeprove-big}). In fact, there are only at most $\min(s, \, 2^{\lfloor \log_2 d \rfloor - i})$ such exponentiations, and while it is tempting to select $s$ as a formulaically easy upper bound, the better complexity expression arises from focusing on the second argument. Note that $2^{\lfloor \log_2 d \rfloor - i}$ is maximal for $i = \log_2 b$ in which case the minimum is $d/b$. So there are at most $d/b \cdot (\lfloor \log_2 d \rfloor - \log_2(b) + 1) \cdot (1 + \lfloor \log_2 p \rfloor) + d/b \cdot \lambda \cdot (\lfloor \log_2 d \rfloor + \log_2 b) \cdot (\lfloor \log_2 d \rfloor - \log_2(b) + 1)/2$ exponent bits in total. \\
