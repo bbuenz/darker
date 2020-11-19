@@ -24,6 +24,7 @@ let
    ucs
    todonotes
    cleveref
+   helvetic
    ; });
 in mkShell {
   buildInputs = [

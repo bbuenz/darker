@@ -23,3 +23,34 @@ Contributions:
 	\end{enumerate}
 	
 \subsection{Definitions}
+
+\section{Security}
+
+\begin{definition}[GUO Polynomial Commitment]
+We describe a non-hiding succinct polynomial commitment scheme for polynomials of bounded degree over $\ZZ_p$ using a group of unknown order.
+\begin{itemize}
+	\item $\setup(\secparam) \rightarrow \crs:$
+The setup algorithm $\setup$ on input $\secparam$ and max degree $d$ and prime $p$ samples a group of unknown order $\GG$ and a $\Generator \sample \GG$ and sets $q=2^k$ for $k \in \NN$ such that $q>p\cdot 2^{\lambda \cdot \logd}$. The algorithm outputs $\crs=(\GG,\Generator,q,p,d)$.
+
+\item $\commit(\crs, f) \rightarrow \Commitment$: The commitment algorithm $\commit$ on input $f(X)\in \ZZ_p$ lifts $f(X)$ to the integer polynomial $\hat{f}(X)$ with coefficients bounded by $p$ and outputs $\Commitment =\hat{f}(q) \cdot \Generator$
+%\item The open algorithm $\open$ outputs $f(X),\gr{W} \in \GG,\alpha \in \NN$
+\item $\verify(\crs, \Commitment, f, (\hat{f}, \denom,  \gr{W}, a)) \rightarrow b$: 
+The verification algorithm checks an opening of $\Commitment$ to the polynomial $f \in \ZZ_p[X]$, given the opening hint consisting of $\hat{f}\in \ZZ[X]$, $\denom \in \ZZ$, $\gr{W} \in \GG$, and $\alpha \in \ZZ$. It checks that $\alpha > 0$, $||\hat{f}||_\infty < \frac{q}{2}$, $\hat{f}(X) \equiv f(X)\cdot \denom \bmod p$, $\alpha\cdot \gr{W}=0$, $gcd(\hat{f}(q), \denom) = 1$, and $\denom \cdot \Commitment =\hat{f}(q)\cdot \Generator +\gr{W}$. If these checks pass it outputs $1$, and otherwise it outputs $0$. 
+\item The evaluation protocol will be described later.
+\end{itemize}
+Note that an honestly generated commitment does not require an additional opening hint as $\Commitment = f(q) \cdot \Generator$. The flexibility in the $\verify$ algorithm is mainly for the security analysis of our evaluation protocol, so that the knowledge extractor is allowed to obtain a more general opening hint for the commitment. 
+\end{definition}
+
+
+\begin{lemma}[Binding commitment]
+\label{lem:aug-com-binding}
+	The commitment scheme is binding under the Random Order Assumption. 
+\end{lemma}
+\begin{proof}
+	Suppose a polynomial time adversary is able to compute a commitment $\gr{C}$ and two valid opening hints $(\hat{f}_1, \denom_1, \gr{W}_1, \alpha_1)$ and $(\hat{f}_2, \denom_2, \gr{W}_2, \alpha_2)$ that open $\gr{C}$ to distinct values in $\ZZ_p[X]$, i.e. such that $\hat{f}_1 \cdot \denom_1^{-1} \neq \hat{f}_2 \cdot d_2^{-1} \bmod p$. 
+	This implies $\hat{f}_1 \cdot \denom_2 \neq \hat{f}_2 \cdot \denom_1$. Moreover, since $||\hat{f}_1||_\infty < q/2$, $||\hat{f}_2||_\infty < q/2$, $\gcd(\hat{f}_1(q), \denom_1) = 1$, and $\gcd(\hat{f}_1(q), \denom_1) = 1$, by the contrapositive of Lemma~\ref{lem:encoding} this implies $\hat{f}_1(q) \cdot \denom_2 \neq \hat{f}_2(q) \cdot \denom_1$. Validity of the hints further implies $\alpha_1 \cdot \gr{W}_1 = 0$, $\alpha_2 \cdot \gr{W}_2 = 0$, and: 
+	
+	$$\denom_2 \cdot \denom_1 \cdot C = \denom_2 (\hat{f}_1(q) \cdot \gr{G} + \gr{W}_1) = \denom_1(\hat{f}_2(q) \cdot \gr{G} + \gr{W}_2)$$ 
+	
+	The adversary may therefore compute $\Delta = \alpha_1 \alpha_2 (\denom_2 \cdot \hat{f}_1(q)  - \denom_1 \cdot \hat{f}_2(q)) \neq 0$, which satisfies $\Delta \cdot \gr{G} = 0$. $\Delta$ is a multiple of the order of the element $\gr{G}$, which contradicts the Random Order Assumption. 
+\end{proof}
