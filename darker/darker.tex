@@ -397,7 +397,7 @@ We describe the operation of the PPT extractor machine \extractor, which has rew
 
 Consider the binary tree of depth $\lfloor \log d \rfloor$ where every node is labelled with a message from the prover and every edge is labelled with a message from the verifier. Every path from root to leaf corresponds to a transcript. In addition, the label of every node also contains the group elements $\mathsf{C}^{(i)}$ and $\mathsf{C}_E^{(i)}$, which take the value of the corresponding variable in the $\mathsf{Eval.Verify}$ protocol at the given iteration. \extractor\, starts by generating this tree.
 
-\extractor\, proceeds to compute opening information $(f, \mathsf{W}, a)$ for every group element in this tree. For every leaf, \extractor\, reads the value $\hat{f}$ and completes the tuple by setting $\mathsf{W} \gets 0$ and $a \gets 1$. For every non-leaf node, \ext\, merges the opening information associated with $\mathsf{C}^{(i+1)}$ of the node's children. Let the subscript $1$ and $2$ distinguish the two children nodes. Then we have the following matrix equation:
+\extractor\, proceeds to compute opening information, corresponding to the discrete logarithm base $\mathsf{G}$, for every group element in this tree. For every leaf, \extractor\, reads the value $\hat{f}$. For every non-leaf node, \ext\, merges the opening information associated with $\mathsf{C}^{(i+1)}$ of the node's children. Let the subscript $1$ and $2$ distinguish the two children nodes. Then we have the following matrix equation:
 $$ \left( \begin{array}{c}
 \mathsf{C}_1^{(i+1)} \\
 \mathsf{C}_2^{(i+1)}
@@ -419,15 +419,9 @@ $$ (\alpha_2 - \alpha_1) \left( \begin{array}{c}
 \mathsf{C}_1^{(i+1)} \\
 \mathsf{C}_2^{(i+1)}
 \end{array} \right) \enspace .$$
-Expanding the first equations gives
+Expanding the first equation gives
 \begin{flalign*}
-(\alpha_2 - \alpha_1) \cdot ( f_E^{(i)} \cdot \mathsf{G} + \mathsf{W}_E^{(i)} ) = \\
- ( \alpha_2 f_1^{(i+1)} - \alpha_1 f_2^{(i+1)} ) \cdot \mathsf{G} + \alpha_2 \cdot \mathsf{W}_1 - \alpha_1 \cdot \mathsf{W}_2 \enspace .
-\end{flalign*}
-The goal is to determine $f_E^{(i)}$ and $\mathsf{W}_E^{(i)}$, along with an integer $a_E^{(i)}$ such that $a_E^{(i)} \cdot \mathsf{W}_E^{(i)} = 0$. The remaining symbols in this formula are known, along with integers $a_1^{(i+1)}$ and $a_2^{(i+1)}$ such that $a_1^{(i+1)} \cdot \mathsf{W}_1^{(i+1)} = a_2^{(i+1)} \cdot \mathsf{W}_2^{(i+1)} = 0$. Let $\mathsf{W}_E^{(i)} = \alpha_2 \cdot \mathsf{W}_1 - \alpha_1 \cdot \mathsf{W}_2$, then $a_E^{(i)} = a_1 \cdot a_2$ is a multiple of its order. Multiplying the above equation by $a_E^{(i)}$ gives
-\begin{flalign*}
-a_E^{(i)} \cdot (\alpha_2 - \alpha_1) \cdot f_E^{(i)} \cdot \mathsf{G} = \\
- a_E^{(i)} \cdot ( \alpha_2 f_1^{(i+1)} - \alpha_1 f_2^{(i+1)} ) \cdot \mathsf{G} \enspace .
+(\alpha_2 - \alpha_1) \cdot ( f_E^{(i)} \cdot \mathsf{G} ) = ( \alpha_2 f_1^{(i+1)} - \alpha_1 f_2^{(i+1)} ) \cdot \mathsf{G} \enspace .
 \end{flalign*}
 If $\alpha_2 - \alpha_1$ divides $\alpha_2 f_1^{(i+1)} - \alpha_1 f_2^{(i+1)}$, then $f_E^{(i)} \gets \frac{\alpha_2 f_1^{(i+1)} - \alpha_1 f_2^{(i+1)}}{\alpha_2 - \alpha_1}$. If not, they have a greatest common divisor $g \neq 0$ and Bezout coefficients $x, y$ such that $x(\alpha_2 - \alpha_1) + y(\alpha_2 f_1^{(i+1)} - \alpha_1 f_2^{(i+1)}) = g$. Then using Shamir's trick we have
 \begin{flalign*}
