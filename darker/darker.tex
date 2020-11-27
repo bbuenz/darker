@@ -358,29 +358,43 @@ The security of our scheme is provable under the Random Order Assumption. We fir
 	$\adv_{\textsf{RSA}}$ computes computes $a'\gets \frac{a}{\gcd(a,\ell^k)}$ for $k=\lceil\log_\ell(a)\rceil$. Note that since $\ell$ is co-prime to the order of $\GG$ and thus also the order of $\Generator$ and $a$ is a multiple of the order of $\Generator$ we have that $a'$ is still a multiple of the order of $\Generator$. Now $\adv_{\textsf{RSA}}$ computes $w\gets \ell^{-1} \bmod a'$ and outputs $\gr{U} \gets w\cdot \Generator$. Now we have $\ell \cdot \gr{U}=\Generator$ so $\adv_{\textsf{RSA}}$ succeeds with probability $\epsilon$.
 \end{proof}
 
-At the heart of our security analysis is the equality of expressions \emph{up to group elements of known order}. This perspective motivates modifying the commitment scheme into one where the opener does not need to reproduce the commitment exactly, but must know the order of the difference. Simultaneously, it pays to analyze the protocol with respect to integer commitments and only decode the Kronecker substitution in the last step. In summary, we consider the following integer commitment scheme.
+%At the heart of our security analysis is the equality of expressions \emph{up to group elements of known order}. This perspective motivates modifying the commitment scheme into one where the opener does not need to reproduce the commitment exactly, but must know the order of the difference. Simultaneously, it pays to analyze the protocol with respect to integer commitments and only decode the Kronecker substitution in the last step. In summary, we consider the following integer commitment scheme.
+%
+%\begin{mdframed}
+%$\mathsf{com}(\mathsf{pp}, f \in \mathbb{Z})$ \textbf{:}
+%\begin{enumerate}[nolistsep]
+%\item $\mathsf{C} \gets f \cdot \mathsf{G}$ and $\mathsf{W} \gets 0 \in \mathbb{G}$ and $a \gets 1 \in \mathbb{Z}$
+%\item \textbf{return} $(\mathsf{C}; f, \mathsf{W}, a)$
+%\end{enumerate}
+%\vspace{0.125cm}
+%$\mathsf{vfy}(\mathsf{pp}, \mathsf{C}, f, \mathsf{W}, a)$ \textbf{:}
+%\begin{enumerate}[nolistsep]
+%\item \textbf{test} $a \stackrel{?}{\neq} 0$ and $f \cdot \mathsf{G} + \mathsf{W} \stackrel{?}{=} \mathsf{C}$ and $a \cdot \mathsf{W} \stackrel{?}{=} 0$
+%\item \textbf{if} all tests pass, \textbf{return} $\mathsf{true}$; \textbf{else return} $\mathsf{false}$
+%\end{enumerate}
+%\end{mdframed}
+%
+%\begin{lemma}[Binding commitment]
+%\label{lem:aug-com-binding}
+%The commitment scheme $(\mathsf{com}, \mathsf{vfy})$ is binding under the Random Order Assumption. 
+%\end{lemma}
+%\begin{proof}
+%Suppose a polynomial time adversary is able to compute a commitment $\gr{C}$ and two openings $(f_1, \mathsf{W}_1, a_1)$ and $(f_2, \mathsf{W}_2, a_2)$ such that $f_1 \neq f_2$ but $\mathsf{vfy}(\mathsf{pp}, \mathsf{C}, f_1, \mathsf{W}_1, a_1) = \mathsf{vfy}(\mathsf{pp}, \mathsf{C}, f_2, \mathsf{W}_2, a_2) = \mathsf{true}$. Then we have $a_1 a_2 (f_1 \cdot \mathsf{G} + \mathsf{W}_1 - f_2 \cdot \mathsf{G} - \mathsf{W}_2) = a_1 a_2 (f_1 - f_2) \cdot \mathsf{G} = 0$ and hence $a_1 a_2 (f_1 - f_2)$ is a multiple of the order of $\mathsf{G}$.
+%\end{proof}
 
-\begin{mdframed}
-$\mathsf{com}(\mathsf{pp}, f \in \mathbb{Z})$ \textbf{:}
-\begin{enumerate}[nolistsep]
-\item $\mathsf{C} \gets f \cdot \mathsf{G}$ and $\mathsf{W} \gets 0 \in \mathbb{G}$ and $a \gets 1 \in \mathbb{Z}$
-\item \textbf{return} $(\mathsf{C}; f, \mathsf{W}, a)$
-\end{enumerate}
-\vspace{0.125cm}
-$\mathsf{vfy}(\mathsf{pp}, \mathsf{C}, f, \mathsf{W}, a)$ \textbf{:}
-\begin{enumerate}[nolistsep]
-\item \textbf{test} $a \stackrel{?}{\neq} 0$ and $f \cdot \mathsf{G} + \mathsf{W} \stackrel{?}{=} \mathsf{C}$ and $a \cdot \mathsf{W} \stackrel{?}{=} 0$
-\item \textbf{if} all tests pass, \textbf{return} $\mathsf{true}$; \textbf{else return} $\mathsf{false}$
-\end{enumerate}
-\end{mdframed}
+The security proof relies on the following lemmata, which we prove first. In the following we use $\mathsf{denoms} : \mathbb{Q}[X] \rightarrow \mathbb{Z}^*$ to refer to the list denominators of a rational polynomial's nonzero coefficients.
 
-\begin{lemma}[Binding commitment]
-\label{lem:aug-com-binding}
-The commitment scheme $(\mathsf{com}, \mathsf{vfy})$ is binding under the Random Order Assumption. 
+\begin{lemma}
+Let $f(X) \in \mathbb{Q}[X]$ and let $D = \mathsf{lcm} \circ \mathsf{denoms}(f) > B$, and let $f_O(X) = \frac{f(X) - f(-X)}{2}$ and $f_E(X) = \frac{f(X) + f(-X)}{2}$, then
+$$ \mathrm{Pr}[\mathsf{lcm} \circ \mathsf{denoms} (f_E(X) + \alpha f_O(X)) < \frac{B}{2^\lambda}] \leq \mathsf{negl}(\lambda) $$
+for $\alpha \sample \{-2^{\lambda-1}, \ldots, 2^{\lambda - 1} - 1 \}$.
 \end{lemma}
-\begin{proof}
-Suppose a polynomial time adversary is able to compute a commitment $\gr{C}$ and two openings $(f_1, \mathsf{W}_1, a_1)$ and $(f_2, \mathsf{W}_2, a_2)$ such that $f_1 \neq f_2$ but $\mathsf{vfy}(\mathsf{pp}, \mathsf{C}, f_1, \mathsf{W}_1, a_1) = \mathsf{vfy}(\mathsf{pp}, \mathsf{C}, f_2, \mathsf{W}_2, a_2) = \mathsf{true}$. Then we have $a_1 a_2 (f_1 \cdot \mathsf{G} + \mathsf{W}_1 - f_2 \cdot \mathsf{G} - \mathsf{W}_2) = a_1 a_2 (f_1 - f_2) \cdot \mathsf{G} = 0$ and hence $a_1 a_2 (f_1 - f_2)$ is a multiple of the order of $\mathsf{G}$.
-\end{proof}
+
+\begin{lemma}
+Let $b, c, D \in \mathbb{Z}$ be three mutually co-prime integers. Then
+$$ \mathrm{Pr}[\mathsf{gcd}(D, b + \alpha c) > 2^\lambda] \leq \mathsf{negl}(\lambda) $$
+for $\alpha \sample \{-2^{\lambda-1}, \ldots, 2^{\lambda - 1} - 1 \}$.
+\end{lemma}
 
 \begin{theorem}[knowledge-soundness of $\mathsf{Eval}$]
 If $\mathsf{BatchPoE}$ is sound, and if the RSA Assumption is true, then the interactive protocol $\mathsf{Eval}$ is a proof of knowledge for the relation $\mathcal{R}_{\mathsf{PC}} =$
