@@ -382,7 +382,7 @@ The security of our scheme is provable under the Random Order Assumption. We fir
 %Suppose a polynomial time adversary is able to compute a commitment $\gr{C}$ and two openings $(f_1, \mathsf{W}_1, a_1)$ and $(f_2, \mathsf{W}_2, a_2)$ such that $f_1 \neq f_2$ but $\mathsf{vfy}(\mathsf{pp}, \mathsf{C}, f_1, \mathsf{W}_1, a_1) = \mathsf{vfy}(\mathsf{pp}, \mathsf{C}, f_2, \mathsf{W}_2, a_2) = \mathsf{true}$. Then we have $a_1 a_2 (f_1 \cdot \mathsf{G} + \mathsf{W}_1 - f_2 \cdot \mathsf{G} - \mathsf{W}_2) = a_1 a_2 (f_1 - f_2) \cdot \mathsf{G} = 0$ and hence $a_1 a_2 (f_1 - f_2)$ is a multiple of the order of $\mathsf{G}$.
 %\end{proof}
 
-The security proof relies on the following lemmata, which we prove first. In the following we use $\mathsf{denoms} : \mathbb{Q}[X] \rightarrow \mathbb{Z}^*$ to refer to the list denominators of a rational polynomial's nonzero coefficients.
+The security proof relies on the following lemmata, which we prove first. In the following we use $\mathsf{denoms} : \mathbb{Q}[X] \rightarrow \mathbb{Z}^*$ to refer to the list denominators of a rational polynomial's nonzero coefficients, and $\mathsf{denom} : \mathbb{Q} \rightarrow \mathbb{Z}$ analogously for a single rational number.
 
 \begin{lemma}
 Let $f(X) \in \mathbb{Q}[X]$ and let $D = \mathsf{lcm} \circ \mathsf{denoms}(f) > B$, and let $f_O(X) = \frac{f(X) - f(-X)}{2}$ and $f_E(X) = \frac{f(X) + f(-X)}{2}$, then
@@ -390,7 +390,26 @@ $$ \mathrm{Pr}[\mathsf{lcm} \circ \mathsf{denoms} (f_E(X) + \alpha f_O(X)) < \fr
 for $\alpha \sample \{-2^{\lambda-1}, \ldots, 2^{\lambda - 1} - 1 \}$.
 \end{lemma}
 
-\begin{lemma}
+\begin{proof}
+The least common multiple of all denominators of $f_E(X) + \alpha f_O(X)$ being less than $\frac{B}{2^\lambda}$ implies the same for all individual denominators. Let $f_{E,i}$ and $f_{O,i}$ to denote the $i$th coefficient of their respective polynomials. The probability in question is therefore less than
+\begin{equation}
+\mathrm{Pr}\left[\mathsf{denom} (f_{E,i} + \alpha f_{O,i}) < \frac{B}{2^\lambda}\right] \label{equation:minimum_probability_shinking_denominator}
+\end{equation}
+for the $i$ that minimizes this probability.
+
+Let $f_{E,i} = \frac{f_{E,i}^\star}{d_E}$ and $f_{O,i} = \frac{f_{O,i}^\star}{d_O}$ for integers $f_{E,i}^\star, f_{O,i}^\star, d_E, d_O$. Let moreover $d_E' = \frac{d_E}{\mathsf{gcd}(d_E, d_O)}$, $d_O' = \frac{d_O}{\mathsf{gcd}(d_E, d_O)}$ and $D' = \mathsf{lcm}(d_E, d_O)$. Then 
+\begin{flalign*}
+\mathsf{denom} (f_{E,i} + \alpha f_{O,i}) &= \\
+\mathsf{denom}\left(\frac{d_O' f^\star_{E,i} + \alpha d_E' f^\star_{O,i}}{D'}\right) &= \\
+\frac{D'}{\mathsf{gcd}\left( D', d_O' f^\star_{E,i} + \alpha d_E' f^\star_{O,i} \right)} &< \frac{B}{2^\lambda} \enspace .
+\end{flalign*}
+
+Note that $D'$, $d_O' f^\star_{E,i}$, and $d_E' f^\star_{O,i}$ are mutually co-prime. Reshuffling gives
+$$ \mathsf{gcd}(D', d_O' f^\star_{E,i} + \alpha d_E' f^\star_{O,i}) > \frac{2^\lambda D'}{B} \enspace ,$$
+and the probability of this event is bounded by Lemma~\ref{lemma:gcd_distribution} to a negligible quantity in $\lambda$.
+\end{proof}
+
+\begin{lemma} \label{lemma:gcd_distribution}
 Let $b, c, D \in \mathbb{Z}$ be three mutually co-prime integers. Then
 $$ \mathrm{Pr}[\mathsf{gcd}(D, b + \alpha c) > 2^\lambda] \leq \mathsf{negl}(\lambda) $$
 for $\alpha \sample \{-2^{\lambda-1}, \ldots, 2^{\lambda - 1} - 1 \}$.
