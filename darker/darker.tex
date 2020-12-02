@@ -227,7 +227,8 @@ $\mathsf{Eval.Verify}(\mathsf{C}, \mathbf{z}, \mathbf{y}, \pi)$ \textbf{:}
 	\item \textbf{for} $i$ \textbf{from} $0$ \textbf{to} $\log_2(d)-1$ \textbf{:}
 	%\item \pcind $\tau \gets \tau \Vert \mathbf{y}_O^{(i)} \Vert \mathsf{C}_O^{(i)} \Vert \mathsf{C}_O^{\prime(i)}$
 	\item \pcind $\alpha \gets \mathsf{H}(\cdots)$
-	\item \pcind $\mathsf{C} \gets \mathsf{C} - \mathsf{C}_O^{\prime(i)} + \alpha \cdot \mathsf{C}_O^{(i)}$ \label{line:evalverify-alpha}
+	\item \pcind $\mathsf{C}_E^{(i)} \gets \mathsf{C} - \mathsf{C}_O^{\prime (i)}$
+	\item \pcind $\mathsf{C} \gets \mathsf{C}_E^{(i)} + \alpha \cdot \mathsf{C}_O^{(i)}$ \label{line:evalverify-alpha}
 	\item \pcind $\mathbf{y} \gets \mathbf{y} - \mathbf{z} \circ \mathbf{y}_O^{(i)} + \alpha \cdot \mathbf{y}_O^{(i)} \mod p$
 	\item $b_{\mathsf{PoE}} \gets \mathsf{BatchPoE.Verify}(((\mathsf{C}_O^{(i)}, \mathsf{C}_O^{\prime(i)}))_{i=0}^{\lfloor \log_2 d \rfloor},$ $\pi_{\mathsf{PoE}})$ \label{line:evalverify-batchpoe}
 	\item \textbf{if} $y_0 = \cdots = y_{s-1} = \hat{f} \mod p$ \textbf{and} $|\hat{f}| < B$ \textbf{and} $\hat{f} \cdot \mathsf{G} = \mathsf{C}$ \textbf{and} $b_{\mathsf{PoE}} = \mathsf{true}$ \textbf{:}
@@ -358,13 +359,62 @@ The security of our scheme is provable under the Random Order Assumption. We fir
 	$\adv_{\textsf{RSA}}$ computes computes $a'\gets \frac{a}{\gcd(a,\ell^k)}$ for $k=\lceil\log_\ell(a)\rceil$. Note that since $\ell$ is co-prime to the order of $\GG$ and thus also the order of $\Generator$ and $a$ is a multiple of the order of $\Generator$ we have that $a'$ is still a multiple of the order of $\Generator$. Now $\adv_{\textsf{RSA}}$ computes $w\gets \ell^{-1} \bmod a'$ and outputs $\gr{U} \gets w\cdot \Generator$. Now we have $\ell \cdot \gr{U}=\Generator$ so $\adv_{\textsf{RSA}}$ succeeds with probability $\epsilon$.
 \end{proof}
 
-\begin{lemma}[Binding commitment]
-\label{lem:aug-com-binding}
-The commitment scheme is binding under the Random Order Assumption. 
+%At the heart of our security analysis is the equality of expressions \emph{up to group elements of known order}. This perspective motivates modifying the commitment scheme into one where the opener does not need to reproduce the commitment exactly, but must know the order of the difference. Simultaneously, it pays to analyze the protocol with respect to integer commitments and only decode the Kronecker substitution in the last step. In summary, we consider the following integer commitment scheme.
+%
+%\begin{mdframed}
+%$\mathsf{com}(\mathsf{pp}, f \in \mathbb{Z})$ \textbf{:}
+%\begin{enumerate}[nolistsep]
+%\item $\mathsf{C} \gets f \cdot \mathsf{G}$ and $\mathsf{W} \gets 0 \in \mathbb{G}$ and $a \gets 1 \in \mathbb{Z}$
+%\item \textbf{return} $(\mathsf{C}; f, \mathsf{W}, a)$
+%\end{enumerate}
+%\vspace{0.125cm}
+%$\mathsf{vfy}(\mathsf{pp}, \mathsf{C}, f, \mathsf{W}, a)$ \textbf{:}
+%\begin{enumerate}[nolistsep]
+%\item \textbf{test} $a \stackrel{?}{\neq} 0$ and $f \cdot \mathsf{G} + \mathsf{W} \stackrel{?}{=} \mathsf{C}$ and $a \cdot \mathsf{W} \stackrel{?}{=} 0$
+%\item \textbf{if} all tests pass, \textbf{return} $\mathsf{true}$; \textbf{else return} $\mathsf{false}$
+%\end{enumerate}
+%\end{mdframed}
+%
+%\begin{lemma}[Binding commitment]
+%\label{lem:aug-com-binding}
+%The commitment scheme $(\mathsf{com}, \mathsf{vfy})$ is binding under the Random Order Assumption. 
+%\end{lemma}
+%\begin{proof}
+%Suppose a polynomial time adversary is able to compute a commitment $\gr{C}$ and two openings $(f_1, \mathsf{W}_1, a_1)$ and $(f_2, \mathsf{W}_2, a_2)$ such that $f_1 \neq f_2$ but $\mathsf{vfy}(\mathsf{pp}, \mathsf{C}, f_1, \mathsf{W}_1, a_1) = \mathsf{vfy}(\mathsf{pp}, \mathsf{C}, f_2, \mathsf{W}_2, a_2) = \mathsf{true}$. Then we have $a_1 a_2 (f_1 \cdot \mathsf{G} + \mathsf{W}_1 - f_2 \cdot \mathsf{G} - \mathsf{W}_2) = a_1 a_2 (f_1 - f_2) \cdot \mathsf{G} = 0$ and hence $a_1 a_2 (f_1 - f_2)$ is a multiple of the order of $\mathsf{G}$.
+%\end{proof}
+
+The security proof relies on the following lemmata, which we prove first. In the following we use $\mathsf{denoms} : \mathbb{Q}[X] \rightarrow \mathbb{Z}^*$ to refer to the list denominators of a rational polynomial's nonzero coefficients, and $\mathsf{denom} : \mathbb{Q} \rightarrow \mathbb{Z}$ analogously for a single rational number.
+
+\begin{lemma}
+Let $f(X) \in \mathbb{Q}[X]$ and let $\mathsf{max} \circ \mathsf{denoms}(f) > B$, and let $f_O(X) = \frac{f(X) - f(-X)}{2}$ and $f_E(X) = \frac{f(X) + f(-X)}{2}$, then
+$$ \mathrm{Pr}[\mathsf{max} \circ \mathsf{denoms} (f_E(X) + \alpha f_O(X)) < \frac{B}{2^\lambda}] \leq \mathsf{negl}(\lambda) $$
+for $\alpha \sample \{-2^{\lambda-1}, \ldots, 2^{\lambda - 1} - 1 \}$.
 \end{lemma}
+
 \begin{proof}
-Suppose a polynomial time adversary is able to compute a commitment $\gr{C}$ and two polynomials $\hat{f}_0(X) \neq \hat{f}_1(X) \in \mathbb{Z}[X]$ with coefficients in $\mathbb{Z}(q/2)$ and such that $\hat{f}_0(q) \cdot \mathsf{G} = \hat{f}_1(q) \cdot \mathsf{G} = \mathsf{C}$. Then $\hat{f}_0(q) - \hat{f}_1(q) \neq 0$ is a multiple of the order of $\mathsf{G}$.
+Let $f_{E,i}$ and $f_{O,i}$ denote the $i$th coefficient of their respective polynomials. The probability in question is less than or equal to
+\begin{equation}
+\mathrm{Pr}\left[\mathsf{denom} (f_{E,i} + \alpha f_{O,i}) < \frac{B}{2^\lambda}\right] \label{equation:minimum_probability_shinking_denominator}
+\end{equation}
+for any coefficient index $i$.
+
+Let $f_{E,i} = \frac{f_{E,i}^\star}{d_E}$ and $f_{O,i} = \frac{f_{O,i}^\star}{d_O}$ for integers $f_{E,i}^\star, f_{O,i}^\star, d_E, d_O$. Let moreover $d_E' = \frac{d_E}{\mathsf{gcd}(d_E, d_O)}$, $d_O' = \frac{d_O}{\mathsf{gcd}(d_E, d_O)}$ and $D = \mathsf{lcm}(d_E, d_O)$. Then 
+\begin{flalign*}
+\mathsf{denom} (f_{E,i} + \alpha f_{O,i}) &= \\
+\mathsf{denom}\left(\frac{d_O' f^\star_{E,i} + \alpha d_E' f^\star_{O,i}}{D}\right) &= \\
+\frac{D}{\mathsf{gcd}\left( D, d_O' f^\star_{E,i} + \alpha d_E' f^\star_{O,i} \right)} &< \frac{B}{2^\lambda} \enspace .
+\end{flalign*}
+
+Note that $d_O' f^\star_{E,i}$ and $d_E' f^\star_{O,i}$ are mutually co-prime, and that for some coefficient index $i$, $D \geq B$. Reshuffling gives
+$$ \mathsf{gcd}(D, d_O' f^\star_{E,i} + \alpha d_E' f^\star_{O,i}) > {2^\lambda} \enspace ,$$
+and the probability of this event is bounded by Lemma~\ref{lemma:gcd_distribution} to a negligible quantity in $\lambda$.
 \end{proof}
+
+\begin{lemma} \label{lemma:gcd_distribution}
+Let $b, c, D \in \mathbb{Z}$ be three integers with $b$ and $c$ co-prime. Then
+$$ \mathrm{Pr}[\mathsf{gcd}(D, b + \alpha c) > 2^\lambda] \leq \mathsf{negl}(\lambda) $$
+for $\alpha \sample \{-2^{\lambda-1}, \ldots, 2^{\lambda - 1} - 1 \}$.
+\end{lemma}
 
 \begin{theorem}[knowledge-soundness of $\mathsf{Eval}$]
 If $\mathsf{BatchPoE}$ is sound, and if the RSA Assumption is true, then the interactive protocol $\mathsf{Eval}$ is a proof of knowledge for the relation $\mathcal{R}_{\mathsf{PC}} =$
@@ -377,21 +427,47 @@ f(\mathbf{z}) = \mathbf{y} \\
 \end{theorem}
 
 \begin{proof}
-We describe the operation of the PPT extractor machine \extractor, which has rewinding access to a possibly malicious prover $\prover^*$, which in turn succeeds with overwhelming probability in convincing the verifier. Consider the binary tree of depth $\lfloor \log d \rfloor$ where every node is labelled with a message from the prover and every edge is labelled with a message from the verifier. Every path from root to leaf corresponds to a transcript. \extractor dynamically generates this tree and computes a polynomial $\hat{f}^{(i)}(X)$ for every node such that $\hat{f}(q) \cdot \mathsf{G} = \mathsf{C}^{(i)}$ where $\mathsf{C}^{(i)}$ corresponds to the value of the variable $\mathsf{C}$ of the verifier in round $i$.
+We describe the operation of the PPT extractor machine \extractor, which has rewinding access to a possibly malicious prover $\prover^*$, which in turn succeeds with overwhelming probability in convincing the verifier.
 
-\extractor\, computes $\hat{f}^{(\lfloor \log_2 d \rfloor)}(X)$ by reading the corresponding leaf. For every non-leaf node, \extractor computes $\hat{f}^{(i)}(X)$ from the polynomials $\hat{f}^{(i+1)}(X)$ and $\hat{f}^{\prime (i+1)}(X)$, corresponding to the node's two children. Let $\alpha^{(i)}$ and $\alpha^{\prime (i)}$ be the verifier's challenges on the edges that connect the node to its children. Let $f_O = \frac{\hat{f}^{(i+1)}(q) - \hat{f}^{\prime (i+1)}(q)}{\alpha^{(i)} - \alpha^{\prime (i)}}$ such that $(\alpha^{(i)} - \alpha^{\prime (i)}) f_O \cdot \mathsf{G} = \mathsf{C}_O^{(i+1)} - \mathsf{C}_O^{\prime (i+1)}$.
+Consider the binary tree of depth $\lfloor \log d \rfloor$ where every node is labelled with a message from the prover and every edge is labelled with a message from the verifier. Every path from root to leaf corresponds to a transcript. In addition, the label of every node also contains the group elements $\mathsf{C}^{(i)}$ and $\mathsf{C}_E^{(i)}$, which take the value of the corresponding variable in the $\mathsf{Eval.Verify}$ protocol at the given iteration. \extractor\, starts by generating this tree.
 
-We have
-$$ \left( \begin{matrix}
-1 & \alpha^{(i)} \\
-1 & \alpha^{\prime (i)} \\
-\end{matrix} \right) \left( \begin{matrix}
-\hat{f}_E(X) \\
-\hat{f}_O(X)
-\end{matrix} \right) = \left( \begin{matrix}
-\hat{f}^{(i+1)}(X) \\
-\hat{f}^{\prime (i+1)}(X) 
-\end{matrix} \right) \enspace . $$
+\extractor\, proceeds to compute opening information, corresponding to the discrete logarithm base $\mathsf{G}$, for every group element in this tree. For every leaf, \extractor\, reads the value $\hat{f}$. For every non-leaf node, \ext\, merges the opening information associated with $\mathsf{C}^{(i+1)}$ of the node's children. Let the subscript $1$ and $2$ distinguish the two children nodes. Then we have the following matrix equation:
+$$ \left( \begin{array}{c}
+\mathsf{C}_1^{(i+1)} \\
+\mathsf{C}_2^{(i+1)}
+\end{array} \right) = \left( \begin{matrix}
+1 & \alpha_1 \\
+1 & \alpha_2
+\end{matrix} \right) \left( \begin{array}{c}
+\mathsf{C}_E^{(i)} \\
+\mathsf{C}_O^{(i)}
+\end{array} \right) \enspace .$$
+Re-arranging gives
+$$ (\alpha_2 - \alpha_1) \left( \begin{array}{c}
+\mathsf{C}_E^{(i)} \\
+\mathsf{C}_O^{(i)}
+\end{array} \right) = \left( \begin{matrix}
+\alpha_2 & -\alpha_1 \\
+-1 & 1
+\end{matrix} \right) \left( \begin{array}{c}
+\mathsf{C}_1^{(i+1)} \\
+\mathsf{C}_2^{(i+1)}
+\end{array} \right) \enspace .$$
+Expanding the first equation gives
+\begin{flalign*}
+(\alpha_2 - \alpha_1) \cdot ( f_E^{(i)} \cdot \mathsf{G} ) = ( \alpha_2 f_1^{(i+1)} - \alpha_1 f_2^{(i+1)} ) \cdot \mathsf{G} \enspace .
+\end{flalign*}
+If $\alpha_2 - \alpha_1$ divides $\alpha_2 f_1^{(i+1)} - \alpha_1 f_2^{(i+1)}$, then $f_E^{(i)} \gets \frac{\alpha_2 f_1^{(i+1)} - \alpha_1 f_2^{(i+1)}}{\alpha_2 - \alpha_1}$. If not, they have a greatest common divisor $g \neq 0$ and Bezout coefficients $x, y$ such that $x(\alpha_2 - \alpha_1) + y(\alpha_2 f_1^{(i+1)} - \alpha_1 f_2^{(i+1)}) = g$. Then using Shamir's trick we have
+\begin{flalign*}
+& (\alpha_2 - \alpha_1) \cdot \left( x \cdot \mathsf{G} + y \cdot \mathsf{C}^{(i)} \right) \\
+=& \left( x ( \alpha_2 - \alpha_1) + y ( \alpha_2 f_1^{(i+1)} - \alpha_1 f_2^{(i+1)} ) \right) \cdot \mathsf{G} \\
+=& g \cdot \mathsf{G} \enspace .
+\end{flalign*}
+In other words, $x \cdot \mathsf{G} + y \cdot \mathsf{C}^{(i)}$ is an $\frac{\alpha_2 - \alpha_1}{g}$th root of $\mathsf{G}$, violating the Strong RSA Assumption.
+
+With a similar argument, \extractor\, computes $f_O^{(i)} \gets \frac{f_1^{(i)} - f_2^{(i)}}{\alpha_2 - \alpha_1}$ or outputs a $\frac{\alpha_2 - \alpha_1}{g}$th root of $\mathsf{G}$ if the division is not clean. Furthermore, the soundness of $\mathsf{BatchPoE}$ shows that $f_O^{\prime (i)} \gets q^{2^i} \cdot f_O^{(i)}$ is a valid assignment. And since $\mathsf{C}^{(i)} = \mathsf{C}_E^{(i)} + \mathsf{C}_O^{\prime (i)}$, so too is $f^{(i)} \gets f_E^{(i)} + f_O^{\prime (i)}$.
+
+To do: go from integers to polynomials, show that coefficients are bounded, show that evaluations are necessarily correct
 \end{proof}
 
 \section{Sketched Protocol}
