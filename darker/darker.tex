@@ -734,9 +734,9 @@ We also have the relation $d_3 \Commitment'_{i-1} = q^{2^{i-1}} \cdot \Commitmen
 \begin{proof}
 
 ~\paragraph{Extractor construction}
-		We define a knowledge extractor that runs with an adversary $\adv$ who succeeds for public inputs $\{\Commitment,d,\Bound \}$ and $q$ with probability $\epsilon = 1/\poly$. The extractor begins by using the tree-finding algorithm of Lemma~\ref{lem:forking} to generate a tree of accepting transcripts with the following characteristics: 
+		We define a knowledge extractor that runs with an adversary $\adv$ who succeeds for public inputs $\{\Commitment,d,\Bound \}$ and public parameter $\crs=(g,\GG,q)$ with probability $\epsilon = 1/\poly$. The extractor begins by using the tree-finding algorithm of Lemma~\ref{lem:forking} to generate a tree of accepting transcripts with the following characteristics: 
 \begin{itemize}
-\item The tree has depth $\logd$ and branching factor $2$. We index nodes by $v \in [0, d)$.
+\item The tree has depth $\logd$ and branching factor $2$. We index nodes by $v \in [0, d)$ and say $\level(v)$ to indicate the level of $v$ in the tree starting with $1$ for the roots and $\logd$ for the leaves.
 \item The root is labeled with the publics inputs. 
 \item Each non-leaf node $v$ distinct from the root is labeled with a challenge $\alpha_{v}$ and a prover message $\gr{C}_{E,v},\gr{C}_{O,v}$.
 \item Each non-leaf node $v$ has two children each labeled with two distinct verifier challenges 
@@ -744,37 +744,34 @@ $\alpha_{v} \neq \alpha_{v}'$.
 \item Each leaf node $v$ is labelled with the message $\hat{f}_v$ sent in a final round of the protocol. 
 \end{itemize} 
 
-\benedikt{Currently assuming the PoE relations are checked directly}
 Since the verifier challenges in the protocol are sampled from $\mathcal{X} = [-2^{\lambda -1}, 2^{\lambda -1}]$, the probability of a collision over challenges $\alpha_1, \alpha_2 \sample \mathcal{X}$ sampled uniformly and independently is $2^{-\lambda}$. Thus, by Lemma~\ref{lem:forking} the tree-finding algorithm runs for $O(\poly/\epsilon)$ steps and succeeds with probability $1 - \negl/\epsilon$ to return a tree with these characteristics.
 
-For the root node $\textsf{rt}$, define $\gr{C}_\textsf{rt} \deq \Commitment$. For any node $v$ on level $i$ which has verifier challenge $\alpha_v$ and a parent $w$ on level $i+1$ with prover message $\gr{C}_{E,w},\Commitment_{O,w}$, define $\gr{C}_v \deq \gr{C}_{E,w} + \alpha_v \cdot \gr{C}_{O,w}$.
-We will show that given this tree, the extractor can compute for all nodes $v \in [0, d)$ an opening hint $(\hat{f}_v \in \ZZ(b)[X],\denom_v \in \ZZ,\gr{W}_v \in \GG,a_v \in \ZZ^+)$ for $\gr{C}_v$. That is: $\denom_v \cdot \gr{C}_v=\hat{f}_v(q) \cdot \Generator +\gr{W}_v$ and $a_v \cdot \gr{C}_v=0$. Additionally, for $v$ at level $i$, $||\hat{f}_v||_\infty \leq b\cdot 2^{(\log_2(d)+2(\logd-i)) \cdot \lambda}$.
+For the root node $\textsf{rt}$, define $\gr{C}_\textsf{rt} \deq \Commitment$. For any node $v$ on level $i$ which has verifier challenge $\alpha_v$ and a parent $w$ on level $i-1$ with prover message $\gr{C}_{E,w},\Commitment_{O,w}$, define $\gr{C}_v \deq \gr{C}_{E,w} + \alpha_v \cdot \gr{C}_{O,w}$.
+We will show that given this tree, the extractor can compute for all nodes $v \in [0, d)$ an opening hint $(\hat{f}_v \in \ZZ[X],\denom_v \in \ZZ,\KnownOrderElement_v \in \GG, \KnownOrder_v \in \ZZ)$ for $\gr{C}_v$. That is: $\denom_v \cdot \gr{C}_v=\hat{f}_v(q) \cdot \Generator +\gr{W}_v$ and $a_v \cdot \gr{C}_v=0$. 
 
 It will do this by starting at the leaves and working its way up the tree.
-For any leaf node $v$, the fact that the transcript is accepting implies $\Commitment_v= \hat{f}_v \cdot \Generator$ for $\hat{f}_v \leq b \cdot 2^{\logd \lambda}$. Recall $\hat{f}_v$ is a constant bounded by $\Bound \cdot 2^{\logd \lambda}$. Therefore, $(f,1,0,1)$ is a valid opening for $\Commitment_v$.
+For any leaf node $v$, the fact that the transcript is accepting implies $\Commitment_v= \hat{f}_v \cdot \Generator$ for $\hat{f}_v \leq \BoundForward$. Recall $\hat{f}_v$ is a constant bounded by $\BoundForward$. Therefore, $(f,1,0,1)$ is a valid opening for $\Commitment_v$.
 
- Next, suppose that the appropriate openings have been computed for all children of a node $w$ on the $i$th level. Denoting the two children of nodes $w$ with indices $v_1, v_2$ and the two challenges on each by $\alpha_1, \alpha_2$ \benedikt{use $\alpha$, $\alpha$'}. This means that $\gr{C}_{v_1} = \gr{C}_{E,w} + \alpha_1 \cdot \gr{C}_{O,w}$ and $\gr{C}_{v_2} = \gr{C}_{E,w} + \alpha_2 \cdot \gr{C}_{O,w}$.
-Furthermore openings $(\hat{f}_{v_1},\denom_{v_1},\gr{W}_{v_1},a_{v_1})$ for $\gr{C}_{v_1}$ and  $(\hat{f}_{v_2},\denom_{v_2},\gr{W}_{v_2},a_{v_2})$ for $\gr{C}_{v_2}$ have been computed. 
+ Next, suppose that the appropriate openings have been computed for all children of a node $w$ on the $i$th level. Denoting the two children of nodes $w$ with indices $v_1, v_2$ and the two challenges on each by $\alpha_{v_1}, \alpha_{v_2}$. This means that $\Commitment_{v_1} = \Commitment_{E,w} + \alpha \cdot \Commitment_{O,w}$ and $\Commitment_{v_2} = \Commitment_{E,w} + \alpha' \cdot \Commitment_{O,w}$.
+Furthermore openings $(\hat{f}_{v_1},\denom_{v_1}, \KnownOrderElement_{v_1},\KnownOrder_{v_1} )$ for $\Commitment_{v_1}$ and  $(\hat{f}_{v_2},\denom_{v_2},\KnownOrderElement_{v_2},\KnownOrder_{v_2})$ for $\Commitment_{v_2}$ have been computed. 
 
 This gives us the equality: 
-$$\hat{f}_{v_i}(q) \cdot \Generator + \gr{W}_i = r_i \cdot C_{v_i} = \denom_i \cdot (\Commitment_{E,w} + \alpha_i \cdot \Commitment_{O,w}) \quad \text{for} \ i \in \{1,2\}$$
+$$\hat{f}_{v_j}(q^{2^{i}}) \cdot \Generator + \gr{W}_j = r_j \cdot C_{v_j} = \denom_j \cdot (\Commitment_{E,w} + \alpha_j \cdot \Commitment_{O,w}) \quad \text{for} \ j \in \{1,2\}$$
 
 From which we can derive:
-$$(\denom_2 \hat{f}_{v_1}(q)-\denom_1 \hat{f}_{v_2}(q)) \Generator + \gr{W}_{O,w}=\denom_1 \denom_2 (\alpha_1-\alpha_2) \Commitment_{O,w}$$
+$$(\denom_2 \hat{f}_{v_1}(q^{2^i})-\denom_1 \hat{f}_{v_2}(q^{2^i})) \Generator + \gr{W}_{O,w}=\denom_1 \denom_2 (\alpha_1-\alpha_2) \Commitment_{O,w}$$
 and additionally
-$$(\alpha_2 \denom_2 \hat{f}_{v_1}(q)-\alpha_1  \denom_1 \hat{f}_{v_2}(q)) \Generator + \gr{W}_{E,w}=\denom_1 \denom_2 (\alpha_2-\alpha_1) \Commitment_{E,w}$$
-
+$$(\alpha_1  \denom_1 \hat{f}_{v_2}(q^{2^i})-\alpha_2 \denom_2 \hat{f}_{v_1}(q^{2^i})) \Generator + \gr{W}_{E,w}=\denom_1 \denom_2 (\alpha_1-\alpha_2) \Commitment_{E,w}$$
+\benedikt{which q}
 for $\gr{W}_{E,w}$ and $\gr{W}_{O,w}$ being elements of known order.
 Using the extractor of the Batch PoE protocol we get that 
-$$\gr{C}_w= \gr{C}_{E,w}+q^{2^i} \gr{C}_{O,w}+\gr{W}'$$
-Let $\denom_w=\denom_1 \denom_2 (\alpha_22 − \alpha_1 )$. 
-Further $\frac{\hat{f}_w}{\denom_w}=\frac{\denom_2 \hat{f}_{v_1}(q)-\denom_1 \hat{f}_{v_2}(q)}{\denom_1 \denom_2 (\alpha_1-\alpha_2)} \in \QQ$ is the reduced rational that encodes a polynomial in $\ZZ[X]$ with bounded coefficients. We will later argue about the size of the coefficients under different assumptions. 
+$$\gr{C}_w= \gr{C}_{E,w}+q^{2^{i-1}} \gr{C}_{O,w}+\gr{W}'$$
+Let $\denom_w=\denom_1 \denom_2 (\alpha_2 − \alpha_1 )$. 
+Further let $\frac{\hat{f}_{w}}{\denom_{w}}=\frac{(\denom_2 \hat{f}_{v_1}-\denom_1 \hat{f}_{v_2}) + X \cdot (\alpha_1\denom_1 \hat{f}_{v_2}-\alpha_2\denom_2 \hat{f}_{v_1})}{\denom_1 \denom_2 (\alpha_1-\alpha_2)}\in \QQ[X]$ be the reduced rational polynomial with bounded coefficients.  We will later argue that both $\denom_w \in \ZZ$ and $\hat{f}_w \in \ZZ[X]$ are bounded such that $\frac{\hat{f}_w}{\denom_w}$ can be uniquely decoded to a degree.
 
-\begin{itemize}
-	\item Compute opening of $\Commitment_{E,w}$. 
-	\item Use PoE to argue that we can compute an opening to $\Commitment_w$
-	\item Argue bounded size
-\end{itemize}
+
+ 
+
 \paragraph{Coefficient size}
 We will argue about the size of the extracted coefficients. Under the strong RSA assumption $\denom_w=1$ as otherwise by \benedikt{Fill in Lemma} we can compute a non trivial root of $\gr{G}$. This means in the extraction step the coefficient of $f_w(X)$ is less than the coefficients of $f_{v_1}$ and $f_{v_2}$ \benedikt{Exclude the case that $\alpha_1-\alpha_2=1$}. 
 	\end{proof}
