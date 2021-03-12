@@ -282,6 +282,15 @@ We also have the relation $d_3 \Commitment'_{i-1} = q^{2^{i-1}} \cdot \Commitmen
 
 Let $\G$ denote the abelian group (i.e., $\G$ is a $\Z$-module) that contains the space of commitments for the PCS. We first prove an elementary linear algebraic fact. 
 
+
+\begin{lemma}\label{lem:triangularization}
+Let $\G$ be a $\Z$-module. Let $p$ be a prime and $\F = \Z_p$. Given two vectors $\x, \y \in \G^n$ and a system of equations $\mathbf{A} \x = \y$ for a matrix $\A \in \Z^{n \times n}$ that is invertible over $\F$, there is an efficient algorithm to derive a diagonal integer matrix $\mathbf{D}$ with diagonal entries all non-zero modulo $p$ and a matrix $\mathbf{L}$ such that $\mathbf{D} \cdot \x = \mathbf{L} \cdot \y$. In particular, $\mathbf{L} \mathbf{A} = \mathbf{D}$.    
+\end{lemma} 
+\begin{proof} 
+Since $det(\mathbf{A}) \neq 0$, the matrix $\mathbf{A}$ is invertible over the rationals $\mathbb{Q}$. Let $\mathbf{A}^{-1}$ denote the inverse of $\mathbf{A}$ over $\mathbb{Q}$ and let $\mathbf{I}$ denote the identity matrix over $\Z$. Set $\mathbf{L}$ to be the matrix obtained by clearing the denominators of $\mathbf{A}^{-1}$, i.e. $\mathbf{L} = x \cdot \mathbf{A}^{-1}$ where $x \neq 0$ is the least common multiple of all denominators of the rational entries of $\mathbf{A}^{-1}$. The matrix $\mathbf{L} \cdot \mathbf{A} = x \cdot \mathbf{A}^{-1} \cdot \mathbf{A} = x \cdot \mathbf{I}$ is a diagonal integer matrix.
+\end{proof}
+
+\if 0 
 \begin{lemma}\label{lem:triangularization}
 Let $\G$ be a $\Z$-module. Let $p$ be a prime and $\F = \Z_p$. Given two vectors $\x, \y \in \G^n$ and a system of equations $\mathbf{A} \x = \y$ for a matrix $\A \in \Z^{n \times n}$ that is invertible over $\F$, 
 there is an efficient algorithm to derive a diagonal matrix $\mathbf{D}$ with diagonal entries  $(d_1,...,d_n) \in \Z^n$, where $d_i \neq 0 \bmod p$ for all $i$, and a matrix $\mathbf{L}$ such that $\mathbf{D} \cdot \x = \mathbf{L} \cdot \y$. In particular, $\mathbf{L} \mathbf{A} = \mathbf{D}$.    
@@ -292,6 +301,7 @@ Since $\mathbf{P} \mathbf{A} \cdot \x = \mathbf{T} \cdot \y= \mathbf{P}\cdot \y$
  For each $i \in [n]$, repeat the triangularization process on $\A^{(i)}$ to get $\mathbf{P}^{(i)}$ such that $\mathbf{P}^{(i)} \cdot \A^{(i)} = \mathbf{T}^{(i)}$ is lower triangular. The upper left entry of $\mathbf{T}^{(i)}$ is an integer $d_i \neq 0 \bmod p$, and $d_i \cdot x_i = \langle \mathbf{P}^{(i)}_1, \y \rangle$.
   Return the matrix $D$ with diagonal entries $d_1,...,d_n$ and the matrix $L$ with row vectors $\mathbf{P}^{(i)}_1$ for $i \in [n]$. 
 \end{proof} 
+\fi 
 
 The next lemma is a direct result of this fact. 
 
