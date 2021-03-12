@@ -56,7 +56,7 @@ We also show that the commitment remains binding under the same assumption, if t
 
 \subsection{Batch PoE}
 We show that the Pietrzak PoE is an interactive proof of knowledge for a \emph{shifted PoE Relation} in any group. That is given a Pietrzak PoE with input $(C,k,C')$ we can extract $\gr{W}\in \GG$ and $\alpha \in \ZZ/\{0\}$ such that $\alpha \gr{W}=0$ and such that $2^k C + \gr{W} =C'$. Using the new binding commitment scheme it suffices to use this knowledge property of the PoE. 
-We additionally show that it is possible to combine $n$ PoEs for statements about exponents $(2,4,\dots, 2^n)$ into a single protocol with communication and verifier complexity $O(n)$ (instead of $O(n^2)$). 
+We additionally show that it is possible to combine $n$ PoEs for statements with descending exponents $(2^n,2^{n-1},\dots,2)$ into a single protocol with communication and verifier complexity $O(n)$ (instead of $O(n^2)$). 
 
 \section{Protocols}
 
