@@ -159,6 +159,7 @@ Given any degree (at most) $d$ integer polynomial $f \in \ZZ(\frac{q-1}{2})$, by
 \end{proof}
 
 \paragraph{Encoding of dyadic rational polynomials.}
+\benedikt{This really needs to go}
 There exists an algorithm to compute square roots of any element of a class group of an imaginary quadratic order, originally described by Gauß (see Bosma and Stevenhagen for a modern description~\cite{jtn/BosSte96}). As a result, in such class groups an adversary can also commit to \defn{dyadic rationals} $\mathbb{D}:=\{\frac{x}{2^k} : \ x \in \ZZ \wedge k \in \NN\}\subset \QQ$, in addition to integers. When using class groups we therefore need to modify the encoding scheme . 
 
 The encoding map is identical, except lifted to the dyadic rationals: $\mathsf{Enc} : \mathbb{D}[X] \rightarrow \mathbb{D}, \, g(X) \mapsto g(q)$. The main difference with respect to the integer encoding scheme will be that decoding works for dyadic rationals where \emph{both the numerator and the denominator are bounded}. Let $N \in \NN$ be a bound on the absolute value of the numerator and $2^D\in \NN$ be a bound on the value of the denominator, and let $\mathbb{D}(N, D) :=\{\frac{x}{2^a} \in \mathbb{D} : \ |x|\leq N \wedge 2^a \leq D\}$ denote the set of such bounded dyadic rationals. The encoding scheme is uniquely decodable if $N \cdot 2^a < q/2$.

@@ -65,10 +65,10 @@
 \author{\begin{tabular}{c}Benedikt B\"unz$^1$ \\ \small \texttt{benedikt@cs.stanford.edu} \end{tabular}   \begin{tabular}{c}Ben Fisch$^1$ \\ \small \texttt{bfisch@cs.stanford.edu} \end{tabular}   \begin{tabular}{c}Alan Szepieniec$^2$ \\ \small \texttt{alan@nervos.org} \end{tabular} \\
 \\
 %\normalsize
-$^1$Stanford University, Findora Foundation \\
+$^1$Stanford University\\
 %\normalsize
 $^2$Nervos Foundation}
-% \affil[1]{Stanford University, Findora Foundation}
+% \affil[1]{Stanford University}
 % \affil[2]{Nervos Foundation}
 
 \date{}
@@ -83,6 +83,7 @@ There are many existing examples of Polynomial IOPs (PIOPs) dating back to the f
 We present a generic compilation of any PIOP using our DARK polynomial commitment scheme. In particular, compiling the PIOP from \textsf{PLONK} (GWC, ePrint'19), an improvement on \textsf{Sonic} (MBKM, CCS'19), yields a public-coin interactive argument with quasi-linear preprocessing, quasi-linear (online) prover time, logarithmic communication, and logarithmic (online) verification time in the circuit size. Applying Fiat-Shamir results in a SNARK, which we call \textsf{\textbf{Supersonic}}. 
 
 \textsf{Supersonic} is also concretely efficient with 10KB proofs and under $100$ms verification time for circuits with 1 million gates (estimated for 120-bit security). Most importantly, this SNARK is \emph{transparent}: it does not require a trusted setup. We obtain zk-SNARKs by applying a hiding variant of our polynomial commitment scheme with zero-knowledge evaluations. \textsf{Supersonic} is the first complete zk-SNARK system that has both a practical prover time as well as asymptotically \emph{logarithmic} proof size and verification time. 
+This version of the paper includes a new security proof. The original proof had a significant flaw that was discovered by Block et all (CRYPTO 2021). 
 %(concretely a $70\times$ reduction in proof size over the state-of-the-art). 
 
 
@@ -109,7 +110,7 @@ We present a generic compilation of any PIOP using our DARK polynomial commitmen
 \input{sections/newconclusion}
 \section*{Acknowledgements}
 We thank Dan Boneh for helpful discussions and comments.
-This work was partially supported by NSF, SGF, ONR, the Simons Foundation, the Nervos Foundation and the Findora Foundation. 
+This work was partially supported by NSF, SGF, ONR, the Simons Foundation, the Nervos Foundation. 
 \bibliographystyle{alpha}
 {\footnotesize
   \bibliography{cryptobib/abbrev3,cryptobib/crypto,cryptobib/additional}}
