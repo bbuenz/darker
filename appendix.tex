@@ -1,8 +1,525 @@
 \clearpage
 \section*{\scalebox{1.25}{\appendixphrase}}
-\section{Security proof new (Added April 2022}
+\section{Security proof new (Added April 2022)}
 
-\section{Security Proofs}
+
+Although DARK does not satisfy \emph{special soundness}, it does satisfy a property that we will call \emph{DARK special soundness}, which turns out to be sufficient (i.e., using our new forking lemma we can prove that such protocols are knowledge sound). DARK special soundness is a weaker property than special soundness, as all protocols that satisfy special soundness also satisfy DARK special soundness. 
+
+\section{Preliminaries and Notations}
+
+\subsection{Integer polynomials} If $f$ is a multivariate polynomial, then $||f||_\infty$ denotes the maximum over the absolute values of all coefficients of $f$. 
+
+\begin{lemma}[Evaluation Bound]\label{lem:evalbound} For any $\mu$-linear integer polynomial $f$ and $m \geq 2$:
+ $$\Prob_{\mathbf{x} \gets [0,m)^\mu} [|f(\mathbf{x})|\leq \frac{1}{m^\mu} \cdot ||f||_\infty]\leq \frac{3\mu}{m}$$
+ \end{lemma} 
+ \begin{proof}
+ Let $f^{(0)}:=f$. 
+ Given a vector $\mathbf{x} = (x_1,..,x_\mu)$, for each $j\in[1,\mu]$ define $f_{\mathbf{x}}^{(j)}$ to be the $\mu-j$-variate partial evaluation $f_{\mathbf{x}}^{(j)}:= f(x_1,...,x_j, X_{j+1},...,X_\mu)$. Then we can rewrite the lemma statement as:
+    $$P_{\mathbf{x} \gets [0,m)^\mu} [||f_{\mathbf{x}}^{(\mu)}||_\infty\leq  \frac{1}{m^\mu} \cdot ||f^{(0)}||_\infty ]\leq\frac{ 3\mu}{m}$$	
+ 
+We will bound the probability for random $\mathbf{x}$ that there exists any $j$ for which $||f_{\mathbf{x}}^{(j)}|| < \frac{1}{m} \cdot ||f_{\mathbf{x}}^{(j-1)}||$. If no such $j$ exists, then $||f^{(\mu)}|| \geq \frac{1}{m^\mu} \cdot ||f^{(0)}||$. 
+
+For any $j$, we can write $f_{\mathbf{x}}^{(j)} = g(X_{j+1},...,X_\mu) + x_{j}\cdot h(X_{j+1},...,X_\mu)$ where $g,h$ are $\mu-j$ variate multilinear integer polynomials and $||f_{\mathbf{x}}^{(j-1)}|| = \max(||g||, ||h||)$ because the coefficients of $g$ and $h$ are a partition of the coefficients of $f_{\mathbf{x}}^{(j-1)}$.  Suppose now that $||f_{\mathbf{x}}^{(j)}|| < \frac{1}{m} \cdot ||f_{\mathbf{x}}^{(j-1)}||$, i.e. that $||g + x_j \cdot h|| < \frac{1}{m} \cdot \max(||g||, ||h||)$ and consider two cases: \\
+
+\emph{Case 1: $||h|| = \max(||g||, ||h||)$}.  For any integer $\Delta \neq 0$, using the triangle inequality: 
+$$||g+(x_j +\Delta) h ||=||g + x_j h +\Delta h||\geq  ||\Delta h|| -  ||g + x_j h|| >  (1 - \frac{1}{m}) \cdot ||h|| \geq \frac{1}{m} \cdot ||h||   $$
+
+The last part of the inequality holds because $1 - \frac{1}{m} \geq \frac{1}{m}$ for any $m \geq 2$. \\
+
+\emph{Case2: $||g|| = \max(||g||, ||h||)$}. Using the triangle inequality, 
+
+$$\frac{1}{m} ||g|| > ||g+x_j \cdot h || \geq  ||g|| - ||x_j \cdot h||$$ 
+
+This implies, for $m \geq 2$, that $||h|| > \frac{1}{m} \cdot ||g||$ because:
+
+$$||x_j \cdot h|| > (1 - \frac{1}{m}) \cdot ||g||\implies ||h||> \frac{m-1}{x_j \cdot m} \cdot ||g||\geq \frac{1}{m} ||g||$$
+The last step uses that $x_j\in [1,m)$. For $x_j=0$, $||g +x_j h||=||g||$. 
+Finally, for any integer $\Delta$, by the triangle inequality: 
+
+$$||g + (x_j + \Delta) \cdot h|| \geq || \Delta h|| - ||g + x_j \cdot h|| > \frac{|\Delta|}{m} \cdot ||g||  - \frac{1}{m} \cdot ||g||  = \frac{|\Delta| -1}{m} \cdot ||g||$$ 
+
+When $|\Delta| \geq 2$ this implies that $||g + (x_j + \Delta) \cdot h|| > \frac{1}{m} \cdot ||g||$.  
+
+In both cases, we conclude that for any choice of $(x_1,...,x_{j-1})$ for the first $j-1$ components of the random $\mathbf{x}$, which define $g$ and $h$, there are at most three choices of $x_j$ such that the event $||f_{\mathbf{x}}^{(j)}|| < \frac{1}{m} \cdot ||f_{\mathbf{x}}^{(j-1)}||$ holds true  (i.e., if true for $x_j$, then it is also true for at most $x_j + 1$ and $x_j - 1$). Thus this event occurs with probability at most $\frac{3}{m}$. Finally, by a union bound over $j$, the probability this event occurs for some index $j$ is at most $\frac{3\mu}{m}$. 
+
+
+ \end{proof}
+ 
+ \begin{lemma}[Multilinear Composite Schwartz-Zippel\cite{cryptoeprint:2022:458} ]
+ \label{lem:CSZ}
+ For all $m \geq 2$, any $\mu$-linear integer polynomial $f$, and $N \in \mathbb{Z}$ coprime to $f$, if either $\mu = 1$ and $ \log_2 N \geq \lambda$ or $\mu \geq 2$ and $\log_2 N\geq 8 \mu^2 + \log_2(2\mu)\cdot \lambda$ then:
+ $$\Prob_{x\gets [0,m)^\mu} [f(x)\equiv 0 \bmod N]\leq \frac{1}{2^{\lambda}} + \frac{\mu}{m}$$
+% In particular, setting $m = \mu\cdot 2^{\lambda}$ gives the probability bound $2^{-\lambda + 1}$. 
+ \end{lemma} 
+ 
+   \begin{lemma}[Concrete MCSZ for 120-bit security\cite{cryptoeprint:2022:458}] \label{lem:cCSZ}
+For the following table of values for $( \mu, \beta_\mu)$ s.t. for any $\mu$-linear integer polynomial $f$ and integer $N \geq 2^{\beta_\mu}$ co-prime to $f$: 
+ $$\Prob_{x\gets [0,m)^\mu} [f(x)\equiv 0 \bmod N]\leq 2^{-120}+\frac{\mu}{m}$$
+\begin{mdframed}
+ \begin{center}
+
+\begin{tabular}{l||l}
+
+$\mu$ &  $\lambda=120$ \\
+\hline
+\hline
+1 & 120\\
+2 & 156\\
+3 & 175\\
+4 & 197\\
+5 & 212\\
+6 & 234\\
+7 & 244\\
+8 & 260\\
+9 & 277\\
+10 & 289\\
+
+\end{tabular}
+\begin{tabular}{l||l}
+
+$\mu$ &  $\lambda=120$ \\
+\hline
+\hline
+11 & 301\\
+12 & 315\\
+13 & 331\\
+14 & 344\\
+15 & 354\\
+16 & 366\\
+17 & 381\\
+18 & 391\\
+19 & 407\\
+20 & 416\\
+\end{tabular}
+\begin{tabular}{l||l}
+
+$\mu$ &  $\lambda=120$ \\
+\hline
+\hline
+21 & 429\\
+22 & 437\\
+23 & 448\\
+24 & 464\\
+25 & 472\\
+26 & 481\\
+27 & 492\\
+28 & 506\\
+29 & 516\\
+30 & 527\\
+
+\end{tabular}
+\end{center}	
+\end{mdframed}
+ \end{lemma} 
+
+\begin{fact}
+\label{fact:encoding}
+Let $q \in \ZZ$ be any positive integer. For any integer $E \in \ZZ$ such that $|E|\leq \frac{q^{d+2} - q}{2(q-1)}$ there exists a unique integer polynomial $f \in \ZZ[X]$ with $||f||_\infty \leq q/2$ such that $f(q) = E$. 
+\end{fact} 
+
+\begin{lemma}[Rational Encoding]
+\label{lem:encoding}
+Let $q \in \ZZ$ be any positive integer. Consider any $\beta_1, \beta_2 \in \mathbb{N}$ such that $\beta_1 \cdot \beta_2 \leq \frac{q}{2}$. Let $Z = \{z \in \ZZ: |z| \leq \beta_1 \}$, let $\mathcal{F} = \{ f \in \ZZ[X]: ||f||_\infty \leq \beta_2\}$, and let $\mathcal{H} = \{f/z \in \mathbb{Q}[X]: f \in \mathcal{F} \wedge z \in Z \}$. Then for any $h_1, h_2 \in \mathcal{H}$,  if $h_1(q) = h_2(q)$ then $h_1 = h_2$. 
+\end{lemma}
+\begin{proof}
+Let $h_1 = \frac{f_1}{z_1}$ and $h_2 = \frac{f_2}{z_2}$. If $h_1(q) = h_2(q)$ then $z_1 f_2(q) = z_2 f_1(q)$. Since $||z_2 \cdot f_1||_\infty \leq \beta_1 \cdot \beta_2 \leq \frac{q}{2}$ and  likewise $||z_1\cdot f_2||_\infty \leq \frac{q}{2}$, it follows from Fact~\ref{fact:encoding} that if $z_1 f_2(q) = z_2 f_1(q)$ then $z_1 f_2 = z_2 f_1$, or equivalently, $h_1 = h_2$.
+\end{proof}
+
+\subsection{Assumptions}
+
+\begin{assumption}[RSA assumption, \cite{RivShaAdl78,EC:CouPetPoi17}]
+	The RSA assumption states that an efficient adversary cannot compute a random root (co-prime with the order of the group) for a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
+	\benedikt{The GCD requirement is a bit weird.}
+	\[
+    \Pr\left[
+    \begin{array}{l}
+    \ell \cdot \gr{U} = \Generator \, \wedge \\
+    \gcd(\ell,|\GG|)=1
+    \end{array} :
+    \begin{array}{l}
+         \GG, N \leftarrow \ggen(\lambda)  \\
+         \Generator \sample \GG, \ell \sample [N]  \\
+         \gr{U} \in \mathbb{G} \leftarrow \adv(\mathbb{G}, \Generator) \\
+    \end{array}\right] \leq \negl \enspace .
+\]
+
+\end{assumption}
+
+\begin{assumption}[Random Order Assumption]
+\label{assum:randomorder}
+	The random order assumption states that an efficient adversary cannot compute a multiple of the order of a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
+	\[
+    \Pr\left[a\cdot \Generator =0:
+    \begin{array}{l}
+         \GG, N \leftarrow \ggen(\lambda)  \\
+         \Generator, \sample \GG\\
+         a \in \NN \leftarrow \adv(\mathbb{G},N, \Generator) \\
+    \end{array}\right] \leq \negl \enspace .
+    \]
+\end{assumption}
+\begin{lemma}
+\label{lem:roa-to-rsa}
+	The RSA Assumption for $\ggen$ implies the Random Order Assumption
+	\end{lemma}
+\begin{proof}
+	Given an efficient adversary $\adv_{\textsf{Order}}$ for the random order assumption we will construct an efficient adversary $\adv_{\textsf{RSA}}$ for the RSA assumption. On input $\GG,\Generator,\ell$ to $\adv_{\textsf{RSA}}$ we will forward $\GG,\Generator$ to $\adv_{\textsf{Order}}$. $\adv_{\textsf{Order}}$ outputs $a$ such that $a\cdot \Generator=0$ with non-negligible probability $\epsilon$. 
+	$\adv_{\textsf{RSA}}$ computes computes $a'\gets \frac{a}{\gcd(a,\ell^k)}$ for $k=\lceil\log_\ell(a)\rceil$. Note that since $\ell$ is co-prime to the order of $\GG$ and thus also the order of $\Generator$ and $a$ is a multiple of the order of $\Generator$ we have that $a'$ is still a multiple of the order of $\Generator$. Now $\adv_{\textsf{RSA}}$ computes $w\gets \ell^{-1} \bmod a'$ and outputs $\gr{U} \gets w\cdot \Generator$. Now we have $\ell \cdot \gr{U}=\Generator$ so $\adv_{\textsf{RSA}}$ succeeds with probability $\epsilon$.
+\end{proof}
+\subsection{DARK commitments} 
+Given the security parameter $\lambda$, the commitment scheme setup selects a group $\GG$ for which the random order assumption holds (with  $\lambda$-bit security) and a random generator $\gr{G} \in \GG$. A parameter $q \in \mathbb{N}$ determines a commitment message space $\mathcal{M} = \{f(X): ||f||_\infty \leq q/2\}$. The commitment to $f(X) \in \mathcal{M}$ is $f(q) \cdot  \gr{G}$. Commitments are binding over $\mathcal{M}$ because if $f(q) \cdot \gr{G} = f'(q) \cdot \gr{G}$ then $(f'(q) - f(q)) \gr{G} = 0$. This breaks the order assumption for $\GG$ unless $ f'(q) =  f(q)$, in which case $f' = f$ by Fact~\ref{fact:encoding}. 
+
+If we expand the valid openings of the commitment scheme to include rational polynomials of the form $f/z$, where $f \in \ZZ[X]$, $z \in \ZZ$, so that $(f,D)$ is an opening of $\gr{C}$ to $f/z$ iff $z \cdot \gr{C} = f(q) \cdot \gr{G}$, then the scheme is binding over the message space $\mathcal{M}(\beta_n, \beta_d) =  \{f(X)/z: f \in \ZZ[X], z \in \ZZ, gcd(f,z) = 1, ||f||_\infty \leq \beta_n, |z| \leq \beta_d \}$ so long as $\beta_n \cdot \beta_d \leq \frac{q}{2}$. 
+
+\begin{lemma}[DARK commitment Security]
+	The commitment scheme $(\setup,\open)$ to rational polynomials $h=\frac{f}{N}\in \mathcal{M}(\beta_n,\beta_d)$ 
+	$$\setup(1^\secpar,\beta_n,\beta_d)\rightarrow \GG=\ggen(1^\secpar) ,\Generator\gets \GG ,q:=\beta_n\cdot \beta_d\cdot 2$$
+	$$\open(C,h=f/N)\rightarrow N\cdot \Commitment:=f(q)\cdot \Generator $$ 
+	such that $f(q)\Generator=N\cdot \Commitment$ is binding under the random order assumption (\cref{assum:randomorder}), i.e. for any polynomial time adversary $\adv$ $$P\left[\begin{array}{c} 
+	\open(C,h)=\open(C,h')=1\\
+	h\neq h' 
+\end{array}
+ \middle|\begin{array}{c}
+(h,h',C) \in \mathcal{M}(\beta_n,\beta_d)^2 \times \GG  \gets \adv(\crs)\\	
+\crs=\setup(1^\secpar,\beta_n,\beta_d)
+\end{array}
+	 \right]=\negl$$
+\end{lemma}
+%The commitment scheme is binding over $\mathcal{M}$, but only provides an efficient way to commit to integer polynomials in $\mathcal{M}$. The commitment to $f(X) \in \mathcal{M}$ is $f(q) \cdot  \gr{G}$, while $f(X)/z$ is a valid opening of $\gr{C}$ iff $z \cdot \gr{C} = f(q) \cdot \gr{G}$. 
+\begin{proof}
+To see why this is binding over $\mathcal{M}(\beta_n, \beta_h)$, suppose that both $h=\frac{f}{N}$ and $h'=\frac{f'}{N'}$ are valid openings of a commitment $\gr{C}$ to distinct rational polynomials $h, h' \in \mathcal{M}(\beta_n, \beta_d)$. This implies that $N\cdot \gr{C} = f(q) \cdot \gr{G}$ and $z' \cdot \gr{C} = f'(q) \cdot \gr{G}$. Hence, $v =  z \cdot f'(q) - z' \cdot f(q)$ is a multiple of the order of $\gr{G}$, i.e. $v \cdot \gr{G} = 0$. Moreover, by Lemma~\ref{lem:encoding}, $h(q) \neq h'(q)$, which implies $v \neq 0$. This breaks the random order assumption for $\GG$. It is important to note that the openings $(f, z)$ and $(f', z')$ need not be co-prime elements of bounded norm; it suffices that $h = f/z$ and $h' = f'/z'$ have bounded norm numerators and denominators in reduced fraction form, i.e. $h, h' \in \mathcal{M}(\beta_n, \beta_d)$. 
+\end{proof}
+
+
+
+\subsection{IP transcript trees} 
+
+Let $(P,V)$ be a $\mu$-round public coin interactive protocol. A $\mu$-round public-coin protocol $(P,V)$ consists of $\mu$-rounds of messages between the prover and verifier, where in each round the prover sends a message to the verifier and the verifier responds with $x \leftarrow \mathcal{X}$ sampled uniformly from the challenge space $\mathcal{X}$. At the end of the protocol the verifier outputs either $accept$ or $reject$. By convention, the protocol starts with the prover's first message and ends with the prover's last message. A \emph{transcript} thus contains $\mu+1$ prover messages and $\mu$ challenges. We will denote transcripts by a $\mu \times 2$ matrix $A$ such that $A(0,0)$ is the protocol input $\mathsf{x}$, $A(0, 1)$ is the prover's first message, and for all $i ≥ 1$, $A(i, 0)$ is the verifier's $ith$ round challenge and $A(i,1)$ is the prover's $ith$ round response.  We restrict our attention to protocols in which the verifier's decision is a deterministic function $D_V$ of the transcript, which is true of the DARK protocol, but is also without loss of generality. An \emph{accepting transcript} is an array $A$ such that $D_V(A) = accept$. 
+
+A $k$-ary \emph{transcript tree} for $(P,V)$ is a labelling of a $\mu$-depth $k$-ary tree such that the labels on every root-to-leaf path forms an accepting $(P,V)$ transcript. It will be convenient to order the nodes of the tree according to a depth-first reverse topological sort (aka post-order tree traversal). This is a topological sorting of the tree with directed edges flowing from leaves to root which places left subtrees before right subtrees. This ordering associates each node with an index in $[1,N]$ where $N = \textsf{size}(\mu, k) = \frac{k^{\mu+1} - 1}{k-1}$.
+
+A \emph{post-order labelling} of the tree is a function $L:[1,N] \rightarrow \mathcal{X} \times \mathcal{M}$ where $\mathcal{X}$ is the verifier's challenge set and $\mathcal{M}$ is the space of prover messages. We can think of the first component as a label on the node's incoming edge and the second component as a label on the node itself. The root has no incoming edge, but the root label's first component is the protocol input. For any root-to-leaf path of nodes with indices $\{v_0,...,v_\mu\}$ the labelling $L$ defines the matrix $A$ such that $L(v_i) = (A(i, 0), A(i, 1))$ and $A$ is an accepting transcript. Given a label $L(v)$ for $v > 1$ we will use the notation $L(v)_0$ to denote the first component of the label containing the verifier's challenge and $L(v)_1$ the second component containing the prover's response.
+
+We may refer to the \emph{level} of a node in the tree. The root of a tree is always at \emph{level 0} and the leaves of a depth $\mu$ tree are at \emph{level $\mu$}. The \emph{height} of node at level $\ell$ within a $\mu$-depth tree is $\mu - \ell$. For each $v \in [1,N]$ let $v^*$ denote the largest index $v^* < v$ such that the node at index $v^*$ does not belong to the subtree extending from $v$. For each $v \in [1,N]$ let $L_v:[1,v] \rightarrow \mathcal{X} \times \mathcal{M}$ denote the restriction of $L$ to the subset $[1,v^*]$. 
+Similarly, for any $S \subseteq [1,N]$ let $L_S: S \rightarrow \mathcal{X} \times \mathcal{M}$ denote the restriction of the labelling $L$ to the subset of node indices $S$. For any $v \in [1, N]$ let $S_v \subseteq [1,N]$ denote the indices of all nodes in the subtree rooted at node $v$. $L_{S_v}$ thus denotes the labelling of the subtree $S_v$. Note that $L_{v^*}$ is not the same as $L_{S_{v^*}}$. 
+
+\subsection{Forking Lemma}
+The standard forking lemma for $\mu$-round public coin interactive protocols characterizes the efficiency of generating a $k$-ary $\mu$-depth transcript tree for which the challenges labeling the children within the tree \emph{fork}, i.e. are distinct. More precisely, the forking lemma says that given any adversarial prover $\mathcal{A}$ that may deviate from the honest protocol but causes the verifier to accept with probability $\epsilon > \negl$, there is a tree generation algorithm that has only black-box access to $\mathcal{A}$, runs in time $O(\frac{\lambda}{\epsilon} \cdot k^\mu)$, and succeeds with probability $1 - \negl/\epsilon$ in producing a transcript tree with the forking property. 
+
+ Our forking lemma generalizes the property of the transcript tree that can be generated. The lemma considers predicates for each node $v \in [1,N]$ at level $\ell_v$ of the form $\pi_v: (\mathcal{X}\times \mathcal{M})^{[1,v^*]} \times \mathcal{X}^{\mu - \ell_v} \rightarrow \{0,1\}$, i.e. each predicate $\pi_v$ takes as input a labelling function $L_{v^*}$ for the partial set of nodes $[1,v^*]$ and a vector of challenges $\mathbf{x} \in \mathcal{X}^{\mu - \ell_v}$. The vector of challenges will represent a path down the tree starting from $v$ that is independent of the partial labeling. As a convention, we choose this path to be the rightmost path, but any choice of path would do. We denote the indices of the rightmost path from $v$ to the leaves as $\textsf{rpath}_v$ and the challenge labels along this path assigned by $L$ as $L(\textsf{rpath}_v)_0$. The lemma says that if $\pi_v(L_{v^*}, \mathbf{x}) = 1$ with overwhelming probability $1 - \negl$ for any post-order labeling $L:[1,N] \rightarrow \mathcal{X} \times \mathcal{M}$ of the $k$-ary $\mu$-depth tree, any node $v$ in the tree, and $\mathbf{x}$ sampled randomly, then the transcript generation algorithm produces a transcript tree represented by some post-order labeling $L$ for which $\pi_v(L_{v^*}, L(\textsf{rpath}_v)_0) = 1$ for all $v$ in the tree. In fact, the lemma is even more general as it has a weaker requirement that $\pi_v(L_v^*, \mathbf{x}) = 1$ with overwhelming probability conditioned on $\pi_u(L_u^*, L(\textsf{rpath}_u)_0) = 1$ for all $u \leq v^*$. The standard forking lemma is a special case where $\pi_v$ checks that the challenge label on $v$ is distinct from the challenge labels on any of its left siblings. The challenge label $L(v)_0$ on $v$ is the first component of $L(\textsf{rpath}_v)_0$ and the challenge labels on the left sibling(s) of $v$, assuming $v$ is not the first child, are included in $L_{v^*}$. 
+ 
+ \begin{lemma}[Generalized Forking Lemma]
+ Let $(P, V)$ be a $\mu$-round public-coin protocol with prover message space $\mathcal{M}$ and verifier challenge space $\mathcal{X}$. For each node $v \in [1,N]$ of a $\mu$-depth $k$-ary balanced tree on $N = \textsf{size}(\mu, k)$ nodes, let $h_v$ denote the height of $v$. Let $\{\pi_v: v \in [1,N]\}$ denote a set of predicates, where $\pi_v(L_{v^*}, \mathbf{x})$ is a function of the partial labelling $L_{v^*}$ and challenge vector $\mathbf{x} \in \mathcal{X}^{h_v}$, with the property that for any post-order labelling function $L:[1,N] \rightarrow \mathcal{X} \times \mathcal{M}$ and any $v \in [1,N]$: 
+
+$$Pr_{\mathbf{x} \leftarrow \mathcal{X}^{h_v}}[ \pi_v(L_{v^*}, \mathbf{x}) = 1 \ | \ \forall_{u \leq v^*} \pi_u(L_{u^*},L(\textsf{rpath}_u)_0) = 1] \geq 1 - negl(\lambda)$$
+
+There is an algorithm $\textsf{Tree}^\mathcal{A}(\mathsf{x})$ that, given oracle access to any adversarial prover $\mathcal{A}$ that runs for time at most $T_\mathcal{A}$ and causes $V$ to accept with probability $\epsilon > negl(\lambda)$ on public input $\mathsf{x}$, runs in time $poly(\lambda)\cdot T_\mathcal{A}/\epsilon$ and with probability $1 - negl(\lambda)/\epsilon^2$ outputs a $k$-ary transcript tree with post-order labelling $L:[1,N] \rightarrow \mathcal{X}\times \mathcal{M}$ such that $\pi_v(L_{v^*}, L(\textsf{rpath}_v)_0) = 1$ for all $v \in [1,N]$.  	
+ \end{lemma}
+
+
+
+\section{DARK Special Soundness Theorems} 
+\begin{definition}[DARK Special Soundness]\label{def:darkspecialsoundness} A $\mu$-round public-coin interactive proof for relation $R(x,w)$ with challenge space of size $2^\lambda$ is \textbf{DARK $(k^{(\mu)}, \epsilon(\cdot))$-special sound} if it satisfies the following conditions with respect to some commitment scheme $(\textsf{Commit}, \textsf{Verify})$ with message space $\mathcal{M}$ and opening space $\mathcal{W}$, two predicates $\phi_a, \phi_b:[\mu] \times \mathcal{M}  \rightarrow \{0,1\}$, and negligible functions $\epsilon: \mathbb{N} \rightarrow \mathbb{R}$:
+
+
+\begin{enumerate} 
+\item  In any accepting transcript, the prover's $i$th round message for $i \in [1,\mu)$ is a valid commitment $\mathcal{C}_i$ for the scheme $(\textsf{Commit}, \textsf{Verify})$, and the final prover message is a commitment $\mathcal{C}_\mu$ together with a valid opening $(m_\mu, o_\mu)$ (i.e. $\textsf{Verify}(C_\mu, m_\mu, o_\mu) = 1$) such that $\phi_a(\mu, m_\mu) = 1$. 
+
+
+\item  There is a $poly(\lambda)$ time algorithm $\textsf{Extract}(i, \nu, C_\nu, \textsf{openSubtree}) \rightarrow (m, o)$ where $i \in [1,\mu]$ and $\textsf{openSubtree}$ is a list of openings for the commitments on all internal nodes (excluding the root and leaves) of a $k$-ary depth $\mu - i$ subtree of a transcript tree rooted at a node $\nu$ on the $i$th level with commitment label $C_\nu$. If the challenge labels on the first two children of any node in the subtree are distinct, and the openings for all internal (non-root) nodes of the subtree satisfy predicate $\phi_a$ (i.e., for any $j > i$ and node $u$ on the $j$th level of the transcript tree that is a member of this subtree, its opening $(m_u, o_u)$ in $\textsf{openSubtree}$ satisfies $\phi_a(j, m_u)= 1$) then the algorithm returns a valid opening $(m,o)$ for $c_\nu$ such that $\phi_b(i, m) = 1$.  
+
+\item  $\textsf{Extract}(0,x,\textsf{openTree}) \rightarrow w$ takes as inputs openings for the commitments on all nodes in an entire transcript tree satisfying predicate $\phi_a$ (same condition as above for subtrees) and returns a witness $\mathsf{w}$ for the public input $\mathsf{x}$ such that $R(\mathsf{x},\mathsf{w})=1$. 
+
+\item  $\textsf{Extend}(i, m, r_1,..,r_{\mu-i})$ is a deterministic $\poly$-time algorithm that is given an index $i \in [\mu-1]$, a message $m$ in the message space of the commitment scheme $(\textsf{Commit}, \textsf{Verify})$, $\mu-i$ challenges from $\mathcal{X}$, and outputs $\mu-i$ messages $m'_1,...,m'_{\mu-i}$ in the message space of the commitment scheme. 
+\item For any $i \in [\mu-1]$ and $m$ where $\phi_a(i,m) = 0$, the probability over $r_i,...,r_\mu$ sampled uniformly i.i.d. from $\mathcal{X}$ that the last message $m'_{\mu-i}$ in the list returned by $\textsf{Extend}(i, m)$ satisfies $\phi_a(\mu, m'_{\mu-i}) = 1$ is bounded by $\epsilon(\lambda)$.   
+
+\item $\textsf{Break}(i, m, r_1,...,r_\mu, C_0,...,C_\mu, (m_i, o_i),...,(m_{\mu}, o_{\mu}))$ first runs $\textsf{Extend}(i, m, r_i,..,r_{\mu})$, which returns messages $m'_1,...,m'_{\mu-i}$. If  either $\phi_b(i, m_i) = 0$ or $\forall_j$ $m'_j = m_{i + j -1}$ then it outputs $\bot$. Otherwise it outputs an attempted opening $(m', o')$ of $C_j$ for some index $j \geq i$ where $m' \neq m_j$. %\benedikt{Change break to output bot if phib is 0.}
+
+
+%\item For any $i \in [\mu-1]$ and algorithm $\mathcal{A}$ that runs in time at most $t_\mathcal{A} \in O(\poly)$ to generate a valid (accepting) transcript with commitments $(C_0,...,C_\mu)$ and openings $((m_{i+1},o_{i+1}),...,(m_\mu, o_\mu))$ to the last $\mu-i$ commitments, where $\phi_b(j, m_j, o_j) = 1$ for all $j \in [i+1,\mu]$, then $\textsf{Extend}(i, m_i)$ returns $m_{i+1},...,m_{\mu}$ in time $t_E$ with overwhelming probability $1 - \delta(t_\mathcal{A} + t_E)$ over the internal randomness of $\mathcal{A}$ (and randomness of the commitment scheme setup if applicable).  
+
+\item For any $i \in [\mu-1]$, given a valid (accepting) transcript with commitments $\mathbf{C} = (C_0,...,C_\mu)$, round challenges $\mathbf{r} = (r_1,...,r_{\mu})$, and openings $\mathbf{open} = ((m_{i},o_{i}),...,(m_\mu, o_\mu))$ to the last $\mu-i+1$ commitments, where $\phi_b(i, m_i) = 1$ and $\phi_a(j, m_j) = 1$ for all $j \in [i+1,\mu]$, either $\textsf{Extend}(i, m_i, r_{i+1},...,r_\mu)$ returns $m_{i+1},...,m_{\mu}$ or $\textsf{Break}(i, m_i, \mathbf{r}, \mathbf{C}, \mathbf{open})$ returns an opening $(m', o')$ of some $C_j$ to a conflicting message $m' \neq m_j \in \mathcal{M}$, which breaks the binding of the commitment scheme over $\mathcal{M}$.
+\end{enumerate} 
+
+\end{definition} 
+
+\textsf{Note:} Any special sound protocol satisfies DARK special soundness as 3) essentially captures the special soundness definition. More precisely a $k^{(\mu)}$-special sound satisfies $k^{(\mu)}$-DARK special soundness by setting the commitment scheme to be trivial (i.e., identity function) and the $i$th round commitment $C_i$ to the prover's $i$th round message and setting the predicates $\phi_a=1, \phi_b=0$ to be trivial as well (i.e., always return 1 and 0 respectively). The algorithm $\textsf{Extend}$ can output an arbitrary set of messages because the condition on the algorithm is vacuously true as $\phi_a(i,m) \neq 0$ for any $(i,m)$. The algorithm $\textsf{Extract}(i, \nu, C_\nu, *)$ is trivial because $C_\nu$ is the message itself. The algorithm $\textsf{Break}$ is also trivial as $\phi_b$ is always $0$. The algorithm $\textsf{Extract}(0, x, openTree) \rightarrow w$ exists by the definition of $k^{(\mu)}$-special soundness. %\benedikt{For break do nothing and for phib it needs to ouput 0 otherwise this doesn't work.}
+
+\begin{theorem} Let $\CSZ = 8 \mu^{2} + \log_2 (2 \mu) \lambda$. Let $\EBL=\lambda\cdot \mu$ and $\CorrectnessBound=\lambda\cdot \mu+\log_2 p$. 
+The $\mu$-round DARK polynomial commitment evaluation protocol with $\lambda$-bit challenges, group $\GG$, and $\log q \geq 1 + 4(\lambda + 1 + \max(\EBL+ \CorrectnessBound, \CSZ))$ is DARK $(2^{(\mu)}, \frac{3\mu}{2^\lambda})$-special sound.
+\end{theorem} 
+\textbf{Remark:} $\mathsf{CSZ}_{\mu, \lambda}$ is derived from the Multilinear Composite Schwartz Zippel Lemma (\cref{lem:CSZ}). $\mathsf{EBL}_{\mu, \lambda}$ is derived from the Evaluation Bound Lemma (\cref{lem:evalbound}) and $\mathsf{CB}$ refers to the final round check bound in the DARK protocol. We can also substitute any value for $\mathsf{CSZ}_{\mu,\lambda}$ using the table of concrete bounds in Lemma~\ref{lem:cCSZ} for fixed $120$-bit security in place of the analytical bound from Lemma~\ref{lem:CSZ}).% which gives the same result for $\log q \geq 1 + 4(121 + \max(\EBL+ \CorrectnessBound , \mathsf{CSZ}_{\mu,\lambda}))$ and $\epsilon(\lambda) = \max(\frac{3\mu}{2^\lambda}, 2^{-120})$. \ben{This should be $\lambda$-bit security not 120-bit?}  
+\begin{proof} 
+
+For any $\beta_1, \beta_2 \in \mathbb{R}$, let $\mathcal{M}(\beta_1, \beta_2) = \{f/N \in \QQ[X]: gcd(f, N) = 1, ||f||_\infty \leq \beta_1, |N| \leq \beta_2\}$. In the relation $R(\mathsf{x}, \mathsf{w})$ for the DARK evaluation protocol, the input $\mathsf{x} = (C, z, y)$ consists of a DARK commitment $C$ and two integers $z, y \in \ZZ$, while the witness $\mathsf{w}$ is an opening of $C$ to a rational polynomial $h \in \mathcal{M}(\sqrt{\frac{q}{2}}, \sqrt{\frac{q}{2}})$ such that $h(z) = y \bmod p$. Setup parameters include $p$ and $q$. 
+
+\medskip 
+
+We begin by defining $(\textsf{Commit}, \textsf{Verify})$ and predicates $\phi_a$ and $\phi_b$ for DARK special-soundness (Definition~\ref{def:darkspecialsoundness}). %We use the simplified notation $\phi_a, \phi_b: [\mu] \times \mathcal{M} \rightarrow \{0,1\}$ because in this case the predicates will only be functions of the messages and not the opening hints. 
+ 
+\begin{itemize} 
+\item The commitments of the scheme $(\textsf{Commit}, \textsf{Verify})$ are pairs $\mathcal{C} = ((C_L, y_L), (C_R, y_R)$ where $C_L, C_R$ are DARK commitments and $y_L, y_R \in \QQ$. Recall that $(f, N) \in \mathbb{Z}[X] \times \ZZ$ is an opening of a DARK commitment $C$ to the rational polynomial $h = f/N$ provided that  $f(q) \cdot \gr{G} = N \cdot C$, where $q$ is a parameter of the DARK commitment scheme. This is binding to rational polynomials in the set $\mathcal{M}(\sqrt{\frac{q}{2}}, \sqrt{\frac{q}{2}})$.
+
+We define a valid opening of $\mathcal{C} = ((C_L, y_L), (C_R, y_R))$ to a rational polynomial $h \in \mathbb{Q}[X]$ of even degree $d = \deg(h)$ as a pair $(f, N) \in \ZZ[X] \times \ZZ$ where $f = f_L + X^{\frac{d}{2}} f_R$ for $\deg(f_L), \deg(f_R) < \frac{d}{2}$ such that $(f_L, N)$ and $(f_R, N)$ are valid openings of the DARK commitments $C_L$ and $C_R$ respectively, provided that $N \cdot h = f$, $f_L(z) = N \cdot y_L \bmod p$, $f_R(z) = N \cdot y_R \bmod p$. This also implies that $(f, N)$ is a valid opening of the homomorphically derived DARK commitment $C = C_L + q^{\frac{d}{2}} C_R$ to $h$ and $h(z) = y_L + z^{\frac{d}{2}} y_R \bmod p$, i.e. $N \cdot C = f(q) \cdot \gr{G}$ and $h \in \mathcal{M}(\sqrt{\frac{q}{2}}, \sqrt{\frac{q}{2}})$ %Such an opening may be derived from individual openings of $C_L$ to $h_L$ and $C_R$ to $h_R$ where $h_L(z) = y_L \bmod p$ and $h_R(z) = y_R \bmod p$. 
+ %DARK openings of $C_L$ to $h_L$ and $C_R$ to $h_R$ such that $deg(h_L), deg(h_R) < \frac{d}{2}$ and $h = h_L +  X^{\frac{d}{2}} h_R$.  These commitments and openings also can be used to derive an opening of the DARK commitment 
+
+Additionally, a rational number is also considered a valid (trivial) commitment to itself. In the DARK protocol the prover's messages are commitments of the first kind for all but its last message, which is a single integer. 
+
+\item We define the bounds $B_0\geq \cdots \geq B_\mu \in \mathbb{N}$ such that $B_\mu = \CorrectnessBound =2^{\lambda \mu} \cdot p$ is the verification bound on the prover's final integer message in the DARK protocol and $\log B_i = \max(\EBL[\mu-i]+\CorrectnessBound, \CSZ[\mu-i])$.  For $i \in [\mu-1]$ and any $h \in \QQ[X]$, we define $\phi_a(i, h) = 1$ if and only if $\deg(h) < 2^{\mu - i}$ \benedikt{Let's maybe use a functional notation, i.e. $\phi_a(i,h)= \mathbf{1}[\deg(h)<2^{\mu-1}$} and $h \in \mathcal{M}(B_i, B_i)$. We define $\phi_a(\mu, h) = 1$ iff $h \in \mathbb{Z}$ and $|h| \leq B_\mu$. 
+
+\if 0 
+\textbf{Remark:} If using Lemma~\ref{lem:CSZ}, $\mathsf{CSZ}_{\mu - i} = 8 (\mu-i)^2+ \log_2 (2 \cdot(\mu -i))\cdot \lambda$ for $i < \mu -1$ and $\mathsf{CSZ}_1 = \lambda$. Clearly $\log B_{\mu} = \mu \lambda + \log p$ and $\log B_{\mu - 1} = (\mu + 1) \lambda + \log p$, but the values of $B_{\mu - i}$ at larger $i > 1$ depends on the relative size of $\lambda$ and $\mu$.
+
+ If $\lambda \geq \frac{8 i^2}{\mu -1 + i - \log i}$ for all $i \in [2, \mu)$ then $\log B_{\mu-i} = (\mu + i) \lambda + \log p$ for all $i \in [1, \mu]$. As this expression is increasing in $i$, it suffices that $\lambda \geq \frac{8\mu^2}{2\mu -1 - \log \mu}$. Otherwise, let $i$ denote the first index such that $(\mu + i) \lambda + \log p < 8 i^2  + (1 + \log i) \lambda$,  and consequently $\log B_{\mu - i} = 8i^2 + (1 + \log i) \lambda$. This implies that $8[(i+1)^2 - i^2] = 8(2i +1)> \lambda (1 - \log (i+1) + \log i)$, and thus, $\log B_{\mu - i - 1} =  8(i+1)^{2} + (1 + \log i) \lambda$. This will continue to be true for all $j \geq i$. Therefore, it follows that: 
+$$ \log B_0 = \max (2\mu \lambda + \log p, 8 \mu^{2} + (1 + \log \mu) \cdot \lambda) $$
+
+Now suppose that using Lemma~\ref{lem:cCSZ} gives tighter (i.e., lower) values for $\mathsf{CSZ}_{\mu - i}$ than Lemma 2 for some indices.  In the first case where $\lambda + \log B_{i-1}$ always dominates $\mathsf{CSZ}_{\mu - i}$ the resulting $B_0$ is the same, i.e. $\log B_0 = 2 \mu \lambda + \log p$. However, in the second case where at some point $\log B_i = \mathsf{CSZ}_{\mu - i} > \lambda + \log B_{i-1}$, it is possible that the final $B_0$ has value $\log B_0 = \mathsf{CSZ}_{\mu - j} + j \cdot \lambda$ for some $j \in [1, \mu)$. Thus: 
+
+$$ \log B_0 \leq \max(2\mu \lambda + \log p, \max_{j \in [\mu]} \mathsf{CSZ}_{\mu - j} + j \cdot \lambda ) \leq \max(2\mu \lambda + \log p, \mathsf{\mu \lambda + CSZ}_\mu)$$
+\fi 
+
+\item For $i \in [\mu-1]$ and an opening $h \in \QQ[X]$ define $\phi_b(i, h) = 1$ iff $\deg(h) < 2^{\mu - i}$ and $h \in \mathcal{M}(2^{\lambda + 1} B_i^2, 2^{\lambda + 1} B_i^2)$. 
+
+ \item By setting $q$ sufficiently large so that $2 \cdot (2^{\lambda + 1} B_0)^4 \leq  q$, for any $i \in [\mu]$, $\phi_b(i, h) = 1$ implies that $2^{\lambda + 1} \cdot h \in \mathcal{M}(\sqrt{\frac{q}{2}},\sqrt{\frac{q}{2}})$.  
+\end{itemize} 
+
+Next, we define the algorithms $\textsf{Extract}$ and $\textsf{Extend}$. 
+
+\begin{itemize} 
+\item $\textsf{Extract}(i, \nu, C_\nu, \textsf{openSubtree})$ for $i < \mu$ operates as follows. Let $\mathcal{C}_\nu = (C_L, C_R)$. The node $\nu$ has two children. Let $r_1$ denote the label on the edge to the first child and $r_2$ the label on the edge to the second child. For $j \in \{1,2\}$, let $\mathcal{C}_j = ((C_{j,L}, y_{j, L}), (C_{j,R}, y_{j,R}))$ denote the commitment label of the $i$th child with openings $(f_j, N_j)$ to $h_j = f_j/N_j$ where $f_j = f_{j, L} + X^{2^{\mu - i - 2}} f_{j, R}$, and $h_j(z) = y_{j,L} + z^{2^{\mu - i -2}} y_{j,R} \bmod p$. Set $N = (r_2 - r_1) N_1 N_2$, $f_L = r_2 N_2 f_1 - r_2 N_1 f_2$, and $f_R = N_1 f_2 - N_2 f_1$. Set $f = f_L + X^{2^{\mu - i -1}} f_R$. Return $(f, N)$ as the opening for $C_\nu$ to $h = f/N$. 
+
+
+ %Solve for $(f_L, N_L)$ and $(f_R, N_R)$ such that $h_j = \frac{f_L}{N_L} + r_j \frac{f_R}{N_R}$ and $N_L \cdot C_L= f_L(q) \cdot \gr{G}$ and $N_R \cdot C_R = f_R(q)\cdot \gr{G}$ for $j \in \{1,2\}$, which has a solution so long as $r_1 \neq r_2$. Let $N = lcm(N_L, N_R)$ and $f = \frac{N}{N_L} f_L + X^{2^{\mu - i}} \frac{N}{N_R} f_R$. Return $(f, N)$ as the opening for $C_\nu$.
+
+%$\textsf{Extract}(i, \nu, C_\nu, \textsf{openSubtree})$ for $i < \mu$ operates as follows. Let $\mathcal{C}_\nu = (C_L, C_R)$. The node $\nu$ has three children. Let $r_1$ denote the label on the edge to the first child and $r_2$ the label on the edge to the second child. For $j \in \{1,2\}$, let $\mathcal{C}_j = (C_{j,L}, C_{j,R})$ denote the commitment label of the $i$th child with openings $h_{j,L}, h_{j,R} \in \mathbb{Q}[X]$. Let $d_i = 2^{\mu - i -1}$. Let $h_j  = h_{j, L}+ X^{d_i/2} \cdot h_{j, R}$. Solve uniquely for $h_L$ and $h_R$ such that $h_j = h_L + r_j h_R$ for $j \in \{1,2\}$, which has a unique solution over $\mathbb{Q}[X]$ so long as $r_1 \neq r_2$. Return $(h_L, h_R)$ as the opening for $C_\nu$. 
+
+%$(f_{j,L}/N_{j,L}, f_{j,R}/N_{j,R})$. Let $d_i = 2^{\mu - i -1}$. Let $h_j  = f_{j, L}/N_{j,L} + X^{d_i/2} \cdot f_{j, R}/N_{j,R}$. Solve uniquely for reduced form rational polynomials $f_L/N_L$ and $f_R/N_R$ such that $h_j = f_L/N_L + r_j f_R/N_R$ for $j \in \{1,2\}$, which has a unique solution over $\mathbb{Q}[X]$ so long as $r_1 \neq r_2$. Return $(f_L/N_L, f_R/N_R)$ as the opening for $C_\nu$. 
+
+%\textbf{Notes:} Let $h_{j,L} = f_{j,L}/N_{j,L}$, $h_{j, R} = f_{j, R}/N_{j,R}$, $h_L = f_L/N_L$, and $h_R = f_R/N_R$ in reduced form.  If $deg(f_{j,L}), deg(f_{j,R}) < d_i/2$ then $deg(f_L), deg(f_R) < d_i$. Since $C_L \cdot C_R^{\alpha_j} = C_{j,L} \cdot C_{j, R}^{q^{d_i/2}}$ and $C_{j, L}^{N_{j,L}}= g^{f_{j,L}(q)}$ and $C_{j, R}^{N_{j,R}} = g^{f_{j,R}(q)}$ it follows that $C_L^{N_L} = g^{f_L(q)}$ and $C_R^{N_R} = g^{f_R(q)}$. Write out the matrices to show this. Furthermore, let $\ell = lcm (N_{1,L}, N_{1,R}, N_{2, L}, N_{2, R}) \leq B_i^4$ then $|N_L| \leq \alpha_2 \cdot\ell$ and $|N_R| \leq |\alpha_1 - \alpha_2| \cdot \ell$. Bound on $||f_L||$ and $||f_R||$? At most $2^{\lambda+1} B_i^3 \cdot max \{||f_{1,L}|| + ||f_{2,L}||, ||f_{1, R}|| + ||f_{2,R}||\} $. 
+
+\item \textsf{Extract}(0, (C, z, y), \textsf{openTree}) simply returns the opening $(f, N)$ for the root level commitment $((C_L, y_L), (C_R, y_R))$ to $h = f/N$, which satisfies $N \cdot C = f(q) \cdot \gr{G}$ and $h(z) = y$, since in a valid transcript tree $C = C_L + q^{2^{\mu -1}} C_R$ and $y_L + z^{2^{\mu -1}} y_R = y$.  Furthermore, if $\phi_a(0, h) = 1$ then $h \in \mathcal{M}(B_0, B_0) \subseteq \mathcal{M}(\sqrt{\frac{q}{2}}, \sqrt{\frac{q}{2}})$, and hence $\mathsf{w} = (f, N)$ is a witness for $\mathsf{x} = (C, z, y)$ such that $R(\mathsf{x}, \mathsf{w}) = 1$. 
+
+%\textbf{Notes:} Let $f_L/N_L = h_L$ and $f_R/N_R = h_R$ denote the reduced forms. Since $C_L^{N_L} = g^{f_L(q)}$ and $C_R^{N_R} = g^{f_R(q)}$ and $C = C_L \cdot C_R^{q^{d/2}}$ it follows that $C^N = g^{f(q)}$. Furthermore, $N \leq lcm(N_L, N_R) \leq B_0^2$ and $||f|| \leq B_0^2 \cdot max(||f_L||, ||f_R||)$. 
+
+
+\item $\textsf{Extend}(i, h, r_{i+1},...,r_\mu)$ on $h \in \mathbb{Q}[X]$ returns $\bot$ if $\deg(h) > 2^{\mu - i}$, and otherwise sets $h_i := h$ and runs the following iterative algorithm: for $j = i$ to $\mu-1$ set $h_{j+1} := h_{j, L} + r_{j+1} \cdot h_{j,R}$ where, treating each $h_j$ as a degree $2^{\mu - j} -1$ polynomial (padding with zero coefficients), $h_{j,L}$ and $h_{j, R}$ are each degree $2^{\mu -j - 1} - 1$ consisting of the left/right coefficients of $h_j$, i.e. $h_j = h_{j,L} + X^{2^{\mu - j - 1}} h_{j,R}$; return $h_i,...,h_\mu$. 
+
+\textbf{Notes:} 
+The runtime is $O(\lambda \cdot 2^{\mu - i})$. 
+
+If $h_{i,L}, h_{i,R}  \in \mathbb{Z}[X]$ are the prover's committed polynomials in the $i$th round of the (honest) interactive DARK protocol and $r_{i+1},...,r_\mu$ are the last $\mu - i$ round challenges then $h_\mu$ is the last prover's message sent to the verifier in the interactive DARK protocol. 
+
+ Let $\mu' = \mu - i$. For $b = (b_1,...,b_{\mu'}) \in \{0,1\}^{\mu'}$ let $\sigma(b) = \sum_{j =1}^{\mu'} b_j \cdot 2^{\mu' - j + 1}$, i.e. $b$ is the binary big-endian representation of $\sigma(b)$. Then $h_\mu = g(r_{i+1},...,r_\mu)$ where $g(X_1,...,X_{\mu'}) = \sum_{b \in \{0,1\}^{\mu'}} h_{\sigma(b)} \prod_{j=1}^{\mu'}X_j^{b_i}$ where $h_j$ is the $j$th coefficient of $h \in \mathbb{Q}[X]$. 
+ 
+ \item $\textsf{Break}(i, h, r_1,...,r_\mu, C_0,...,C_\mu, (f_i, N_i),...,(f_\mu, N_\mu))$\footnote{For simplicity, we omit the messages $h_i = f_i/N_i$ from the inputs because it can be computed from the opening $(f_i, N_i)$.}  first runs $\textsf{Extend}(i, h, r_i,..,r_{\mu})$, which returns rational polynomials $h'_{i+1},...,h'_{\mu}$. If $\forall_{j \geq i}$ $h'_j = f_j/N_j$ then it outputs $\bot$. Otherwise, let $j \in [i, \mu)$ be the \textit{first} index where $h'_{j+1}\neq f_{j+1}/N_{j+1}$ and output $(N_j, f_{j, L} + r_{j+1} \cdot  f_{j, R})$, where $f_{j, L}$ and $f_{j, R}$ are the left/right halves of $f_j$, as the attempted opening for $C_{j+1}$.
+\end{itemize}
+
+\begin{subclaim} 
+For $i \in [\mu-1]$, if all openings of commitments on children of $\nu$ in $\textsf{openSubtree}$ satisfy $\phi_a(i+1, *)=1$ then the tuple $(f_L, f_R, N)$ returned by $\textsf{Extract}(i, \nu, \mathcal{C}_\nu, \textsf{openSubtree})$ is a valid opening for $\mathcal{C}_\nu$ to a rational polynomial $h$ that satisfies $\phi_b(i, h) = 1$ 
+\end{subclaim} 
+
+\begin{proof}
+We will show why this is a correct opening for $\mathcal{C}_\nu$ and bound its norm. Based on the properties of a valid transcript tree, $\forall_{j \in \{1,2\}} C_L + r_j C_R =  C_{j,L} + q^{2^{\mu - i - 2}} C_{j,R}$ and $y_L + r_j y_R = y_{j,L} + z^{2^{\mu - i -2}} y_{j, R}$. Furthermore, $\forall_{j \in \{1,2\}} N_j \cdot (C_L + r_j C_R ) = f_j(q)$ and $h_j(z) = N_j^{-1} f_j(z) = y_L + r_j y_R \bmod p$ by the assumption that $(f_j, N_j)$ are valid openings to the two children commitments $\mathcal{C}_j$.  Let $L_q(\cdot): \ZZ[X]^2 \rightarrow \ZZ^2$ denote the linear operator corresponding to component-wise evaluation of each polynomial at $q$. Using linear algebra, the following holds true if $r_1 \neq r_2$:
+
+\begin{equation*}
+\begin{bmatrix}
+N_1 & 0 \\
+0 & N_2 \\
+\end{bmatrix} 
+\begin{bmatrix}
+1 & r_1 \\
+1 & r_2 \\
+\end{bmatrix} 
+\begin{bmatrix}
+C_L \\
+C_R \\
+\end{bmatrix} 
+= 
+L_q \left(
+\begin{bmatrix}
+f_1 \\
+f_2\\
+\end{bmatrix} 
+\right)
+ \cdot \gr{G} 
+\hspace{1mm}
+\Rightarrow
+\hspace{1mm}
+(r_2 - r_1) N_1 N_2 
+\begin{bmatrix}
+C_L \\
+C_R \\
+\end{bmatrix}
+= 
+L_q\left(
+\begin{bmatrix}
+r_2 N_2 & -r_2 N_1 \\
+-N_2 & N_1 \\
+\end{bmatrix}
+\begin{bmatrix}
+f_1 \\
+f_2 \\
+\end{bmatrix}
+\right)
+\cdot  \gr{G}
+\end{equation*} 
+
+\begin{equation*}
+\begin{bmatrix}
+N_1 & 0 \\
+0 & N_2 \\
+\end{bmatrix} 
+\begin{bmatrix}
+1 & r_1 \\
+1 & r_2 \\
+\end{bmatrix} 
+\begin{bmatrix}
+y_L \\
+y_R \\
+\end{bmatrix} 
+= 
+L_z \left(
+\begin{bmatrix}
+f_1 \\
+f_2\\
+\end{bmatrix}
+\right) \bmod p
+\hspace{1mm}
+\Rightarrow
+\hspace{1mm}
+(r_2 - r_1) N_1 N_2 
+\begin{bmatrix}
+y_L \\
+y_R \\
+\end{bmatrix}
+= 
+L_z \left(
+\begin{bmatrix}
+r_2 N_2 & -r_2 N_1 \\
+-N_2 & N_1 \\
+\end{bmatrix}
+\begin{bmatrix}
+f_1 \\
+f_2 \\
+\end{bmatrix}
+\right)
+\bmod p
+\end{equation*} 
+
+This shows that $N \cdot C_L = f_L(q) \cdot \gr{G}$, $N \cdot C_R = f_R(q) \cdot \gr{G}$, $N \cdot y_L = f_L(z) \bmod p$, and $N \cdot y_R = f_R(z) \bmod p$. Furthermore, if $\deg(f_1) < 2^{\mu - i - 1}$ and $\deg(f_2) < 2^{\mu - i - 1}$, then $\deg(f_L) < 2^{\mu - i-1}$ and $\deg(f_R) < 2^{\mu -i -1}$. 
+%$$N \cdot (C_L + q^{2^{\mu - i - 1}} C_R) = (f_L(q) + q^{2^{\mu - i -1}} f_R(q)) \cdot \gr{G} = f(q) \cdot \gr{G}$$ 
+
+%$$ \frac{f_L}{N_L} = \frac{N_2 r_2 f_1 - N_1 r_2 f_2}{(r_2 - r_1)N_1 N_2 } \ \ \text{and} \ \ \frac{f_R}{N_R} = \frac{N_1 f_2 - N_2 f_1}{(r_2 - r_1) N_1 N_2}$$
+
+If $\forall _j ||f_j||_\infty \leq B_i$ and $\forall_j |N_j| \leq B_i$,  then $|N|  \leq 2^{\lambda + 1} B_i^2$ and $||f||_\infty \leq 2^{\lambda + 1} B_i^2$. Thus, if the openings of the children at level $i+1$ satisfy $\phi_a(i+1, f_j/N_j) = 1$ for $j \in \{1, 2\}$, then $\phi_b(i, f/N) = 1$. %In other words, if the openings $(f_j, N_j)$ for $h_j = f_j/N_j$ of the children at level $i+1$ satisfy $\phi_a(i+1, h_j, f_j, N_j) = 1$ then $\phi_b(i, h, f, N) = 1$. 
+\end{proof} 
+
+
+
+\begin{subclaim} [\emph{Key *New* Subclaim}]
+For any $i \in [\mu]$ and $h \in \mathbb{Q}[X]$, if $\phi_a(i, h) = 0$ then the probability over uniform i.i.d. $r_{i+1},...,r_\mu$ that $h_\mu$ returned by $\textsf{Extend}(i,h, r_{i+1},...,r_\mu)$ satisfies $\phi_a(\mu, h_\mu) = 1$ is at most $\frac{3(\mu - i)}{2^\lambda}$. 
+\end{subclaim} 
+
+Let $f/N = h$ for $gcd(f, N) = 1$ denote the reduced form of $h \in \mathbb{Q}[X]$. If $\phi_a(i,h) = 0$ then either $N > B_i$ or $||f||_\infty > B_i$ while $\phi_a(\mu, h_\mu) = 1$ implies $h_\mu \in \mathbb{Z}$ and $|h_\mu| \leq B_\mu$.
+ Let $\mu' = \mu - i$. Observe that $h_\mu = \frac{1}{N} \cdot g(r_{i+1},...,r_\mu)$ where $g(X_1,...,X_{\mu'}) = \sum_{b \in \{0,1\}^{\mu'}} f_{\sigma(b)} \prod_{j=1}^{\mu'}X_j^{b_i}$ is a multilinear integer polynomial whose $2^{\mu'}$ coefficients are a permutation of the coefficients of $f$. Here $f_j$ denotes the $j$th coefficient of $f \in \mathbb{Z}[X]$ and $\sigma(b)$ is the integer with binary representation $b$. \\
+ 
+ \noindent \textbf{Case 1 $N > B_i$:} If $|N| > B_i$ then since $\log B_i \geq \mathsf{CSZ}_{\mu - i}$, the probability that this final element $h_\mu$ is an integer is equivalent to $\frac{1}{N} \cdot g(r_{i+1},\dots,r_\mu)$ being an integer or equivalently: 
+ $$\Prob_{(r_{i+1},...,r_\mu) \gets [0,2^\lambda)^{\mu -i}} [g(r_{i+1},...,r_\mu)\equiv 0 \bmod N] $$
+This probability is at most $\frac{\mu - i +1}{2^\lambda}$ by the Multilinear Composite Schwartz-Zippel Lemma (Lemma~\ref{lem:CSZ}).\\
+
+ 
+\noindent \textbf{Case 2 $N \leq B_i \ \wedge \ ||f||_\infty > B_i$:} 
+ 
+ Since $||g||_\infty = ||f||_\infty$, if $|h_\mu| \leq B_\mu$ then, by the bound on $N$: 
+  
+ $$|g(r_1,...,r_{\mu-i})| \leq N \cdot B_\mu \leq B_i \cdot B_\mu$$
+ Furthermore, since $||g||_\infty = ||f||_\infty > B_i$ and $B_i \geq 2^{\lambda(\mu - i)} B_\mu$, by the Evaluation Bound Lemma (Lemma~\ref{lem:evalbound}): 
+
+$$\Prob[h_\mu \leq B_\mu] \leq \Prob[|g(r_1,...,r_{\mu-i})| \leq B_\mu] \leq \Prob[|g(r_1,...,r_{\mu-i})| \leq \frac{1}{2^{\lambda (\mu - i)}} \cdot ||g||_\infty] \leq  \frac{3(\mu- i)}{2^{\lambda}}$$
+
+ 
+Together these imply that if $\deg(f) \leq 2^{\mu -i}$ but $\phi_a(i, f/N) = 0$ then, since either $|N| > B_i$ or $||f||_\infty > B_i$, the probability over the random challenges that the final element $h_\mu$ of the list returned by $\textsf{Extend}$ satisfies $\phi_a(\mu, h_\mu) = 1$ is negligible. 
+
+\end{proof} 
+
+\begin{subclaim} 
+ For any $i \in [\mu-1]$, given a valid (accepting) transcript with commitments $(\mathcal{C}_0,...,\mathcal{C}_\mu)$, round challenges $(r_1,...,r_\mu)$, and openings $(o_i,...,o_\mu)$ of the last $\mu-i + 1$ commitments to rational polynomials $(h_i,,...,h_\mu)$, where $\phi_b(i, h_i) = 1$ and $\phi_a(j, h_j) = 1$ for all $j \in [i+1,\mu]$, then either $\textsf{Extend}(i, h_i, r_{i+1},...,r_\mu)$ returns $h_{i+1},...,h_{\mu}$ or $\textsf{Break}(i, h_i, (h_i, o_i),...,(h_\mu, o_\mu))$ returns for some $j \geq i$ a valid opening of $\mathcal{C}_j$ to $h'_j \neq h_j$.  %in time $t_E$ with overwhelming probability $1 - \mathsf{RSA}(\GG, t_\mathcal{A} + t_E)$ over the internal randomness of $\mathcal{A}$, where $\mathsf{RSA}(\GG, t)$ denotes the maximum success probability of any $t$-step algorithm in breaking the Strong RSA Assumption over $\GG$. 
+\end{subclaim} 
+\begin{proof} 
+Let $(h'_{i+1},...,h'_\mu)$ denote the output of $\textsf{Extend}(i, h_i, r_{i+1},...,r_\mu)$ and suppose it is not equal to $(h_{i+1},..., h_\mu)$. Let $j \in [i, \mu)$ denote the \emph{first} index for which $h_{j+1} \neq h'_{j+1}$. This means that $h_j = h'_j$ and thus $h'_{j+1} = h_{j, L} + r_{j+1} \cdot h_{j, R}$ where $h_{j, L}$ and $h_{j, R}$ are the left/right halves of $h_{j}$. Additionally, $\phi_b(j, h_{j}) = 1$ implies $h'_{j+1} \in \mathcal{M}(2^{2\lambda + 2} B_{j}^2, 2^{\lambda + 1} B_{j}^2) \subseteq \mathcal{M}(\sqrt{\frac{q}{2}}, \sqrt{\frac{q}{2}})$. 
+
+(Note that for $j \geq i+1$, the condition $\phi_a(j, h_j) = 1$ also implies $\phi_b(j, h_j) = 1$).
+
+Let $\mathcal{C}_{j+1} = ((C_{j+1, L}, y_{j+1,L}), (C_{j+1,R}, y_{j+1,R}))$ and $\mathcal{C}_{j} = ((C_{j,L}, y_{j,L}), (C_{j,R},y_{j,R}))$. 
+Let $o_j = (f_j, N_{j})$ denote the opening of $\mathcal{C}_{j}$ to $h_j =\frac{f_j}{N_{j}}$ where $f_{j} = f_{j, L} + X^{2^{\mu - j + 1}} f_{j, R}$. Validity of the opening implies $N_{j} \cdot C_{j,L} = f_{j,L}(q) \cdot \gr{G}$ and $N_{j} \cdot C_{j,R} = f_{j,R}(q) \cdot \gr{G}$. Furthermore, in a valid transcript: 
+ $$C_{j+1}  = C_{j, L} + r_{j+1} \cdot C_{j,R} =  C_{j+1,L} + q^{2^{\mu - j}} C_{j+1,R}$$
+  Thus, $(N_{j}, f_{j,L} + r_{j+1} \cdot f_{j, R})$ is a valid opening of $C_{j+1}$ to $h'_{j+1}$ as $N_{j} \cdot C_{j+1} = (f_{j, L}(q) + r_{j+1} \cdot f_{j, R}(q)) \cdot \gr{G}$. 
+
+%However, this implies that an algorithm running in time at most $t_\mathcal{A} + t_E$ computes valid openings of $C_j$ to $h'_j \neq h_j$, where both $h'_j, h_j \in \mathcal{M}(\sqrt{\frac{q}{2}}, \sqrt{\frac{q}{2}})$, which breaks the binding property of the commitment scheme (and the Strong RSA assumption over $\GG$). The probability of this succeeding is thus at most $\mathsf{RSA}(\GG, t_\mathcal{A} + t_E)$. 
+\end{proof} 
+
+\begin{theorem} DARK special sound protocols are knowledge sound. 
+\end{theorem} 
+
+\begin{proof} Relies on the forking lemma...
+
+We show there is an extraction algorithm $\mathcal{E}^\mathcal{A}(C)$ that, given public input $C$ and black-box access to any adversary who succeeds in this protocol with probability $\epsilon > negl(\lambda)$ in expected time $T_{\mathcal{A}}$ on $y$, succeeds with probability $1 - negl(\lambda)/\epsilon^2$ in time $T_\mathcal{A} \cdot poly(\lambda)/\epsilon$ to compute an opening for the input commitment $C$, i.e. values $(m, o)$ such that $\textsf{Verify}(C, m, o) = 1$.  
+
+Components: 
+\begin{itemize} 
+\item Definition of knowledge soundness (info theoretic)
+\item Modified relation that either has original witness or a commitment break 
+\item Suppose we have a protocol that is $(k^{(\mu)}, \epsilon)$-DARK special sound. We will make use of algorithms $\textsf{Extract}$, $\textsf{Extend}$, and $\textsf{Break}$ and their properties that are guaranteed to exist by the definition of DARK special soundness. 
+\item For any node $\nu$ of a $k+1$-ary transcript tree let $S^*_\nu$ denote the \emph{left} $k$-ary subtree rooted at $\nu$ defined by a breadth first search from $\nu$ that visits only the first $k$ children of each node reached (i.e., prunes the rightmost branch from each node of the complete $k+1$-ary subtree $S_\nu$).
+
+\item We define an algorithm $\textsf{TreeExtract}(\ell_\nu, \nu, \mathcal{C}_\nu, L_{S_\nu})$ that operates on a labeled subtree of a $(k+1)$-ary transcript tree that has depth $\mu$,  where $\ell_\nu$ is the level of $\nu$, $\mathcal{C}_\nu = L(\nu)_1$ is the commitment label on $\nu$ and $L_{S_\nu}$ is a labeling of the $(k+1)$-ary subtree $S_\nu$ rooted at $\nu$. If $\textsf{TreeExtract}(\ell_\nu, \nu, \mathcal{C}_\nu, L_{S_\nu})$ succeeds it returns $\textsf{openSubtree}$, which contains openings of all the commitment labels $L$ assigned to nodes in $S_\nu$ including the label $\mathcal{C}_\nu$ on node $\nu$. Otherwise it returns $\bot$. The algorithms runs as follows: 
+\begin{itemize}  
+\item If $\nu$ is a leaf node then it returns the opening of $\mathcal{C}_\nu$, which is included in the label on $\nu$. \
+\item Else, for each node $\omega \in S_{\nu}$ with label $\mathcal{C}_\omega = L(\omega)_1$ on the second to last level, it sets $\textsf{openLeaves}$ to include the first $k$ opened leaves of $\omega$, and runs the algorithm $\textsf{Extract}(\mu - 1, \omega, \mathcal{C}_\omega, \textsf{openLeaves})$ to get an opening of $\mathcal{C}_\omega$. It continues iteratively: once it has computed openings for all commitment labels of all subtrees rooted at the $i$th level, for each node $\omega$ on the $(i+1)$st level with label $\mathcal{C}_\omega = L(\omega)_1$ it runs $\textsf{Extract}(i, \omega, \mathcal{C}_\omega, \textsf{openSubtree}^*_\omega)$ on the commitment label openings $\textsf{openSubtree}^*_\omega$ of the left $k$-ary subtree $S^*_\omega$ (excluding node $\omega$), which were computed in prior iterations. 
+\end{itemize}
+
+The \textsf{TreeExtract} algorithm is not guaranteed to succeed. In particular, the internal calls to $\textsf{Extract}$ are only guaranteed to succeed when the openings of subtrees satisfy predicate $\phi_a$ and the challenge labels are distinct within the pruned subtrees $S^*_\nu$. By convention, if any internal step fails then \textsf{TreeExtract} outputs $\bot$. 
+
+\textbf{Remark:} While $\textsf{TreeExtract}$ operates on $k+1$-ary transcript tree, the internal calls to $\textsf{Extract}$ run on $k$-ary transcript trees because the protocol is $(k^{(\mu)}, \epsilon)$-DARK special sound. Furthermore, the reason we always pass the labeling/opening of the left $k$-ary subtree (as opposed to an arbitrary $k$-ary subtree) to $\textsf{Extract}$ is to ensure that the opening of $\mathcal{C}_\nu$ included in the output of $\textsf{TreeExtract}(\ell_\nu, \mathcal{C}_\nu, L_{S_\nu})$ is a function of only the labels on the left $k$-ary subtree $S^*_\nu$, and in particular is computed independently from any of the labels in the (right) subtree rooted at the third (right) child of $\nu$. We will use this fact in the next step. We will denote by $\textsf{TreeExtract}^*(\ell_\nu, \mathcal{C}_\nu, L_{S^*_\nu})$ the algorithm that only extracts openings of the commitments in $L_{S^*_\nu}$ and returns and opening of $C_\nu$. This runs exactly like $\textsf{TreeExtract}$ except that it only iterates over nodes that are present in the left $k$-ary subtree $S^*_\nu$. While it is possible that $\textsf{TreeExtract}$ fails and $\textsf{TreeExtract}^*$ succeeds, it is easy to see that they output the same opening of $C_\nu$ assuming both succeed. 
+
+\item Let $\textsf{size}(k, \mu) = \frac{k^{\mu+1}-1}{k-1}$, which is the number of nodes is a $k$-ary depth $\mu$ tree. Given any $\mu$-round protocol that satisfies DARK special soundness, setting $N = \textsf{size}(3, \mu)$ we will define a collection of predicates $\{\pi_\nu: \nu \in [1,N]\}$ for the nodes of a ternary transcript tree with post-order labeling $L$, such that each $\pi_\nu$ is a function of the partial labeling $L_{\nu^*}$ and a $\mu - \ell_\nu$-length challenge vector $\mathbf{r} \in \mathcal{X}^{\mu - \ell_\nu}$, where $\ell_\nu$ is the level of node $\nu$ in the tree. Recall that $\nu^* < \nu$ is the node of highest index smaller than $\nu$ that is not a member of the subtree of $\nu$, and $L_{\nu^*}$ are the labels of all nodes numbered $[1, \nu^*]$. Let $\omega$ denote the parent node of $\nu$. The predicate $\pi_\nu(L_{\nu^*}, \mathbf{r})$ is defined as follows: 
+\begin{itemize} 
+\item If $\nu$ has no left-sibling, then $\pi_\nu$ always returns $1$. 
+\item If $\nu$ has one left-sibling $\nu'$ (i.e., is a middle child) and $r' = L(\nu')_0$ is the challenge label assigned to the incoming edge of $\nu'$ then $\pi_\nu(L_{\nu^*}, \mathbf{r}) = 1$ iff $r'$ is distinct from the first component of $\mathbf{r}$, i.e. $\mathbf{r}_0 \neq r'$. Note that $\nu' \in [1, \nu^*]$ so $L(\nu')$ is included in the input $L_{\nu^*}$ to $\pi_\nu$. 
+\item If $\nu$ has no right-sibling (i.e., is last child) then let $\mathcal{C}_\omega = L(\omega)_1$ denote the commitment label on $\omega$, let $(m_\omega, o_\omega)$ denote the opening of $\mathcal{C}_\omega$ returned by $\textsf{TreeExtract}^*(\ell_\omega, \omega, \mathcal{C}_\omega, L_{S^*_\omega})$ (if successful), let $m'$ denote the last message in the output list of $\textsf{Extend}(\ell_\omega, m_\omega,\mathbf{r})$ and finally: 
+
+ $$\pi_\nu(L_{\nu^*}, \mathbf{r}) = 
+ \begin{cases} 0 \quad\quad \text{ if }  \textsf{TreeExtract}^*(\ell_\omega, \omega, \mathcal{C}_\omega, L_{S^*_\omega}) = \bot \\ 
+ 1 \quad \quad \text{ if } \phi_a(\ell_\omega, m_\omega) = 1\\
+ 1 \quad \quad \text{ if } \phi_a(\ell_\omega, m_\omega) = 0 \wedge \phi_a(\mu, m') = 0 \\ 
+0 \text{ otherwise} 
+\end{cases} $$ 
+
+As remarked above, while $\textsf{TreeExtract}$ operates on the entire $(k+1)$-ary subtree of labels rooted at $\omega$, the algorithm $\textsf{TreeExtract}^*$ takes as input only the labeling of the right $k$-ary subtree $S^*_\omega$ and $L_{S^*_\omega} \subseteq L_{\nu^*}$. 
+
+\end{itemize}
+
+\item By the Forking Lemma, there is an algorithm that generates a $(k+1)$-ary $\mu$-depth transcript tree in time ??? with labeling $L$ such that $\pi_\nu(L_{\nu*}, \textsf{rpath}(\nu)) = 1$ for every node $\nu$, where $\textsf{rpath}(\nu)$ denotes the challenge labels $L(\cdot)_0$ along the rightmost branch from $\nu$ to a leaf starting with the label $L(\nu)_0$ on $\nu$. In particular, this means that: 
+\begin{enumerate}
+\item The challenge labels on the first two children of any internal node are distinct, i.e., if $\omega$ is an internal node with children $\nu_1, \nu_2, \nu_3$ ordered from left-to-right, then $L_0(\nu_1) \neq L_0(\nu_2)$. 
+\item  If running $\textsf{TreeExtract}(\ell_\omega, \omega, \mathcal{C}_\omega, L_{S^*_\omega})$ on the parent $\omega$ of $\nu$ (at level $\ell_\omega$) returns an opening of $\mathcal{C}_\omega$ to $m_\omega$ such that $\phi_a(\ell_\omega, m_\omega) \neq 1$, then the final output of $\textsf{Extend}(\ell_\omega, m_\omega, \textsf{rpath}(\nu))$ is a message $m'$ such that $\phi_a(\mu, m') \neq 1$. 
+\end{enumerate} 
+
+\item We will argue that,  for any $\omega \in [1,N]$, either $\textsf{TreeExtract}(\ell_\omega, \omega, \mathcal{C}_\omega, L_{S_\omega})$ returns a subtree $\textsf{openSubtree}$ of openings of the commitment labels in $L_{S_\omega}$ satisfying $\phi_a$ (i.e., each opening of a label $C_\omega$ to $m_\omega$ for a node $\omega$ on level $\ell_\omega$ satisfies $\phi_a(\ell_\omega, m_\omega) = 1$) or else there is an efficient algorithm that uses $\textsf{openSubtree}$ and $L$ to break the commitment scheme. 
+
+\textbf{Step 1:} Suppose that $\omega$ is a node of highest level $\ell_{\omega}$ for which this fails, i.e. the output of $\textsf{TreeExtract}$ satisfies $\phi_a$ for any node of higher level than $\ell_\omega$. 
+This means that all the openings of internal (non-root) nodes of the subtree $L_{S_\omega}$ computed while running $\textsf{TreeExtact}$ on $\omega$ satisfy $\phi_a$. Furthermore, $L$ has the property that all labels on the first two siblings are distinct. 
+
+\textbf{Step 2:} By the definition of DARK special soundness and the hypothesis in \textbf{Step 1}, $\textsf{TreeExtract}(\ell_\omega, \omega, \mathcal{C}_\omega, L_{S_\omega})$ succeeds in returning $\textsf{openSubtree}$ consisting of the openings of $L_{S_\omega}$ such that the openings of all internal (non-root) nodes satisfy $\phi_a$, and the opening $(m_\omega, o_\omega)$ of the subtree root $\omega$ satisfies $\phi_b(\ell_\omega, m_\omega) = 1$. The opening $(m_\omega, o_\omega)$ is also identical to the output of $\textsf{TreeExtract}^*(\ell_\omega, \omega, \mathcal{C}_\omega, L_{S^*_\omega})$. 
+
+\textbf{Step 3:} Let $\nu$ denote the rightmost child of $\omega$. By the property of $L$ that $\pi_\nu(L_{\nu^*}, \textsf{rpath}(\nu)) = 1$, if $\phi_a(\ell_\omega, m_\omega) = 0$ then the final output of $\textsf{Extend}(\ell_\omega, m_\omega, \textsf{rpath}(\nu))$ is a message $m'$ such that $\phi_a(\mu, m') = 0$. However, this implies that $m'$ must be distinct from the label $L$ assigns to the leaf node of the rightmost branch extending from $\nu$. Let $v_1,...,v_\mu$ denote the nodes along the root-to-leaf path passing through node $\omega$ and ending with its rightmost branch so that $\textsf{rpath}(\nu) = (L(v_{\ell_\nu})_0,...,L(v_\mu)_0)$. For each $i \in [1, \mu]$ let $\hat{C}_i = L(v_i)_1$ and $\mathbf{\hat{C}} = (\hat{C}_1,...,\hat{C}_\mu)$. Finally, since $\textsf{openSubtree}$ contains openings $(m_{\ell_\nu}, o_{\ell_\nu}),...(m_\mu, o_\mu)$ of the commitments $\hat{C}_{\ell_\nu},...\hat{C}_\mu$ that all satisfy predicate $\phi_a(i, m_i) = 1$, and $\phi_b(\ell_\omega, m_\omega) = 1$, if $m' \neq m_\mu$ then by the definition of DARK special soundness this implies that $\textsf{Break}(\ell_\omega, m_\omega,  \textsf{rpath}(\nu), \mathbf{\hat{C}}, (m_{\ell_\nu}, o_{\ell_\nu}),...(m_{\mu}, o_{\mu}))$ outputs a conflicting opening of some commitment label in $\mathbf{\hat{C}}$. 
+
+\item Let $\mathcal{C}_1 = L(1)_1$, the transcript tree root. The extractor runs $\textsf{TreeExtract}(0, 1, \mathcal{C}_1, L_{S_1})$, which returns $\textsf{openTree}$. If every opening in $\textsf{openTree}$ satisfies predicate $\phi_a$ then it runs $\textsf{Extract}(0, \mathsf{x}, \textsf{openTree})$ to obtain witness $\mathsf{w}$ satisfying $R(\mathsf{x}, \mathsf{w}) = 1$. Otherwise, it uses the $\textsf{Break}$ algorithm (as described in the previous step) to output conflicting openings of a commitment. 
+\end{itemize} 
+
+\end{proof} 
+
+
+\section{Security Proofs (old delete from here)}
 \label{appendix:hardness}
 In the preliminaries we already stated the two main hardness assumptions, the $r$-Strong RSA Assumption and the Adaptive Root Assumption.
 \input{sections/hardness}

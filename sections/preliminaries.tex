@@ -15,9 +15,7 @@ Both of these assumptions hold in generic groups of unknown order~\cite{EC:DamKo
 	\[
     \Pr\left[
     \begin{array}{l}
-    \ell \cdot \gr{u} = \Generator \, \wedge \\
-    \gcd(\ell,|\GG|)=1
-    \end{array} :
+    \ell \cdot \gr{u} = \Generator \,     \end{array} :
     \begin{array}{l}
          \GG, N \leftarrow \ggen(\lambda)  \\
          \Generator \sample \GG, \ell \sample [N]  \\
@@ -58,7 +56,7 @@ For all efficient $(\adv_0,\adv_1)$:
                       \GG \sample \ggen(\lambda) \\ 
                       (\gr{w},\state) \sample \adv_0(\GG) \\
                       \ell \sample \primes \\ 
-                      \gr{u} \gets \adv_1(\ell, \state)
+                      \gr{u} \gets \adv_1(\ell,w, \state)
                 \end{array} 
         \right] \leq \negl.
 \]
@@ -70,8 +68,18 @@ For all efficient $(\adv_0,\adv_1)$:
 	\end{lemma}
 \begin{proof}
 	Given an efficient adversary $\adv_{\textsf{Order}}$ for the random order assumption we will construct an efficient adversary $\adv_{\textsf{RSA}}$ for the RSA assumption. On input $\GG,\Generator,\ell$ to $\adv_{\textsf{RSA}}$ we will forward $\GG,\Generator$ to $\adv_{\textsf{Order}}$. $\adv_{\textsf{Order}}$ outputs $a$ such that $a\cdot \Generator=0$ with non-negligible probability $\epsilon$. 
-	$\adv_{\textsf{RSA}}$ computes computes $a'\gets \frac{a}{\gcd(a,\ell^k)}$ for $k=\lceil\log_\ell(a)\rceil$. Note that since $\ell$ is co-prime to the order of $\GG$ and thus also the order of $\Generator$ and $a$ is a multiple of the order of $\Generator$ we have that $a'$ is still a multiple of the order of $\Generator$. Now $\adv_{\textsf{RSA}}$ computes $w\gets \ell^{-1} \bmod a'$ and outputs $\gr{U} \gets w\cdot \Generator$. Now we have $\ell \cdot \gr{U}=\Generator$ so $\adv_{\textsf{RSA}}$ succeeds with probability $\epsilon$.
+	$\adv_{\textsf{RSA}}$ computes $a'\gets \frac{a}{\gcd(a,\ell^k)}$ for $k=\lceil\log_\ell(a)\rceil$. Note that since $\ell$ is co-prime to the order of $\GG$\benedikt{not guaranteed} and thus also the order of $\Generator$ and $a$ is a multiple of the order of $\Generator$ we have that $a'$ is still a multiple of the order of $\Generator$. Now $\adv_{\textsf{RSA}}$ computes $w\gets \ell^{-1} \bmod a'$ and outputs $\gr{U} \gets w\cdot \Generator$. Now we have $\ell \cdot \gr{U}=\Generator$ so $\adv_{\textsf{RSA}}$ succeeds with probability $\epsilon$.
 \end{proof}
+\begin{lemma}
+\label{lem:roa-to-rsa}
+	The Adaptive Root Assumption for $\ggen$ implies the Random Order Assumption
+	\end{lemma}
+	\begin{proof}
+	Given an efficient adversary $\adv_{\textsf{Order}}$ for the random order assumption we will construct an efficient adversary $\adv_{\textsf{AR}}=(\adv_0,\adv_1)$ for the Adaptive Root assumption. On input $\GG$ to $\adv_{0}$ we will sample a random group element $\Generator$ from $\GG$ and forward it to $\adv_{\textsf{Order}}$. $\adv_{\textsf{Order}}$ outputs $a$ such that $a\cdot \Generator=0$ with non-negligible probability $\epsilon$. And we set the output of $\adv_0$ to be $(\Generator,a)$. The adaptive root game then samples a random prime $\ell$.
+	$\adv_1$ on input $(a,g,\ell)$ computes $a'\gets \frac{a}{\gcd(a,\ell^k)}$ for $k=\lceil\log_\ell(a)\rceil$. Note that since $\ell$ is co-prime to the order of $\GG$ and thus also the order of $\Generator$ and $a$ is a multiple of the order of $\Generator$ we have that $a'$ is still a multiple of the order of $\Generator$. If we don't abort then we compute $\ell^{-1} \bmod a$ and $\gr{u}=\Generator^{\ell^{-1}}$.
+	Finally $A_1$ outputs $\gr{u}$, which by construction is such that $\gr{u}^\ell=\gr{g}$ . 
+	\end{proof}
+
 \ifappendix
 %The security proofs in this paper reduce a successful adversary to a violator of the $r$-Strong RSA Assumption or the Adaptive Root Assumption. However, for those proofs it is more convenient to focus on reducing towards an intermediate assumption. To this end the \emph{Order Assumption} states that it is difficult to compute any non-trivial element of known order, and the \emph{($r$-)Fractional Root Assumption} states that no efficient adversary can find a \emph{fractional root} for a given element $\gr{g}$ --- that is, a tuple $(\alpha, \beta, \gr{u})$ such that $\gr{u}^\alpha = \gr{g}^\beta$ and $\gcd(\alpha, \beta) = 1$. We defer an exact definition of these hard problems to the \appendixphrase~(\ref{appendix:hardness}), where we also prove that they are implied by the $r$-Strong RSA Assumption and the Adaptive Root Assumption.
 \else 
