@@ -23,10 +23,10 @@ Polynomial IOP &Polynomials  & \eval{} points & $|$SNARK$|$ & concrete size \\
 
 \paragraph{Prover and Verifier cost}
 %With pre-computation the prover time consists of a linear number of group operations. 
-We use the notation $O_\lambda (\cdot)$ to denote asymptotic complexity for a fixed security parameter $\lambda$, \emph{i.e.} how the prover and verifier costs scale as a function of variables other than $\lambda$. The main cost for the \pro{Supersonic} prover consist of computing the commitments to the polynomial oracles and producing the single combined $\eval$ proof.
-This proof requires calculating the commitments to the polynomials $f_L(q)$ and $f_R(q)$ in each round and performing the $\textsf{PoE}(\gr{C}_R,\gr{C}/\gr{C}_L,q^{d'+1})$. Using precomputation, \emph{i.e.}, computing $\gr{g}^{q^i}$ for all $i$ and using multi-exponentiation, the commitments can be computed in $O_\lambda(\frac{d}{\log(d)})$ group operations. The same techniques can be used to reduce the number of group operations for the $\textsf{PoE}$s to $O_\lambda(d)$. The total number of group operations is therefore linear in the maximum degree of the polynomial oracles and the number of online oracles. Interestingly, the number of offline oracles hardly impacts the prover time and proof size.
+We use the notation $O_\lambda (\cdot)$ to denote asymptotic complexity for a fixed security parameter $\lambda$, \emph{i.e.} how the prover and verifier costs scale as a function of variables other than $\lambda$. The main cost for the \pro{Supersonic} prover consists of computing the commitments to the polynomial oracles and producing the single combined $\eval$ proof.
+This proof requires calculating the commitments to the polynomials $f_L(q)$ and $f_R(q)$ in each round and performing the $\textsf{PoE}(\gr{C}_R,\gr{C}-\gr{C}_L,q^{d'+1})$. Using precomputation, \emph{i.e.}, computing $\gr{g}^{q^i}$ for all $i$ and using multi-scalar multiplication, the commitments can be computed in $O_\lambda(\frac{d}{\log(d)})$ group operations. The same techniques can be used to reduce the number of group operations for the $\textsf{PoE}$s to $O_\lambda(d)$. The total number of group operations is therefore linear in the maximum degree of the polynomial oracles and the number of online oracles. Interestingly, the number of offline oracles hardly impacts the prover time and proof size.
  
-The verifier time is dominated by the group operations for exponentiation in various places in the single combined $\eval$ protocol. It consists of 3 $\lambda$-bit exponentiations in each round: 1 for combining $\gr{C}_L$ and $\gr{C}_R$ and two for verifying the \textsf{PoE}. In the final round the verifier does another $\lambda \log_2(d+1)$-bit exponentiation to open the commitment but this could also be outsourced to the prover using yet another $\textsf{PoE}$. The total verifier time therefore consists of roughly an exponentiation of $3 \lambda \log_2(d+1)$ group operations. 
+The verifier time is dominated by the group operations for scalar multiplications in various places in the single combined $\eval$ protocol. It consists of 3 $\lambda$-bit scalar multiplications in each round: 1 for combining $\gr{C}_L$ and $\gr{C}_R$ and two for verifying the \textsf{PoE}. In the final round, the verifier does another $\lambda \log_2(d+1)$-bit scalar multiplication to open the commitment but this could also be outsourced to the prover using yet another $\textsf{PoE}$. The total verifier time, therefore, consists of roughly a scalar multiplication with $3 \lambda \log_2(d+1)$ group operations. 
 Using $10\mu$s per group operation\footnote{The estimate comes from the recent Chia Inc. class group implementation competition. The competition used a larger $2048$bit discriminant but only performed repeated squaring. \url{https://github.com/Chia-Network/vdfcontest2results}}, this gives us for $\lambda=120$ and $n=2^{20}$ a verification time of around 72ms. 
 \begin{table}[!htp]
 \begin{small}
@@ -34,18 +34,18 @@ Using $10\mu$s per group operation\footnote{The estimate comes from the recent C
 	Scheme & Transp. & $|\crs|$  & Prover & Verifier & $|\pi|$& $n=2^{20}$ \\
 	\hline
 	\hline
-    \textsf{Supersonic} & yes & $O(1)$ & $O( n \log(n) )\; \textsf{EXP}$ & $3 \log(n)~\textsf{EXP}$ & $2 \log(n) \ \GG_{U}$ & 10.1KB \\
-    \textsf{PLONK} \cite{Plonk} & no & $2n$ $\GG_{B}$ & $O(n)\; \textsf{EXP}$  & $1\; \textsf{Pairing} $ & $O(1)\; \GG_{B}$ & 720b \\
-        Groth16 \cite{EC:Groth16} & no & $2n$ $\GG_{B}$ & $O(n)\; \textsf{EXP}$  & $1\; \textsf{Pairing} $ & $O(1) \ \GG_{B}$ & 192b \\
-       BP \cite{SP:BBBPWM18} & yes &$2 n \ \GG_{P}$& $O(n)$ \textsf{EXP}& $O(n) \ \textsf{EXP}$ &$2 \log(n) \ \GG_P$ & 1.7KB\\
+    \textsf{Supersonic} & yes & $O(1)$ & $O( n \log(n) )\; \textsf{MUL}$ & $3 \log(n)~\textsf{MUL}$ & $2 \log(n) \ \GG_{U}$ & 10.1KB \\
+    \textsf{PLONK} \cite{Plonk} & no & $2n$ $\GG_{B}$ & $O(n)\; \textsf{MUL}$  & $1\; \textsf{Pairing} $ & $O(1)\; \GG_{B}$ & 720b \\
+        Groth16 \cite{EC:Groth16} & no & $2n$ $\GG_{B}$ & $O(n)\; \textsf{MUL}$  & $1\; \textsf{Pairing} $ & $O(1) \ \GG_{B}$ & 192b \\
+       BP \cite{SP:BBBPWM18} & yes &$2 n \ \GG_{P}$& $O(n)$ \textsf{MUL}& $O(n) \ \textsf{MUL}$ &$2 \log(n) \ \GG_P$ & 1.7KB\\
        \textsf{STARK} & yes & $O(1)$ & $O(\lambda  T)$ $\hash$ & $O(\lambda \log^2(T))$ $\hash$ & $O(\lambda \log^2(T))$ $\hash$ & 600 KB\\
        \textsf{Virgo}\cite{EPRINT:ZXZS19} & yes & $O(1)$ & $O(\lambda  n)$ $\hash$ & $O(\lambda \log^2(n))$ $\hash$ & $O(\lambda \log^2(n))$ $\hash$ & 271 KB
 \end{tabular}
 
 \caption{Comparison table between different succinct arguments. 
-In column order we compare on transparent setup, CRS size, prover and verifier time, asymptotic proof size and concrete proof for an NP relation with arithmetic complexity $2^{20}$.
-Even when precise factors are given the numbers should be seen as  estimates. For example, we chose to not display smaller order terms. The symbol $\GG_U$ denotes an element in group of unknown order, $\GG_{B}$ one in a group with a bilinear map (pairing), $\GG_{P}$ one in a prime order group with known order. Furthermore, $\textsf{EXP}$ refers to exponentiation of $\lambda$-bit numbers in these groups, and $\hash$ is either the size of a hash output or the time it takes to compute a hash. 
-The prover time for the group based schemes can be brought down by a log factor when using multi-exponentiation techniques.}
+In column order, we compare by transparent setup, CRS size, prover and verifier time, asymptotic proof size, and concrete proof for an NP relation with arithmetic complexity $2^{20}$.
+Even when precise factors are given the numbers should be seen as estimates. For example, we chose to not display smaller order terms. The symbol $\GG_U$ denotes an element in a group of unknown order, $\GG_{B}$ one in a group with a bilinear map (pairing), $\GG_{P}$ one in a prime order group with known order. Furthermore, $\textsf{MUL}$ refers to scalar multiplication of $\lambda$-bit numbers in these groups, and $\hash$ is either the size of a hash output or the time it takes to compute a hash. 
+The prover time for the group based schemes can be brought down by a log factor when using multi-scalar-multiplication techniques.}
 \label{tab:proofcomp}
 \end{small}
 \end{table}

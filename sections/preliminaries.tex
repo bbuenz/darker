@@ -3,7 +3,7 @@
 \benedikt{Move to appendix}
 The cryptographic compilers make extensive use of groups of unknown order, \emph{i.e.}, groups for which the order cannot be computed efficiently.
 Concretely, we require groups for which two specific hardness assumptions hold.
-First, the famous RSA Assumption~\cite{RivShaAdl78} which states that it is hard to take \emph{random} roots of \emph{random} elements. Secondly, the much newer Adaptive Root Assumption~\cite{EC:Wesolowski19} which is the dual of the Strong RSA Assumption and states that it is hard to take \emph{random} roots of \emph{arbitrary} group elements. 
+First, the famous RSA Assumption~\cite{RivShaAdl78} which states that it is hard to take \emph{random} roots (technically scalar divisions) of \emph{random} elements. Secondly, the much newer Adaptive Root Assumption~\cite{EC:Wesolowski19} which is the dual of the Strong RSA Assumption and states that it is hard to take \emph{random} roots of \emph{arbitrary} group elements. 
 Both of these assumptions hold in generic groups of unknown order~\cite{EC:DamKop02,C:BonBunFis19}. %That is to say, there are no efficient algorithms that only have black-box access to the group but are able to break these assumptions. 
 %It is an open research problem to show whether one of these assumption implies the other.
 
@@ -51,7 +51,7 @@ and $\adv_1(\ell,\state)$ outputs $\gr{w}^{1/\ell} \in \GG$.
 For all efficient $(\adv_0,\adv_1)$:
 \begin{small}
 \[           
-                \Pr\left[\gr{u}^\ell = \gr{w} \neq 1 \ : \ 
+                \Pr\left[\ell \cdot \gr{u} = \gr{w} \neq 1 \ : \ 
                 \begin{array}{l}
                       \GG \sample \ggen(\lambda) \\ 
                       (\gr{w},\state) \sample \adv_0(\GG) \\
@@ -76,8 +76,8 @@ For all efficient $(\adv_0,\adv_1)$:
 	\end{lemma}
 	\begin{proof}
 	Given an efficient adversary $\adv_{\textsf{Order}}$ for the random order assumption we will construct an efficient adversary $\adv_{\textsf{AR}}=(\adv_0,\adv_1)$ for the Adaptive Root assumption. On input $\GG$ to $\adv_{0}$ we will sample a random group element $\Generator$ from $\GG$ and forward it to $\adv_{\textsf{Order}}$. $\adv_{\textsf{Order}}$ outputs $a$ such that $a\cdot \Generator=0$ with non-negligible probability $\epsilon$. And we set the output of $\adv_0$ to be $(\Generator,a)$. The adaptive root game then samples a random prime $\ell$.
-	$\adv_1$ on input $(a,g,\ell)$ computes $a'\gets \frac{a}{\gcd(a,\ell^k)}$ for $k=\lceil\log_\ell(a)\rceil$. Note that since $\ell$ is co-prime to the order of $\GG$ and thus also the order of $\Generator$ and $a$ is a multiple of the order of $\Generator$ we have that $a'$ is still a multiple of the order of $\Generator$. If we don't abort then we compute $\ell^{-1} \bmod a$ and $\gr{u}=\Generator^{\ell^{-1}}$.
-	Finally $A_1$ outputs $\gr{u}$, which by construction is such that $\gr{u}^\ell=\gr{g}$ . 
+	$\adv_1$ on input $(a,g,\ell)$ computes $a'\gets \frac{a}{\gcd(a,\ell^k)}$ for $k=\lceil\log_\ell(a)\rceil$. Note that since $\ell$ is co-prime to the order of $\GG$ and thus also the order of $\Generator$ and $a$ is a multiple of the order of $\Generator$ we have that $a'$ is still a multiple of the order of $\Generator$. If we don't abort then we compute $\ell^{-1} \bmod a$ and $\gr{u}=\ell^{-1}\cdot \Generator$.
+	Finally $A_1$ outputs $\gr{u}$, which by construction is such that $\ell\cdot \gr{u}=\gr{g}$ . 
 	\end{proof}
 
 \ifappendix
@@ -319,7 +319,7 @@ It is easy to see that witness-extended emulation implies evaluation binding whe
 %\paragraph{Inner product argument} Another helpful feature for polynomial commitment schemes is an inner product argument that shows for commitments $(c_1, c_2)$ to degree $d$ polynomials $(f_1, f_2)$ the inner product of their coefficient vectors $a = \langle f_1, f_2 \rangle$. There is a one-round protocol for the inner product of committed \emph{univariate} polynomials that makes black-box calls to $\pro{Eval}$. We present this in Section~\ref{sec:innerproduct}. 
 
 \subsection{Proofs of Exponentiation}
-Wesolowski \cite{EC:Wesolowski19} introduced a simple yet powerful proof of correct exponentiation (``$\mathsf{PoE}$'') in groups of unknown order. A prover can efficiently convince a verifier that a large exponentiation in such a group was done correctly. For instance, the prover wishes to convince the verifier that $\gr{w} = \gr{u}^x$ for known group elements $\gr{u}, \gr{w} \in \mathbb{G}$ and exponent $x \in \mathbb{Z}$, and the verifier wants to verify this with much less work than performing the exponentiation. To do this, the verifier samples a large enough prime $\ell$ at random and the prover provides him with $\gr{Q} \gets \gr{u}^q$ where $q = \lfloor \frac{x}{\ell} \rfloor$. The verifier then simply computes the remainder $r \gets (x \mod \ell)$ and checks that $\gr{Q}^\ell\gr{u}^r = \gr{w}$. The protocol is an argument for the relation $\mathcal{R}_\mathsf{PoE} = \left\{ \langle(\gr{u}, \gr{w}, x), \varnothing\rangle \ : \ \gr{u}^x = \gr{w} \right\}$. 
+Wesolowski \cite{EC:Wesolowski19} introduced a simple yet powerful proof of correct exponentiation (``$\mathsf{PoE}$'') in groups of unknown order. A prover can efficiently convince a verifier that a large scalar multiplication in such a group was done correctly. For instance, the prover wishes to convince the verifier that $\gr{w} = \gr{u}^x$ for known group elements $\gr{u}, \gr{w} \in \mathbb{G}$ and exponent $x \in \mathbb{Z}$, and the verifier wants to verify this with much less work than performing the scalar multiplication. To do this, the verifier samples a large enough prime $\ell$ at random and the prover provides him with $\gr{Q} \gets \gr{u}^q$ where $q = \lfloor \frac{x}{\ell} \rfloor$. The verifier then simply computes the remainder $r \gets (x \mod \ell)$ and checks that $\gr{Q}^\ell\gr{u}^r = \gr{w}$. The protocol is an argument for the relation $\mathcal{R}_\mathsf{PoE} = \left\{ \langle(\gr{u}, \gr{w}, x), \varnothing\rangle \ : \ \gr{u}^x = \gr{w} \right\}$. 
 The proof verification uses just $O(\lambda)$ group operations. When $x$ is $x=q^d$ the verifier can compute $r\gets x \bmod \ell$ using just $\log(d)$ $\ell$-bit multiplications.
 \noindent\begin{mdframed}[userdefinedwidth=\textwidth]
 \begin{minipage}{\textwidth}
@@ -328,8 +328,8 @@ The proof verification uses just $O(\lambda)$ group operations. When $x$ is $x=q
 	\begin{enumerate}[nolistsep]
 		    \item \verifier samples $\ell \sample \primes$ and sends $\ell$ to \prover
 		    \item \prover computes quotient $q$ and remainder $r$ such that $x = q\ell + r$ and $r \in \{0, \ldots, \ell-1\}$
-		    \item \prover computes $\gr{Q} \gets \gr{u}^q$ and sends it to \verifier
-		    \item \verifier computes $r \gets (x \mod \ell)$ and checks that $\gr{Q}^\ell\gr{u}^r = \gr{w}$
+		    \item \prover computes $\gr{Q} \gets q\cdot \gr{u}$ and sends it to \verifier
+		    \item \verifier computes $r \gets (x \mod \ell)$ and checks that $\ell \cdot \gr{Q}+ r\cdot \gr{u} = \gr{w}$
 		    \item \pcif{}check passes \textbf{then} \textbf{return} 1 \textbf{else} \textbf{return} 0
 		\end{enumerate}
 	\end{flushleft}
@@ -339,7 +339,12 @@ The proof verification uses just $O(\lambda)$ group operations. When $x$ is $x=q
 
 \begin{lemma}[\textsf{PoE} soundness~\cite{EC:Wesolowski19}]
 \label{lem:poe}
-\textsf{PoE} is an argument system for  Relation $\mathcal{R}_\textsf{PoE}$ with negligible soundness error,
+\textsf{PoE} is an argument system for  relation $\mathcal{R}_\textsf{PoE}$ with negligible soundness error,
 assuming the Adaptive Root Assumption (Assumption \ref{assum:adaptiveroot}) holds for~$\ggen$.
+\end{lemma}
+\begin{lemma}[\textsf{PoE} random oracle  soundness~\cite{EC:Wesolowski19}]
+\label{lem:poero}
+The Fiat-Shamir transform of \textsf{PoE}, replacing the verifier message $\ell$ with $\ell\gets \hash(u,w,x)$ and $\hash$ is an argument system for relation $\mathcal{R}_\textsf{PoE}$ with negligible soundness error,
+assuming that $\hash$ is modeled as a random oracle and that the Adaptive Root Assumption (Assumption \ref{assum:adaptiveroot}) holds for~$\ggen$.
 \end{lemma}
 
