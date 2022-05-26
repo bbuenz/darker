@@ -587,96 +587,6 @@ Consequently, the probability that the adversary can break $\textsf{PoE}$ on \em
 This means that with overwhelming probability all transcripts are equivalent to having the verifier directly check $(\gr{C}_R,\gr{C}/\gr{C}_{L},q^{d'+1})\in\mathcal{R}_{\textsf{PoE}}$. By assumption, the witness-candidate $f(X)$ that $E'$ outputs is a valid witness if the transcript $\mathsf{tr}'$ that $E'$ also outputs is accepting. The addition of honest $\mathsf{PoE}$ transcripts to $\mathsf{tr}'$ preserves the transcript's validity. So $\mathsf{tr}$ is an accepting transcript for $\pro{Eval}$ if and only if $\mathsf{tr}'$ is an accepting transcript for $\pro{Eval}'$. Therefore, $E'$ outputs a valid witness $f(X)$ whenever $E$ outputs a valid witness. This suffices to show that $\pro{Eval}$ has witness-extended emulation if $\pro{Eval}'$ has, and if the Adaptive Root Assumption holds for $\ggen$.
 \end{proof}
 
-\paragraph{Combining statements.} The $\eval$ protocol combines two statements into one by using a random linear combination of group elements, \emph{i.e.}, $\gr{C}'\gets \gr{C}_L^{\alpha}\gr{C}_R$. We now show that this step is sound and that given the discrete logarithm for $\gr{C}'$ the extractor can extract the discrete logarithm for $\gr{C}_L$ and $\gr{C}_R$ we also show that the we can bound the size of the discrete logarithm. We show that this statement holds in two settings. First we consider a group $\GG$ were the standard Strong RSA Assumption holds and group elements are encodings of integers. 
-%Move next part to after lemma?
-Then we will show that in groups in which taking square roots is easy we can extract dyadic rationals using the 2-Strong RSA Assumption.
- %For $\GG \gets \ggen(\lambda)$, and $\gr{g}\sample \GG$. Let $(\gr{C}_L\in \GG,\gr{C}_R\in \GG,\alpha\in [0,p-1],f\in [0,b];\gr{g}^{f}=\gr{C}_L^{\alpha}\gr{C}_R)$ and  $(\gr{C}_L,\gr{C}_R,\alpha'\in [0,p-1],f'\in [0,b];\gr{g}^{f'}=\gr{C}_L^{\alpha'}\gr{C}_R)$  be two transcripts for $\alpha\neq \alpha'$.
-\begin{lemma}[Combining for integer witnesses]
-\label{lem:intrandomcombine}
-	For $\GG \gets \ggen(\lambda)$, and $\gr{g}\sample \GG$. 
-	Let $(z,\gr{C}_L,\gr{C}_R,y_L,y_R,\alpha,f,y)$ and  $(z,\gr{C}_L,\gr{C}_R,y_L,y_R,\alpha',f',y')$ be two transcripts such that $\gr{g}^{f}=\gr{C}_L^{\alpha}\gr{C}_R$ and $\gr{g}^{f'}=\gr{C}_L^{\alpha'}\gr{C}_R$ for group elements $\gr{C}_L,\gr{C}_R \in \GG$, and integers $\alpha,\alpha' \in  [-\frac{p-1}{2},\frac{p-1}{2}]$, $\alpha\neq \alpha'$. Further let $f,f'\in \ZZ$ be such that $f(X)\gets\dec(f)$ and $f'(X)\gets\dec(f')$ are degree $d$ bounded polynomials with coefficients bounded by $b$, \emph{i.e.}, $f(X),f'(X)\in \ZZ(b)[X]\subset \ZZ[X]$. And finally let $y=f(z)\bmod p$ and $y'=f'(z)\bmod p$.
-	 Then there exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either (1) $y_L,y_R\in \ZZ_p,f_L(X),f_R(X)\in \ZZ((p-1) \cdot b)[X]$  such that $f_L(z)=y_L\bmod p$ and $f_R(z)=y_R \bmod p$ or (2) an element in $\GG$ of known order or (3) a fractional root of $\gr{g}$.
-\end{lemma}
-\begin{proof}
-	Using the transcripts $\mathcal{X}$ computes $\Delta_\alpha\gets\alpha-\alpha'$ and $\Delta_f\gets f-f'$ such that $\gr{C}_{L}^{\Delta_\alpha}=\gr{g}^{\Delta_f}$. 
- If $\frac{\Delta_f}{\Delta_\alpha}$ is not an integer then $\mathcal{X}$ outputs a fractional root of $\gr{g}$, that is the tuple $(\Delta_f,\Delta_\alpha,\gr{C}_{L})$.  
- If $\frac{\Delta_f}{\Delta_\alpha}$ on the other hand is an integer then $\mathcal{X}$ can compute $\gr{D}\gets\gr{g}^{\frac{\Delta_f}{\Delta_\alpha}}$. Either $\gr{D}=\gr{C}_{L}$ or $(\gr{D}/\gr{C}_{L})^{\Delta_\alpha}=1$. In the second case, $\gr{D}/\gr{C}_{L}$ is an element of known order.
-   
-  Otherwise $\gr{D} = \gr{C}_L$ and we have $\gr{C}_{L}=\gr{g}^{f_L}$ where $f_L=\frac{\Delta_f}{\Delta_\alpha}$ is an integer.
-Additionally $\gr{C}_R=\gr{g}^{f_R}$ for $f_R\gets f-\alpha \cdot f_L$.
-
-$\mathcal{X}$ now computes the corresponding polynomials $f_L(X)\gets \dec(f_L)$ and $f_R(X)\gets \dec(f_R)$.
-Now if for all $i$, the coefficients $f_i$ and $f'_i\in [-b,b]$ and $\alpha,\alpha' \in [-\frac{p-1}{2},\frac{p-1}{2}]$ then by the triangle inequality we have that for the $i$th coefficient of $f_L(X)$, $f_{L,i}\in [-2b,2b]$. Additionally we have $f_{R,i}=\frac{f_i'\alpha-f_i \alpha'}{\Delta_\alpha}$. Using the triangle inequality again we have that $f_{R,i} \in [-(p-1) \cdot b, (p-1) \cdot b]$. For an odd prime $p$, $(p-1)\cdot p\geq 2$. The bound on $f_{R,i}$ is, therefore, greater than the bound on $f_{L,i}$. This gives us $f_L(X),f_R(X)\in \ZZ({(p-1) \cdot b})[X]$
-
-Let $y_L=\frac{y-y'}{\Delta_\alpha} \bmod p=\frac{f(z)-f'(z)}{\Delta \alpha} \bmod p$ and $y_R= y-\alpha\frac{y-y'}{\Delta_\alpha} \bmod p$. Since $f_L(X)=\frac{f(X)-f'(X)}{\Delta \alpha}$ this shows that $y_L=f_L(z)\bmod p$ and $y_R=f_R(z)\bmod p$.
-%The actual bound on f_{R,i} is b*(p-2)
-\end{proof}
-
-\def\thetheorem{\ref{thm:polycommitsecurity}}
-\begin{theorem}
-\maintheorem
-\end{theorem}
-\input{sections/proofofmaintheorem.tex}
-
-%%%%%DYADIC
-
-
-\subsection{Proof of Theorem~\ref{thm:dyadicpolysecurity}}
-\label{apx:dyadic}
-We begin by stating and proving the combining lemma, (Lemma~\ref{lem:intrandomcombine}) for dyadic rational witnesses.
-%PROOF FOR DYADIC RATIONALS
-\begin{lemma}[Combining for Dyadic Rational Witnesses]
-\label{lem:dyadiccombining}
-Let $\tr$ and $\tr'$ be two transcripts as specified in Lemma \ref{lem:intrandomcombine} with the difference that $f,f'\in \mathbb{D}$ are dyadic rationals such that $f(X)\gets \dec(f)$ and $f'(X)\gets \dec(f')$ are degree $d$ bounded dyadic rational polynomials with coefficients' numerators bounded by $N$ and denominators bounded by $D$, i.e. $f(X),f'(X)\in\mathbb{D}(N,D)$.
-Assume that there exists a PPT algorithm for taking square roots of any element in $\GG$ and that the order of $\GG$ is odd, then there exists a PPT algorithm $\mathcal{X}$ that given these transcripts computes either (1) $y_L,y_R\in \ZZ_p,f_L(X),f_R(X)\in \mathbb{D}(N\cdot (p-1),D\cdot (p-1))[X]$  such that $f_L(z)=y_L\bmod p$ and $f_R(z)=y_R \bmod p$ or (2) an element in $\GG$ of known order or (3) a non-power of $2$ fractional root of $\gr{g}$.
-\end{lemma}
-\begin{proof}
-The proof follows a similar structure to the proof of Lemma~\ref{lem:intrandomcombine}. 
-		
-	Using the transcripts we get $\Delta_\alpha\gets\alpha-\alpha'$ and $\Delta_f\gets f-f'$ such that $\gr{C}_{L}^{\Delta_\alpha}=\gr{g}^{\Delta_f}$. 
- If $\frac{\Delta_f}{\Delta_\alpha}$ is not a dyadic rational then this gives us a non-power of $2$ fractional root of $\gr{g}$ root of $\gr{g}$, that is the tuple $(\Delta_f,\Delta_\alpha,\gr{C}_{L})$.  
- If $\frac{\Delta_f}{\Delta_\alpha}$ on the other hand is a dyadic rational then we can compute $\gr{D}\gets\gr{g}^{\frac{\Delta_f}{\Delta_\alpha}}$. This may requires taking a power of $2$ root. By assumption the group order is odd, so every element has a square root and there exists an efficient algorithm for taking square roots. This implies that taking higher power of $2$ roots is also efficient.
-  
-  Now either $\gr{D} = \gr{C}_L=\gr{g}^{f_L}$ or we can extract an element of known order. Additionally $\gr{C}_R=\gr{g}^{f_R}$ for $f_R\gets f-\alpha \cdot f_L$.
-
- We now compute the corresponding polynomials $f_L(X)\gets \dec(f_L)$ and $f_R(X)\gets \dec(f_R)$.
-Now if the coefficients $f_i$ and $f'_i\in \mathbb{D}(N,D)$ and $\alpha,\alpha' \in [-\frac{p-1}{2},\frac{p-1}{2}]$ then by the triangle inequality we have that for the numerator of the $i$th coefficient of $f_L(X)$ is between $[-2N,2N]$. The denominator grows by at most $p-1$. The bound on the denominators is therefore $D\cdot (p-1)$. Additionally we have $f_{R,i}=\frac{f_i'\alpha-f_i \alpha'}{\Delta_\alpha}$. Using the triangle inequality again we have that the numerator of $f_{R,i} \in [-(p-1) \cdot N, (p-1) \cdot N]$. The denominator is bounded by $D\cdot (p-1)$. This gives us $f_L(X),f_R(X)\in \mathbb{D}((p-1) \cdot N,D\cdot (p-1))[X]$
-
-Finally $y_L=f_L(z)$ and $y_R=f_R(z)$ as in Lemma~\ref{lem:intrandomcombine}. It is important that $2$ is co-prime with the odd prime $p$ such that each dyadic rational can be mapped to a field element.
-\end{proof}
-
-
-We now restate the theorem for the security of the protocol with dyadic rational witnesses in groups where taking square roots is easy.
-
-\def\thetheorem{\ref{thm:dyadicpolysecurity}}
-\begin{theorem}
-\dyadicmaintheorem
-\end{theorem}
-
-\begin{proof}
-The proof largely follows the same structure of the proof of Theorem~\ref{thm:polycommitsecurity}.
-	
-We will prove security by showing that we can extract a dyadic rational polynomial $f(X)\in \mathbb{Z}[X]$ such that $f(X)$ has degree at most $d$ and the coefficients of $f(X)$ are dyadic rationals such that the product of the numerator and denominator is bounded by $q/2$. This ensures that $f(q)$ is a unique encoding of $f(X)$. Additionally $\gr{g}^{f(q)}=\gr{C}$ and $f(z) \bmod p=y$. The proof will use the general forking lemma (Lemma \ref{lemma:GFL}) to show that the polynomial commitment scheme has witness-extended emulation. 
-
-We use the same extractor $\mathcal{X}$ as in Theorem \ref{thm:polycommitsecurity} with one key distinction. 
-For $d+1$ odd we invoke the extractor described by Lemma~\ref{lem:dyadiccombining} instead of Lemma~\ref{lem:intrandomcombine}. 
-This means that at every tree level either bounded dyadic rational witness polynomials are extracted or an element of known order or a non-power of $2$ fractional root of $\gr{g}$. By assumption the ladder two cases happen only with negligible probability.
-
-We, therefore, now need to compute a bound on the size of the extracted polynomial. 
-The check on $f$ ensures that $f\in \ZZ$ and that $|f|\leq b=\frac{p-1}{2} (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$. We can write $f\in\mathbb{D}(\frac{p-1}{2} (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil},1)$. By \ref{lem:intrandomcombine} both the numerator and the denominator grow by at most a factor $p-1$ in every round.
-Given that the transcript tree has depth $\lceil \log_2(d+1)\rceil$ we get that the final extracted polynomial $f_0(X)\in \mathbb{D}(N,D)[X]$ has coefficients with numerators bounded by $N= \frac{p-1}{2}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$ and denominators bounded by $D=(p-1)^{\lceil \log_2(d+1)\rceil}$
-
-$q$ needs to be large enough such that $f_0(X)$ is uniquely decodable, \emph{i.e.}, $q>2\cdot N\cdot b=(p-1)^{\lceil \log_2(d+1)\rceil+1}(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil}$. In a simpler form $q>p^{3\lceil\log_2(d+1)\rceil+1}$ suffices.
-
-This shows that we can successfully extract either a witness or a non-power of $2$ fractional root or an element of known order from any tree of valid transcripts.
-Under the $2$-Fractional Root Assumption and the Order Assumption, the probability that a polynomial time adversary along with a polynomial time extractor $\mathcal{X}$ can produce such a a  non-power of $2$ fractional root or an element of known order is negligible. $\eval'$, therefore, has witness extended emulation and under the Adaptive Root Assumption by Lemma \ref{lemma:poe_security} so does $\eval$.
-Lemma \ref{lem:ordertoadaptive} and Lemma \ref{lem:strongtofractional} show that we can reduce the hardness assumptions to just the Adaptive Root Assumption and the  $2$-Strong RSA Assumption. 
-\end{proof}
-
-%\section{Hiding Polynomial Commitment with HVZK Eval} 
-%\label{appendix:zeroknowlege}
-%\input{sections/zk}
-
 
 \subsection{Proof of Theorem~\ref{thm:joined}} \label{appendix:joined}
 
@@ -684,6 +594,7 @@ Lemma \ref{lem:ordertoadaptive} and Lemma \ref{lem:strongtofractional} show that
 \begin{theorem}
 \theoremjoined
 \end{theorem}
+\benedikt{This one needs to be redone as well}
 
 \begin{proof}
     Correctness is immediate and witness extended emulation requires a single application of Lemma~\ref{lem:intrandomcombine} which leads to an updated bound on $q$. In general $q$ needs to be $\frac{p^2-1}{2}$ larger for any random linear combination that is taken with $\alpha \in [-\frac{p-1}{2},\frac{p-1}{2}]$. For class groups, Lemma~\ref{lem:dyadiccombining} is used and the lower bound on $q$ grows by a factor of $(p-1)^2\frac{p+1}{2}\leq p^3$.
