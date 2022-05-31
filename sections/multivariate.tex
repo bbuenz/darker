@@ -28,31 +28,38 @@ Then it associates each monomial of the univariate polynomial with a degree vect
 			\end{flushleft}
 \end{minipage}
 \end{mdframed}
- \benedikt{I remember that this was also slightly broken but we can fix that with the next update.}
  \begin{mdframed}
 \begin{minipage}{\textwidth}
-			$\pro{MultiEval}(\params, \gr{C}\in \GG, \boldsymbol{z}\in \ZZ^\mu_p,y \in \ZZ_p, d,\mu,b \in \NN; f(X_1,\dots,X_\mu)\in \ZZ(b)[X_1, \ldots, X_\mu]) :$
+			$\pro{MultiEval}(\params, \gr{C}\in \GG, \boldsymbol{z}\in \ZZ^\mu_p,y \in \ZZ_p, d,\mu,b \in \NN; f \in \ZZ_p[\vec{X}= X_1,\ldots,X_\mu], \hat{f}\in \ZZ(b)[\vec{X}]) :$
 			\begin{enumerate}[nolistsep]
 			\item \pcif{$\mu=1$} 
-			\item \pcind[1] \prover and \verifier run $\pro{EvalBounded}(\params,\gr{C},z_1,y,d,b,x;f(X_1))$ 
+			\item \pcind[1] \prover and \verifier run $\pro{EvalB}(\params,\gr{C},z_1,y,d,||f||_\infty,z_1;f,\hat{f})$ 
 			\item \pcelse
-			\item \pcind[1] Let $\hat{f}(X_\mu)\gets f(q_1,\dots,q_{\mu-1},X_\mu)$
+			\item \pcind[1] Let $\hat{f}(X_\mu)\gets \hat{f}(q_1,\dots,q_{\mu-1},X_\mu)$
+			\item \pcind[1] Let $f(X_\mu)\gets f(z_1,\dots,z_{\mu-1},X_\mu)$
+
 			\item \pcind[1] Let $\crs_\mu \gets \{\lambda,\GG,\gr{g},p,q_\mu\}$
-			\item \pcind[1] \prover and \verifier run the univariate $\pro{EvalBounded}(\params_\mu,\gr{C},z_\mu,y,d,q_\mu;\hat{f}(X))$
-			\item \pcind[2] \textbf{except:} when $d=0$, $f$ is not sent; instead the protocol returns its input at this point, \emph{i.e.}, $(\gr{C}',y',b')$ along with the prover's witness $f'(X_1,\dots,X_{\mu-1})=\dec_{Multi}(f,\mu-1,d)$ (Lines~\ref{line:basestart}-\ref{line:baseend} of $\pro{EvalBounded}$). 
+			\item \pcind[1] \prover and \verifier run the univariate $\pro{EvalB}(\params_\mu,\gr{C},z_\mu,y,d,q_\mu;f(X),\hat{f}(X))$
+			\item \pcind[2] \textbf{except:} when $d=0$, $f$ is not sent; instead the protocol returns its input at this point, \emph{i.e.}, $(\gr{C}',y',b')$ along with the prover's witness $(f',\hat{f}') \in \ZZ_p[X_1,\dots,X_{\mu-1}],\ZZ[X_1,\dots,X_{\mu-1}]$ (Lines~\ref{line:basestart}-\ref{line:baseend} of $\pro{EvalBounded}$). 
 			\item \pcind[1]$\boldsymbol{z}'\gets (z_1,\dots,z_{\mu-1})\in \ZZ_p^{\mu-1}$
 			\item \pcind[1]\prover and \verifier run $\pro{MultiEval}(\crs,C',\boldsymbol{z}',y',d,\mu-1,b';f')$
 		    \end{enumerate}
       \end{minipage}
 \end{mdframed}
+ \benedikt{Fix proof}
+
 We only prove security under the strong RSA assumption. The security proof, however, directly extends to groups where taking square roots is easy under the $2$-Strong-RSA Assumption. In that case $q>p^{3\mu \log_2(d+1)+1}$ suffices.
 \begin{theorem}[Multivariate Eval]
+\label{thm:mvariate}
 	The polynomial commitment scheme for multi-variate polynomials consisting of protocols $(\pro{MultiSetup},\pro{MultiCommit},\pro{MultiEval})$ has perfect correctness and witness extended emulation if the Adaptive Root Assumption and the Strong RSA Assumption hold for $\ggen$ for $\mu$-variate polynomials of degree $d$ and if $d^\mu=\poly$ if $q> p^{2 \mu \log_2(d+1)+1}$.
 \end{theorem}
+
+
 \begin{proof}
 	Perfect correctness follows from the correctness of the univariate commitment scheme and the fact that the coefficients of the witness polynomial in the honest execution are less than $\frac{p-1}{2}p^{\mu \lceil\log(d+1)\rceil}<q/2$.
 	
-	To show witness extended emulation we use the forking lemma (Lemma \ref{lemma:GFL}) and build a polynomial time extractor algorithm $\mathcal{X}_{\pro{MultiEval}}$ that given a binary tree of transcripts of depth $\mu \cdot\lceil\log(d+1)\rceil$, extracts a witness. Each node corresponds to a different challenge $\alpha$ as described in the forking lemma. The tree consists of at most $(d+1)^{\mu}=\poly$ transcripts. 
+	To show witness extended emulation we show that 
+	use the forking lemma (Lemma \ref{lemma:GFL})\benedikt{replace with new FL} and build a polynomial time extractor algorithm $\mathcal{X}_{\pro{MultiEval}}$ that given a binary tree of transcripts of depth $\mu \cdot\lceil\log(d+1)\rceil$, extracts a witness. Each node corresponds to a different challenge $\alpha$ as described in the forking lemma. The tree consists of at most $(d+1)^{\mu}=\poly$ transcripts. 
 	Lemma~\ref{lem:poe} states that the probability that an adversary can create any accepting transcript for which the $\textsf{PoE}$ can't be replaced by a direct check is negligible under the Adaptive Root Assumption.
 We can therefore invoke the lemma to replace all \textsf{PoE} executions with direct verification checks that $\gr{C}_L\gr{C}_R^{q^{d'+1}}=\gr{C}$. 
 %The lemma focuses on the univariate \pro{Eval} protocol but works identically for the multivariate protocol. 

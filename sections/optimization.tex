@@ -65,11 +65,14 @@ The protocol $\pro{JoinedEval}$ is an interactive argument for the relation $\ma
 \label{thm:joined}
 \theoremjoined
 \end{theorem}
+\begin{proof}
+	Security directly follows from \cref{thm:mvariate} as $C_1,C_2$ is a binding virtual commitment to the bivariate polynomial $f_1+ Y \cdot f_2$. That is, $C=C_1+q^d \cdot C_2$ can be computed from $C_1,C_2$ thus if $C$ is a binding commitment then so is $(C_1,C_2)$. Further \pro{JoinedEval} is identical to an invocation of \pro{MultiEval} on input $(\alpha,z)$
+\end{proof}
 The proof is presented in Appendix~\ref{appendix:joined}.
 
 We can additionally combine this optimization with the previous optimization of evaluating a single polynomial at different points. This allows us to evaluate $m$ polynomials at $k$ points with very little overhead. 
 The prover groups the polynomials by evaluation points and first takes linear combinations of the polynomials with the same evaluation point and computes $y_1$ to $y_k$ using the same linear combinations. Then it takes another combination of the joined polynomials. In each round of the $\eval$ protocol the prover sends $y_{L,1}$ through $y_{L,k}$, i.e. one field element per evaluation point and computes $y_{R,1}$ through $y_{R,k}$. In the final step the prover sends $f$ and the verifier can check whether the final $y$ values are all equal to $f\bmod p$.
- This enables an $\eval$ proof of $m$, degree $d$ polynomials at $k$ points using only $2\log_2(d+1)$ group elements and $(1+k)\log_2(d+1)$ field elements.
+ This enables an $\eval$ proof of $m$, degree $d$ polynomials at $k$ points using only $2\log_2(d+1)$ group elements and $(1+k)\log_2(d+1)$ field elements.\benedikt{Adapt}
  
 \paragraph{Evaluating the polynomial over multiple fields}
 The polynomial commitment scheme is highly flexible. For example it does not specify a prime field $\ZZ_p$ or a degree $d$ in the setup. It instead commits to an integer polynomial with bounded coefficients. That integer polynomial can be evaluated modulo arbitrary primes which are exponential in the security parameter $\lambda$ as the soundness error is proportional to its inverse.

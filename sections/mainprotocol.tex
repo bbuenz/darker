@@ -120,13 +120,12 @@ As shown above, the verifier can infer a bound on the absolute values of $f_L$ a
 
 More generally, for every integer $z$ in the range $B = (-\frac{q^{d+1}}{2}, \frac{q^{d+1}}{2})$ there is a unique degree (at most) $d$ integer polynomial $h(X)$ with coefficients whose absolute values are bounded by $q/2$ such that $h(q) = z$. \emph{We prove this elementary fact below and show how the coefficients of $h$ can be recovered efficiently from $z$ (Fact~\ref{EncodingBijective})}. If the prover is committed to $h(q)$ at level $i$ of the protocol, there is a unique pair of integers polynomial $h_L$ and $h_R$ with coefficients of absolute value bounded by $q/2$ such that $h_L(q) + q^{\frac{d+1}{2}} h_R(q) = h(q)$, and if the prover recurses on any other $h_L^*$ and $h_R^*$ with larger coefficients then the verifier's bound check at the bottom level of recursion will fail with overwhelming probability. 
 
-\paragraph{Optimization with negative coefficients} As we have seen, an adversarial prover can commit to polynomials with positive or negative coefficients. As an optimization, we can actually allow the honest prover to encode polynomials using a mixture of negative and positive coefficients as well. A polynomial $f(X) \in \ZZ_p[X]$ is lifted to an integer polynomial by replacing each coefficient of $f$ with its unique integer representative from $(-p/2,p/2)$ of the same equivalence class modulo $p$. Also, $\alpha$ can be chosen from $(-p/2, p/2)$, leading to a tighter bound on coefficient growth. This leads us to the following encoding scheme. 
 
 \paragraph{Final encoding scheme} Let $\ZZ(b):=\{x \in \ZZ: \vert x \vert  \leq b\}$ denote the set of integers with absolute value less than or equal to $b$.  Define $\ZZ(b)[X] := \{f \in \ZZ[X]: ||f||_\infty \leq b\}$, the set of integer polynomials with coefficients from $\ZZ(b)$. (For a polynomial $g \in \ZZ[X]$ the norm $||g||_\infty$ is the maximum over the absolute values of all individual coefficients of $g$.)
 \begin{itemize} 
 
 \item \textbf{Encoding.}
-For any integer $q$, the function $\mathsf{Enc} : \mathbb{Z}(b)[X] \rightarrow \mathbb{Z}$ maps $h(X) \mapsto h(q)$. A polynomial $f(X) \in \ZZ_p[X]$ is first mapped to $\ZZ(p/2)[X]$ by replacing each coefficient of $f$ with its unique integer representative from $(-p/2,p/2)$ of the same equivalence class modulo $p$.  %This means the map can be used as encoding of polynomials in the domain $\ZZ(b)[X]$ with $b<q/2$.
+For any integer $q$, the function $\mathsf{Enc} : \mathbb{Z}(b)[X] \rightarrow \mathbb{Z}$ maps $h(X) \mapsto h(q)$. A polynomial $f(X) \in \ZZ_p[X]$ is first mapped to $\ZZ(p)[X]$ by replacing each coefficient of $f$ with its unique integer representative from $[0,p)$ of the same equivalence class modulo $p$.  %This means the map can be used as encoding of polynomials in the domain $\ZZ(b)[X]$ with $b<q/2$.
 
 \item \textbf{Decoding.}
 Decoding works as follows. Define the partial sum $S_k := \sum_{i=0}^k f_i q^i$ with $S_{-1} := 0$. Assuming $|f_i| < q/2$ for all $i$, observe that for any partial sum $S_k$ we have $|S_k|<\frac{q^{k+1}}{2}$. Therefore, when $S_k < 0$ then $S_k \bmod q^{k+1} > q^{k+1}/2$ and when $S_k \geq 0$ then $S_k \bmod q^{k+1} < q^{k+1}/2$. 
@@ -252,12 +251,12 @@ In the final round we check that the constant $f$ satisfies $|f|\leq b$ and the 
 		$\pro{EvalB}(\crs,\gr{C}\in \GG,z\in \ZZ_p,y\in \ZZ_p,d=2^\mu-1 \in \NN,b\in \ZZ;f(X)\in\ZZ_p[X],\hat{f}(X)\in \ZZ(b)[X])$		
 	    \begin{enumerate}[nolistsep]
         \item \pcif $d=0$:
-        \item \label{line:basestart}\pcind[1] \prover sends $f(X)\in \ZZ$ to the verifier. \pccomment{$f=f(X)$ is a constant}
+        \item \label{line:basestart}\pcind[1] \prover sends $\hat{f}(X)\in \ZZ$ to the verifier. \pccomment{$\hat{f}=\hat{f}(X)$ is a constant}
 
         %q/(2^{\lceil \log_2(d+1) \rceil+1} p^{2 \lceil \log_2(d+1) \rceil+1})$
-        \item \pcind[1] \verifier checks that $|f|\leq b$
-          \item \pcind[1] \verifier checks that $f\equiv y \bmod p$
-                \item \label{line:baseend}\pcind[1] \verifier checks that $f\cdot \gr{g}=\gr{C}$
+        \item \pcind[1] \verifier checks that $|\hat{f}|\leq b$
+          \item \pcind[1] \verifier checks that $\hat{f}\equiv y \bmod p$
+                \item \label{line:baseend}\pcind[1] \verifier checks that $\hat{f}\cdot \gr{g}=\gr{C}$
 \item \pcind[1] \verifier outputs $1$ \pcif all checks pass, $0$ otherwise.
          \item \pcelse:
        
@@ -269,7 +268,7 @@ In the final round we check that the constant $f$ satisfies $|f|\leq b$ and the 
         \item \pcind[1] \prover sends $y_L,y_R, \gr{C}_L, \gr{C}_R$ to \verifier. \pccomment{See Section \ref{subsec:optimization} for an optimization}
         \item \pcind[1] \verifier checks that $y=y_L+z^{d'+1}\cdot y_R \bmod p$, outputs $0$ if check fails.
         \item \pcind[1]\label{line:PoE} \prover and \verifier run $\pro{PoE}(\gr{C}_R, \gr{C}-\gr{C}_L, q^{d'+1})$\pccomment{Showing that $\gr{C}_L+q^{d'+1}\cdot  \gr{C}_R=\gr{C}$}
-        \item \pcind[1] \verifier samples $\alpha \sample [0,2^\lambda]$ and sends it to \prover
+        \item \pcind[1] \verifier samples $\alpha \sample [0,2^\lambda)$ and sends it to \prover
         \item \pcind[1] \prover and \verifier compute $y'\gets\alpha  y_L +y_R \bmod p$, $\gr{C}' \gets \alpha\cdot \gr{C}_L + \gr{C}_R$, $b'\gets b \cdot 2^\lambda$. 
       \item \pcind[1]  \prover computes $f'(X) \gets \alpha \cdot f_L(X) + f_R(X) \in \ZZ_p[X]$ 
 
@@ -346,12 +345,12 @@ The proof of Theorem~\ref{thm:dyadicpolysecurity} is nearly identical to the pro
 \subsection{Optimizations}
 \label{subsec:optimization}
 \input{sections/optimization}
-\ignore{
+
 \subsection{Multivariate Commitment Scheme}
 \label{sec:multivariate}
 
 \input{sections/multivariate}
-}
+
 \subsection{Hiding Commitments and Zero-Knowledge Evaluation}
 \label{section:zeroknowlege}
 \input{sections/newzk}
