@@ -284,7 +284,7 @@ Let $\G$ denote the abelian group (i.e., $\G$ is a $\Z$-module) that contains th
 
 
 \begin{lemma}\label{lem:triangularization}
-Let $\G$ be a $\Z$-module. Let $p$ be a prime and $\F = \Z_p$. Given two vectors $\x, \y \in \G^n$ and a system of equations $\mathbf{A} \x = \y$ for a matrix $\A \in \Z^{n \times n}$ that is invertible over $\F$, there is an efficient algorithm to derive a diagonal integer matrix $\mathbf{D}$ with diagonal entries all non-zero modulo $p$ and a matrix $\mathbf{L}$ such that $\mathbf{D} \cdot \x = \mathbf{L} \cdot \y$. In particular, $\mathbf{L} \mathbf{A} = \mathbf{D}$.    
+Let $\G$ be a $\Z$-module. Let $p$ be a prime and $\F = \Z_p$. For any matrix $\A \in \Z^{n \times n}$ that is invertible over $\F$, there is an efficient algorithm to derive a diagonal integer matrix $\mathbf{D}$ with diagonal entries all non-zero modulo $p$ and a matrix $\mathbf{L}$ such that $\mathbf{L} \mathbf{A} = \mathbf{D}$.    
 \end{lemma} 
 \begin{proof} 
 Since $det(\mathbf{A}) \neq 0$, the matrix $\mathbf{A}$ is invertible over the rationals $\mathbb{Q}$. Let $\mathbf{A}^{-1}$ denote the inverse of $\mathbf{A}$ over $\mathbb{Q}$ and let $\mathbf{I}$ denote the identity matrix over $\Z$. Set $\mathbf{L}$ to be the matrix obtained by clearing the denominators of $\mathbf{A}^{-1}$, i.e. $\mathbf{L} = x \cdot \mathbf{A}^{-1}$ where $x \neq 0$ is the least common multiple of all denominators of the rational entries of $\mathbf{A}^{-1}$. The matrix $\mathbf{L} \cdot \mathbf{A} = x \cdot \mathbf{A}^{-1} \cdot \mathbf{A} = x \cdot \mathbf{I}$ is a diagonal integer matrix.
