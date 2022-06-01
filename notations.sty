@@ -15,7 +15,9 @@
 \newcommand{\primes}{\textsf{Primes}(\lambda)}
 \newcommand{\defn}[1]{\textbf{#1}}
 
-\newcommand{\gr}[1]{\mathsf{#1}}
+\newcommand{\gr}[1]{\mathsf{\MakeUppercase{ #1}}}
+\newcommand{\Generator}{\gr{g}}
+\newcommand{\Commitment}{\gr{C}}
 \renewcommand{\state}{\ensuremath{\textsf{st}}}
 
 \renewcommand{\prover}{\ensuremath{\mathcal{P}}\xspace}
@@ -23,3 +25,8 @@
 \newcommand{\qgen}{\ensuremath{\mathcal{Q}}\xspace}
 \newcommand{\decider}{\ensuremath{\mathcal{D}}\xspace}
 \newcommand{\emu}{\ensuremath{\mathcal{E}}\xspace}
+\newcommand{\Prob}{\mathbb{P}}
+\newcommand{\CorrectnessBound}{\mathsf{CB}_{p,\mu,\lambda}}
+\newcommand{\CSZ}[1][\mu]{\mathsf{CSZ}_{#1,\lambda}}
+\newcommand{\EBL}[1][\mu]{\mathsf{EBL}_{#1,\lambda}}
+\newcommand{\predicate}[1]{\mathbf{1}[#1]}

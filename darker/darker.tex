@@ -9,6 +9,7 @@
 \usepackage{enumitem}
 \usepackage{amsthm}
 \usepackage{amsmath,amssymb}
+\usepackage{bbm}
 \usepackage[utf8x]{inputenc}
 \usepackage[colorinlistoftodos]{todonotes}
 \usepackage{xspace}
@@ -386,7 +387,7 @@ The security of our scheme is provable under the Random Order Assumption. We fir
 The security proof relies on the following lemmata, which we prove first. In the following we use $\mathsf{denoms} : \mathbb{Q}[X] \rightarrow \mathbb{Z}^*$ to refer to the list denominators of a rational polynomial's nonzero coefficients, and $\mathsf{denom} : \mathbb{Q} \rightarrow \mathbb{Z}$ analogously for a single rational number.
 
 \begin{lemma}
-Let $f(X) \in \mathbb{Q}[X]$ and let $\mathsf{max} \circ \mathsf{denoms}(f) > B$, and let $f_O(X) = \frac{f(X) - f(-X)}{2}$ and $f_E(X) = \frac{f(X) + f(-X)}{2}$, then
+Let $f(X) \in \mathbb{Q}[X]$ and let $\mathsf{lcm}(\mathsf{denoms}(f)) > B$, and let $f_O(X) = \frac{f(X) - f(-X)}{2 X}$ and $f_E(X) = \frac{f(X) + f(-X)}{2}$, then
 $$ \mathrm{Pr}[\mathsf{max} \circ \mathsf{denoms} (f_E(X) + \alpha f_O(X)) < \frac{B}{2^\lambda}] \leq \mathsf{negl}(\lambda) $$
 for $\alpha \sample \{-2^{\lambda-1}, \ldots, 2^{\lambda - 1} - 1 \}$.
 \end{lemma}
@@ -594,6 +595,8 @@ $f_1 = f_2$ and $z_1 = z_2$.
 The rational numbers $\frac{f_1(q)}{z_1} = \frac{f_2(q)}{z_2} \in \QQ$ are in reduced rational form, hence $f_1(q) = f_2(q)$ and $z_1 = z_2$. The integers $f_1(q)$ and $f_2(q)$ have absolute value bounded by $\frac{q^{d+1}}{2}$, and thus $f_1 = f_2$ by Fact~\ref{fact:encoding}.
 \end{proof}
 
+\benedikt{Change degree to n to avoid confusion?}
+
 
 %\begin{fact}
 %\label{fact:encoding}
@@ -725,12 +728,16 @@ We have that $d \cdot \gr{W}_w = q^{2^{i-1}} \cdot \langle \mathbf{P}_1, \mathbf
  
 We also have the relation $d_3 \Commitment'_{i-1} = q^{2^{i-1}} \cdot \Commitment_{i-1} + \langle \mathbf{P}_3, \mathbf{W} \rangle$. Setting $\gr{W}'_w \deq \Commitment'_{i-1} - q^{2^{i-1}} \cdot \Commitment_{i-1}$ we have $d_3 \cdot \gr{W}'_w = \langle \mathbf{P}_3, \mathbf{W} \rangle$, hence $a \cdot d_3 \cdot \gr{W}'_w = 0$. Let $a'_w \deq a \cdot d_3$.  
 	\end{proof}
+\begin{equation*}
+		\begin{array}{c}
+	\Relation_\PC=(\NPIndex;\NPInstance;\NPWitness)= (\NPIndex=(q \in \ZZ,\Generator ,p\in  ) ,\NPInstance=( \Commitment z,y) \NPWitness=( f(X) \in \ZZ[X], r  \in \ZZ)):\\
+		f(q) \Generator = r \cdot \Commitment \wedge \degree(f)\leq d \wedge f(z) \equiv_p y
+	\end{array}
+ \end{equation*}
 
-	
 \begin{lemma}[Security Odd Even Dark]
 	The protocol presented in \cref{sec:oddeven} is an interactive proof of knowledge for the $\Relation_\PC$ relation.
 \end{lemma}
-\ben{$\Relation_\PC$ is not yet defined anywhere else...}
 \begin{proof}
 
 ~\paragraph{Extractor construction}
@@ -744,37 +751,72 @@ $\alpha_{v} \neq \alpha_{v}'$.
 \item Each leaf node $v$ is labelled with the message $\hat{f}_v$ sent in a final round of the protocol. 
 \end{itemize} 
 
-Since the verifier challenges in the protocol are sampled from $\mathcal{X} = [-2^{\lambda -1}, 2^{\lambda -1}]$, the probability of a collision over challenges $\alpha_1, \alpha_2 \sample \mathcal{X}$ sampled uniformly and independently is $2^{-\lambda}$. Thus, by Lemma~\ref{lem:forking} the tree-finding algorithm runs for $O(\poly/\epsilon)$ steps and succeeds with probability $1 - \negl/\epsilon$ to return a tree with these characteristics.
+Since the verifier challenges in the protocol are sampled from $\mathcal{X} = [-2^{\lambda -1}, 2^{\lambda -1}]$, the probability of a collision over challenges $\alpha_v, \alpha_v' \sample \mathcal{X}$ sampled uniformly and independently is $2^{-\lambda}$. Thus, by Lemma~\ref{lem:forking} the tree-finding algorithm runs for $O(\poly/\epsilon)$ steps and succeeds with probability $1 - \negl/\epsilon$ to return a tree with these characteristics.
 
 For the root node $\textsf{rt}$, define $\gr{C}_\textsf{rt} \deq \Commitment$. For any node $v$ on level $i$ which has verifier challenge $\alpha_v$ and a parent $w$ on level $i-1$ with prover message $\gr{C}_{E,w},\Commitment_{O,w}$, define $\gr{C}_v \deq \gr{C}_{E,w} + \alpha_v \cdot \gr{C}_{O,w}$.
-We will show that given this tree, the extractor can compute for all nodes $v \in [0, d)$ an opening hint $(\hat{f}_v \in \ZZ[X],\denom_v \in \ZZ,\KnownOrderElement_v \in \GG, \KnownOrder_v \in \ZZ)$ for $\gr{C}_v$. That is: $\denom_v \cdot \gr{C}_v=\hat{f}_v(q) \cdot \Generator +\gr{W}_v$ and $a_v \cdot \gr{C}_v=0$. 
+We will show that given this tree, the extractor can compute for all nodes $v \in [0, d)$ an opening hint $(\hat{f}_v \in \ZZ[X],\denom_v \in \ZZ,\KnownOrderElement_v \in \GG, \KnownOrder_v \in \ZZ)$ for $\gr{C}_v$. That is: $\denom_v \cdot \gr{C}_v=\hat{f}_v(q^{2^{i+1}}) \cdot \Generator +\gr{W}_v$ and $a_v \cdot \gr{C}_v=0$. 
 
 It will do this by starting at the leaves and working its way up the tree.
-For any leaf node $v$, the fact that the transcript is accepting implies $\Commitment_v= \hat{f}_v \cdot \Generator$ for $\hat{f}_v \leq \BoundForward$. Recall $\hat{f}_v$ is a constant bounded by $\BoundForward$. Therefore, $(f,1,0,1)$ is a valid opening for $\Commitment_v$.
+For any leaf node $v$, the fact that the transcript is accepting implies $\Commitment_v= \hat{f}_v \cdot \Generator$ for $\hat{f}_v \leq \BoundForward$. Therefore, $(f,1,0,1)$ is a valid opening for $\Commitment_v$.
 
  Next, suppose that the appropriate openings have been computed for all children of a node $w$ on the $i$th level. Denoting the two children of nodes $w$ with indices $v_1, v_2$ and the two challenges on each by $\alpha_{v_1}, \alpha_{v_2}$. This means that $\Commitment_{v_1} = \Commitment_{E,w} + \alpha \cdot \Commitment_{O,w}$ and $\Commitment_{v_2} = \Commitment_{E,w} + \alpha' \cdot \Commitment_{O,w}$.
 Furthermore openings $(\hat{f}_{v_1},\denom_{v_1}, \KnownOrderElement_{v_1},\KnownOrder_{v_1} )$ for $\Commitment_{v_1}$ and  $(\hat{f}_{v_2},\denom_{v_2},\KnownOrderElement_{v_2},\KnownOrder_{v_2})$ for $\Commitment_{v_2}$ have been computed. 
 
 This gives us the equality: 
-$$\hat{f}_{v_j}(q^{2^{i}}) \cdot \Generator + \gr{W}_j = r_j \cdot C_{v_j} = \denom_j \cdot (\Commitment_{E,w} + \alpha_j \cdot \Commitment_{O,w}) \quad \text{for} \ j \in \{1,2\}$$
+$$\hat{f}_{v_j}(q^{2^{i+1}}) \cdot \Generator + \gr{W}_j = r_{v_j} \cdot C_{v_j} = \denom_{v_j} \cdot (\Commitment_{E,w} + \alpha_j \cdot \Commitment_{O,w}) \quad \text{for} \ j \in \{1,2\}$$
 
 From which we can derive:
-$$(\denom_2 \hat{f}_{v_1}(q^{2^i})-\denom_1 \hat{f}_{v_2}(q^{2^i})) \Generator + \gr{W}_{O,w}=\denom_1 \denom_2 (\alpha_1-\alpha_2) \Commitment_{O,w}$$
+$$(\denom_{v_2} \hat{f}_{v_1}(q^{2^{i+1}})-\denom_{v_1} \hat{f}_{v_2}(q^{2^{i+1}})) \Generator + \gr{W}_{O,w}=\denom_{v_1} \denom_{v_2} (\alpha_1-\alpha_2) \Commitment_{O,w}$$
 and additionally
-$$(\alpha_1  \denom_1 \hat{f}_{v_2}(q^{2^i})-\alpha_2 \denom_2 \hat{f}_{v_1}(q^{2^i})) \Generator + \gr{W}_{E,w}=\denom_1 \denom_2 (\alpha_1-\alpha_2) \Commitment_{E,w}$$
-\benedikt{which q}
+$$(\alpha_1  \denom_1 \hat{f}_{v_2}(q^{2^{i+1}})-\alpha_2 \denom_2 \hat{f}_{v_1}(q^{2^{i+1}})) \Generator + \gr{W}_{E,w}=\denom_1 \denom_2 (\alpha_1-\alpha_2) \Commitment_{E,w}$$
 for $\gr{W}_{E,w}$ and $\gr{W}_{O,w}$ being elements of known order.
 Using the extractor of the Batch PoE protocol we get that 
-$$\gr{C}_w= \gr{C}_{E,w}+q^{2^{i-1}} \gr{C}_{O,w}+\gr{W}'$$
+$$\gr{C}_w= \gr{C}_{E,w}+q^{2^{i}} \gr{C}_{O,w}+\gr{W}_w$$
+For $\gr{W}_w$ of order $a_w$.
 Let $\denom_w=\denom_1 \denom_2 (\alpha_2 − \alpha_1 )$. 
-Further let $\frac{\hat{f}_{w}}{\denom_{w}}=\frac{(\denom_2 \hat{f}_{v_1}-\denom_1 \hat{f}_{v_2}) + X \cdot (\alpha_1\denom_1 \hat{f}_{v_2}-\alpha_2\denom_2 \hat{f}_{v_1})}{\denom_1 \denom_2 (\alpha_1-\alpha_2)}\in \QQ[X]$ be the reduced rational polynomial with bounded coefficients.  We will later argue that both $\denom_w \in \ZZ$ and $\hat{f}_w \in \ZZ[X]$ are bounded such that $\frac{\hat{f}_w}{\denom_w}$ can be uniquely decoded to a degree.
+Further let $\frac{\hat{f}_{w}}{\denom_{w}}=\frac{(\denom_2 \hat{f}_{v_1}-\denom_1 \hat{f}_{v_2}) + X \cdot (\alpha_1\denom_1 \hat{f}_{v_2}-\alpha_2\denom_2 \hat{f}_{v_1})}{\denom_1 \denom_2 (\alpha_1-\alpha_2)}\in \QQ[X]$ be the reduced rational polynomial with bounded coefficients. Note that $(\hat{f}_w,r_w,W',a_w)$ is a valid opening to $\gr{C}_w$.
+
+ We will later argue that both $\denom_w \in \ZZ$ and $\hat{f}_w \in \ZZ[X]$ are bounded such that the commitment scheme is binding. 
+	\end{proof}
 
 
  
 
 \paragraph{Coefficient size}
-We will argue about the size of the extracted coefficients. Under the strong RSA assumption $\denom_w=1$ as otherwise by \benedikt{Fill in Lemma} we can compute a non trivial root of $\gr{G}$. This means in the extraction step the coefficient of $f_w(X)$ is less than the coefficients of $f_{v_1}$ and $f_{v_2}$ \benedikt{Exclude the case that $\alpha_1-\alpha_2=1$}. 
-	\end{proof}
+We will now analyze the coefficient size of $\hat{f}_w$ and the size of $r_w$. Let $\BoundNum\in \ZZ$ be such that $|f_{v_1}|_\infty \leq \BoundNum$ and  $|f_{v_2}|_\infty \leq \BoundNum$. Let $\BoundDenom\in \ZZ$ be such that $|r_{v_1}|\leq \BoundDenom$ and $|r_{v_2}|\leq \BoundDenom$. 
+\begin{lemma}[Denominator bound]
+	Let $|\denom_{v_1}|_\infty \leq \BoundNum$, $|\denom_{v_2}|_\infty \leq \BoundNum$, $|\denom_{v_1}| \leq \BoundDenom$, $|\denom_{v_2}| \leq \BoundDenom$ and for $c\in \ZZ$ $|\denom_{w}|\leq \BoundDenom \cdot c$ then $|f_{v_2}|_\infty \leq \BoundNum \cdot c$
+\end{lemma}
+\begin{proof}
+
+\end{proof}
+
+\begin{lemma}[Direct coefficient size]
+Given the bounds on $f_{v_1}/r_{v_1}$ and $\hat{f}_2/r_{v_2}$ we get that $\hat{f}_{w}|_\infty \leq \BoundNum$ and  $|r_w| \leq \BoundDenom$. 
+\end{lemma}
+\begin{lemma}[GCD Bound]
+	With all but negligible probability over $\alpha \in [0,2^\lambda]$, $\gcd(\hat{f}_L+ \alpha \hat{f}_R,M)<k$
+\end{lemma}
+\begin{lemma}[Integer addition bound]
+$\forall a,b \in \ZZ[X]$, with overwhelming probability over $\alpha \in [0,2^\lambda]$ $||a+\alpha b||_\infty >2^{-\lambda} \max(|a|,|b|)$
+\end{lemma}
+\begin{proof}
+If $\textsf{sign}(a)=\textsf{sign}(b)$ the claim holds trivially. 
+\paragraph{Case $|b|\geq|a|$:}
+Assume there exists $\alpha^*$ such that $|a+\alpha^* b|<|b|$ then we can know that $a+\alpha^* b=c \in (-b,b)$. Now we can write any $\alpha=\alpha*+\Delta$ for some uniform random integer $\Delta$. Then $|a+\alpha b|=|a+\alpha^* b + \Delta b|=|c+\Delta b|$. This term can only be less than $b$ for at most 2 values of $\Delta$ namely $\Delta=0$ and $\Delta=-\textsf{sign}(b)$. Since $\alpha$ and thus $\Delta$ is distributed uniformly the probability of $|a+\alpha b|<b$ is therefore bounded by $2/2^{-\lambda}$
+
+\paragraph{Case: $|a|> |b|$}
+If $||a|-\alpha |b|| <\frac{|a|}{2^\lambda}$ then whenever $\alpha \in [0,|\frac{a}{b}|$ implies $\alpha |b|>|a|(1-2^{-\lambda}) \implies \alpha \in [\frac{a}{b}(1-2^{-\lambda}),\frac{a}{b}]$ otherwise 
+\end{proof}
+
+
+\begin{lemma}[Numerator bound]
+$\forall f,h \in \ZZ[X]$, with overwhelming probability over $\alpha \in [0,2^\lambda]$ $||f+\alpha h||_\infty >2^{-\lambda} \max(||f||_\infty,||h||_\infty)$
+	
+\end{lemma}
+\begin{proof}
+	
+\end{proof}
 
 
 \section{Other ideas (WIP)}

@@ -19,6 +19,8 @@
 %\usepackage{authblk}
 %\usepackage{draftwatermark}
 \usepackage[legalpaper, margin=1in]{geometry}
+\usepackage{cleveref}
+\usepackage[linguistics]{forest}
 %\usepackage{thmtools}
 %\usepackage{thm-restate}
 %\declaretheorem[name=Theorem]{theorem}
@@ -29,8 +31,11 @@
 \newtheorem{theorem}{Theorem}
 \newtheorem{theorem*}{Theorem}
 \newtheorem{lemma}{Lemma}
+\newtheorem{corollary}{Corollary}
 \newtheorem{assumption}{Assumption}
+\newtheorem{subclaim}{Subclaim}
 \newtheorem{fact}{Fact}
+\newtheorem{remark}{Remark}
 %\newtheorem{corollary}{Corollary}
 \usepackage{etoolbox}
 \patchcmd{\paragraph}{\itshape}{\bfseries\boldmath}{}{}
@@ -62,13 +67,13 @@
 \begin{document}
 
 \title{Transparent SNARKs from DARK Compilers}
-\author{\begin{tabular}{c}Benedikt B\"unz$^1$ \\ \small \texttt{benedikt@cs.stanford.edu} \end{tabular}   \begin{tabular}{c}Ben Fisch$^1$ \\ \small \texttt{bfisch@cs.stanford.edu} \end{tabular}   \begin{tabular}{c}Alan Szepieniec$^2$ \\ \small \texttt{alan@nervos.org} \end{tabular} \\
+\author{\begin{tabular}{c}Benedikt B\"unz$^1$ \\ \small \texttt{benedikt@cs.stanford.edu} \end{tabular}   \begin{tabular}{c}Ben Fisch$^1$ \\ \small \texttt{benafisch@gmail.com} \end{tabular}   \begin{tabular}{c}Alan Szepieniec$^2$ \\ \small \texttt{alan@nervos.org} \end{tabular} \\
 \\
 %\normalsize
-$^1$Stanford University, Findora Foundation \\
+$^1$Stanford University\\
 %\normalsize
 $^2$Nervos Foundation}
-% \affil[1]{Stanford University, Findora Foundation}
+% \affil[1]{Stanford University}
 % \affil[2]{Nervos Foundation}
 
 \date{}
@@ -80,9 +85,10 @@ $^2$Nervos Foundation}
 We construct a new polynomial commitment scheme for univariate and multivariate polynomials over finite fields, with logarithmic size evaluation proofs and verification time, measured in the number of coefficients of the polynomial. The underlying technique is a \emph{Diophantine Argument of Knowledge} (DARK), leveraging integer representations of polynomials and groups of unknown order. Security is shown from the strong RSA and the adaptive root assumptions. Moreover, the scheme does not require a trusted setup if instantiated with class groups. We apply this new cryptographic compiler to a restricted class of algebraic linear IOPs, which we call \emph{Polynomial IOPs}, to obtain doubly-efficient public-coin interactive arguments of knowledge for any NP relation with succinct communication. With linear preprocessing, the online verifier's work is logarithmic in the circuit complexity of the relation.
 
 There are many existing examples of Polynomial IOPs (PIOPs) dating back to the first PCP (BFLS, STOC'91). %Recently more efficient univariate PIOPs were presented in \textsf{Sonic} (MBKM, CCS'19), \textsf{PLONK} (GWC, ePrint'19), \textsf{Marlin} (CHM+, ePrint'19), \textsf{Fractal} (COS, TCC'19), and were also implicit in \textsf{STARKs} (BBHR, Crypto'19) and \textsf{Aurora} (BCR+, Eurocrypt'19). 
-We present a generic compilation of any PIOP using our DARK polynomial commitment scheme. In particular, compiling the PIOP from \textsf{PLONK} (GWC, ePrint'19), an improvement on \textsf{Sonic} (MBKM, CCS'19), yields a public-coin interactive argument with quasi-linear preprocessing, quasi-linear (online) prover time, logarithmic communication, and logarithmic (online) verification time in the circuit size. Applying Fiat-Shamir results in a SNARK, which we call \textsf{\textbf{Supersonic}}. 
+We present a generic compilation of any PIOP using our DARK polynomial commitment scheme. In particular, compiling the PIOP from \textsf{PLONK} (GWC, ePrint'19), an improvement on \textsf{Sonic} (MBKM, CCS'19), yields a public-coin interactive argument with quasi-linear preprocessing, quasi-linear (online) prover time, logarithmic communication, and logarithmic (online) verification time in the circuit size. Applying the Fiat-Shamir transform results in a SNARK, which we call \textsf{\textbf{Supersonic}}. 
 
 \textsf{Supersonic} is also concretely efficient with 10KB proofs and under $100$ms verification time for circuits with 1 million gates (estimated for 120-bit security). Most importantly, this SNARK is \emph{transparent}: it does not require a trusted setup. We obtain zk-SNARKs by applying a hiding variant of our polynomial commitment scheme with zero-knowledge evaluations. \textsf{Supersonic} is the first complete zk-SNARK system that has both a practical prover time as well as asymptotically \emph{logarithmic} proof size and verification time. 
+This version of the paper includes a new security proof. The original proof had a significant gap that was discovered by Block et all (CRYPTO 2021). The new security proof closes the gap and shows that the original protocol with a slightly adjusted parameter is still secure. The new security proof has implications for the security of the Fiat-Shamir transform which we discuss in detail.
 %(concretely a $70\times$ reduction in proof size over the state-of-the-art). 
 
 
@@ -98,7 +104,6 @@ We present a generic compilation of any PIOP using our DARK polynomial commitmen
 \section{Polynomial Commitments from Groups of Unknown Order}
 \label{sec:protocol}
 \input{sections/mainprotocol}
-
 \section{Transparent SNARKs via Polynomial IOPs}\label{sec:polyiop}
 \input{sections/lineariop}
 
@@ -109,7 +114,8 @@ We present a generic compilation of any PIOP using our DARK polynomial commitmen
 \input{sections/newconclusion}
 \section*{Acknowledgements}
 We thank Dan Boneh for helpful discussions and comments.
-This work was partially supported by NSF, SGF, ONR, the Simons Foundation, the Nervos Foundation and the Findora Foundation. 
+\benedikt{Make sure to properly acknowledge the person who found the bug and Katharina who pointed out the multivariate issue.}
+This work was partially supported by NSF, SGF, ONR, the Simons Foundation, the Nervos Foundation. 
 \bibliographystyle{alpha}
 {\footnotesize
   \bibliography{cryptobib/abbrev3,cryptobib/crypto,cryptobib/additional}}
