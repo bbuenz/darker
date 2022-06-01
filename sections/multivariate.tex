@@ -53,6 +53,14 @@ We only prove security under the strong RSA assumption. The security proof, howe
 \label{thm:mvariate}
 	The polynomial commitment scheme for multi-variate polynomials consisting of protocols $(\pro{MultiSetup},\pro{MultiCommit},\pro{MultiEval})$ has perfect correctness and witness extended emulation if the Adaptive Root Assumption and the Strong RSA Assumption hold for $\ggen$ for $\mu$-variate polynomials of degree $d$ and if $d^\mu=\poly$ if $q> p^{2 \mu \log_2(d+1)+1}$.
 \end{theorem}
+\begin{proof}
+\begin{enumerate}
+	\item Correctness follows from correctness of univariate commitment
+	\item WEE follows because the protocol is DARK-special sound
+	\item The predicate is as defined for the DARK eval protocol 
+\end{enumerate}	
+\end{proof}
+
 
 
 \begin{proof}
