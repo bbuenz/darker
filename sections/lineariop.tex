@@ -294,25 +294,30 @@ Theorem~\ref{thm:supersonic} provides the main theoretical result of this work, 
  
 \subsubsection{Sonic} 
 \textsf{Sonic} is a zk-SNARK system that has a universal trusted setup, which produces a Structured Reference String (SRS) of $n$ group elements that can be used to prove any statement represented as an arithmetic circuit with at most $n$ gates. The SRS can also be updated without re-doing the initial setup, for instance, to enable proving larger circuits, or to increase the distribution of trust. The result in \textsf{Sonic} was not presented using the language of IOPs. Furthermore, the result also relied on a special construction of polynomial commitments (a modification of Kate~\emph{et al.}~\cite{AC:KatZavGol10}) that forces the prover to commit to a Laurent polynomial with no constant term. Given our generic reduction from coefficient queries to evaluation queries (Section~\ref{sec:opencoefficient}), we re-characterize the main theorem of \textsf{Sonic} as follows: 
-
-\begin{theorem}[\textsf{Sonic} Bivariate, \cite{Sonic}]
+\newtheorem*{sonictheorem}{Theorem (Sonic Bivariate)}
+\begin{sonictheorem}[\cite{Sonic}]
 There exists a 2-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with multiplicative complexity $n$) that makes 1 query to a bivariate polynomial oracle of degree $n$ on each variable, and 6 queries to degree $n$ univariate polynomial oracles. The preprocessing verifier does $O(n)$ work to check the single bivariate oracle. 
-\end{theorem}
+\end{sonictheorem}
 
 The number of univariate queries increased from the original $3$ in \textsf{Sonic} (with special commitments) to $6$ with our generic coefficient query technique. If we were to compile the bivariate query directly using our multivariate commitment scheme this would result in $O(n^2)$ prover time (a bivariate polynomial with degree $n$ on each variable is converted to a univariate polynomial of degree roughly $n^2$). However, \textsf{Sonic} also provides a way to replace the bivariate polynomial with several degree $n$ univariate polynomials and more rounds of communication. 
 
-\begin{theorem}[\textsf{Sonic} Univariate, \cite{Sonic}]\label{thm:sonic} 
+\newtheorem*{sonictheoremuni}{Theorem (Sonic Univariate)}
+\begin{sonictheoremuni}[\cite{Sonic}]\label{thm:sonic} 
 There is a 5-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with multiplicative complexity $n$) that makes $39$ queries overall to $27$ univariate degree $2n$ polynomial oracles. The total number of distinct query points is $12$. The preprocessing verifier does $O(n)$ work to check $12$ of the univariate degree $2n$ polynomials. 
-\end{theorem}
+\end{sonictheoremuni}
 
 The recent proof systems \pro{PLONK} and \pro{Marlin} improve on \pro{Sonic} by constructing a different Polynomial IOP. They achieve the following: 
 
-\begin{theorem}[\textsf{PLONK},~\cite{Plonk}] 
+\newtheorem*{plonktheorem}{Theorem (PLONK)}
+
+\begin{plonktheorem}[\cite{Plonk}] 
 There is a 3-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with arithmetic complexity $n$) that makes $12$ queries overall to $12$ univariate degree $n$ polynomial oracles. The total number of distinct query points is $2$. The preprocessing verifier does $O(n)$ work to check $7$ of the univariate degree $n$ polynomials.
-\end{theorem}
-\begin{theorem}[\textsf{Marlin},~\cite{Marlin}] 
+\end{plonktheorem}
+\newtheorem*{marlintheorem}{Theorem (Marlin)}
+
+\begin{marlintheorem}[\cite{Marlin}] 
 There exists a 4-round HVZK Polynomial IOP with preprocessing for any NP relation $\mathcal{R}$ (with R1CS complexity $n$) that makes $20$ queries at $3$ distinct query points to $19$ univariate degree polynomial oracles of maximum degree  $6n$. The preprocessing verifier does $O(n)$ work to check $9$ univariate degree $n$ polynomials.
-\end{theorem}
+\end{marlintheorem}
 
 Combining the \pro{Sonic} Polynomial IOP with the new transparent polynomial compiler of Section~\ref{sec:protocol} gives the following result.  Similar results are obtained by using \textsf{PLONK} or \textsf{Marlin} instead.  
 
@@ -321,7 +326,7 @@ Combining the \pro{Sonic} Polynomial IOP with the new transparent polynomial com
 There exists an $O(\log n)$-round public-coin interactive argument of knowledge for any NP relation of arithmetic complexity $n$ that has $O(\log n)$ communication, $O(\log n)$ ``online" verification, quasilinear prover time, and a preprocessing step that is verifiable in quasilinear time. The argument of knowledge has witness-extended emulation assuming it is instantiated with a group $\GG$ for which the Strong RSA Assumption, and the Adaptive Root Assumption hold. 
 \end{theorem}
 \begin{proof}
-We apply the univariate polynomial commitment scheme from Section~\ref{sec:protocol} to the 5-round Polynomial IOP from Theorem~\ref{thm:sonic}. Denote this commitment scheme by $\Gamma = (\pro{Setup},$ $\pro{Commit}, \pro{Open}, \pro{Eval})$ 
+We apply the univariate polynomial commitment scheme from Section~\ref{sec:protocol} to the 5-round Sonic Univariate Polynomial IOP. Denote this commitment scheme by $\Gamma = (\pro{Setup},$ $\pro{Commit}, \pro{Open}, \pro{Eval})$ 
 
 The preprocessing requires running $\pro{Commit}$ on $12$ univariate degree $n$ polynomials, which involves a quasilinear number of group operations in the group of unknown order $\GG$ determined by $\pro{Setup}$. The prover sends a constant number of proof oracles of degree $2n$ to the verifier, which also takes a quasilinear number of group operations. Finally, the 39 queries are replaced with at most $39$ invocations of $\eval$, which adds $O(\log n )$ rounds and has $O(\log n)$ communication. By Theorem~\ref{thm:darkisdarkss} ($\Gamma$ has witness extended emulation) and Theorem~\ref{thm:IOPcompiler}, the compiled interactive argument has witness-extended emulation.
 \end{proof}
@@ -365,9 +370,10 @@ The relation $\mathcal{R}_\mathsf{AIR}$ is the set of all instance-witness pairs
 The language $\mathcal{L}_\mathsf{AIR}$ is defined as $\mathcal{L}_\mathsf{AIR} = \{x=(\mathbb{F}, T, n, \boldsymbol{\mathcal{P}}, \boldsymbol{\mathcal{B}}) \, | \, \exists W \, (x,W) \in \mathcal{R}_\mathsf{AIR}\}$.
 \end{definition}
 
-\begin{theorem}
+\newtheorem*{starktheorem}{Theorem (Stark)}
+\begin{starktheorem}[\cite{C:BBHR19}]
 There is a 2-round univariate Polynomial IOP for $\mathcal{R}_\mathsf{AIR}$ with preprocessing that makes $k+n+2$ queries to $n+2$ polynomials of degree at most $T$. The prover has complexity $\tilde{O}(nT)$ and the verifier has complexity $O(n \log T)$. The preprocessing verifier does $O(T)$ work.
-\end{theorem}
+\end{starktheorem}
 
 
 \paragraph{\textsf{STARK} Polynomial IOP} We sketch how this Polynomial IOP is constructed, omitting many details (see the \textsf{STARK} paper~\cite{C:BBHR19} for further details).
