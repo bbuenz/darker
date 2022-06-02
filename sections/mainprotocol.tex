@@ -310,7 +310,7 @@ Next is the main security theorem, which states that the evaluation protocol has
 %We are now in a position to prove the main security statement.
 
 \newcommand{\maintheorem}{
-	Let $\CSZ = 8 \mu^{2} + \log_2 (2 \mu) \lambda$\footnote{This value can be replaced with values from the table in \Cref{lem:cCSZ}}. Let $\EBL=\lambda\cdot \mu$ and $\CorrectnessBound=\lambda\cdot \mu+\log_2 p$. Let $\com$ be the DARK commitment scheme as described in \Cref{lem:darkcommit}. There exists a pair of predicates $\phi$ such that the $\mu$-round DARK polynomial commitment evaluation protocol $\eval'$ with $\lambda$-bit challenges, a group of unknown order $\ggen$, and $\log q \geq 4(\lambda + 1 + \CSZ[\mu]) + \EBL[\mu] + \CorrectnessBound + 1$ is $(2^{(\mu)}, \frac{3\mu}{2^\lambda},\com,\phi)$-DARK-special sound. 
+	Let $\CSZ = 8 \mu^{2} + \log_2 (2 \mu) \lambda$. Let $\EBL=\lambda\cdot \mu$ and $\CorrectnessBound=\lambda\cdot \mu+\log_2 p$. Let $\com$ be the DARK commitment scheme as described in \Cref{lem:darkcommit}. There exists a pair of predicates $\phi$ such that the $\mu$-round DARK polynomial commitment evaluation protocol $\eval'$ with $\lambda$-bit challenges, a group of unknown order $\ggen$, and $\log q \geq 4(\lambda + 1 + \CSZ[\mu]) + \EBL[\mu] + \CorrectnessBound + 1$ is $(2^{(\mu)}, \frac{3\mu}{2^\lambda},\com,\phi)$-DARK-special sound.\footnote{The $\CSZ$ value can be replaced with values from the table in \Cref{lem:cCSZ}} 
 
 As a corollary, under the adaptive root assumption for $\ggen$, the DARK polynomial commitment scheme with the same parameters has witness-extended-emulation (\Cref{def:wee}).
 }

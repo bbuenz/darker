@@ -1125,6 +1125,7 @@ is $(Q, Q \cdot \delta + \negl)$-hard in the RO model.
 \fi 
 
 \begin{theorem}
+\label{thm:uniquefs}
 	If $\Pi$ is a $(k^{(\mu)}, \delta, \textsf{com} , \phi)$-DARK special sound protocol for a relation $\mathcal{R}$ and a computationally-unique commitment scheme $\textsf{com}$ (Definition~\ref{def:uniqueness}) whose setup runs $\crs \gets \textsf{com}.\setup(\lambda)$ then its FS transform $\Pi_{FS}$ is an argument of knowledge for $\mathcal{R}$ in the RO model (Definition~\ref{def:ROargument}) with knowledge error: 
 	 $$\textsf{err}(\lambda, Q) = \frac{(Q+1)\kappa}{1- \kappa}  + 2\lambda (k^\mu + Q \cdot (k^\mu - 1)) \cdot \delta + \negl
  $$ where $\kappa = 1 - (1 - \frac{k}{2^\lambda})^\mu$.
