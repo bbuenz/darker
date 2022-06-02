@@ -65,8 +65,7 @@ The idea for the $\pro{ZK-Eval}$ protocol is a simple blinding of the polynomial
 		    \item \prover computes $s(X)\gets k(X) + c \cdot f(X)$, as well as $r_s \gets r_k + c\cdot r$.
 		    \item \prover sends $r_s$ to \verifier
 		    \item \prover and \verifier compute $\gr{C}_s\gets \gr{R} + c\cdot \gr{C} +(-q^{d+1}\cdot r_s)\cdot \gr{g}$ and $y_s\gets y_k+c \cdot y \bmod p$ \pccomment{$\gr{C}_s=s(q)\cdot \gr{g}$}
-		    \item \prover and \verifier run $\pro{EvalBounded}(\crs,\gr{C}_s,z,y_s,d,\frac{p^2}{4}\cdot 2^{\lambda+1};s(X))$ \pccomment{$s(z)\bmod p=y_s$}\benedikt{update}
-		   		\end{enumerate}
+		    \item \prover and \verifier run $\pro{EvalB}(\crs,\gr{C}_s,z,y_s,d,\frac{p^2}{4}\cdot 2^{\lambda+1};s(X))$ \pccomment{$s(z)\bmod p=y_s$}		   		\end{enumerate}
 	\end{flushleft}
 \end{minipage}
 \end{mdframed}
@@ -76,7 +75,7 @@ The idea for the $\pro{ZK-Eval}$ protocol is a simple blinding of the polynomial
 \begin{theorem}
 Let $\eval$ have perfect completeness and witness extended emulation for $q> b\cdot \boldsymbol{\varsigma}_{p, d}$. Assuming that $\pro{commitH}$ is statistically hiding and both the order assumption and the strong RSA assumption hold for $\ggen$ the protocol $\pro{EvalZK}$ has perfect completeness, witness extended emulation and $\delta$-statistical honest-verifier zero-knowledge for $q>2^\lambda\cdot (p-1)(\frac{p^2-1}{2})^{\lceil \log_2(d+1)\rceil+1}<p^{2\log_2(d+1)+4}$ and $\delta \leq d \cdot 2^{-\lambda}$.
 \end{theorem}
-
+\quickanddirty{
 \begin{proof}
 A simple application of Theorem~\ref{thm:algebraicIOPcompiler} and Lemma~\ref{lem:intrandomcombine} shows that the protocol maintains witness extended emulation. The extractor extracts $s(X)$ and $s'(X)$ from the $\eval$ protocol for challenges $c$ and $c'$. We can directly use Lemma~\ref{lem:intrandomcombine} to extract the witness $f(X)$ or a break of an assumption from these two transcripts. The bound on $q$ grows by a factor of less than $p^2$ (or $p^3$ under the $2$-Strong RSA assumption).   
 
@@ -84,3 +83,4 @@ To show zero-knowledge, we build the simulator $\mathcal{S}$ as follows. Start w
 
 The randomizer $r_s$ is distributed identically to the honest $r_s$. Given the hiding property of the commitment scheme, $\gr{R}$ is statistically indistinguishable from any other commitment. Finally the simulated and the honest $s(X)$ have statistical distance at most $2^{-\lambda}$ from a random polynomial. The coefficients of $c\cdot f(x)$ are in $\ZZ(\frac{p^2}{4})$. The coefficients of the blinding polynomial $s(X)$ are sampled from a range that is larger by a factor $2^{\lambda}$. So the distribution of coefficients of $s(X) = k(X) + c \cdot f(X)$ is at a statistical distance at most $2^{-\lambda}$ away from the uniform distribution over $\ZZ(\frac{p^2}{4})$. Since the distributions of simulated and real coefficients are both uniform but merely over different sets, the statistical distance between the simulated $s(X)$ and the real $s(X)$ is at most $d \cdot 2^{-\lambda}$. The evaluation with $\pro{EvalBounded}$ cannot leak more than $s(X)$ itself. The views of the simulated and real transcripts are, therefore, $\delta$-close with $\delta \leq d \cdot 2^{-\lambda}$. Consequently, the protocol has $\delta$-statistically honest verifier zero-knowledge.
 \end{proof}
+}

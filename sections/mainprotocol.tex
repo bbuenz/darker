@@ -109,7 +109,8 @@ However, the validity of $[\![f_L(X)]\!]$ and $[\![f_R(X)]\!]$ are never checked
 The verifier only sees the opening of the commitment at the bottom level of recursion. If the intermediate encodings use integer polynomials with coefficients larger than $q/2$, or even rational coefficients the homomorphism is not necessarially preserved. Furthermore, even if $[\![f(X)]\!]$ is a commitment to $f^*(q)$ with positive $q$-bounded coefficients, an adversarial prover could find an integer polynomial $g^*$ that does not have positive $q$-bounded coefficients such that $g^*(q) = f^*(q)$ and $g^* \not\equiv f^* \bmod p$ (\emph{i.e}, $g^*$ with coefficients greater than $q$ or negative coefficients). 
 The prover could then commit to $g^*_L(q)$ and $g^*_R(q)$, and recurse on $\alpha g^*_L(q) + g^*_R(q)$ instead of $\alpha f^*_L(q) + f^*_R(q)$. This would be non-binding. (For example $f^*(X)= q-1$ and $g^*(X)=X-1$, or $f^*(X) = q +1$ and $g^*(X) = X + 1$). 
 
-\paragraph{Inferring coefficient bounds}\benedikt{Wrong} So what can the verifier infer from the opened commitment $[\![f']\!]$ at the bottom level of recursion? The opened commitment is an integer $f' = \alpha f_L + f_R$. From $f'$, the verifier can infer a bound on the absolute value of the coefficients of the integer polynomial $f(X) = f_L + X f_R$, given that $f_L$ and $f_R$ were already committed in the second to last round. The bound holds with overwhelming probability over the randomness of $\alpha \in [0,p)$. This is reasoned as follows: if $f'_0 \leftarrow \alpha_0 f_L + f_R$ and $f'_1 \leftarrow \alpha_1 f_L + f_R$ such that $\max(|f'_0|, |f'_1|) < q / (2p)$ for some distinct $\alpha_0 \neq \alpha_1$, then $|f_L| \leq |f'_1 - f'_0| < q / p$ and $|f_R| \leq |\alpha_0 f'_1 - \alpha_1 f'_0| < q/2$. If no such pair exists, \emph{i.e.} the bound only holds for a unique $\alpha$, then there is a negligibly small probability $1/p$ that $f'$ would have passed the bound check.
+\paragraph{Inferring coefficient bounds}\benedikt{Wrong} So what can the verifier infer from the opened commitment $[\![f']\!]$ at the bottom level of recursion? The opened commitment is an integer $f' = \alpha f_L + f_R$. 
+From $f'$, the verifier can infer a bounds coefficients of the polynomial $f(X) = f_L + X f_R$, given that $f_L$ and $f_R$ were already committed in the second to last round. The bound holds with overwhelming probability over the randomness of $\alpha \in [0,p)$. This is reasoned as follows: if $f'_0 \leftarrow \alpha_0 f_L + f_R$ and $f'_1 \leftarrow \alpha_1 f_L + f_R$ such that $\max(|f'_0|, |f'_1|) < q / (2p)$ for some distinct $\alpha_0 \neq \alpha_1$, then $|f_L| \leq |f'_1 - f'_0| < q / p$ and $|f_R| \leq |\alpha_0 f'_1 - \alpha_1 f'_0| < q/2$. If no such pair exists, \emph{i.e.} the bound only holds for a unique $\alpha$, then there is a negligibly small probability $1/p$ that $f'$ would have passed the bound check.
 
 
 \paragraph{What about negative coefficients?} 
@@ -125,7 +126,7 @@ More generally, for every integer $z$ in the range $B = (-\frac{q^{d+1}}{2}, \fr
 \begin{itemize} 
 
 \item \textbf{Encoding.}
-For any integer $q$, the function $\mathsf{Enc} : \mathbb{Z}(b)[X] \rightarrow \mathbb{Z}$ maps $h(X) \mapsto h(q)$. A polynomial $f(X) \in \ZZ_p[X]$ is first mapped to $\ZZ(p)[X]$ by replacing each coefficient of $f$ with its unique integer representative from $[0,p)$ of the same equivalence class modulo $p$.  %This means the map can be used as encoding of polynomials in the domain $\ZZ(b)[X]$ with $b<q/2$.
+For any integer $q$, the function $\mathsf{Enc} : \mathbb{Z}(b)[X] \rightarrow \mathbb{Z}$ maps $h(X) \mapsto h(q)$. A polynomial $f(X) \in \ZZ_p[X]$ is first mapped to $\ZZ(p-1)[X]$ by replacing each coefficient of $f$ with its unique integer representative from $[0,p)$ of the same equivalence class modulo $p$.  %This means the map can be used as encoding of polynomials in the domain $\ZZ(b)[X]$ with $b<q/2$.
 
 \item \textbf{Decoding.}
 Decoding works as follows. Define the partial sum $S_k := \sum_{i=0}^k f_i q^i$ with $S_{-1} := 0$. Assuming $|f_i| < q/2$ for all $i$, observe that for any partial sum $S_k$ we have $|S_k|<\frac{q^{k+1}}{2}$. Therefore, when $S_k < 0$ then $S_k \bmod q^{k+1} > q^{k+1}/2$ and when $S_k \geq 0$ then $S_k \bmod q^{k+1} < q^{k+1}/2$. 
@@ -160,7 +161,7 @@ Given any degree (at most) $d$ integer polynomial $f \in \ZZ(\frac{q-1}{2})$, by
 \subsection{Concrete Polynomial Commitment Scheme}
 \label{subsec:concretepoly}
 We now instantiate the abstract homomorphic commitment function $[\![ * ]\!]$. To this end we sample a group of unknown order $\mathbb{G}$, and sample a random element $\gr{g}$ from this group. 
-Lift the field polynomial $f(X)\in \ZZ_p[X]$ to an integer polynomial with bounded coefficients, \emph{i.e.}, $\hat{f}(X)\in \ZZ(\frac{p-1}{2})[X]$ such that $\hat{f}(X)\bmod p=f(x)$.
+Lift the field polynomial $f(X)\in \ZZ_p[X]$ to an integer polynomial with bounded coefficients, \emph{i.e.}, $\hat{f}(X)\in \ZZ(p-1)[X]$ such that $\hat{f}(X)\bmod p=f(x)$.
 We encode $\hat{f}(X)$ as an integer by evaluating it at a ``large enough'' integer $q$. Finally, we use scalar multiplication in $\GG$ to commit to the integer. Therefore, $[\![f(X)]\!]$, corresponds to $\hat{f}(q)\cdot \gr{g}$. This commitment function inherits the homomorphic properties of the integer encoding for a limited number of additions and multiplications-by-constant. The monomial homomorphism for $X^d$ is achieved by raising the group element to the power $q^{d}$. To maintain consistency between the prover's witness polynomials and the verifier's commitments, the prover operates on polynomials with integer coefficients  $\hat{f}(X), \hat{g}(X)$, \emph{etc.}, without ever reducing them modulo $p$.
 
 The $\setup, \pro{Commit}$ and $\open$ functionalities are presented formally below. Note that the scheme is parameterized by $p$ and $q$.
@@ -229,31 +230,30 @@ To resolve this inefficiency, we utilize a proof of exponentiation (\textsf{PoE}
 The \textsf{PoE} protocol is an argument that a large scalar multiplication in a group of unknown order was performed correctly. Wesolowski's \textsf{PoE}~\cite{EC:Wesolowski19} is public coin, has constant communication and verification time, and is thus particularly well-suited here.
 
 We now specify subtleties that were previously glossed over. 
-First, we handle the case where $d+1$ is not a power of 2.  Whenever $d+1$ is odd in the recursion, the polynomial is shifted by one degree --- specifically, $f'(X) = X f(X)$ and the protocol proceeds to prove that $f'(X)$ has degree bounded by $d' = d+1$ and evaluates to $y' = zy$ at $z$. The verifier obtains the matching commitment $\gr{C}'\gets q \cdot \gr{C}$.
+%First, we handle the case where $d+1$ is not a power of 2.  Whenever $d+1$ is odd in the recursion, the polynomial is shifted by one degree --- specifically, $f'(X) = X f(X)$ and the protocol proceeds to prove that $f'(X)$ has degree bounded by $d' = d+1$ and evaluates to $y' = zy$ at $z$. The verifier obtains the matching commitment $\gr{C}'\gets q \cdot \gr{C}$.
 
-Second, the coefficients of $f(X)$ grow by a factor of $\frac{p+1}{2}$ in every recursion step, but eventually the transmitted constant $f$ has to be tested against some bound because if it is \emph{too large} it should be rejected. However, the function interface provides no option to specify the allowable size of coefficients. We therefore define and use a subroutine $\pro{EvalBounded}$, which takes an additional argument $b$ and which proves, in addition to what $\pro{Eval}$ proves, that all coefficients $f_i$ of $f(X)$ satisfy $|f_i| \leq b$. Importantly, $b$ grows by a factor for $\frac{p+1}{2}$ in every recursion step. This subroutine is also useful if commitments were homomorphically combined prior to the execution of $\pro{EvalBounded}$. The growth of these coefficients determines a lower bound on $q$: $q$ should be \emph{significantly} larger than $b$. Exactly which factor constitutes ``significantly'' is determined by the knowledge-soundness proof.
+The coefficients of $f(X)$ grow by a factor of $2^\lambda$ in every recursion step, but eventually, the transmitted constant $f$ has to be tested against some bound because if it is \emph{too large} it should be rejected. However, the function interface provides no option to specify the allowable size of coefficients. We therefore define and use a subroutine $\pro{EvalB}$, which takes an additional argument $b$ and which proves, in addition to what $\pro{Eval}$ proves, that all coefficients $f_i$ of $f(X)$ satisfy $|f_i| \leq b$. Importantly, $b$ grows by a factor for $2^\lambda$, the challenge space, in every recursion step. This subroutine is also useful if commitments were homomorphically combined prior to the execution of $\pro{EvalB}$. The growth of these coefficients determines a lower bound on $q$: $q$ needs to be \emph{significantly} larger than $b$ for security. Exactly which factor constitutes ``significantly'' is determined by the knowledge-soundness proof.
 
-In the final round we check that the constant $f$ satisfies $|f|\leq b$ and the protocol's correctness is guaranteed if $b = \frac{p-1}{2}(\frac{p+1}{2})^{\lceil\log_2(d+1)\rceil}$. However, $q$ needs to be even larger than this value in order for extraction to work (and hence, for the proof of witness-extended emulation to go through). The precise value of $q$ depends on the number of rounds, i.e. $d$ and can be determined from theorem \benedikt{Fill in}
+In the final round we check that the constant $f$ satisfies $|f|\leq b$ and the protocol's correctness is guaranteed if $b = (p-1)\cdot 2^{\lambda \mu}$, where $\mu=\log(d+1)$ are the number of rounds. However, $q$ needs to be even larger than this value in order for extraction to work (and hence, for the proof of witness-extended emulation to go through). The precise value of $q$ depends on the number of rounds $\mu$, and is defined in \Cref{thm:darkisdarkss} and is $2^{O(\mu \lambda)}$.
 
- We now present the full, formal $\eval$ protocol below.
+ We now present the full, formal $\eval$ protocol below. It is restricted such that $d+1$ is a power of $2$. Given the monomial homomorphism of the commitment scheme, it is easy to pad any polynomial to a power of $2$ by computing $C\gets q^{\Delta} \cdot C$ for $\Delta=2^{\lceil \log_2(d+1) \rceil}-1-d$ and setting the evaluation to $z^\Delta \cdot y$. The verification of this step can be outsourced using a $\textsf{PoE}$.
 %\begin{small}
 
 
 
 \begin{mdframed}
 \begin{minipage}{\textwidth}
-			$\pro{Eval}(\crs, \gr{C}\in \GG, z\in \ZZ_p, y\in \ZZ_p; f(X)\in \ZZ_p[X], \hat{f}(X) \in \ZZ[X]) :$  \pccomment{$f(X)=\sum_{i=0}^d f_i X^i$}
+			$\pro{Eval}(\crs, \gr{C}\in \GG, z\in \ZZ_p, y\in \ZZ_p; f(X)\in \ZZ_p[X],) :$  \pccomment{$f(X)=\sum_{i=0}^d f_i X^i$}
 			\begin{enumerate}[nolistsep]
 			\item Let $d=2^{\lceil \log_2(\deg(f)+1)\rceil}$
-			\item \prover and \verifier run $\pro{EvalBounded}(\params,\gr{C},z,y,d,||\hat{f}||_\infty ;f(X),\hat{f}(X))$
+			\item \prover computes $\hat{f}(X) \in \ZZ(p)[X]$ such that $\hat{f} \bmod p \equiv f$
+			\item \prover and \verifier run $\pro{EvalB}(\params,\gr{C},z,y,d,p-1;f(X),\hat{f}(X))$
 		    \end{enumerate}
 		    		\vspace{1em}
 		$\pro{EvalB}(\crs,\gr{C}\in \GG,z\in \ZZ_p,y\in \ZZ_p,d=2^\mu-1 \in \NN,b\in \ZZ;f(X)\in\ZZ_p[X],\hat{f}(X)\in \ZZ(b)[X])$		
 	    \begin{enumerate}[nolistsep]
         \item \pcif $d=0$:
         \item \label{line:basestart}\pcind[1] \prover sends $\hat{f}(X)\in \ZZ$ to the verifier. \pccomment{$\hat{f}=\hat{f}(X)$ is a constant}
-
-        %q/(2^{\lceil \log_2(d+1) \rceil+1} p^{2 \lceil \log_2(d+1) \rceil+1})$
         \item \pcind[1] \verifier checks that $|\hat{f}|\leq b$
           \item \pcind[1] \verifier checks that $\hat{f}\equiv y \bmod p$
                 \item \label{line:baseend}\pcind[1] \verifier checks that $\hat{f}\cdot \gr{g}=\gr{C}$
@@ -285,17 +285,11 @@ In the final round we check that the constant $f$ satisfies $|f|\leq b$ and the 
 \end{comment}
 
 \subsection{Security Analysis} 
-\benedikt{Remove section and replace with paragraph}
- \newcommand{\bindinglemma}{
- The polynomial commitment scheme is binding for polynomials in $\ZZ(b)[X]$ for $b<q/2$ if either the Adaptive Root Assumption or the Strong RSA Assumption hold.
-	}
-\begin{lemma}
-\label{lem:binding}
-	\bindinglemma
-	\end{lemma}
+The new security analysis is in a self-contained document in the appendix. We, briefly, restate the main lemmas and theorems but refer the reader to the appendix for more details. 
 
+We show in \Cref{lem:darkcommit} that the DARK polynomial commitment scheme is binding. 
 \newcommand{\correctnesslemma}{
-The polynomial commitment scheme is correct for polynomials in $\ZZ_p[X]$ of degree at most $d$ if $q> p^{\lceil \log_2(d+1)\rceil+1}$.
+The polynomial commitment scheme is correct for polynomials in $\ZZ_p[X]$ of degree at most $d$.
 }
  
  \begin{lemma}
@@ -304,17 +298,10 @@ The polynomial commitment scheme is correct for polynomials in $\ZZ_p[X]$ of deg
  \end{lemma}
 
 
-The proofs of the previous lemmas are in Appendix~\ref{appendix:binding} and \ref{appendix:correctness}.
-Next is the main security theorem, which states that the evaluation protocol has witness-extended emulation. We start with a high-level intuitive overview where we also identify potential obstacles.
+The proofs of this lemmas is in Appendix~\ref{sec:darksoundness}.
+Next is the main security theorem, which states that the evaluation protocol has witness-extended emulation.
 
-\paragraph{Proof idea.} %Consider the information theoretic version of the $\eval$ protocol, where the prover sends the integer polynomials $f_L(X)$ and $f_R(X)$ in each round but the verifier does not read them.
-The goal is to construct an extractor by recursively computing $f(X)$ from $f'(X)$. In the final round the verifier receives $f$ such that $|f| \leq b$, and therefore the extractor possesses this constant polynomial as well. Working backwards from here, the extractor uses rewinding in every step to find $f_L(X)$ and $f_R(X)$ and thereby finds $f(X) = f_L(X) + X^{d'+1}f_R(X)$.
-Specifically, in each round the extractor has $f'(X)=\alpha f_L(X)+ f_R(X)$. Suppose the extractor also possesses $f''(X)=\alpha' f_L(X)+ f_R(X)$. From $f'(X)$, $f''(X)$, $\alpha$ and $\alpha'$ it is easy to compute $f_L(X)$ and $f_R(X)$. The extractor then computes $f(X)=f_L(X)+X^{d'+1} f_R(X)$.
-A careful analysis shows that if the coefficients of $f'(X)$ are bounded by $b$ then $f_L(X)$ and $f_R(X)$ must have coefficients bounded by $b \cdot p$ in absolute value\benedikt{Fix}. Using a similar analysis we can show that $f(z)\bmod p=y$ for the extracted polynomial $f(X)$.
 
-This argument shows that there is an extractor algorithm $\mathcal{X}$ capable of extracting the witness $f(X)$ from a binary tree of accepting transcripts. Moreover, a tree-finding algorithm $\mathcal{T}$ can output such a tree by repeatedly rewinding the prover, running it with fresh verifier randomness each time, and recording the resulting transcripts. As a result, the Generalized Forking Lemma (Lemma~\ref{lemma:GFL}) applies and establishes that the protocol has witness-extended emulation.
-
-The full proof takes into account the cryptographic compilation of the protocol using the integer encoding and the commitment scheme based on groups of unknown order. Additionally the full proof will need to support dyadic rationals because taking square roots is easy in class groups.
 
 
 
@@ -323,23 +310,20 @@ The full proof takes into account the cryptographic compilation of the protocol 
 %We are now in a position to prove the main security statement.
 
 \newcommand{\maintheorem}{
-The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>p^{2\lceil \log_2(d+1)\rceil+1}$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the Adaptive Root Assumption and the Strong RSA Assumption hold for $\ggen$.
+	Let $\CSZ = 8 \mu^{2} + \log_2 (2 \mu) \lambda$\footnote{This value can be replaced with values from the table in \Cref{lem:cCSZ}}. Let $\EBL=\lambda\cdot \mu$ and $\CorrectnessBound=\lambda\cdot \mu+\log_2 p$. Let $\com$ be the DARK commitment scheme as described in \Cref{lem:darkcommit}. There exists a pair of predicates $\phi$ such that the $\mu$-round DARK polynomial commitment evaluation protocol $\eval'$ with $\lambda$-bit challenges, a group of unknown order $\ggen$, and $\log q \geq 4(\lambda + 1 + \CSZ[\mu]) + \EBL[\mu] + \CorrectnessBound + 1$ is $(2^{(\mu)}, \frac{3\mu}{2^\lambda},\com,\phi)$-DARK-special sound. 
+
+As a corollary, under the adaptive root assumption for $\ggen$, the DARK polynomial commitment scheme with the same parameters has witness-extended-emulation (\Cref{def:wee}).
 }
-\begin{theorem}~\label{thm:polycommitsecurity} 
-	\maintheorem
-\end{theorem}
+
+\begin{theorem}\label{thm:darkisdarkss} 
+\maintheorem
+\end{theorem} 
+
+
 
 %\textit{Remark:}
 %The bound on $q$ for correctness (Lemma \ref{lem:correctness}) is $O((\frac{p}{2})^{\log(d)})$ while the bound for soundness is $O((\frac{p}{2})^{2 \log(d)})$. It is not clear whether this gap can be closed. While the soundness analysis is tight for the worst case assumption on challenges it is possible that a probabilistic analysis could give a tighter result.
 
-\newcommand{\dyadicmaintheorem}{
-Let $\ggen$ generate groups $\GG$ of unknown order such that the order of $\GG$ is odd, and such there exists a PPT algorithm for taking square roots in $\GG$. The polynomial commitment scheme for polynomials in $\ZZ_p[X]$ of degree at most $d=\poly$, instantiated using $q>p^{3\lceil \log_2(d+1)\rceil +1}$ and $\ggen$, has witness extended emulation (Definition \ref{def:wee}) if the Adaptive Root Assumption and the  $2$-Strong RSA Assumption hold for $\ggen$.
-}
-\begin{theorem}
-\label{thm:dyadicpolysecurity}	
-\dyadicmaintheorem
-\end{theorem}
-The proof of Theorem~\ref{thm:dyadicpolysecurity} is nearly identical to the proof of Theorem~\ref{thm:polycommitsecurity} but the extracted polynomials are polynomials over the dyadic rationals and not over the integers. This requires the bound on $q$ to be larger by a factor of $p^{\log(d+1)}$. Both proofs are presented in the \appendixphrase~(\ref{appendix:maintheoremproof} and \ref{apx:dyadic}).
 
 
 \subsection{Optimizations}
@@ -354,6 +338,7 @@ The proof of Theorem~\ref{thm:dyadicpolysecurity} is nearly identical to the pro
 \subsection{Hiding Commitments and Zero-Knowledge Evaluation}
 \label{section:zeroknowlege}
 \input{sections/newzk}
+
 
 \subsection{Performance}
 The polynomial commitment scheme has logarithmic proof size and verifier time in the degree $d$ of the committed polynomial. 

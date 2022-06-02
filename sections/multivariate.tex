@@ -40,7 +40,7 @@ Then it associates each monomial of the univariate polynomial with a degree vect
 
 			\item \pcind[1] Let $\crs_\mu \gets \{\lambda,\GG,\gr{g},p,q_\mu\}$
 			\item \pcind[1] \prover and \verifier run the univariate $\pro{EvalB}(\params_\mu,\gr{C},z_\mu,y,d,q_\mu;f(X),\hat{f}(X))$
-			\item \pcind[2] \textbf{except:} when $d=0$, $f$ is not sent; instead the protocol returns its input at this point, \emph{i.e.}, $(\gr{C}',y',b')$ along with the prover's witness $(f',\hat{f}') \in \ZZ_p[X_1,\dots,X_{\mu-1}],\ZZ[X_1,\dots,X_{\mu-1}]$ (Lines~\ref{line:basestart}-\ref{line:baseend} of $\pro{EvalBounded}$). 
+			\item \pcind[2] \textbf{except:} when $d=0$, $f$ is not sent; instead the protocol returns its input at this point, \emph{i.e.}, $(\gr{C}',y',b')$ along with the prover's witness $(f',\hat{f}') \in \ZZ_p[X_1,\dots,X_{\mu-1}],\ZZ[X_1,\dots,X_{\mu-1}]$ (Lines~\ref{line:basestart}-\ref{line:baseend} of $\pro{EvalB}$). 
 			\item \pcind[1]$\boldsymbol{z}'\gets (z_1,\dots,z_{\mu-1})\in \ZZ_p^{\mu-1}$
 			\item \pcind[1]\prover and \verifier run $\pro{MultiEval}(\crs,C',\boldsymbol{z}',y',d,\mu-1,b';f')$
 		    \end{enumerate}
@@ -48,17 +48,17 @@ Then it associates each monomial of the univariate polynomial with a degree vect
 \end{mdframed}
  \benedikt{Fix proof}
 
-We only prove security under the strong RSA assumption. The security proof, however, directly extends to groups where taking square roots is easy under the $2$-Strong-RSA Assumption. In that case $q>p^{3\mu \log_2(d+1)+1}$ suffices.
+
 \begin{theorem}[Multivariate Eval]
 \label{thm:mvariate}
-	The polynomial commitment scheme for multi-variate polynomials consisting of protocols $(\pro{MultiSetup},\pro{MultiCommit},\pro{MultiEval})$ has perfect correctness and witness extended emulation if the Adaptive Root Assumption and the Strong RSA Assumption hold for $\ggen$ for $\mu$-variate polynomials of degree $d$ and if $d^\mu=\poly$ if $q> p^{2 \mu \log_2(d+1)+1}$.
+	The polynomial commitment scheme for multi-variate polynomials consisting of protocols $(\pro{MultiSetup},\pro{MultiCommit},\pro{MultiEval})$ has perfect correctness and witness extended emulation for $\mu$-variate polynomials of degree $d$ if the Adaptive Root Assumption holds for $\ggen$  and if $(d+1)^\mu=\poly$ if $\log q \geq 4(\lambda + 1 + \CSZ[\mu \cdot (d+1)]) + \EBL[\mu \cdot (d+1)] + \CorrectnessBound[\mu \cdot (d+1)] + 1$ where $\mathsf{CB},\mathsf{CSZ}$, and $\mathsf{EBL}$ are defined as in   \Cref{thm:darkisdarkss}
 \end{theorem}
+\quickanddirty{
 \begin{proof}
-\begin{enumerate}
-	\item Correctness follows from correctness of univariate commitment
-	\item WEE follows because the protocol is DARK-special sound
-	\item The predicate is as defined for the DARK eval protocol 
-\end{enumerate}	
+Correctness directly follows from the correctness of the univariate commitment scheme. 
+
+We can invoke \cref{lemma:poe_security} to replace all invocations of \textsf{PoE} with direct verifications. This is secure under the adaptive root assumption. 
+Further we have that each invocation of $\textsf{EvalB}$ is $(d+1, \frac{3\mu}{2^{\lambda}},\com,\phi=(\phi_a,\phi_b))$-DARK-special sound by \cref{thm:darkisdarkss}.
 \end{proof}
 
 
@@ -72,7 +72,7 @@ We only prove security under the strong RSA assumption. The security proof, howe
 We can therefore invoke the lemma to replace all \textsf{PoE} executions with direct verification checks that $\gr{C}_L\gr{C}_R^{q^{d'+1}}=\gr{C}$. 
 %The lemma focuses on the univariate \pro{Eval} protocol but works identically for the multivariate protocol. 
 
-In constructing $\mathcal{X}_{\pro{MultiEval}}$ we use the extractor $\mathcal{X}_{\pro{Eval'}}$ described in the proof of Theorem~\ref{thm:polycommitsecurity}. $\mathcal{X}_{\pro{Eval'}}$ computes, given a tree of transcripts for $\pro{Eval'}$ a valid witness of $\pro{Eval'}$ or a fractional root of $\gr{g}$ or an element of known order in $\GG$. We construct $\mathcal{X}_{\pro{MultiEval}}$ recursively invoking $\mathcal{X}_{\pro{Eval'}}$ once per degree $\mu$. The probability that a polynomial time adversary and a polynomial time extractor $\mathcal{X}_{\pro{Eval'}}$ can produce a fractional root or an element of known order in $\GG$ is negligible under the strong-RSA and the the adaptive root assumptions. From hence on we will consider the case where neither of these events happen.
+In constructing $\mathcal{X}_{\pro{MultiEval}}$ we use the extractor $\mathcal{X}_{\pro{Eval'}}$ described in the proof of Theorem~\ref{thm:darkisdarkss}. $\mathcal{X}_{\pro{Eval'}}$ computes, given a tree of transcripts for $\pro{Eval'}$ a valid witness of $\pro{Eval'}$ or a fractional root of $\gr{g}$ or an element of known order in $\GG$. We construct $\mathcal{X}_{\pro{MultiEval}}$ recursively invoking $\mathcal{X}_{\pro{Eval'}}$ once per degree $\mu$. The probability that a polynomial time adversary and a polynomial time extractor $\mathcal{X}_{\pro{Eval'}}$ can produce a fractional root or an element of known order in $\GG$ is negligible under the strong-RSA and the the adaptive root assumptions. From hence on we will consider the case where neither of these events happen.
 
 We use the superscript $(i)$ to denote the inputs to $\pro{MultiEval}$ where $\mu=i$. 
 If $\mu=1$ then the extractor $\mathcal{X}_{\pro{Eval'}}$ directly extracts $f^{(1)}(X)\in \ZZ(b)$, a univariate degree $d$ polynomial with coefficients bounded by $b=\frac{p-1}{2}p^{2 \lceil\log_2(d+1)\rceil}$ and such that $f(z)=y \bmod p$. Note that $q/2>b$ so the extraction succeeds.
@@ -84,3 +84,4 @@ Let $f''\gets g^{(\mu)}(q)$ be the encoding of $g^{(\mu)}$ such that $\gr{C}^{(\
 
 The final extracted polynomial has coefficients in $\ZZ(\frac{p-1}{2}p^{2\mu \lceil\log_2(d+1)\rceil})$. Since $q>p^{2\mu\lceil\log_2(d+1)\rceil+1}$ both the univariate and the multivariate decoding succeed and the extractor extracts a valid $\mu$-variate degree $d$ witness polynomial.
 \end{proof}
+}

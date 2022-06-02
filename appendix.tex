@@ -2,14 +2,14 @@
 %\section*{\scalebox{1.25}{\appendixphrase}}
 \section*{New Security Proof and DARK Special Soundness (Added May 2022)}
 
-
+\label{appendix:proofs}
 
 Although DARK does not satisfy \emph{special soundness}, it does satisfy a property that we will call \emph{DARK special soundness}, which turns out to be sufficient (i.e., using our new forking lemma we can prove that such protocols are knowledge sound). DARK special soundness is a weaker property than special soundness, as all protocols that satisfy special soundness also satisfy DARK special soundness. 
 \section{Proof overview}
 Multi-round interactive public-coin protocols can be proven to be knowledge-sound by showing that they satisfy the notion of knowledge soundness. For one-round protocols (aka $\Sigma$- protocols consisting of a prover message, a verifier challenge, and a prover response), special-soundness states that there exists an efficient extractor that can extract from any set of correlated transcripts that have the same first prover message, distinct challenges and possibly distinct responses. For multi-round protocols, the notion has been extended to $k$-ary trees of transcripts where edges correspond to challenges and nodes to prover messages. A protocol is multi-round special sound if an extractor can extract from any tree where each edge's challenge is distinct from its siblings' challenges. Multi-round special sound protocols are still knowledge sound. We further generalize the notion of knowledge soundness to \emph{DARK special soundness} while showing that such protocols still satisfy. Special sound protocols satisfy a predicate on each of the challenges, namely that each challenge is distinct from its siblings. This predicate holds with overwhelming probability over random challenges (for large enough challenge spaces). In DARK special soundness, we generalize the set of predicates that hold over the tree. Further, we generalize the input to the predicates. \benedikt{Finish (actually we can take this out likely)}
 
 \section{Preliminaries and Notations}
-
+\label{appendix:prelimns}
 \subsection{Integer polynomials} If $f$ is a multivariate polynomial, then $||f||_\infty$ denotes the maximum over the absolute values of all coefficients of $f$. 
 
 \begin{lemma}[Evaluation Bound]\label{lem:evalbound} For any $\mu$-linear integer polynomial $f$ and $m \geq 2$:
@@ -55,7 +55,7 @@ In both cases, we conclude that for any choice of $(x_1,...,x_{j-1})$ for the fi
  $$\Prob_{x\gets [0,m)^\mu} [f(x)\equiv 0 \bmod N]\leq \frac{1}{2^{\lambda}} + \frac{\mu}{m}$$
 % In particular, setting $m = \mu\cdot 2^{\lambda}$ gives the probability bound $2^{-\lambda + 1}$. 
  \end{lemma} 
- 
+\cite{EPRINT:BunFis22} also provide an algorithm for computing tighter values for the MCSZ for concrete parameters for $\mu$ and $\lambda$. We present a range of values for different $\mu$ and $\lambda=120$.
    \begin{lemma}[Concrete MCSZ for 120-bit security \cite{EPRINT:BunFis22}] \label{lem:cCSZ}
 
  $$\Prob_{x\gets [0,m)^\mu} [f(x)\equiv 0 \bmod N]\leq 2^{-120}+\frac{\mu}{m}$$
@@ -130,166 +130,23 @@ Let $h_1 = \frac{f_1}{z_1}$ and $h_2 = \frac{f_2}{z_2}$. If $h_1(q) = h_2(q)$ th
 \end{proof}
 
 
-\subsection{Assumptions}
-	\benedikt{Define GGEN}
-
-\begin{assumption}[RSA assumption, \cite{RivShaAdl78,EC:CouPetPoi17}]
-	The RSA assumption states that an efficient adversary cannot compute a random root (co-prime with the order of the group) for a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
-	\[
-    \Pr\left[
-    \begin{array}{l}
-    \ell \cdot \gr{u} = \Generator \,     \end{array} :
-    \begin{array}{l}
-         \GG, N \leftarrow \ggen(\lambda)  \\
-         \Generator \sample \GG, \ell \sample [N]  \\
-         \gr{u} \in \mathbb{G} \leftarrow \adv(\mathbb{G}, \Generator) \\
-    \end{array}\right] \leq \negl \enspace .
-\]
-
-\end{assumption}
-
-\begin{assumption}[Random Order Assumption]
-	The random order assumption states that an efficient adversary cannot compute a multiple of the order of a given random group element. Specifically, it holds for $\ggen$ if for any probabilistic polynomial time adversary $\adv$:
-	\[
-    \Pr\left[a\cdot \Generator =0:
-    \begin{array}{l}
-         \GG, N \leftarrow \ggen(\lambda)  \\
-         \Generator, \sample \GG\\
-         a \in \ZZ \leftarrow \adv(\mathbb{G},N, \Generator) \\
-    \end{array}\right] \leq \negl \enspace .
-    \]
-\end{assumption}
-
-
-
-%We note that our definition of the Strong RSA Assumption additionally require that $\ell$ be an odd prime~\cite{EC:BarPfi97}. Our definition is a stronger assumption which states that all roots are difficult.
-\begin{assumption}[Adaptive Root Assumption]
-\label{assum:adaptiveroot}
-The \emph{Adaptive Root Assumption} holds for $\ggen$ if 
-there is no efficient adversary $(\adv_0,\adv_1)$ that succeeds 
-in the following task.
-First, $\adv_0$ outputs an element $\gr{w} \in \GG$ and some $\state$.
-Then, a random prime $\ell$ in $\primes$ is chosen
-and $\adv_1(\ell,\state)$ outputs $\gr{w}^{1/\ell} \in \GG$.
-For all efficient $(\adv_0,\adv_1)$:
-\begin{small}
-\[           
-                \Pr\left[\ell \cdot \gr{u} = \gr{w} \neq 1 \ : \ 
-                \begin{array}{l}
-                      \GG \sample \ggen(\lambda) \\ 
-                      (\gr{w},\state) \sample \adv_0(\GG) \\
-                      \ell \sample \primes \\ 
-                      \gr{u} \gets \adv_1(\ell,w, \state)
-                \end{array} 
-        \right] \leq \negl.
-\]
-\end{small}
-\end{assumption}
-\begin{lemma}
-\label{lem:roa-to-rsa}
-	The RSA Assumption for $\ggen$ implies the Random Order Assumption
-	\end{lemma}
-\begin{proof}
-	Given an efficient adversary $\adv_{\textsf{Order}}$ for the random order assumption that succeeds with non-negligible probability $\epsilon$ we will construct an efficient adversary $\adv_{\textsf{RSA}}$ for the RSA assumption. On input $\GG,\Generator,\ell$ to $\adv_{\textsf{RSA}}$ we will forward $\GG,\Generator$ to $\adv_{\textsf{Order}}$. $\adv_{\textsf{Order}}$ outputs $a$ such that $a\cdot \Generator=0$ with non-negligible probability $\epsilon$. 
-	$\adv_{\textsf{RSA}}$ computes $a'\gets \frac{a}{\gcd(a,\ell^k)}$ for $k=\lceil\log_\ell(a)\rceil$. The probability that $\ell$ is not co-prime to the order of $\GG$ is bounded by $\frac{\log_2{|\GG|}}{|\primes|}$ which is negligible in $\lambda$. Otherwise $\ell$ is co-prime with the order of $\Generator$ and $a$ is a multiple of the order of $\Generator$ we have that $a'$ is still a multiple of the order of $\Generator$. Now $\adv_{\textsf{RSA}}$ computes $w\gets \ell^{-1} \bmod a'$ and outputs $\gr{U} \gets w\cdot \Generator$. Now we have $\ell \cdot \gr{U}=\Generator$ so $\adv_{\textsf{RSA}}$ succeeds with probability $\epsilon-\negl $.
-\end{proof}
-\begin{lemma}
-\label{lem:roa-to-ar}
-	The Adaptive Root Assumption for $\ggen$ implies the Random Order Assumption
-	\end{lemma}
-	\begin{proof}
-	Given an efficient adversary $\adv_{\textsf{Order}}$ for the random order assumption we will construct an efficient adversary $\adv_{\textsf{AR}}=(\adv_0,\adv_1)$ for the Adaptive Root assumption. On input $\GG$ to $\adv_{0}$ we will sample a random group element $\Generator$ from $\GG$ and forward it to $\adv_{\textsf{Order}}$. $\adv_{\textsf{Order}}$ outputs $a$ such that $a\cdot \Generator=0$ with non-negligible probability $\epsilon$. And we set the output of $\adv_0$ to be $(\Generator,a)$. The adaptive root game then samples a random prime $\ell$.
-	$\adv_1$ on input $(a,g,\ell)$ computes $a'\gets \frac{a}{\gcd(a,\ell^k)}$ for $k=\lceil\log_\ell(a)\rceil$. Note that since $\ell$ is co-prime to the order of $\GG$ and thus also the order of $\Generator$ and $a$ is a multiple of the order of $\Generator$ we have that $a'$ is still a multiple of the order of $\Generator$. If we don't abort then we compute $\ell^{-1} \bmod a$ and $\gr{u}=\ell^{-1}\cdot \Generator$.
-	Finally $A_1$ outputs $\gr{u}$, which by construction is such that $\ell\cdot \gr{u}=\gr{g}$ . 
-	\end{proof}
-
-\subsection{Commitments}
-\begin{definition}[Commitment scheme]
-A commitment scheme $\Gamma$ is a tuple $\Gamma = (\pro{Setup}, \pro{Commit},$ $\pro{Open})$ of PPT algorithms where:
-\begin{itemize}
-    \item $\pro{Setup}(1^\lambda) \rightarrow \params$ generates public parameters $\params$;
-    \item $\pro{Commit}(\params; x) \rightarrow (c; r)$ takes a secret message $x$ and outputs a public commitment $c$ and (optionally) a secret opening hint $r$ (which might or might not be the randomness used in the computation).
-    \item $\pro{Open}(\params, c, x, r) \rightarrow b \in \{0, 1\}$ verifies the opening of commitment $c$ to the message $x$ provided with the opening hint $r$. 
-\end{itemize}
-
-A commitment scheme $\Gamma$ is \defn{binding} if for all PPT adversaries $\adv$:
-\begin{small}
-\[
-    \Pr\left[
-        b_0 = b_1 \neq 0 \, \wedge \, x_0 \neq x_1 \ : \
-        \begin{array}{l}
-             \params \gets \pro{Setup}(1^\lambda) \\
-             (c, x_0, x_1, r_0, r_1) \gets \adv(\params) \\
-             b_0 \gets \pro{Open}(\params, c, x_0, r_0) \\
-             b_1 \gets \pro{Open}(\params, c, x_1, r_1) \\
-        \end{array}
-    \right] \leq \negl \enspace 
-\]
-\end{small}
-
-\end{definition}
-
-We now extend the syntax to polynomial commitment schemes. The following definition generalizes that of Kate~\emph{et. al.}~\cite{AC:KatZavGol10} to allow interactive evaluation proofs. It also stipulates that the polynomial's degree be an argument to the protocol, contrary to Kate~\emph{et al.} where the degree is known and fixed.
-
-\begin{definition} (Polynomial commitment) 
-A polynomial commitment scheme is a tuple of protocols $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ where $(\pro{Setup},$ $\pro{Commit}, \pro{Open})$ is a binding commitment scheme for a message space $R[X]$ of polynomials over some ring $R$, and
-\begin{itemize}
-    \item $\pro{Eval}(\params, c, z, y, d, \mu; f(X)) \rightarrow b \in \{0, 1\}$ is an interactive public-coin protocol between a PPT prover $\prover$ and verifier $\verifier$. Both $\prover$ and $\verifier$ have as input a commitment $c$, points $z, y \in R$, and a degree $d$. The prover additionally knows the opening of $c$ to a secret polynomial $f(X) \in R[X]$ with $\deg(f(X)) \leq d$. The protocol convinces the verifier that $f(z) = y$. {In a multivariate extension of polynomial commitments, the input $\mu > 1$ indicates the number of variables in the committed polynomial} and $z \in R^\mu$.
-\end{itemize}
-
-A polynomial commitment scheme is \defn{correct} if an honest committer can successfully convince the verifier of any evaluation. 
-Specifically, if the prover is honest then for all polynomials $f(X) \in R[X]$ and all points $z \in R$,
-\begin{small}
-\[
-    \Pr\left[b = 1 \ : \ \begin{array}{l}
-        \params \gets \setup(1^\lambda) \\
-        (c; r) \gets \pro{Commit}(\params, f(X)) \\
-        y \gets f(z) \\
-        d \gets \deg(f(X)) \\
-        b \gets \pro{Eval}(\params, c, z, y, d; f(X), r) \\
-    \end{array} \right] = 1 \enspace .
-\]
-\end{small}
-
-A polynomial commitment scheme is \defn{evaluation binding} if no efficient adversary can convince the verifier that the committed polynomial $f(X)$ evaluates to different values $y_0 \neq y_1 \in R$ in the same point $z \in R$. However, our applications require a stronger property called \emph{knowledge soundness}. 
-
-\end{definition}
-
-\paragraph{Knowledge soundness}
-Any successful prover in the $\eval$ protocol must \emph{know} a polynomial $f(X)$ such that $f(z) = y$ and $c$ is a commitment to $f(X)$. More formally, since $\eval$ is a public-coin interactive argument we define this knowledge property as a special case of witness-extended emulation (Definition~\ref{def:wee}). 
-
-Define the following NP relation given $\params \leftarrow \pro{Setup}(1^\lambda)$: 
-\begin{small}
-\[ 
-\mathcal{R_\textsf{Eval}}(\params) = \left\{
-\langle (c, z, y, d), (f(X), r) \rangle
-: 
-\begin{array}{l} 
-f \in R[X] \ \text{and} \ \deg(f(X)) \leq d \ \text{and} \ f(z) = y \\ 
- \text{and} \ \pro{Open}(\params, c, f(X), r) = 1 \\
-\end{array}
-\right\}
-\] 
-\end{small}
-The correctness definition above implies that if $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ is \emph{correct} then $\eval$ is a correct interactive argument for $\mathcal{R_\textsf{Eval}}(\params)$, with overwhelming probability over the randomness of $\pro{Setup}$. We say that $\Gamma$ has \textbf{witness-extended emulation} if $\eval$ has witness-extended emulation as an interactive argument for $\mathcal{R_\textsf{Eval}}(\params)$. 
-
-It is easy to see that witness-extended emulation implies evaluation binding when the $\pro{Setup}, \pro{Commit},$ and $\pro{Open}$ part of $\Gamma$ form a binding commitment scheme. If the adversary succeeds in $\eval$ on both $(c, z, y_0, d_0)$ and $(c, z, y_1, d_1)$ for $y_0 \neq y_1$ or $d_0 \neq d_1$ then the emulator obtains two distinct witnesses $f(X) \neq f'(X)$ such that $c$ is a valid commitment to both. This would contradict the binding property of the commitment scheme. 
-
-
 \subsection{DARK commitments} 
+We restate the DARK commitment scheme as a commitment scheme to polynomials with bounded rational coefficients. While the honest prover will commit to the integer representation of a polynomial defined over a prime field, this representation is useful in the security proof. The extractor will extract bounded rational polynomials instead of integer ones. Fortunately, we can show that given sufficiently large parameters, the commitment scheme is still binding.
+
 Given the security parameter $\lambda$, the commitment scheme setup selects a group $\GG$ for which the random order assumption holds (with  $\lambda$-bit security) and a random generator $\gr{G} \in \GG$. A parameter $q \in \mathbb{N}$ determines a commitment message space $\mathcal{M} = \{f(X): ||f||_\infty \leq q/2\}$. The commitment to $f(X) \in \mathcal{M}$ is $f(q) \cdot  \gr{G}$. Commitments are binding over $\mathcal{M}$ because if $f(q) \cdot \gr{G} = f'(q) \cdot \gr{G}$ then $(f'(q) - f(q)) \gr{G} = 0$. This breaks the order assumption for $\GG$ unless $ f'(q) =  f(q)$, in which case $f' = f$ by Fact~\ref{fact:encoding}. 
 
 If we expand the valid openings of the commitment scheme to include rational polynomials of the form $f/z$, where $f \in \ZZ[X]$, $z \in \ZZ$, so that $(f,D)$ is an opening of $\gr{C}$ to $f/z$ iff $z \cdot \gr{C} = f(q) \cdot \gr{G}$, then the scheme is binding over the message space $\mathcal{M}(\beta_n, \beta_d) =  \{f(X)/z: f \in \ZZ[X], z \in \ZZ, \gcd(f,z) = 1, ||f||_\infty \leq \beta_n, |z| \leq \beta_d \}$ so long as $\beta_n \cdot \beta_d \leq \frac{q}{2}$. 
-Openings to rationals are equivalent to what has been previously described as \emph{relaxed openings}, whereby $\gr{C}$ is opened to $f$ by opening $z \cdot \gr{C}$ to $z \cdot f$ for $z \in \mathbb{Z}$~\cite{?,?}. 
+Openings to rationals are equivalent to what has been previously described as \emph{relaxed openings}, whereby $\gr{C}$ is opened to $f$ by opening $z \cdot \gr{C}$ to $z \cdot f$ for $z \in \mathbb{Z}$~\cite{C:BDFG21}. 
 
 \begin{lemma}[DARK commitment Security]
+\label{lem:darkcommit}
 	The commitment scheme $(\setup,\commit, \verify)$ to integer polynomials: 
 	\begin{itemize} 
 	\item $\setup(\secpar,\beta_n\in \ZZ,\beta_d \in \ZZ)$: sample $\mathbb{G} \gets \ggen(\secpar) ,\Generator \gets \GG$, return $\crs := (\mathbb{G}, \gr{G}, q =2 \beta_n\beta_d)$
 	\item $\commit(\crs,f\in \mathcal{M}(\beta_n,\beta_d)):$ return $f(q) \cdot \gr{G} $
 	\item $\open(\crs,C\in \GG,h = f/N  \in \mathcal{M}(\beta_n,\beta_d) )$: return $\predicate{N\cdot\Commitment = f(q)\cdot \Generator} $
 	\end{itemize} 
-	is binding over the rational polynomial set $\mathcal{M}(\beta_n, \beta_d)$ under the random order assumption (\cref{assum:randomorder}), i.e. for any polynomial time adversary $\adv$ $$P\left[\begin{array}{c} 
+	is binding over the rational polynomial set $\mathcal{M}(\beta_n, \beta_d)$ under the random order assumption (\ref{assum:randomorder}), i.e. for any polynomial time adversary $\adv$ $$P\left[\begin{array}{c} 
 	\open(\crs,C,h)=\open(\crs,C,h')=1\\
 	h\neq h' 
 \end{array}
@@ -376,7 +233,6 @@ level label/.style={
 
 \end{figure}
 \subsection{Path Predicate Forking Lemma}
-\benedikt{We call it predicate and path predicate forking lemma}
 The standard forking lemma for $\mu$-round public coin interactive protocols characterizes the efficiency of generating a $k$-ary $\mu$-depth transcript tree for which the challenges labeling the children within the tree \emph{fork}, i.e. are distinct. More precisely, the forking lemma says that given any adversarial prover $\mathcal{A}$ that may deviate from the honest protocol but causes the verifier to accept with probability $\epsilon$, there is a tree generation algorithm that has only black-box access to $\mathcal{A}$, runs in time $t \in O(\frac{\lambda}{\epsilon} \cdot k^\mu \cdot (\mu + t_V))$, where $t_V$ is the running time of the verifier's decision algorithm, and succeeds with probability $1 - t \cdot \negl$ in producing a transcript tree with the forking property. 
 
  Our \emph{path predicate forking lemma} generalizes the property of the transcript tree that can be generated by considering arbitrary predicates on partial labelings of the tree. In the standard forking lemma, the predicate would simply be that new challenges are distinct from previous challenges. The lemma considers predicates for each node $v \in [1,N]$ at level $\ell_v$ of the form $\pi_v: (\mathcal{X}\times \mathcal{M})^{[1,v^*]} \times \mathcal{X}^{\mu - \ell_v} \rightarrow \{0,1\}$, i.e. each predicate $\pi_v$ takes as input a labelling function $L_{v^*}$ for the partial set of nodes $[1,v^*]$ and a vector of challenges $\mathbf{x} \in \mathcal{X}^{\mu - \ell_v}$. 
@@ -555,7 +411,7 @@ where $X \approx_\lambda Y$ denotes that $|X - Y| \leq \negl$.
 
 \begin{lemma}\label{lem:weecommit}
 
-Let $\mathcal{R}$ denote any NP relation. Given a commitment scheme $\textsf{com} = (\setup, \commit, \verify)$, for any $\crs \gets \setup(\lambda)$ let $\mathcal{R}'(\crs)$ denote the relation: 
+Let $\mathcal{R}$ denote any NP relation. Given a commitment scheme $\textsf{com} = (\setup, \commit, \open)$, for any $\crs \gets \setup(\lambda)$ let $\mathcal{R}'(\crs)$ denote the relation: 
 $$\mathcal{R'}(\crs) = \{(\mathsf{x}, \mathsf{w}): \mathcal{R}(\mathsf{x}, \mathsf{w}) = 1 \  \vee \ \left[ \mathsf{w} = (C, \sigma_1, \sigma_2) \ \wedge \ \sigma_1 \neq \sigma_2 \ \wedge \ \open(\crs, C, \sigma_1) = \open(\crs, C, \sigma_2) = 1 \right]   \} $$
 Let $\Pi(\crs)$ denote the interactive protocol between $\prover$ and $\verifier$ parameterized by the setup parameter $\crs$. If for all $\crs \gets  \setup(\lambda)$ the protocol $\Pi(\crs)$ is a proof of knowledge (Definition~\ref{def:proof}) for $\mathcal{R}'(\crs)$ then the tuple $(\setup, \prover, \verifier)$ as an interactive proof with setup satisfies witness-extended emulation (Definition~\ref{def:wee}) for $\mathcal{R}$. 	
 \end{lemma}
@@ -611,6 +467,15 @@ w = (C, \sigma_1, \sigma_2) \ \wedge \ \sigma_1 \neq \sigma_2 \ \wedge \ \verify
 If $\epsilon(\lambda)$ is non-negligible this contradicts the binding property of the commitment scheme.  
 \end{proof} 
 
+
+\paragraph{Zero knowledge} We recall the definition of \emph{honest verifier zero-knowledge} (HVZK) for interactive proofs. HVZK only considers simulating the view of a verifier that follows the protocol honestly. The Fiat-Shamir transform compiles public-coin proofs that have HVZK into non-interactive proofs that have statistical zero-knowledge (for malicious verifiers). 
+%\ben{TODO: cite appropriate works, Bellare-Rogaway, more recent for more than constant round} 
+
+\begin{definition}[HVZK for interactive arguments]
+\label{def:hvzk}
+Let $\textsf{View}_{\langle \prover(x, w), \verifier(x) \rangle}$ denote the view of the verifier in an interactive protocol on common input $x$ and prover witness input $w$. The interactive protocol has $\delta$-statistical honest verifier zero-knowledge if there exists a probabilistic polynomial time algorithm $\mathcal{S}$ such that for every $(x, w) \in \mathcal{R}$, the distribution $\mathcal{S}(x)$ is $\delta$-close to $\textsf{View}_{\langle \prover(x, w), \verifier(x) \rangle}$ (as distributions over the randomness of $\prover$ and $\verifier$).
+\end{definition}
+
 \if 0 
 Consider any deterministic adversarial interactive prover algorithm $P^*$. For any $\st$, define $\mathcal{A}_{\st}$, which has hardcoded $\st$ and runs $P^*$ with initial private state $\st$. Since the protocol is knowledge sound for $\mathcal{R}'$ there exists a constant $c \in \mathbb{N}$ and an extractor $\mathsf{Ext}$ with the following property. Consider any $(\mathsf{x}, \st)$ and suppose that: 
 $$\Pr \left[
@@ -647,7 +512,10 @@ D_V(\tr) = 1  \ \wedge \epsilon(\mathsf{x}, \st) \leq \delta
 
 
 \section{DARK Special Soundness Theorems} 
-\begin{definition}[DARK Special Soundness]\label{def:darkspecialsoundness} A $\mu$-round public-coin interactive proof for a relation $\mathcal{R}$ with challenge space of size $2^\lambda$ is \textbf{$(k^{(\mu)}, \delta(\cdot), \textsf{com}, \phi)$-DARK special sound} if it satisfies the following conditions with respect to some commitment scheme $\mathsf{com} = (\textsf{com}.\textsf{Setup},\textsf{com}.\textsf{Commit}, \textsf{com}.\open)$ with message space $\mathcal{M}$ and opening space $\mathcal{W}$, a pair of predicates $\phi = (\phi_a, \phi_b)$ where $\phi_a, \phi_b:[\mu] \times \mathcal{M}  \rightarrow \{0,1\}$, and a negligible function $\delta: \mathbb{N} \rightarrow \mathbb{R}$:
+
+
+
+\begin{definition}[DARK Special Soundness]\label{def:darkspecialsoundness} A $\mu$-round public-coin interactive proof for a relation $\mathcal{R}$ with challenge space of size $2^\lambda$ is \textbf{$(k^{(\mu)}, \delta(\cdot), \com, \phi)$-DARK special sound} if it satisfies the following conditions with respect to some commitment scheme $\com = (\setup,\commit, \open)$ with message space $\mathcal{M}$ and opening space $\mathcal{W}$, a pair of predicates $\phi = (\phi_a, \phi_b)$ where $\phi_a, \phi_b:[\mu] \times \mathcal{M}  \rightarrow \{0,1\}$, and a negligible function $\delta: \mathbb{N} \rightarrow \mathbb{R}$:
 
 \begin{enumerate} 
 \item The setup for the interactive proof includes generation of the public parameters for the commitment scheme $\crs \gets \textsf{com}.\setup(\lambda)$.  
@@ -669,21 +537,190 @@ D_V(\tr) = 1  \ \wedge \epsilon(\mathsf{x}, \st) \leq \delta
 \item For any $i \in [\mu-1]$, given a valid (accepting) transcript with commitments $\mathbf{C} = (C_0,...,C_\mu)$, round challenges $\mathbf{r} = (r_1,...,r_{\mu})$, and openings $\mathbf{open} = ((m_{i},o_{i}),...,(m_\mu, o_\mu))$ to the last $\mu-i+1$ commitments, where $\phi_b(i, m_i) = 1$ and $\phi_a(j, m_j) = 1$ for all $j \in [i+1,\mu]$, either $\textsf{Extend}(i, m_i, r_{i+1},...,r_\mu)$ returns $m_{i+1},...,m_{\mu}$ or $\textsf{Break}(i, m_i, \mathbf{r}, \mathbf{C}, \mathbf{open})$ returns an opening $(m', o')$ of some $C_j$ to a conflicting message $m' \neq m_j \in \mathcal{M}$, which breaks the binding of the commitment scheme over $\mathcal{M}$.
 \end{enumerate} 
 
-\textbf{Short-hand notation:} An interactive proof is $(k^{(\mu)}, \delta)$-DARK special sound if it is $(k^{(\mu)}, \delta, \textsf{com}, \phi)$-DARK special sound for some commitment scheme $\textsf{com}$ and some predicate pair $\phi$. We may omit $\delta$ and simply write $k^{(\mu)}$-DARK special soundness if this holds for some negligible function $\delta: \mathbb{N} \rightarrow \mathbb{R}$. 
+\textbf{Short-hand notation:} An interactive proof is $(k^{(\mu)}, \delta)$-DARK special sound if it is $(k^{(\mu)}, \delta, \com, \phi)$-DARK special sound for some commitment scheme $\textsf{com}$ and some predicate pair $\phi$. We may omit $\delta$ and simply write $k^{(\mu)}$-DARK special soundness if this holds for some negligible function $\delta: \mathbb{N} \rightarrow \mathbb{R}$. 
 \end{definition} 
 
 \begin{remark} Any special sound protocol satisfies DARK special soundness as 3) essentially captures the special soundness definition. More precisely a $k^{(\mu)}$-special sound satisfies $k^{(\mu)}$-DARK special soundness by setting the commitment scheme to be trivial (i.e., identity function) and the $i$th round commitment $C_i$ to the prover's $i$th round message and setting the predicates $\phi_a=1, \phi_b=0$ to be trivial as well (i.e., always return 1 and 0 respectively). The algorithm $\textsf{Extend}$ can output an arbitrary set of messages because the condition on the algorithm is vacuously true as $\phi_a(i,m) \neq 0$ for any $(i,m)$. The algorithm $\textsf{Extract}(i, \nu, C_\nu, *)$ is trivial because $C_\nu$ is the message itself. The algorithm $\textsf{Break}$ is also trivial as $\phi_b$ is always $0$. The algorithm $\textsf{Extract}(0, x, openTree) \rightarrow w$ exists by the definition of $k^{(\mu)}$-special soundness. %\benedikt{For break do nothing and for phib it needs to ouput 0 otherwise this doesn't work.}
 \end{remark}
 
-\begin{theorem}\label{thm:darkisdarkss} Let $\CSZ = 8 \mu^{2} + \log_2 (2 \mu) \lambda$. Let $\EBL=\lambda\cdot \mu$ and $\CorrectnessBound=\lambda\cdot \mu+\log_2 p$. The $\mu$-round DARK polynomial commitment evaluation protocol with $\lambda$-bit challenges, group $\GG$, and $\log q \geq 4(\lambda + 1 + \CSZ[\mu]) + \EBL[\mu] + \CorrectnessBound + 1$ is $(2^{(\mu)}, \frac{3\mu}{2^\lambda})$-DARK-special sound. 
+
+
+\begin{theorem}\label{thm:DARKExtractor} If a $\mu$-round interactive proof for a relation $\mathcal{R}$ with $\lambda$-bit challenges, $\mu \in O(\log(\lambda + |\mathsf{x}|))$, and verifier decision algorithm runtime $t_V \in \textsf{poly}(|\crs|, |\mathsf{x}|, \lambda)$ on input $\mathsf{x} \in \mathcal{L}_\mathcal{R}$ and parameters $\crs \gets \textsf{com}.\setup(\lambda)$ is $(k^{(\mu)}, \delta, \textsf{com}, \phi)$-DARK special sound then for $\delta'(\lambda) = 2\lambda (k+1)^\mu (\mu + t_V) \cdot \max(\delta(\lambda), k \cdot 2^{-\lambda}) + 2^{-\lambda}$ it is $\delta'$-knowledge sound for the modified relation:
+$$\mathcal{R'}(\crs) = \{(\mathsf{x}, \mathsf{w}): \mathcal{R}(\mathsf{x}, \mathsf{w}) = 1 \  \vee \mathsf{w} \in \mathcal{L}_\textsf{break}(\crs)\} $$
+ where 
+ $$\mathcal{L}_\textsf{break}(\crs) = \{ (\mathcal{C}, \sigma_1, \sigma_2) :   \sigma_1 \neq \sigma_2 \ \wedge \ \open(\crs,\mathcal{C}, \sigma_1) = \open(\crs,\mathcal{C}, \sigma_2) = 1    \} $$ 
+
 \end{theorem} 
+\begin{remark} $\delta'(\lambda)$ is a negligible function if $\delta(\lambda)$ is negligible, assuming $k \in O(1)$, $\mu \in O(\log(\lambda + |\mathsf{x}|))$, $t_V \in \textsf{poly}(|\mathsf{x}|, \lambda)$, and $|\mathsf{x}| \in \textsf{poly}(\lambda)$. 	
+\end{remark}
+
+By Lemma~\ref{lem:weecommit}, this theorem has the following corollary:
+\begin{corollary}
+\label{cor:dsstowee}
+An interactive proof with $\lambda$-bit challenges that is $k^{(\mu)}$-DARK special sound for a relation $\mathcal{R}$ and has at most $\mu \in O(\log(\lambda + |\mathsf{x}|))$ rounds on any instance $\mathsf{x} \in \mathcal{L}_\mathcal{R}$ has witness-extended emulation for $\mathcal{R}$.  
+\end{corollary}
+
+
+
+\begin{proof} 
+Suppose we have a protocol that is $(k^{(\mu)}, \delta)$-DARK special sound with challenge space $\mathcal{X}$ of size $2^\lambda$ for some negligible function $\delta: \mathbb{N} \rightarrow \mathbb{R}$. We will make use of algorithms $\textsf{Extract}$, $\textsf{Extend}$, and $\textsf{Break}$ and their properties that are guaranteed to exist by the definition of DARK special soundness (Definition~\ref{def:darkspecialsoundness}). 
+
+For any node $\nu$ of a $(k+1)$-ary transcript tree let $S^*_\nu$ denote the \emph{left} $k$-ary subtree rooted at $\nu$ defined by a breadth first search from $\nu$ that visits only the first $k$ children of each node reached (i.e., prunes the rightmost branch from each node of the complete $(k+1)$-ary subtree $S_\nu$).
+
+In Definition~\ref{def:TreeExtract}, we define an algorithm $\textsf{TreeExtract}(\ell_\nu, \nu, \mathcal{C}_\nu, L_{S_\nu})$ that operates on a labeled subtree of a $(k+1)$-ary transcript tree that has depth $\mu$,  where $\ell_\nu$ is the level of $\nu$, $\mathcal{C}_\nu = L(\nu)_1$ is the commitment label on $\nu$ and $L_{S_\nu}$ is a labeling of the $(k+1)$-ary subtree $S_\nu$ rooted at $\nu$. If $\textsf{TreeExtract}(\ell_\nu, \nu, \mathcal{C}_\nu, L_{S_\nu})$ succeeds it returns $\textsf{openSubtree}$, which contains openings of all the commitment labels $L$ assigned to nodes in $S_\nu$ including the label $\mathcal{C}_\nu$ on node $\nu$. Otherwise it returns $\bot$. The \textsf{TreeExtract} algorithm is not guaranteed to succeed. In particular, the internal calls to $\textsf{Extract}$ are only guaranteed to succeed when the openings of subtrees satisfy predicate $\phi_a$ and the challenge labels are distinct within the pruned subtrees $S^*_\nu$. Definition~\ref{def:TreeExtract} also defines $\textsf{TreeExtract}^*(\ell_\nu, \mathcal{C}_\nu, L_{S^*_\nu})$, an algorithm that only extracts openings of the commitments in $L_{S^*_\nu}$ and returns an opening of $C_\nu$. This runs similarly to $\textsf{TreeExtract}$, but it is only a function of nodes present in the left $k$-ary subtree $S^*_\nu$. While it is possible that $\textsf{TreeExtract}$ fails and $\textsf{TreeExtract}^*$ succeeds, they will always output the same opening of $C_\nu$ in the event that both succeed.
+
+Let $\textsf{size}(k, \mu) = \frac{k^{\mu+1}-1}{k-1}$, which is the number of nodes is a $k$-ary depth $\mu$ tree. Given any $\mu$-round protocol that satisfies $(k^{(\mu)}, \delta)$-DARK special soundness, setting $N = \textsf{size}(k+1, \mu)$ we will define a collection of predicates $\{\pi_\nu: \nu \in [1,N]\}$ for the nodes of a $k$-ary transcript tree with post-order labeling $L$, such that each $\pi_\nu$ is a function of the partial labeling $L_{\nu^*}$ and a $\mu - \ell_\nu$-length challenge vector $\mathbf{r} \in \mathcal{X}^{\mu - \ell_\nu}$, where $\ell_\nu$ is the level of node $\nu$ in the tree. Recall that $\nu^* < \nu$ is the node of highest index smaller than $\nu$ that is not a member of the subtree of $\nu$, and $L_{\nu^*}$ are the labels of all nodes numbered $[1, \nu^*]$. Let $\omega$ denote the parent node of $\nu$. The predicate $\pi_\nu(L_{\nu^*}, \mathbf{r})$ is defined as follows: 
+\begin{itemize} 
+\item If $\nu$ has no left-sibling, then $\pi_\nu$ always returns $1$. 
+\item If $\nu$ has $0 < i < k$ left-siblings (i.e., it is neither the first nor last child) then $\pi_\nu(L_{\nu^*}, \mathbf{r}) = 1$ iff the challenge label $L(\nu)_0$ assigned to $\nu$ is distinct from the challenge labels assigned to its $i$ left-siblings. Note that if $\nu'$ is a left-sibling of $\nu$ then $\nu' \in [1, \nu^*]$ so $L(\nu')$ is included in the input $L_{\nu^*}$ to $\pi_\nu$. 
+\item If $\nu$ has no right-sibling (i.e., is rightmost child) then let $\mathcal{C}_\omega = L(\omega)_1$ denote the commitment label on $\omega$, let $(m_\omega, o_\omega)$ denote the opening of $\mathcal{C}_\omega$ returned by $\textsf{TreeExtract}^*(\ell_\omega, \omega, \mathcal{C}_\omega, L_{S^*_\omega})$ if successful, let $m'$ denote the last message in the output list of $\textsf{Extend}(\ell_\omega, m_\omega,\mathbf{r})$ and finally: 
+
+ $$\pi_\nu(L_{\nu^*}, \mathbf{r}) = 
+ \begin{cases} 1 \quad\quad \text{ if }  \textsf{TreeExtract}^*(\ell_\omega, \omega, \mathcal{C}_\omega, L_{S^*_\omega}) = \bot \\ 
+ 1 \quad \quad \text{ if } \phi_a(\ell_\omega, m_\omega) = 1\\
+ 1 \quad \quad \text{ if } \phi_a(\ell_\omega, m_\omega) = 0 \wedge \phi_a(\mu, m') = 0 \\ 
+0\text{ otherwise} 
+\end{cases} $$ 
+
+
+\end{itemize}
+As remarked above, while $\textsf{TreeExtract}$ operates on the entire $(k+1)$-ary subtree of labels rooted at $\omega$, the algorithm $\textsf{TreeExtract}^*$ takes as input only the labeling of the right $k$-ary subtree $S^*_\omega$ and $L_{S^*_\omega} \subseteq L_{\nu^*}$. 
+By the definition of $(k^{(\mu)}, \delta)$-DARK special soundness (Definition~\ref{def:darkspecialsoundness}, pt. 5), for any $\nu \in [0,N)$ that has no right-sibling and any $L_{\nu^*}$: 
+$$\mathbb{P}_{\mathbf{r} \leftarrow \mathcal{X}^{\mu - \ell_\nu}}[ \pi_v(L_{v^*}, \mathbf{r}) = 1 ] \geq 1 - \delta(\lambda)$$  
+
+If $\nu$ has $0 < i < k$ left-siblings then by a union bound: 
+$$\mathbb{P}_{\mathbf{r} \leftarrow \mathcal{X}^{\mu - \ell_\nu}}[ \pi_v(L_{v^*}, \mathbf{r}) = 1 ] \geq 1 - \frac{i}{2^\lambda} $$ 
+
+Let $\textsf{lpath}(\nu)_0$ denote the challenge labels $L(\cdot)_0$ along the leftmost branch from $\nu$ to a leaf starting with the label $L(\nu)_0$ on $\nu$. By Lemma~\ref{lem:ppfl} (Path Predicate Forking Lemma) there is an algorithm $\textsf{Tree}^\mathcal{A}(\mathsf{z})$ that, given a security parameter $\lambda \in \mathbb{N}$, an input $\mathsf{x} \in \mathcal{L}_\mathcal{R}$, and oracle access to an adversarial prover $\mathcal{A}$ that causes $V$ to accept on input $\mathsf{x}$ with probability $\epsilon$, runs in time at most $t = 2\lambda \cdot \frac{(k+1)^\mu}{\epsilon} \cdot (\mu + t_V)$, where $t_V$ is the worst-case running time of verifier's decision algorithm, and returns with probability at least $1 - t \cdot \max(\delta(\lambda), \frac{k}{2^\lambda}) - 2^{-\lambda}$ a $(k+1)$-ary transcript tree with post-order labelling $L:[1,N] \rightarrow \mathcal{X}\times \mathcal{M}$ such that $\pi_v(L_{v^*}, L(\textsf{lpath}_v)_0) = 1$ for all $v \in [1,N]$. 
+
+
+ In particular, $L$ defines a $(k+1)$-ary transcript tree with the properties: 
+\begin{enumerate}
+\item The challenge labels on the first $k$ children of any node are distinct, i.e., if $\omega$ has children $\nu_1,...,\nu_{k+1}$ ordered from left-to-right, then for any $i, j \in [1, k]$ if $i \neq j$ then $L_0(\nu_i) \neq L_0(\nu_j)$. 
+\item  If $\nu$ is the $(k+1)$th child of $\omega$ and running $\textsf{TreeExtract}(\ell_\omega, \omega, \mathcal{C}_\omega, L_{S^*_\omega})$ at level $\ell_\omega$ returns an opening of $\mathcal{C}_\omega$ to $m_\omega$ such that $\phi_a(\ell_\omega, m_\omega) \neq 1$, then the final output of $\textsf{Extend}(\ell_\omega, m_\omega, \textsf{lpath}(\nu)_0)$ is a message $m'$ such that $\phi_a(\mu, m') \neq 1$. 
+\end{enumerate} 
+
+By Lemma~\ref{lem:DARKExtractor} there is a deterministic extraction algorithm that takes any $L$ with the above properties and computes a witness $\mathsf{w}$ such that $(\mathsf{x}, \mathsf{w}) \in \mathcal{R}'$. 
+
+\medskip 
+
+In conclusion, for any adversarial prover that succeeds on input $x$ with probability $\epsilon(x)$, there is a probabilistic extractor that runs in time at most $t = 2\lambda \frac{(k+1)^\mu}{\epsilon(x)} (\mu + t_V)$ and with probability at least $1 - t \cdot \max(\delta(\lambda), \frac{k}{2^\lambda}) - 2^{-\lambda}$ returns a witness for $\mathcal{R}'$. Since $t \in \frac{\textsf{poly}(|x|, \lambda)}{\epsilon(x)}$ assuming $\mu \in O(\log(\lambda + |x|))$ and $t_V \in \textsf{poly}(|x|, \lambda)$, this satisfies the definition of $\delta'$-knowledge soundness with $\delta'(\lambda) = 2\lambda (k+1)^\mu (\mu + t_V) \cdot \max(\delta(\lambda), k \cdot 2^{-\lambda}) + 2^{-\lambda}$, which is a negligible function of $\lambda$ as long as $\delta(\lambda)$ is negligible. 
+
+
+\end{proof} 
+
+\begin{definition}[Tree Extractor]\label{def:TreeExtract}
+
+We define an algorithm $\textsf{TreeExtract}(k, \ell, \nu, \mathcal{C}_\nu, L_{S_\nu})$ that operates on a labeled subtree of a $(k+1)$-ary transcript tree that has depth $\mu$,  where $\ell_\nu$ is the level of $\nu$, $\mathcal{C}_\nu = L(\nu)_1$ is the commitment label on $\nu$ and $L_{S_\nu}$ is a labeling of the $(k+1)$-ary subtree $S_\nu$ rooted at $\nu$. If $\textsf{TreeExtract}(\ell_\nu, \nu, \mathcal{C}_\nu, L_{S_\nu})$ succeeds it returns $\textsf{openSubtree}$, which contains openings of all the commitment labels $L$ assigned to nodes in $S_\nu$ including the label $\mathcal{C}_\nu$ on node $\nu$. Otherwise it returns $\bot$. The algorithms runs as follows: 
+\begin{itemize}  
+\item For all leaf nodes $\nu$, return the opening of $\mathcal{C}_\nu$, which is included in the label on $\nu$. \
+\item For each node $\omega \in S_{\nu}$ on the second to last level with label $\mathcal{C}_\omega = L(\omega)_1$, set $\textsf{openLeaves}$ to include the first $k$ opened leaves of $\omega$, and run $\textsf{Extract}(\mu - 1, \omega, \mathcal{C}_\omega, \textsf{openLeaves})$ to get an opening of $\mathcal{C}_\omega$.
+\item Continue iteratively: once openings for all commitment labels of all subtrees rooted at the $i$th level have been computed, for each node $\omega$ on the $(i+1)$st level with label $\mathcal{C}_\omega = L(\omega)_1$ run $\textsf{Extract}(i, \omega, \mathcal{C}_\omega, \textsf{openSubtree}^*_\omega)$ on the commitment label openings $\textsf{openSubtree}^*_\omega$ of the left $k$-ary subtree $S^*_\omega$ (excluding node $\omega$), which were computed in prior iterations. 
+\end{itemize}
+Finally, $\textsf{TreeExtract}^*(\ell_\nu, \mathcal{C}_\nu, L_{S^*_\nu})$ denotes the algorithm that only extracts openings of the commitments in $L_{S^*_\nu}$ and returns an opening of $\mathcal{C}_\nu$. This runs exactly like $\textsf{TreeExtract}$ except that it only iterates over nodes that are present in the left $k$-ary subtree $S^*_\nu$. 
+\end{definition}
+
+The \textsf{TreeExtract} algorithm is not guaranteed to succeed. In particular, the internal calls to $\textsf{Extract}$ are only guaranteed to succeed when the openings of subtrees satisfy predicate $\phi_a$ and the challenge labels are distinct within the pruned subtrees $S^*_\nu$. By convention, if any internal step fails then \textsf{TreeExtract} outputs $\bot$. While it is possible that $\textsf{TreeExtract}$ $\mathsf{fail}$s and $\textsf{TreeExtract}^*$ succeeds, it is easy to see that they output the same opening of $C_\nu$ assuming both succeed. Furthermore, while $\textsf{TreeExtract}$ operates on $(k+1)$-ary transcript tree, the internal calls to $\textsf{Extract}$ run on $k$-ary transcript trees because it is defined for a protocol that is $(k^{(\mu)}, \delta)$-DARK special sound. The reason we always pass the labeling/opening of the left $k$-ary subtree (as opposed to an arbitrary $k$-ary subtree) to $\textsf{Extract}$ is to ensure that the opening of $\mathcal{C}_\nu$ included in the output of $\textsf{TreeExtract}(\ell_\nu, \mathcal{C}_\nu, L_{S_\nu})$ is a function of only the labels on the left $k$-ary subtree $S^*_\nu$, and in particular is computed independently from any of the labels in the (rightmost) subtree rooted at the $(k+1)$th (rightmost) child of $\nu$. This fact is used in the proof of Theorem~\ref{thm:DARKExtractor}.
+
+\begin{definition}[Predicate Special Soundness]
+	Let $\rho$ denote any binary predicate that takes as input any $k$-ary $\mu$-depth transcript tree. A $\mu$-round public coin interactive proof for a relation $\mathcal{R}$ with $\lambda$-bit challenges is \textbf{$(k^{(\mu)}, \rho)$-special sound} if there exists a deterministic extraction algorithm $\mathcal{E}$ that takes as input an instance $\mathsf{x} \in \mathcal{L}_\mathcal{R}$, any $k$-ary forking transcript tree rooted at $\mathsf{x}$ with labelling $L$ such that $\rho(L) = 1$, and returns a witness $\mathsf{w}$ such that $(\mathsf{x}, \mathsf{w}) \in \mathcal{R}$ in time $\textsf{poly}(\lambda, k^\mu)$. 
+\end{definition}
+
+Setting $\rho = 1$, i.e. the trivial predicate that is always true, recovers the standard definition of $k^{(\mu)}$-special soundness. Recall that we defined a \emph{forking} transcript tree (Section~\ref{sec:IPtrees}) as a transcript tree in which the challenge labels on edges that share the same parent node are distinct.\footnote{We could have defined predicate special soundness in an even more general way such that the forking property of the tree is not required, yet can be encapsulated in the predicate. However, this would not be useful for our present work and less convenient for notational purposes.} 
+
+\begin{lemma} \label{lem:DARKExtractor}
+Let $\Pi(\crs)$ denote a $(k^{(\mu)}, \delta, \textsf{com}, \phi)$-DARK special sound protocol for a relation $\mathcal{R}$ and any $\delta \in [0,1]$, parametrized by $\crs \gets \textsf{com}.\setup(\lambda)$. Define the binary predicate $\rho$ as a function of a $(k+1)$-ary $\mu$-depth forking transcript tree given by labelling $L$, which uses the algorithms $\textsf{TreeExtract}$ from Definition~\ref{def:TreeExtract} and $\textsf{Extend}$ from Definition~\ref{def:darkspecialsoundness} and returns $1$ iff the following condition holds: 
+
+\begin{quote} For any node $\omega$ with $(k+1)$st child $\nu$, if the result of running $\textsf{TreeExtract}(\ell_\omega, \omega, \mathcal{C}_\omega, L_{S^*_\omega})$ at level $\ell_\omega$ returns an opening of $\mathcal{C}_\omega$ to $m_\omega$ such that $\phi_a(\ell_\omega, m_\omega) \neq 1$, then the final output of $\textsf{Extend}(\ell_\omega, m_\omega, \textsf{lpath}(\nu)_0)$ is a message $m'$ such that $\phi_a(\mu, m') \neq 1$. 	
+\end{quote}
+
+
+$\Pi(\crs)$ is $((k+1)^{(\mu)}, \rho)$-special sound for the relation $\mathcal{R}'(\crs)$ defined in Theorem~\ref{thm:DARKExtractor}. 
+ 	
+\end{lemma}
+\begin{remark}
+ The value of $\delta$ does not affect $((k+1)^\mu, \rho)$-special soundness. The value of $\delta$ affects the runtime of the extraction algorithm that is able to generate a transcript tree satisfying the predicate $\rho$ (in Theorem~\ref{thm:DARKExtractor}). 
+\end{remark}
+\begin{proof}
+We will argue that, assuming the $(k+1)$-ary forking transcript tree has property $\rho$, for any $\omega \in [1,N]$, either $\textsf{TreeExtract}(\ell_\omega, \omega, \mathcal{C}_\omega, L_{S_\omega})$ returns a subtree $\textsf{openSubtree}$ of openings of the commitment labels in $L_{S_\omega}$ satisfying $\phi_a$ (i.e., each opening of a label $C_\omega$ to $m_\omega$ for a node $\omega$ on level $\ell_\omega$ satisfies $\phi_a(\ell_\omega, m_\omega) = 1$) or else there is an efficient algorithm that uses $\textsf{openSubtree}$ and $L$ to break the commitment scheme. 
+
+
+\paragraph{Step 1:} Suppose that $\omega$ is a node of highest level $\ell_{\omega}$ for which this $\mathsf{fail}$s, i.e. the output of $\textsf{TreeExtract}$ satisfies $\phi_a$ for any node of higher level than $\ell_\omega$. 
+This means that all the openings of internal (non-root) nodes of the subtree $L_{S_\omega}$ computed while running $\textsf{TreeExtract}$ on $\omega$ satisfy $\phi_a$. Furthermore, $L$ has the property that all labels on the first $k$ siblings are distinct. 
+
+\paragraph{Step 2:} By the definition of DARK special soundness and the hypothesis in \textbf{Step 1}, the algorithm $\textsf{TreeExtract}(\ell_\omega, \omega, \mathcal{C}_\omega, L_{S_\omega})$ succeeds in returning $\textsf{openSubtree}$ consisting of the openings of $L_{S_\omega}$ such that the openings of all internal (non-root) nodes satisfy $\phi_a$, and the opening $(m_\omega, o_\omega)$ of the subtree root $\omega$ satisfies $\phi_b(\ell_\omega, m_\omega) = 1$. The opening $(m_\omega, o_\omega)$ is also identical to the output of $\textsf{TreeExtract}^*(\ell_\omega, \omega, \mathcal{C}_\omega, L_{S^*_\omega})$. 
+
+\paragraph{Step 3:}  Let $\nu$ denote the rightmost child of $\omega$. By hypothesis, if $\phi_a(\ell_\omega, m_\omega) = 0$ then the final output of $\textsf{Extend}(\ell_\omega, m_\omega, \textsf{lpath}(\nu))$ is a message $m'$ such that $\phi_a(\mu, m') = 0$. However, this implies that $m'$ must be distinct from the label $L$ assigns to the leaf node of the rightmost branch extending from $\nu$. Let $v_1,...,v_\mu$ denote the nodes along the root-to-leaf path passing through node $\omega$ and ending with its leftmost branch so that $\textsf{lpath}(\nu) = (L(v_{\ell_\nu})_0,...,L(v_\mu)_0)$. For each $i \in [1, \mu]$ let $\hat{C}_i = L(v_i)_1$ and $\mathbf{\hat{C}} = (\hat{C}_1,...,\hat{C}_\mu)$. Finally, since $\phi_b(\ell_\omega, m_\omega) = 1$ and $\textsf{openSubtree}$ contains openings $(m_{\ell_\nu}, o_{\ell_\nu}),...(m_\mu, o_\mu)$ of the commitments $\hat{C}_{\ell_\nu},...\hat{C}_\mu$ that all satisfy predicate $\phi_a(i, m_i) = 1$, if $m' \neq m_\mu$ then by the definition of DARK special soundness this implies that $\textsf{Break}(\ell_\omega, m_\omega,  \textsf{rpath}(\nu), \mathbf{\hat{C}}, (m_{\ell_\nu}, o_{\ell_\nu}),...(m_{\mu}, o_{\mu}))$ outputs a conflicting opening of some commitment label in $\mathbf{\hat{C}}$. 
+
+
+
+
+Let $\mathcal{C}_1 = L(1)_1$, the transcript tree root. The extractor runs $\textsf{TreeExtract}(0, 1, \mathcal{C}_1, L_{S_1})$, which returns $\textsf{openTree}$. If every opening in $\textsf{openTree}$ satisfies predicate $\phi_a$ then it runs $\textsf{Extract}(0, \mathsf{x}, \textsf{openTree})$ to obtain witness $\mathsf{w}$ satisfying $R(\mathsf{x}, \mathsf{w}) = 1$. Otherwise, it uses the $\textsf{Break}$ algorithm (as described in the previous step) to output conflicting openings of a commitment, which is a witness for $R'(\crs)$.
+	
+\end{proof}
+
+\section{DARK is DARK-special sound}
+\label{appendix:darkisdark}
+
+\subsection{Correctness}
+\label{sec:darkcorrectness}
+\def\thelemma{\ref{lem:correctness}}
+\newtheorem*{lemmacorrectness}{Lemma \ref{lem:correctness}}
+\begin{lemmacorrectness}
+	\correctnesslemma
+\end{lemmacorrectness}
+
+\begin{proof}
+In order to ensure correctness we must ensure that $b< q/2$ and that $|f|\leq b$. To show this we show that in each recursion step the honest prover's witness polynomial has coefficients bounded by $b$ and has degree $d$. 
+We argue inductively that for each recursive call of $\pro{EvalB}$ the following constraints on the inputs are satisfied: The degree of $f(X)$ is bounded by $d$ (such that $d+1$ is a power of two). $\gr{C}$ encodes the polynomial, \emph{i.e.}, $\gr{C}=\gr{g}^{f(q)}$ and $f(X)\in \ZZ(b)$. Also $f(z) = y\bmod p$.
+
+Initially, during the execution of $\eval$, the prover maps the coefficients of a polynomial $\tilde{f}(X)\in \ZZ_p$ to an integer polynomial $f(X)$ with coefficients in $\ZZ(p-1)$ and degree at most $d$ such that $\gr{C}=\gr{g}^{f(q)}$. Additionally $f(z)\bmod p=\tilde{f}(z)=y$.
+
+ 
+In each recursion step the $\prover$ computes $f_L(X)$ and $f_R(X)$ such that $f_L(X)+X^{\frac{d+1}{2}} f_R(X)=f(X)$. Consequently $f(z) \bmod p=f_L(z)+ z^{\frac{d+1}{2}} f_R(z)\bmod p=y_L+z^{\frac{d+1}{2}}  y_R\bmod p =y$. The \textsf{PoE} protocol has perfect correctness so {$\gr{g}^{f_L(q)+q^{\frac{d+1}{2}} f_R(X)}=\gr{C}$}.
+ %\gr{C}_L\gr{C}_R^{(q^{\frac{d+1}{2}})}
+ Finally $f'(X)=\alpha f_L(X) + f_R(X)\in \ZZ(p \cdot b)$ is a degree $d$ polynomial with coefficients bounded in absolute value by $(2^\lambda-1) \cdot b+b$, as $\alpha\in [0,2^\lambda)$. This is precisely the value of $b'$ the input to the next call of $\pro{EvalB}$. The value $y'$ is also correct:
+$f'(z)\bmod p=\alpha f_L(z) +f_R(z) \bmod p= \alpha y_L +y_R\bmod p=y'$
+ 
+ In the final round, the prover sends $f$, and the verifier checks that $|f|<b$ which is true by construction.
+\end{proof} 
+
+\subsection{Soundness}
+\label{sec:darksoundness}
+\paragraph{Security of $\textsf{PoE}$ substitutions}
+We first begin by showing that we can safely replace all of the $\textsf{PoE}$ evaluations with direct verification checks. Concretely, under the Adaptive Root Assumption, the $\eval$ protocol is as secure as the protocol $\eval'$ in which all $\textsf{PoE}$s are replaced by direct checks. We show that the witness-extended emulation for $\eval'$ implies the same property for $\eval$. This is useful because we will later show how to can build an extractor for $\eval'$, thereby showing that the same witness-extended emulation property extends to $\eval$.
+
+\begin{lemma} \label{lemma:poe_security}
+Let $\eval'$ be the protocol that is identical to $\eval$ but in line \ref{line:PoE} of $\pro{EvalB}$ $\verifier$ directly checks $\gr{C}_L\gr{C}_R^{q^{d'+1}}=\gr{C}$ instead of using a $\textsf{PoE}$. If the Adaptive Root Assumption holds for $\ggen$, and $\eval'$ has witness-extended emulation for polynomials of degree $d=\poly$, then so does $\eval$.
+\end{lemma}
+
+\begin{proof}
+We show that if an extractor $E'$, as defined in Definition~\ref{def:wee}, exists for the protocol $\eval'$ then we can construct an extractor $E$ for the protocol $\eval$. Specifically, $E$ simulates $E'$ and presents it with a $\pro{Record}'(\cdots)$ oracle, while extracting the witness from its own $\pro{Record}(\cdots)$ oracle.
+
+Whenever $E'$ queries the $\pro{Record}'$ oracle, $E$ queries its $\pro{Record}$ oracle and relays the response after dropping those portions of the transcript that correspond to the $\mathsf{PoE}$ proofs. Whenever $E'$ rewinds its prover, so does $E$ rewind its prover. When $E'$ terminates by outputting a transcript-and-witness pair $(\mathsf{tr}', f(X))$, $E$ adds $\mathsf{PoE}$s into this transcript to obtain $\mathsf{tr}$ and outputs $(\mathsf{tr}, f(X))$.
+
+For each PPT adversary $(\adv,P^*)$, $E$ will receive a polynomial number of transcripts from its $\pro{Record}$ oracle. Any transcript $\tr$ of $\eval$ such that $\adv(\tr)=1$ and $\tr$ is accepting contains exactly $\lceil \log(d+1)\rceil$ $\textsf{PoE}s$ transcripts. 
+So in total $E$ sees only a polynomial number of $\textsf{PoE}$ transcripts generated by a probabilistic polynomial-time prover and verifier. By Lemma~\ref{lem:poe} under the Adaptive Root Assumption, the probability that a polynomial time adversary can break the soundness of $\textsf{PoE}$, \emph{i.e.}, convince a verifier on an instance $(\gr{C}_R,\gr{C}/\gr{C}_{L},q^{d'+1})\not\in\mathcal{R}_{\textsf{PoE}}$, is negligible. 
+Consequently, the probability that the adversary can break $\textsf{PoE}$ on \emph{any} of the polynomial number of executions of $\mathsf{PoE}$ is still negligible.
+
+This means that with overwhelming probability all transcripts are equivalent to having the verifier directly check $(\gr{C}_R,\gr{C}/\gr{C}_{L},q^{d'+1})\in\mathcal{R}_{\textsf{PoE}}$. By assumption, the witness-candidate $f(X)$ that $E'$ outputs is a valid witness if the transcript $\mathsf{tr}'$ that $E'$ also outputs is accepting. The addition of honest $\mathsf{PoE}$ transcripts to $\mathsf{tr}'$ preserves the transcript's validity. So $\mathsf{tr}$ is an accepting transcript for $\pro{Eval}$ if and only if $\mathsf{tr}'$ is an accepting transcript for $\pro{Eval}'$. Therefore, $E'$ outputs a valid witness $f(X)$ whenever $E$ outputs a valid witness. This suffices to show that $\pro{Eval}$ has witness-extended emulation if $\pro{Eval}'$ has, and if the Adaptive Root Assumption holds for $\ggen$.
+\end{proof}
+
+
+
+\def\thetheorem{\ref{thm:darkisdarkss}}
+\begin{theorem}
+\maintheorem
+\end{theorem}
 
 \begin{remark} $\mathsf{CSZ}_{\mu, \lambda}$ is derived from the Multilinear Composite Schwartz Zippel Lemma (\cref{lem:CSZ}). $\mathsf{EBL}_{\mu, \lambda}$ is derived from the Evaluation Bound Lemma (\cref{lem:evalbound}) and $\mathsf{CB}$ refers to the final round check bound in the DARK protocol. We can also substitute any value for $\mathsf{CSZ}_{\mu,\lambda}$ using the table of concrete bounds in Lemma~\ref{lem:cCSZ} for fixed $120$-bit security in place of the analytical bound from Lemma~\ref{lem:CSZ}).% which gives the same result for $\log q \geq 1 + 4(121 + \max(\EBL+ \CorrectnessBound , \mathsf{CSZ}_{\mu,\lambda}))$ and $\epsilon(\lambda) = \max(\frac{3\mu}{2^\lambda}, 2^{-120})$. \ben{This should be $\lambda$-bit security not 120-bit?}  	
 \end{remark}
 
+
+
 \begin{proof} 
 
-For any $\beta_\textsf{n}, \beta_\textsf{d} \in \mathbb{R}$, let $\mathcal{M}(\beta_\textsf{n}, \beta_\textsf{d}) = \{f/N \in \QQ[X]: gcd(f, N) = 1, ||f||_\infty \leq \beta_\textsf{n}, |N| \leq \beta_\textsf{d}\}$. In the relation $R(\mathsf{x}, \mathsf{w})$ for the DARK evaluation protocol, the input $\mathsf{x} = (C, z, y)$ consists of a DARK commitment $C$ and two integers $z, y \in \ZZ$, while the witness $\mathsf{w}$ is an opening of $C$ to a rational polynomial $h$ such that $h(z) = y \bmod p$. For any parameters $\beta_\textsf{n}, \beta_\textsf{d}$ such that $\beta_\textsf{n} \cdot \beta_\textsf{d} \leq \frac{q}{2}$ this is binding to rational polynomials in $\mathcal{M}(\beta_\textsf{n}, \beta_\textsf{d})$. Setup parameters include $p$ and $q$. 
+For any $\beta_\textsf{n}, \beta_\textsf{d} \in \mathbb{R}$, let $\mathcal{M}(\beta_\textsf{n}, \beta_\textsf{d}) = \{f/N \in \QQ[X]: \gcd(f, N) = 1, ||f||_\infty \leq \beta_\textsf{n}, |N| \leq \beta_\textsf{d}\}$. In the relation $R(\mathsf{x}, \mathsf{w})$ for the DARK evaluation protocol, the input $\mathsf{x} = (C, z, y)$ consists of a DARK commitment $C$ and two integers $z, y \in \ZZ$, while the witness $\mathsf{w}$ is an opening of $C$ to a rational polynomial $h$ such that $h(z) = y \bmod p$. For any parameters $\beta_\textsf{n}, \beta_\textsf{d}$ such that $\beta_\textsf{n} \cdot \beta_\textsf{d} \leq \frac{q}{2}$ this is binding to rational polynomials in $\mathcal{M}(\beta_\textsf{n}, \beta_\textsf{d})$. Setup parameters include $p$ and $q$. 
 
 For reasons that will become clear we will set: 
 $$\log q = 4(\lambda + 1 + \CSZ[\mu]) + \EBL[\mu] + \CorrectnessBound + 1$$
@@ -753,8 +790,8 @@ For $i \in [\mu-1]$, if all openings of commitments on children of $\nu$ in $\te
 
 \begin{proof}
 We will show why this is a correct opening for $\mathcal{C}_\nu$ and bound its norm. Based on the properties of a valid transcript tree, $\forall_{j \in \{1,2\}} C_L + r_j C_R =  C_{j,L} + q^{2^{\mu - i - 2}} C_{j,R}$ and $y_L + r_j y_R = y_{j,L} + z^{2^{\mu - i -2}} y_{j, R}$. Furthermore, $\forall_{j \in \{1,2\}} N_j \cdot (C_L + r_j C_R ) = f_j(q)$ and $h_j(z) = N_j^{-1} f_j(z) = y_L + r_j y_R \bmod p$ by the assumption that $(f_j, N_j)$ are valid openings to the two children commitments $\mathcal{C}_j$.  Let $L_q(\cdot): \ZZ[X]^2 \rightarrow \ZZ^2$ denote the linear operator corresponding to component-wise evaluation of each polynomial at $q$. Using linear algebra, the following holds true if $r_1 \neq r_2$:
-
 \begin{equation*}
+\begin{array}{c}
 \begin{bmatrix}
 N_1 & 0 \\
 0 & N_2 \\
@@ -774,10 +811,8 @@ f_1 \\
 f_2\\
 \end{bmatrix} 
 \right)
- \cdot \gr{G} 
-\hspace{1mm}
-\Rightarrow
-\hspace{1mm}
+ \cdot \gr{G} \\
+\Downarrow\\
 (r_2 - r_1) N_1 N_2 
 \begin{bmatrix}
 C_L \\
@@ -795,9 +830,11 @@ f_2 \\
 \end{bmatrix}
 \right)
 \cdot  \gr{G}
-\end{equation*} 
-
+\end{array} 
+\end{equation*}
+and
 \begin{equation*}
+\begin{array}{c}
 \begin{bmatrix}
 N_1 & 0 \\
 0 & N_2 \\
@@ -816,10 +853,8 @@ L_z \left(
 f_1 \\
 f_2\\
 \end{bmatrix}
-\right) \bmod p
-\hspace{1mm}
-\Rightarrow
-\hspace{1mm}
+\right) \bmod p\\
+\Downarrow\\
 (r_2 - r_1) N_1 N_2 
 \begin{bmatrix}
 y_L \\
@@ -837,8 +872,8 @@ f_2 \\
 \end{bmatrix}
 \right)
 \bmod p
+\end{array}
 \end{equation*} 
-
 This shows that $N \cdot C_L = f_L(q) \cdot \gr{G}$, $N \cdot C_R = f_R(q) \cdot \gr{G}$, $N \cdot y_L = f_L(z) \bmod p$, and $N \cdot y_R = f_R(z) \bmod p$. Furthermore, if $\deg(f_1) < 2^{\mu - i - 1}$ and $\deg(f_2) < 2^{\mu - i - 1}$, then $\deg(f_L) < 2^{\mu - i-1}$ and $\deg(f_R) < 2^{\mu -i -1}$. 
 %$$N \cdot (C_L + q^{2^{\mu - i - 1}} C_R) = (f_L(q) + q^{2^{\mu - i -1}} f_R(q)) \cdot \gr{G} = f(q) \cdot \gr{G}$$ 
 
@@ -890,165 +925,53 @@ Let $\mathcal{C}_{j+1} = ((C_{j+1, L}, y_{j+1,L}), (C_{j+1,R}, y_{j+1,R}))$ and 
 Let $o_j = (f_j, N_{j})$ denote the opening of $\mathcal{C}_{j}$ to $h_j =\frac{f_j}{N_{j}}$ where $f_{j} = f_{j, L} + X^{2^{\mu - j + 1}} f_{j, R}$. Validity of the opening implies $N_{j} \cdot C_{j,L} = f_{j,L}(q) \cdot \gr{G}$ and $N_{j} \cdot C_{j,R} = f_{j,R}(q) \cdot \gr{G}$. Furthermore, in a valid transcript: 
  $$C_{j+1}  = C_{j, L} + r_{j+1} \cdot C_{j,R} =  C_{j+1,L} + q^{2^{\mu - j}} C_{j+1,R}$$
   Thus, $(N_{j}, f_{j,L} + r_{j+1} \cdot f_{j, R})$ is a valid opening of $C_{j+1}$ to $h'_{j+1}$ as $N_{j} \cdot C_{j+1} = (f_{j, L}(q) + r_{j+1} \cdot f_{j, R}(q)) \cdot \gr{G}$. 
-
-%However, this implies that an algorithm running in time at most $t_\mathcal{A} + t_E$ computes valid openings of $C_j$ to $h'_j \neq h_j$, where both $h'_j, h_j \in \mathcal{M}(\sqrt{\frac{q}{2}}, \sqrt{\frac{q}{2}})$, which breaks the binding property of the commitment scheme (and the Strong RSA assumption over $\GG$). The probability of this succeeding is thus at most $\mathsf{RSA}(\GG, t_\mathcal{A} + t_E)$. 
-\end{proof} 
-
-
-\begin{theorem}\label{thm:DARKExtractor} If a $\mu$-round interactive proof for a relation $\mathcal{R}$ with $\lambda$-bit challenges, $\mu \in O(\log(\lambda + |\mathsf{x}|))$, and verifier decision algorithm runtime $t_V \in \textsf{poly}(|\crs|, |\mathsf{x}|, \lambda)$ on input $\mathsf{x} \in \mathcal{L}_\mathcal{R}$ and parameters $\crs \gets \textsf{com}.\setup(\lambda)$ is $(k^{(\mu)}, \delta, \textsf{com}, \phi)$-DARK special sound then for $\delta'(\lambda) = 2\lambda (k+1)^\mu (\mu + t_V) \cdot \max(\delta(\lambda), k \cdot 2^{-\lambda}) + 2^{-\lambda}$ it is $\delta'$-knowledge sound for the modified relation:
-$$\mathcal{R'}(\crs) = \{(\mathsf{x}, \mathsf{w}): \mathcal{R}(\mathsf{x}, \mathsf{w}) = 1 \  \vee \mathsf{w} \in \mathcal{L}_\textsf{break}(\crs)\} $$
- where 
- $$\mathcal{L}_\textsf{break}(\crs) = \{ (\mathcal{C}, \sigma_1, \sigma_2) :   \sigma_1 \neq \sigma_2 \ \wedge \ \open(\crs,\mathcal{C}, \sigma_1) = \open(\crs,\mathcal{C}, \sigma_2) = 1    \} $$ 
-
-\end{theorem} 
-\begin{remark} $\delta'(\lambda)$ is a negligible function if $\delta(\lambda)$ is negligible, assuming $k \in O(1)$, $\mu \in O(\log(\lambda + |\mathsf{x}|))$, $t_V \in \textsf{poly}(|\mathsf{x}|, \lambda)$, and $|\mathsf{x}| \in \textsf{poly}(\lambda)$. 	
-\end{remark}
-
-By Lemma~\ref{lem:weecommit}, this theorem has the following corollary:
-\begin{corollary}
-An interactive proof with $\lambda$-bit challenges that is $k^{(\mu)}$-DARK special sound for a relation $\mathcal{R}$ and has at most $\mu \in O(\log(\lambda + |\mathsf{x}|))$ rounds on any instance $\mathsf{x} \in \mathcal{L}_\mathcal{R}$ has witness-extended emulation for $\mathcal{R}$.  
-\end{corollary}
-
-
-
-\begin{proof} 
-Suppose we have a protocol that is $(k^{(\mu)}, \delta)$-DARK special sound with challenge space $\mathcal{X}$ of size $2^\lambda$ for some negligible function $\delta: \mathbb{N} \rightarrow \mathbb{R}$. We will make use of algorithms $\textsf{Extract}$, $\textsf{Extend}$, and $\textsf{Break}$ and their properties that are guaranteed to exist by the definition of DARK special soundness (Definition~\ref{def:darkspecialsoundness}). 
-
-For any node $\nu$ of a $(k+1)$-ary transcript tree let $S^*_\nu$ denote the \emph{left} $k$-ary subtree rooted at $\nu$ defined by a breadth first search from $\nu$ that visits only the first $k$ children of each node reached (i.e., prunes the rightmost branch from each node of the complete $(k+1)$-ary subtree $S_\nu$).
-
-In Definition~\ref{def:TreeExtract}, we define an algorithm $\textsf{TreeExtract}(\ell_\nu, \nu, \mathcal{C}_\nu, L_{S_\nu})$ that operates on a labeled subtree of a $(k+1)$-ary transcript tree that has depth $\mu$,  where $\ell_\nu$ is the level of $\nu$, $\mathcal{C}_\nu = L(\nu)_1$ is the commitment label on $\nu$ and $L_{S_\nu}$ is a labeling of the $(k+1)$-ary subtree $S_\nu$ rooted at $\nu$. If $\textsf{TreeExtract}(\ell_\nu, \nu, \mathcal{C}_\nu, L_{S_\nu})$ succeeds it returns $\textsf{openSubtree}$, which contains openings of all the commitment labels $L$ assigned to nodes in $S_\nu$ including the label $\mathcal{C}_\nu$ on node $\nu$. Otherwise it returns $\bot$. The \textsf{TreeExtract} algorithm is not guaranteed to succeed. In particular, the internal calls to $\textsf{Extract}$ are only guaranteed to succeed when the openings of subtrees satisfy predicate $\phi_a$ and the challenge labels are distinct within the pruned subtrees $S^*_\nu$. Definition~\ref{def:TreeExtract} also defines $\textsf{TreeExtract}^*(\ell_\nu, \mathcal{C}_\nu, L_{S^*_\nu})$, an algorithm that only extracts openings of the commitments in $L_{S^*_\nu}$ and returns an opening of $C_\nu$. This runs similarly to $\textsf{TreeExtract}$, but it is only a function of nodes present in the left $k$-ary subtree $S^*_\nu$. While it is possible that $\textsf{TreeExtract}$ fails and $\textsf{TreeExtract}^*$ succeeds, they will always output the same opening of $C_\nu$ in the event that both succeed.
-
-Let $\textsf{size}(k, \mu) = \frac{k^{\mu+1}-1}{k-1}$, which is the number of nodes is a $k$-ary depth $\mu$ tree. Given any $\mu$-round protocol that satisfies $(k^{(\mu)}, \delta)$-DARK special soundness, setting $N = \textsf{size}(k+1, \mu)$ we will define a collection of predicates $\{\pi_\nu: \nu \in [1,N]\}$ for the nodes of a $k$-ary transcript tree with post-order labeling $L$, such that each $\pi_\nu$ is a function of the partial labeling $L_{\nu^*}$ and a $\mu - \ell_\nu$-length challenge vector $\mathbf{r} \in \mathcal{X}^{\mu - \ell_\nu}$, where $\ell_\nu$ is the level of node $\nu$ in the tree. Recall that $\nu^* < \nu$ is the node of highest index smaller than $\nu$ that is not a member of the subtree of $\nu$, and $L_{\nu^*}$ are the labels of all nodes numbered $[1, \nu^*]$. Let $\omega$ denote the parent node of $\nu$. The predicate $\pi_\nu(L_{\nu^*}, \mathbf{r})$ is defined as follows: 
-\begin{itemize} 
-\item If $\nu$ has no left-sibling, then $\pi_\nu$ always returns $1$. 
-\item If $\nu$ has $0 < i < k$ left-siblings (i.e., it is neither the first nor last child) then $\pi_\nu(L_{\nu^*}, \mathbf{r}) = 1$ iff the challenge label $L(\nu)_0$ assigned to $\nu$ is distinct from the challenge labels assigned to its $i$ left-siblings. Note that if $\nu'$ is a left-sibling of $\nu$ then $\nu' \in [1, \nu^*]$ so $L(\nu')$ is included in the input $L_{\nu^*}$ to $\pi_\nu$. 
-\item If $\nu$ has no right-sibling (i.e., is rightmost child) then let $\mathcal{C}_\omega = L(\omega)_1$ denote the commitment label on $\omega$, let $(m_\omega, o_\omega)$ denote the opening of $\mathcal{C}_\omega$ returned by $\textsf{TreeExtract}^*(\ell_\omega, \omega, \mathcal{C}_\omega, L_{S^*_\omega})$ if successful, let $m'$ denote the last message in the output list of $\textsf{Extend}(\ell_\omega, m_\omega,\mathbf{r})$ and finally: 
-
- $$\pi_\nu(L_{\nu^*}, \mathbf{r}) = 
- \begin{cases} 1 \quad\quad \text{ if }  \textsf{TreeExtract}^*(\ell_\omega, \omega, \mathcal{C}_\omega, L_{S^*_\omega}) = \bot \\ 
- 1 \quad \quad \text{ if } \phi_a(\ell_\omega, m_\omega) = 1\\
- 1 \quad \quad \text{ if } \phi_a(\ell_\omega, m_\omega) = 0 \wedge \phi_a(\mu, m') = 0 \\ 
-0\text{ otherwise} 
-\end{cases} $$ 
-
-
-\end{itemize}
-As remarked above, while $\textsf{TreeExtract}$ operates on the entire $(k+1)$-ary subtree of labels rooted at $\omega$, the algorithm $\textsf{TreeExtract}^*$ takes as input only the labeling of the right $k$-ary subtree $S^*_\omega$ and $L_{S^*_\omega} \subseteq L_{\nu^*}$. 
-By the definition of $(k^{(\mu)}, \delta)$-DARK special soundness (Definition~\ref{def:darkspecialsoundness}, pt. 5), for any $\nu \in [0,N)$ that has no right-sibling and any $L_{\nu^*}$: 
-$$\mathbb{P}_{\mathbf{r} \leftarrow \mathcal{X}^{\mu - \ell_\nu}}[ \pi_v(L_{v^*}, \mathbf{r}) = 1 ] \geq 1 - \delta(\lambda)$$  
-
-If $\nu$ has $0 < i < k$ left-siblings then by a union bound: 
-$$\mathbb{P}_{\mathbf{r} \leftarrow \mathcal{X}^{\mu - \ell_\nu}}[ \pi_v(L_{v^*}, \mathbf{r}) = 1 ] \geq 1 - \frac{i}{2^\lambda} $$ 
-
-Let $\textsf{lpath}(\nu)_0$ denote the challenge labels $L(\cdot)_0$ along the leftmost branch from $\nu$ to a leaf starting with the label $L(\nu)_0$ on $\nu$. By Lemma~\ref{lem:ppfl} (Path Predicate Forking Lemma) there is an algorithm $\textsf{Tree}^\mathcal{A}(\mathsf{z})$ that, given a security parameter $\lambda \in \mathbb{N}$, an input $\mathsf{x} \in \mathcal{L}_\mathcal{R}$, and oracle access to an adversarial prover $\mathcal{A}$ that causes $V$ to accept on input $\mathsf{x}$ with probability $\epsilon$, runs in time at most $t = 2\lambda \cdot \frac{(k+1)^\mu}{\epsilon} \cdot (\mu + t_V)$, where $t_V$ is the worst-case running time of verifier's decision algorithm, and returns with probability at least $1 - t \cdot \max(\delta(\lambda), \frac{k}{2^\lambda}) - 2^{-\lambda}$ a $(k+1)$-ary transcript tree with post-order labelling $L:[1,N] \rightarrow \mathcal{X}\times \mathcal{M}$ such that $\pi_v(L_{v^*}, L(\textsf{lpath}_v)_0) = 1$ for all $v \in [1,N]$. 
-
-
- In particular, $L$ defines a $(k+1)$-ary transcript tree with the properties: 
-\begin{enumerate}
-\item The challenge labels on the first $k$ children of any node are distinct, i.e., if $\omega$ has children $\nu_1,...,\nu_{k+1}$ ordered from left-to-right, then for any $i, j \in [1, k]$ if $i \neq j$ then $L_0(\nu_i) \neq L_0(\nu_j)$. 
-\item  If $\nu$ is the $(k+1)$th child of $\omega$ and running $\textsf{TreeExtract}(\ell_\omega, \omega, \mathcal{C}_\omega, L_{S^*_\omega})$ at level $\ell_\omega$ returns an opening of $\mathcal{C}_\omega$ to $m_\omega$ such that $\phi_a(\ell_\omega, m_\omega) \neq 1$, then the final output of $\textsf{Extend}(\ell_\omega, m_\omega, \textsf{lpath}(\nu)_0)$ is a message $m'$ such that $\phi_a(\mu, m') \neq 1$. 
-\end{enumerate} 
-
-By Lemma~\ref{lem:DARKExtractor} there is a deterministic extraction algorithm that takes any $L$ with the above properties and computes a witness $\mathsf{w}$ such that $(\mathsf{x}, \mathsf{w}) \in \mathcal{R}'$. 
-
-\medskip 
-
-In conclusion, for any adversarial prover that succeeds on input $x$ with probability $\epsilon(x)$, there is a probabilistic extractor that runs in time at most $t = 2\lambda \frac{(k+1)^\mu}{\epsilon(x)} (\mu + t_V)$ and with probability at least $1 - t \cdot \max(\delta(\lambda), \frac{k}{2^\lambda}) - 2^{-\lambda}$ returns a witness for $\mathcal{R}'$. Since $t \in \frac{\textsf{poly}(|x|, \lambda)}{\epsilon(x)}$ assuming $\mu \in O(\log(\lambda + |x|))$ and $t_V \in \textsf{poly}(|x|, \lambda)$, this satisfies the definition of $\delta'$-knowledge soundness with $\delta'(\lambda) = 2\lambda (k+1)^\mu (\mu + t_V) \cdot \max(\delta(\lambda), k \cdot 2^{-\lambda}) + 2^{-\lambda}$, which is a negligible function of $\lambda$ as long as $\delta(\lambda)$ is negligible. 
-
+  
+\paragraph{Witness-extended emulation}
+By \cref{cor:dsstowee} and if the DARK commitment is binding then this shows that $\eval'$ has witness extended emulation for the relation $\reval(\params)$ for polynomials in $\FF_p$. The binding property of DARK depends on the random order assumption which is implied by the adaptive root assumption (\Cref{lem:darkcommit,lem:roa-to-ar}). Further by \Cref{lemma:poe_security} this implies that $\eval$ has witness-extended emulation for the same relation under the adaptive root assumption.
 
 \end{proof} 
 
-\begin{definition}[Tree Extractor]\label{def:TreeExtract}
 
-We define an algorithm $\textsf{TreeExtract}(k, \ell, \nu, \mathcal{C}_\nu, L_{S_\nu})$ that operates on a labeled subtree of a $(k+1)$-ary transcript tree that has depth $\mu$,  where $\ell_\nu$ is the level of $\nu$, $\mathcal{C}_\nu = L(\nu)_1$ is the commitment label on $\nu$ and $L_{S_\nu}$ is a labeling of the $(k+1)$-ary subtree $S_\nu$ rooted at $\nu$. If $\textsf{TreeExtract}(\ell_\nu, \nu, \mathcal{C}_\nu, L_{S_\nu})$ succeeds it returns $\textsf{openSubtree}$, which contains openings of all the commitment labels $L$ assigned to nodes in $S_\nu$ including the label $\mathcal{C}_\nu$ on node $\nu$. Otherwise it returns $\bot$. The algorithms runs as follows: 
-\begin{itemize}  
-\item For all leaf nodes $\nu$, return the opening of $\mathcal{C}_\nu$, which is included in the label on $\nu$. \
-\item For each node $\omega \in S_{\nu}$ on the second to last level with label $\mathcal{C}_\omega = L(\omega)_1$, set $\textsf{openLeaves}$ to include the first $k$ opened leaves of $\omega$, and run $\textsf{Extract}(\mu - 1, \omega, \mathcal{C}_\omega, \textsf{openLeaves})$ to get an opening of $\mathcal{C}_\omega$.
-\item Continue iteratively: once openings for all commitment labels of all subtrees rooted at the $i$th level have been computed, for each node $\omega$ on the $(i+1)$st level with label $\mathcal{C}_\omega = L(\omega)_1$ run $\textsf{Extract}(i, \omega, \mathcal{C}_\omega, \textsf{openSubtree}^*_\omega)$ on the commitment label openings $\textsf{openSubtree}^*_\omega$ of the left $k$-ary subtree $S^*_\omega$ (excluding node $\omega$), which were computed in prior iterations. 
-\end{itemize}
-Finally, $\textsf{TreeExtract}^*(\ell_\nu, \mathcal{C}_\nu, L_{S^*_\nu})$ denotes the algorithm that only extracts openings of the commitments in $L_{S^*_\nu}$ and returns an opening of $\mathcal{C}_\nu$. This runs exactly like $\textsf{TreeExtract}$ except that it only iterates over nodes that are present in the left $k$-ary subtree $S^*_\nu$. 
-\end{definition}
+\begin{comment}
+\def\thelemma{\ref{lem:correctness}}
+\newtheorem*{lemmacorrectness}{Lemma \ref{lem:correctness}}
+\begin{lemmacorrectness}
+	\correctnesslemma
+\end{lemmacorrectness}
 
-The \textsf{TreeExtract} algorithm is not guaranteed to succeed. In particular, the internal calls to $\textsf{Extract}$ are only guaranteed to succeed when the openings of subtrees satisfy predicate $\phi_a$ and the challenge labels are distinct within the pruned subtrees $S^*_\nu$. By convention, if any internal step fails then \textsf{TreeExtract} outputs $\bot$. While it is possible that $\textsf{TreeExtract}$ $\mathsf{fail}$s and $\textsf{TreeExtract}^*$ succeeds, it is easy to see that they output the same opening of $C_\nu$ assuming both succeed. Furthermore, while $\textsf{TreeExtract}$ operates on $(k+1)$-ary transcript tree, the internal calls to $\textsf{Extract}$ run on $k$-ary transcript trees because it is defined for a protocol that is $(k^{(\mu)}, \delta)$-DARK special sound. The reason we always pass the labeling/opening of the left $k$-ary subtree (as opposed to an arbitrary $k$-ary subtree) to $\textsf{Extract}$ is to ensure that the opening of $\mathcal{C}_\nu$ included in the output of $\textsf{TreeExtract}(\ell_\nu, \mathcal{C}_\nu, L_{S_\nu})$ is a function of only the labels on the left $k$-ary subtree $S^*_\nu$, and in particular is computed independently from any of the labels in the (rightmost) subtree rooted at the $(k+1)$th (rightmost) child of $\nu$. This fact is used in the proof of Theorem~\ref{thm:DARKExtractor}.
-
-\begin{definition}[Predicate Special Soundness]
-	Let $\rho$ denote any binary predicate that takes as input any $k$-ary $\mu$-depth transcript tree. A $\mu$-round public coin interactive proof for a relation $\mathcal{R}$ with $\lambda$-bit challenges is \textbf{$(k^{(\mu)}, \rho)$-special sound} if there exists a deterministic extraction algorithm $\mathcal{E}$ that takes as input an instance $\mathsf{x} \in \mathcal{L}_\mathcal{R}$, any $k$-ary forking transcript tree rooted at $\mathsf{x}$ with labelling $L$ such that $\rho(L) = 1$, and returns a witness $\mathsf{w}$ such that $(\mathsf{x}, \mathsf{w}) \in \mathcal{R}$ in time $\textsf{poly}(\lambda, k^\mu)$. 
-\end{definition}
-\benedikt{Any predicate is predicate special sound if you allow for arbitrary predicates (the predicate could literally be that you can decode a witness from the tree). But that's ok. }
-Setting $\rho = 1$, i.e. the trivial predicate that is always true, recovers the standard definition of $k^{(\mu)}$-special soundness. Recall that we defined a \emph{forking} transcript tree (Section~\ref{sec:IPtrees}) as a transcript tree in which the challenge labels on edges that share the same parent node are distinct.\footnote{We could have defined predicate special soundness in an even more general way such that the forking property of the tree is not required, yet can be encapsulated in the predicate. However, this would not be useful for our present work and less convenient for notational purposes.} 
-
-\begin{lemma} \label{lem:DARKExtractor}
-Let $\Pi(\crs)$ denote a $(k^{(\mu)}, \delta, \textsf{com}, \phi)$-DARK special sound protocol for a relation $\mathcal{R}$ and any $\delta \in [0,1]$, parametrized by $\crs \gets \textsf{com}.\setup(\lambda)$. Define the binary predicate $\rho$ as a function of a $(k+1)$-ary $\mu$-depth forking transcript tree given by labelling $L$, which uses the algorithms $\textsf{TreeExtract}$ from Definition~\ref{def:TreeExtract} and $\textsf{Extend}$ from Definition~\ref{def:darkspecialsoundness} and returns $1$ iff the following condition holds: 
-
-\begin{quote} For any node $\omega$ with $(k+1)$st child $\nu$, if the result of running $\textsf{TreeExtract}(\ell_\omega, \omega, \mathcal{C}_\omega, L_{S^*_\omega})$ at level $\ell_\omega$ returns an opening of $\mathcal{C}_\omega$ to $m_\omega$ such that $\phi_a(\ell_\omega, m_\omega) \neq 1$, then the final output of $\textsf{Extend}(\ell_\omega, m_\omega, \textsf{lpath}(\nu)_0)$ is a message $m'$ such that $\phi_a(\mu, m') \neq 1$. 	
-\end{quote}
-
-
-$\Pi(\crs)$ is $((k+1)^{(\mu)}, \rho)$-special sound for the relation $\mathcal{R}'(\crs)$ defined in Theorem~\ref{thm:DARKExtractor}. 
- 	
-\end{lemma}
-\begin{remark}
- The value of $\delta$ does not affect $((k+1)^\mu, \rho)$-special soundness. The value of $\delta$ affects the runtime of the extraction algorithm that is able to generate a transcript tree satisfying the predicate $\rho$ (in Theorem~\ref{thm:DARKExtractor}). 
-\end{remark}
 \begin{proof}
-We will argue that, assuming the $(k+1)$-ary forking transcript tree has property $\rho$, for any $\omega \in [1,N]$, either $\textsf{TreeExtract}(\ell_\omega, \omega, \mathcal{C}_\omega, L_{S_\omega})$ returns a subtree $\textsf{openSubtree}$ of openings of the commitment labels in $L_{S_\omega}$ satisfying $\phi_a$ (i.e., each opening of a label $C_\omega$ to $m_\omega$ for a node $\omega$ on level $\ell_\omega$ satisfies $\phi_a(\ell_\omega, m_\omega) = 1$) or else there is an efficient algorithm that uses $\textsf{openSubtree}$ and $L$ to break the commitment scheme. 
+In order to ensure correctness we must ensure that $b< q/2$ and that $|f|\leq b$. To show this we show that in each recursion step the honest prover's witness polynomial has coefficients bounded by $b$ and has degree $d$. 
+We argue inductively that for each recursive call of $\pro{EvalBounded}$ the following constraints on the inputs are satisfied: The degree of $f(X)$ is bounded by $d$. $\gr{C}$ encodes the polynomial, \emph{i.e.}, $\gr{C}=\gr{g}^{f(q)}$ and $f(X)\in \ZZ(b)$. Also $f(z) = y\bmod p$.
+
+Initially, during the execution of $\eval$, the prover maps the coefficients of a polynomial $\tilde{f}(X)\in \ZZ_p$ to an integer polynomial $f(X)$ with coefficients in $\ZZ(\frac{p-1}{2})$ and degree at most $d$ such that $\gr{C}=\gr{g}^{f(q)}$. Additionally $f(z)\bmod p=\tilde{f}(z)=y$.
+
+ In a recursion steps where $d+1$ is odd, $f'(X)=X\cdot f(X)$ is a polynomial of degree $d+1$ such that $\gr{C}'=\gr{C}^q=\gr{g}^{q\cdot f(q)}=\gr{g}^{f'(X)}$ and the bound $b$ is unchanged as are the coefficients. Also, $f'(z)\bmod p = z \cdot f(z) \bmod p=z\cdot y\bmod p = y' \bmod p$. If $d+1$ is odd, then in the next step $d+1$ must be even.
+ 
+ If $d+1$ is even then, $\prover$ computes $f_L(X)$ and $f_R(X)$ such that $f_L(X)+X^{\frac{d+1}{2}} f_R(X)=f(X)$. Consequently $f(z) \bmod p=f_L(z)+ z^{\frac{d+1}{2}} f_R(z)\bmod p=y_L+z^{\frac{d+1}{2}}  y_R\bmod p =y$. The \textsf{PoE} protocol has perfect correctness so {$\gr{g}^{f_L(q)+q^{\frac{d+1}{2}} f_R(X)}=\gr{C}$}.
+ %\gr{C}_L\gr{C}_R^{(q^{\frac{d+1}{2}})}
+ Finally $f'(X)=\alpha f_L(X) + f_R(X)\in \ZZ(\frac{p+1}{2}\cdot b)$ is a degree $d$ polynomial with coefficients bounded in absolute value by $(\frac{p+1}{2})\cdot b$. This is precisely the value of $b'$ the input to the next call of $\pro{EvalBounded}$. The value $y'$ is also correct:
+$f'(z)\bmod p=\alpha f_L(z) +f_R(z) \bmod p= \alpha y_L +y_R\bmod p=y'$
+ 
+ There are exactly $\lceil\log_2(d+1)\rceil$ recursion steps with even $d+1$. In the final recursion step we therefore have $b=\frac{p-1}{2}(\frac{p+1}{2})^{\lceil\log_2(d+1)\rceil}$ and as such the requirement that $q/2>\frac{p-1}{2}(\frac{p+1}{2})^{\lceil\log_2(d+1)\rceil}$. 
+ So if $q>p^{\lceil\log_2(d+1)\rceil+1}\geq (p-1) (\frac{p+1}{2})^{\lceil \log_2(d+1)\rceil}$ then all verifier checks pass and the verifier outputs $1$.
+\end{proof} 
+\end{comment}
 
 
-\paragraph{Step 1:} Suppose that $\omega$ is a node of highest level $\ell_{\omega}$ for which this $\mathsf{fail}$s, i.e. the output of $\textsf{TreeExtract}$ satisfies $\phi_a$ for any node of higher level than $\ell_\omega$. 
-This means that all the openings of internal (non-root) nodes of the subtree $L_{S_\omega}$ computed while running $\textsf{TreeExtract}$ on $\omega$ satisfy $\phi_a$. Furthermore, $L$ has the property that all labels on the first $k$ siblings are distinct. 
-
-\paragraph{Step 2:} By the definition of DARK special soundness and the hypothesis in \textbf{Step 1}, the algorithm $\textsf{TreeExtract}(\ell_\omega, \omega, \mathcal{C}_\omega, L_{S_\omega})$ succeeds in returning $\textsf{openSubtree}$ consisting of the openings of $L_{S_\omega}$ such that the openings of all internal (non-root) nodes satisfy $\phi_a$, and the opening $(m_\omega, o_\omega)$ of the subtree root $\omega$ satisfies $\phi_b(\ell_\omega, m_\omega) = 1$. The opening $(m_\omega, o_\omega)$ is also identical to the output of $\textsf{TreeExtract}^*(\ell_\omega, \omega, \mathcal{C}_\omega, L_{S^*_\omega})$. 
-
-\paragraph{Step 3:}  Let $\nu$ denote the rightmost child of $\omega$. By hypothesis, if $\phi_a(\ell_\omega, m_\omega) = 0$ then the final output of $\textsf{Extend}(\ell_\omega, m_\omega, \textsf{lpath}(\nu))$ is a message $m'$ such that $\phi_a(\mu, m') = 0$. However, this implies that $m'$ must be distinct from the label $L$ assigns to the leaf node of the rightmost branch extending from $\nu$. Let $v_1,...,v_\mu$ denote the nodes along the root-to-leaf path passing through node $\omega$ and ending with its leftmost branch so that $\textsf{lpath}(\nu) = (L(v_{\ell_\nu})_0,...,L(v_\mu)_0)$. For each $i \in [1, \mu]$ let $\hat{C}_i = L(v_i)_1$ and $\mathbf{\hat{C}} = (\hat{C}_1,...,\hat{C}_\mu)$. Finally, since $\phi_b(\ell_\omega, m_\omega) = 1$ and $\textsf{openSubtree}$ contains openings $(m_{\ell_\nu}, o_{\ell_\nu}),...(m_\mu, o_\mu)$ of the commitments $\hat{C}_{\ell_\nu},...\hat{C}_\mu$ that all satisfy predicate $\phi_a(i, m_i) = 1$, if $m' \neq m_\mu$ then by the definition of DARK special soundness this implies that $\textsf{Break}(\ell_\omega, m_\omega,  \textsf{rpath}(\nu), \mathbf{\hat{C}}, (m_{\ell_\nu}, o_{\ell_\nu}),...(m_{\mu}, o_{\mu}))$ outputs a conflicting opening of some commitment label in $\mathbf{\hat{C}}$. 
 
 
 
-
-Let $\mathcal{C}_1 = L(1)_1$, the transcript tree root. The extractor runs $\textsf{TreeExtract}(0, 1, \mathcal{C}_1, L_{S_1})$, which returns $\textsf{openTree}$. If every opening in $\textsf{openTree}$ satisfies predicate $\phi_a$ then it runs $\textsf{Extract}(0, \mathsf{x}, \textsf{openTree})$ to obtain witness $\mathsf{w}$ satisfying $R(\mathsf{x}, \mathsf{w}) = 1$. Otherwise, it uses the $\textsf{Break}$ algorithm (as described in the previous step) to output conflicting openings of a commitment, which is a witness for $R'(\crs)$.
-	
-\end{proof}
 
 \section{Fiat-Shamir transform of DARK-special sound protocols} 
+Recently, \cite{EPRINT:Wikstrom21,EPRINT:AttFehKlo21} showed that for $\mu$-round special sound protocols the non-interactive Fiat-Shamir transform of these protocols only suffers a security loss that is linear in the number of queries the adversary makes to the random oracle. These proofs do not directly apply to DARK-special sound protocols. In particular, in a non-interactive protocol, we cannot guarantee that the challenges on $\textsf{lpath}(\nu)$ are mutually independent. An adversary might grind each challenge and pick one depending on the previous challenges. Concretely, for DARK the composite Schwartz-Zippel lemma analyzes the probability that $f(x_1,\dots,x_\mu)\equiv 0 \bmod N$ for \emph{independently} sampled $x_1,\dots,x_\mu$. If the adversary, can grind challenges, i.e. try different challenges per prover message, then it can for each challenge $x_i$ ensure that $f(x_1,\dots,x_i,X_{i+1},\dots,X_\mu)\equiv 0 \bmod N_i$ where $N_i$ is a factor of $N$ of size roughly $N^{\frac{1}{\mu}}$. The proof of \cref{thm:darkisdarkss} relies on the fact that $\Prob_{(r_{i+1},...,r_\mu) \gets [0,2^\lambda)^{\mu -i}} [g(r_{i+1},...,r_\mu)\equiv 0 \bmod N]=\delta$ is negligible for sufficiently large $N$. Analyzing a grinding adversary of the non-interactive protocol that makes at most $T$ queries to the random oracle corresponds to analyzing the probability that for any set of $T$ values $\Prob_{S=\{r_{i,j}\}_{i\in [\mu], j \in [T]}) \gets [0,2^\lambda)^{\mu \cdot T}}  \exists (j_1,\dots,j_\mu) \text{ s.t. } [g(r_{1,j_1},...,r_{\mu,j_\mu})\equiv 0 \bmod N]$ which using a union bound is less than $T^\mu \cdot \delta$.
+
+However, what if it is impossible for the adversary to actually grind the prover message. We know that in DARK special sound protocols the prover message is a commitment. If that commitment is unique, i.e. for a given opening there exists only one possible commitment, then a grinding adversary couldn't choose a different commitment. We capture this notion formally and show that even if the commitment is only \emph{computationally unique} the Fiat-Shamir transform of these DARK special sound protocols is secure. The DARK protocol has precisely this property.
+
 \begin{definition}[Random Oracle]
 	In our version of the random oracle model, all random oracle algorithms have black-box access to a shared random function $\mathcal{H}: \mathcal{M}^{\leq u} \rightarrow \mathcal{X}$ where $\mathcal{M}^{\leq u}$ consists of all vectors $(m_1,...,m_i) \in \mathcal{M}^i$ for each $i \leq u$. $\mathcal{H}$ assigns to each of the $\frac{|\mathcal{M}|^{u + 1} - 1}{|\mathcal{M}| - 1}$ unique elements of $\mathcal{M}^{\leq u}$ an output independently and uniformly distributed in $\mathcal{X}$. Random oracles may be assigned indices from a set $\mathcal{I}$, where for any distinct $i,j \in \mathcal{I}$ the oracles $\mathcal{H}_i$ and $\mathcal{H}_j$ are independently distributed random functions. For any $k < u$ and fixed $\mathbf{m} = (m_1,...,m_k)$ we will use the notation $\mathcal{H}_\mathbf{m}: \mathcal{M}^{\leq u - k} \rightarrow \mathcal{X}$ where $\mathcal{H}_\mathbf{m}(m'_1,...,m'_i) = \mathcal{H}(\mathbf{m}, m'_1,...,m'_i)$ for any $i \leq u - k$. This is equivalent to a random oracle family indexed by $\mathcal{M}^k$. 
 \end{definition}
 A \emph{$Q$-query random oracle algorithm} is an algorithm that makes at most $Q$ queries to the random oracle. 
 
-\if 0 
-\begin{definition}[Non-interactive Random Oracle Proof (NIROP)]
-	A non-interactive random oracle proof for relation $\mathcal{R}$ consists of an (optional) non-interactive setup algorithm $\pro{Setup}(\lambda)$ that runs in time $\textsf{poly}(\lambda)$ and returns public parameters $\crs$, a non-interactive prover algorithm $\prover^\mathcal{H}$, and a non-interactive random verifier algorithm $\verifier^\mathcal{H}$ which have oracle access to the random oracle $\mathcal{H}$. On input $(x,w) \in \mathcal{R}$, $\prover^\mathcal{H}(\crs, x, w)$ runs in time $\textsf{poly}(|\crs|, |x|, |w|)$ and returns a proof $\pi$. On input $x$ and $\pi$, $\verifier^\mathcal{H}(\crs, x, \pi)$ runs in time $\textsf{poly}(|\crs|, |x|, \pi)$ and outputs a decision bit $b \in \{0,1\}$. A NIROP is a proof-of-knowledge for $\mathcal{R}$ if the following properties hold: 
-
-\begin{itemize}
-\item \underline{Perfect Completeness:}. 
-\begin{small}
-For all $(\mathsf{x}, \mathsf{w}) \in \mathcal{R}$: \[
-\Pr \left[
-\begin{array}{c}
-         \verifier^\mathcal{H}(\crs, \mathsf{x}, \pi) = 1 \\
-\end{array}
-:
-\begin{array}{c}
-             \crs \leftarrow \pro{Setup}(\lambda) \\
-             \pi \leftarrow \prover(\crs, \mathsf{x}, \mathsf{w}) \\
-\end{array} 
-\right]  = 1 
- \]
- \end{small}
-
-\item \underline{$\delta$-Knowledge Soundness:}\footnote{This definition uses the alternative formulation of knowledge soundness discussed in the remark to Definition~\ref{def:proof}, in order to conform to the same definition used in Lemma~\ref{lem:FSSoundness} from Attema et. al.~\cite{AFK21}.}
-There exists a polynomial $\textsf{poly}(\cdot)$ and a probabilistic oracle algorithm $\mathcal{E}^\mathcal{H}$ called the \emph{extractor} such that given public inputs $\mathsf{x} = (\crs, x)$ for any $x \in \mathcal{L}_R$, random oracle access to $\mathcal{H}$, and oracle access to any $Q$-query random oracle algorithm $\mathcal{A}^{\mathcal{H}}$ the following holds: if 
-
-$$\mathbb{P}\left[\verifier^{\mathcal{H}}(\crs, x, \pi) = 1 : \begin{array}{c} \crs \gets \setup(\lambda) \\ \pi \gets \mathcal{A}^{\mathcal{H}}(\crs, x) \end{array}\right] = \epsilon(\lambda, x) $$
-
-then $\mathcal{E}$ runs in expected time polynomial in $\mathsf{x}$ and $Q$, and outputs a witness $w$ such that: 
-
-$$\mathbb{P}\left[(x, w) \in \mathcal{R} : \begin{array}{c} \crs \gets \setup(\lambda) \\ w \gets \mathcal{E}^{\mathcal{H}, \mathcal{A}}(\crs, x) \end{array}\right] \geq \frac{\epsilon(\lambda, x) - \delta(|\mathsf{x}|, Q)}{\textsf{poly}(|\mathsf{x}|)} $$
-
-where $\delta: \mathbb{N}^2 \rightarrow [0,1]$ is the knowledge error function. 
-\end{itemize} 
-
-\end{definition} 
-\fi 
 
 \begin{definition} [Non-interactive Proof of Knowledge in RO]\label{def:ROproof}
   
@@ -1108,14 +1031,12 @@ There exists a polynomial $\textsf{poly}(\cdot)$ and a probabilistic oracle mach
 For any $\mu$-round public-coin interactive proof $\Pi$ the FS transform $\Pi^{\mathcal{H}}_{FS}$ of $\Pi$ with respect to the random oracle $\mathcal{H}$ is a non-interactive proof in the random oracle model which on public input $\mathsf{x}$ simulates the interactive protocol $\Pi$ by replacing each $i$th round public-coin challenge, for $i \in [1, \mu]$, with $\mathcal{H}(\mathsf{x}, m_1,...,m_i)$, where $m_1,...,m_i$ denote the first $i$ prover messages. 
 \end{definition}
 
-\begin{lemma}[FS for special-sound multiround protocols~\cite{EPRINT:AttFehKlo21,EPRINT:Wikstrom21] \label{lem:FSSoundness}
+\begin{lemma}[FS for special-sound multiround protocols~\cite{EPRINT:AttFehKlo21,EPRINT:Wikstrom21}] \label{lem:FSSoundness}
 	For any $\mu$-round interactive proof $\Pi = (\prover, \verifier)$ for relation $\mathcal{R}$ and its FS transform $\Pi_{FS} = (\prover^\mathcal{H}, \verifier^\mathcal{H})$ with random oracle $\mathcal{H}$, there exists a random oracle algorithm $\textsf{Tree}$ which given black-box access to any $Q$-query deterministic prover algorithm $\prover^*$, input $x \in \mathcal{L}_R$, and $k \in \mathbb{N}$ makes at most $Q+\mu$ queries to $\mathcal{H}$ and returns a $k$-ary forking transcript tree for $\Pi$ in expected time $k^\mu + Q \cdot (k^\mu - 1)$ and succeeds with probability $\frac{\epsilon(x) - (Q+1) \cdot \kappa }{(1 - \kappa)}$ where $\kappa = 1 - (1 - \frac{k-1}{2^\lambda})^\mu$ and $\epsilon(x)$ is the probability (over $\mathcal{H}$) that $\prover^*$ outputs a non-interactive proof for $x$ that $\verifier^\mathcal{H}$ accepts. Moreover, the transcript tree satisfies additional properties: 
 	\begin{itemize}
 	\item Every root-to-leaf labelled path (i.e., transcript included in the tree) matches the output of $\prover^{*\mathcal{H}'}(x)$ with a partially fresh random oracle $\mathcal{H}'$, and thus has the format of a valid $\Pi_{FS}$ proof with respect to $\mathcal{H}'$.  
 	\item For any node $\nu$, the labels $L_{S_\nu}$ on the subtree $S_\nu$ are generated by a $(Q+\mu)$-query random oracle algorithm independently from all labels $L_{\nu^*}$, i.e. labels computed on lower indexed nodes that do not belong to $S_\nu$. In particular, if $\nu$ is the $k$th child of $\omega$ then $L_{S_\nu}$ is independent of the labels on the $(k-1)$-ary left subtree of $\omega$.  
 	\end{itemize}
-
-	
 \end{lemma}
 
 Lemma~\ref{lem:FSSoundness} immediately implies that the FS transform of any $k^{(\mu)}$-special sound protocol for $\mathcal{R}$ is knowledge sound in the RO model. However, we need to work a bit harder to apply this lemma to DARK-special sound protocols. We will only be able to show computational knowledge soundness for protocols which are DARK-special sound with respect to a computationally-unique commitment scheme. The DARK proof system has this property. 
@@ -1138,6 +1059,7 @@ $$\mathbb{P}\left[(\mathsf{x}, \mathsf{w}) \in \mathcal{R}^\mathcal{H}(\crs): \b
 
 	
 \end{definition}
+\benedikt{move this to preliminaries}
 \begin{definition}[Computationally Unique Commitments]\label{def:uniqueness} 
 	A commitment scheme $\Gamma=(\setup,\commit, \open)$ is computationally-unique if for any polynomial time adversary $\adv$
 \[
@@ -1171,6 +1093,7 @@ and
 $$\mathcal{R}^{\mathcal{H}}_\textsf{ext}(\crs, \mu, \rho) = \left\{(\mathsf{x} = (C, m, o), \mathsf{w} = (\tr, M)): \begin{array}{c} \tr = (C_1,...,C_\mu) \\ \forall_{i \in [\mu]} \ r_i = \mathcal{H}(C, C_1,...,C_{i-1}) \\ M = ((m_1,o_1),...,(m_\mu, o_\mu)) \\ \textsf{com}.\open(\crs, C, m, o) = 1 \\ \forall_{i \in [\mu]} \textsf{com}.\open(\crs,C_i, m_i, o_i) = 1 \\ \forall_{i \in [\mu]}\textsf{ext}(m, r_1,...,r_{i}) = m_i \\ \rho(m, m_\mu, r_1,...,r_\mu) = 1  \end{array} \right\} $$ 
 	
 is $(Q, \delta + \negl)$-hard in the RO model. 
+
 \end{lemma}
 \begin{proof} 
 Consider any pair of polynomial time random oracle algorithms $\mathsf{x} \gets \mathcal{A}_1^{\mathcal{H}'}(\crs)$ 
@@ -1273,27 +1196,86 @@ The first equality holds because $\mathcal{E}^{\prover^*(\st)}(\crs, x)$ aborts 
 	 \end{proof}
 
 
-\subsection{The (In)security of the Fiat-Shamir transform of DARK special sound protocols}
-The Fiat-Shamir transform takes an interactive public coin protocol and transforms it into a non-interactive protocol by generating the verifier's messages non-interactively from a hash function.  
-Two recent works\cite{Attema,Wigstroem} showed that the Fiat-Shamir transform applied $\mu$-round special sound protocols is secure in the random oracle model.
-\paragraph{Insecurity of FS DARK}
-The proofs of\cite{Attema,Wigstroem} do not directly apply to DARK-special sound protocols. In particular, in a non-interactive protocol, we cannot guarantee that the challenges on $\textsf{lpath}(\nu)$ are mutually independent. An adversary might grind each challenge and pick one depending on the previous challenges. The composite Schwartz-Zippel lemma analyzes the probability that $f(x_1,\dots,x_\mu)\equiv 0 \bmod N$ for \emph{independently} sampled $x_1,\dots,x_\mu$. If the adversary, can grind challenges then it can for each challenge $x_i$ ensure that $f(x_1,\dots,x_i,X_{i+1},\dots,X_\mu)\equiv 0 \bmod N_i$ where $N_i$ is a factor of $N$ of size roughly $N^{\frac{1}{\mu}}$. The proof of \cref{thm:darkisdarkss} relies on the fact that $\Prob_{(r_{i+1},...,r_\mu) \gets [0,2^\lambda)^{\mu -i}} [g(r_{i+1},...,r_\mu)\equiv 0 \bmod N]=\delta$ is negligible for sufficiently large $N$. Analyzing a grinding adversary of the non-interactive protocol that makes at most $T$ queries to the random oracle corresponds to analyzing the probability that for any set of $T$ values $\Prob_{S=\{r_{i,j}\}_{i\in [\mu], j \in [T]}) \gets [0,2^\lambda)^{\mu \cdot T}}  \exists (j_1,\dots,j_\mu) \text{ s.t. } [g(r_{1,j_1},...,r_{\mu,j_\mu})\equiv 0 \bmod N]$ which using a union bound is less than $T^\mu \cdot \delta$.
 
-Note, that the same issue does not apply in Special sound protocols. For those protocols the bad event, i.e. two neighboring challenges being equal, is negligible independent of any other challenges in the tree. The analysis by \cite{Attema,Wigstroem} is able to union bound the probability of any bad event over all random oracle queries, instead of combinations of random oracle queries. This means that an adversary's success probability is roughly $T\cdot \delta$.
 
-So is it impossible to apply the Fiat-Shamir transform to DARK special sound protocols and more concretely to DARK itself? While the discussion above, certainly shows that caution is warranted, we give two particular modifications that could possibly remedy the situation. Both of them require further analysis and should be viewed as heuristics:
 
-\paragraph{Increasing the security target}
-We showed that a grinding adversary can possibly have a success probability of $T^\mu \cdot \delta$ where $1-\delta$ is the probability that $\pi_\nu(L_{\nu^*}, \mathbf{x})=1$ as defined in \cref{lem:ppfl}. We could simply set $\delta\leq 2^{-\lambda \mu}$ which would imply that $T^{\mu}\cdot \delta <T \cdot 2^{-\lambda}$ as for any polynomial-time adversary $T<2^\lambda$. This, however, seems wasteful as it for example implies that the challenges are drawn from $[0,2^{\lambda \mu})$. We know from the analysis of special sound protocol and the proofs of \cite{Attema,Wigstroem} that $\lambda$ bit challenges suffice for extraction even under the Fiat-Shamir transform. A better approach is to analyze the different components of the path predicate $\pi_\nu$. \cref{thm:darkisdarkss} defines
- $\pi_\nu(L_{\nu^*}, \mathbf{r})$ such that for nodes with a right sibling the predicate is either trivial or only depends on $L_{\nu^*}$ and $r_1$, i.e. one challenge. In these cases, it suffices that the probability is $\delta=2^{-\lambda}$. For nodes, without a right sibling, we can distinguish between predicates that have a negligibly likely bad event for each individual challenge and those, where only considering all challenges along the path the bad event has negligible probability. In the DARK security proof, the only part of the predicate that depends on all challenges and does not have a negligibly likely bad event for any of the challenges corresponds to the invocation of the Composite Schwartz Zippel Lemma. It should, therefore, suffice to set the parameters, i.e. $q$ such that $\log q \geq 1 + 4(\lambda + 1 + \max(\EBL+ \CorrectnessBound, \mathsf{CSZ}_{\mu,\lambda \mu} ))$. 
-Surprisingly this hardly changes the parameters. Given the calculations for the concrete Schwartz Zippel lemma we get that for $\lambda=120$ and $\mu=20$ $\mathsf{CSZ}_{\mu,\lambda \mu}\leq 4464$ whereas $\EBL+\CorrectnessBound=4800$. So $q$ would not change from the parameters of the interactive protocol where $\CSZ$ instead of $\mathsf{CSZ}_{\mu,\lambda \mu}$ is considered.  
+\section*{Polynomial IOP Compilation}
+\section{Proof of Theorem~\ref{thm:IOPcompiler} (Polynomial IOP Compilation)}\label{sec:IOPcompilerproof}
 
- \paragraph{Unique commitments}
- An alternative approach is to try to prevent grinding attacks by an adversary. Assume that at every step of the protocol there is a canonical prover message and any other message gives a negligible probability (over the challenges) of producing an accepting transcript. If this is the case then a grinding adversary cannot gain an advantage by grinding the prover message. This is similar to the notion of round-by-round soundness used in IOPs \cite{IOPs} where the probability of going from a non-accepting state to an accepting state is negligible over each round's challenge. 
-DARK can be seen as an information-theoretic protocol in which the prover in every round sends a set of integer polynomials and a cryptographic compilation step where the prover sends cryptographic commitments of the integer encoding of these polynomials. The information-theoretic protocol has a deterministic next message property where the prover's next round message is a deterministic function of the previous round's message and the verifier challenge. Concretely, the prover sends the $f_{L,i}(X)$ and $f_{R,i}(X)$ where $f_{L,i}$ and $f_{R,i}$ are the left and right half of $f'=f_{L,i-1}+\alpha f_{R,i-1}$, the previous round's polynomial. If the prover sends any other polynomials there is a negligible chance (over the verifier's challenges) that the verifier will accept. 
-For the compilation step, we want to now show that given a prover message there exists a unique commitment corresponding to that message. Note that this directly contradicts hiding commitments but as shown in Section \cref{sec:zero-knowledge} and \cite{HaloInfinite} we can transform a hiding polynomial commitment evaluation into the evaluation of a non-hiding commitment using a single round of interaction. This step is zero-knowledge, i.e. does not reveal any information about the original polynomial. 
-It remains to be shown, that the commitment function $f\rightarrow \Generator^{f(q)}$ is computationally deterministic. That is there does not exist an adversary that can output $h=f/N\in \mathcal{M}(\beta_n,\beta_d)$ and $C,C'$ such that $\verify(C,h)=\verify(C',h)=1$ and $C\neq C'$. 
-Note that this implies that $N\cdot C=f(q)\cdot \Generator$ and $N\cdot C'=f(q)\cdot \Generator$. This implies that $N\cdot (C-C')=0$, i.e. $C-C'$ is a non-trivial element of order $N$. Under the 
+
+\def\thetheorem{\ref{thm:IOPcompiler}}
+\begin{theorem}
+\theoremIOPcompiler
+\end{theorem}
+
+The fact that the compilation preserves HVZK is straightforward. We prove this part first and then move on to proving witness-extended emulation. 
+
+\paragraph{HVZK}
+\begin{proof} Let $S_\eval$ denote the HVZK simulator for $\eval$ and $S_\pro{IOP}$ denote the HVZK simulator for the original polynomial IOP. We construct an HVZK simulator $S$ for the compiled interactive argument as follows. 
+$S$ begins by running $S_\pro{IOP}$ on the input $x$, which produces a series of query/response pairs to arbitrarily labeled oracles that are ``sent" from the IOP prover to the verifier. $S$ simulates the view of the honest verifier in the compiled interactive proof by replacing each distinctly labeled oracle with a fresh $\Gamma$ commitment to $0$, \emph{i.e.}, the zero polynomial over $\FF_p$. By the hiding property of $\Gamma$ this has negligible distance $\delta_0$ from the commitment sent in the real protocol.
+(It places this commitment at the location in the transcript where the commitment to this oracle would be sent in the compiled protocol).
+ For each query/response pair $(z, y)$ to an oracle, $S$ runs $S_\eval$ to simulate the view of an honest-verifier in the $\eval$ protocol opening a hiding polynomial commitment to the value $y$ at the point $z$. Let $P$ denote an upper bound on the total number of oracles sent and $Q$ denote an upper bound on the total number of queries to IOP oracles. 
+If the simulation of $S_\pro{IOP}$ has statistical distance $\delta_1$ from the real IOP verifier's view, and each simulated $\eval$ subprotocol has statistical distance $\delta_2$ to the real $\eval$ verifier's view, then the output of $S$ has statistical distance at most $P \delta_0 + \delta_1 + Q \delta_2$ from $\textsf{View}_{\langle P(x, w), V(x) \rangle}$. For $P, Q < \poly$ and $\delta_0, \delta_1, \delta_2 < \negl$ this statistical distance is negligible in $\lambda$. 
+\end{proof}
+
+\paragraph{Witness-extended emulation (knowledge)}
+
+\begin{proof}
+Without loss of generality, assume the original IOP makes at least one query to each oracle sent. An oracle which is never queried can be omitted from the IOP.
+
+We denote by $\verifier$ the IP verifier for the compiled IP, and $\verifier_{O}$ the verifier for the original IOP. 
+Given a record oracle $\pro{Record}(P^*, \params, x, \st)$ for an IP prover $P^*$ that produces accepting transcripts with non-negligible probability, we build an emulator $E$ for the compiled IP. $E$ begins by constructing an IOP adversary $P'_{O}$, which succeeds also with non-negligible probability on input $x$. Every successful interaction of $P'_{O}$ with $\verifier_{O}$ on input $x$ corresponds to a successful transcript of $P^*$ with $V$ on $x$. In showing how $E$ builds $P'_{O}$ we also show how $E$ can obtain this corresponding transcript. $E$ will make use of the emulator $E_\eval$ for the commitment scheme $\Gamma$. %We will describe how this is done in the later parts of the proof. Accepting that this is true. 
+
+Finally, $E$ can use the IOP knowledge extractor $E_{\pro{IOP}}^{P'_O}(x)$ in order to output a witness for $x$ along with the corresponding transcript. 
+
+\paragraph{Constructing $P'_O$ (IOP adversary)}
+$P'_O$ runs as follows on initial state $\st_0$ and input $x$. It internally simulates the interaction of $P^*$ and $V$, using the record oracle $\pro{Record}(P^*, \params, x, \st)$. It begins by running this for the first round on state $\st_0$. For every message that $P^*$ sends in this first round, $P'_O$ continues simulation until there is an $\eval$ on this commitment. (There is guaranteed to be at least one $\eval$ on each commitment, independent of the randomness). Therefore, denoting by $E_\eval$ the extractor for the $\eval$ subprotocol between $P^*$ and $\verifier$ on a given commitment and evaluation point, the record oracle can be used to simulate $E_\eval$'s record oracle.% for each $m$ evaluated at some point determined by $V$'s challenge.
+
+For each message $m$ that $P^*$ sends to $V$ at the beginning of the first round, $P'_O$ interprets $m$ as a commitment, and attempts to extract from it a polynomial by 
+running the PPT emulator $E_\eval$, simulating its record oracle as just described. \textbf{If it fails in any extraction attempt it aborts.} 
+
+If $P'_O$ succeeds in all these extractions, then it uses these extracted polynomials as its first round proof oracles that it gives to $\verifier_O$. Upon receiving the first public-coin challenge from the IOP verifier, $P'$ uses the query function to derive the corresponding queries to each of these proof oracles. Before answering, it rewinds $P^*$ and $\verifier$ back to the point immediately after $P$ sent its first messages, and now substitutes random challenge from $\verifier_O$ in order to simulate $P^*$ and $V$ on these same queries. It checks that $P^*$'s answers are consistent with the answers it can compute on its own from the extracted polynomials. \textbf{If any answers are inconsistent, $P'_O$ aborts}. Otherwise, it sends the answers to $\verifier_O$. 
+
+At the end of this first round (assuming $P'$ has not yet aborted), $P'_O$ has stored an updated state $\st'$ for $P^*$ based on this simulation. It proceeds to the next round and repeats the same process, using the record oracle $\pro{Record}(P^*, \params, x, \st')$. Finally, if $P'$ makes it through all rounds without aborting, then it has a final state $\st_V$ for $\verifier_O$ based on its internal simulation of $P^*$ and $V$ up through the end of the last round. Finally, $\verifier_O(\st_V)$ outputs $\pro{Accept}$ or $\pro{Reject}$. %(Observe that $\verifier_O$ accepts if and only if $\verifier$ would accept in the simulated transcript with $P^*$ because they run the same decision algorithm on the final state of query/response pairs). % $1$ on $\st_V$. (This is due to the fact that the verifier in the compiled IOP runs the same final decision algorithm as the IOP verifier). 
+
+\paragraph{Analysis of $P'_O$ success probability} 
+We claim that if $\pro{Record}(P^*, \params, x, \st_0)$ outputs an accepting transcript $\tr$ with non-negligible probability, then $P'_O$ succeeds with non-negligible probability. 
+
+Observe that for any accepting $\tr$ between $P^*$ and $V$, if $P'_O$ happens to follow the same exact sequence of query/responses without ever aborting then it succeeds because $\verifier_O$ and $\verifier$ run the same decision algorithm on the final state of query/response pairs. Thus, it remains only to take a closer look at what events cause $P'_O$ to abort, and bound the fraction of accepting $\tr$ for which this occurs. 
+
+As indicated in bold above, there are two kinds of events that cause $P'_O$ to abort: 
+\begin{itemize}
+\item It fails to extract from a ``commitment" message $m$ sent by $P^*$
+\item After successfully extracting a polynomial $f$ from a commitment, $P^*$ answer queries to $f$ in a way that is inconsistent with $f$. 
+\end{itemize}
+
+The second type of event contradicts the evaluation binding property of $\Gamma$, therefore it occurs with negligible probability. 
+
+To analyze the first type of event, let us define ``bad commitments" for a parameter $D$. We define this as a property of a message $m$ (purportedly a commitment) sent in a transcript state $\st$.
+
+\paragraph{Bounding probability of commitment extraction failure} 
+The pair $(m, \st)$ is a ``bad commitment" if there is less than a $1/D$ probability that extending the transcript between $P^*$ and $\verifier$, starting from state $\st$, will contain a successful execution of $\eval$ on $m$. This probability is over the randomness of the public-coins of $\verifier$ in the extended transcript. %have a succesful execution on (over the randomness of the public-coins) that $\pro{Record}(P^*, \params, x, \st)$ contains a successful execution of $\eval$ on $m$ on the queries defined by $\st$ and the next public coin challenge, where $\st$ is determined by running $\tr$ up until the point $m$ appears. 
+
+
+Let $A(\tr)$ denote the event that a transcript $\tr$ sampled from $\pro{Record}(P^*, \params, x, \st_0)$ is accepting. Let $B(\tr)$ denote the event that $\tr$ contains a ``bad commitment" (i.e. some message $m$ sent in state $\st$ such that $\pro{Bad}(m, \st) = 1$). The conditional probability of event $A(\tr)$ conditioned on event $B(\tr)$ is less than $1/D$. To see this, fix $(m, \st)$ with $\pro{Bad}(m, \st) = 1$ and consider ``sampling" a random $\tr$ that contains $m$ at state $\st$. This is done by first choosing randomly from all partial transcripts that result in $(m, \st)$ via brute force, and then running the transcript normally from state $\st$ on random public-coins. No matter how $(m, \st)$ is chosen, the probability that this process produces an accepting transcript is by definition less than $1/D$. (The second part of the transcript following $(m, \st)$ contains at least one execution of $\eval$ on $m$ by hypothesis, and by the definition of $B(m, \st) = 1$ this execution is accepting with probability less than $1/D$).
+
+Assume that $P(A(\tr)) \geq 1/\poly$. Applying Bayes' law, %letting $A(\tr)$ denote the event that $\tr$ is accepting and $P(A(\tr)) > 1/\poly$ the a-priori probability of this event, 
+\[ P[B(\tr) | A(\tr)) \leq \frac{ P[A(\tr) | B(\tr)] }{ P(A(\tr)) } \leq \poly / D \enspace . \]
+In other words, at least a $1 - \poly/D$ fraction of accepting transcripts do not contain ``bad commitments". %By a union bound, in a length $L$ transcript void of bad commitments, the transcript does not contain any failed $\eval$ with probability at least $L/B$. 
+Furthermore, so long as a commitment $m$ is not ``bad", we can invoke the witness-emulation property of $\eval$ to say that the PPT $E_\Gamma$ emulator extracts a witness polynomial from each $m$ with overwhelming probability.
+
+
+Setting $D = 2 \poly$ we get that on at least a $1/2$ fraction of accepting transcripts, $P'_O$s simulation also succeeds (i.e. successfully extracts from each prover commitment message) with probability at least $1/2$. This means that $P'_O$ has a non-negligible success probability conditioned on the event that $\tr$ is an accepting transcript. 
+
+In conclusion, if $\tr$ is accepting with non-negligible probability, then there is a non-negligible probability that $P'_O$ succeeds. 
+\end{proof}
+
+%\ifappendix
+%\section{Other Instantiations of Polynomial IOPs} \label{appendix:other_polynomial_iops}
+
+%\input{sections/other_polynomial_iops}
+%\fi
+
 
 
 \begin{comment}
@@ -1379,93 +1361,5 @@ This means that with overwhelming probability all transcripts are equivalent to 
     Correctness is immediate and witness extended emulation requires a single application of Lemma~\ref{lem:intrandomcombine} which leads to an updated bound on $q$. In general $q$ needs to be $\frac{p^2-1}{2}$ larger for any random linear combination that is taken with $\alpha \in [-\frac{p-1}{2},\frac{p-1}{2}]$. For class groups, Lemma~\ref{lem:dyadiccombining} is used and the lower bound on $q$ grows by a factor of $(p-1)^2\frac{p+1}{2}\leq p^3$.
 \end{proof}
 
-
-
-\section{Proof of Theorem~\ref{thm:IOPcompiler} (Polynomial IOP Compilation)}\label{sec:IOPcompilerproof}
-
-
-\def\thetheorem{\ref{thm:IOPcompiler}}
-\begin{theorem}
-\theoremIOPcompiler
-\end{theorem}
-
-The fact that the compilation preserves HVZK is straightforward. We prove this part first and then move on to proving witness-extended emulation. 
-
-\paragraph{HVZK}
-\begin{proof} Let $S_\eval$ denote the HVZK simulator for $\eval$ and $S_\pro{IOP}$ denote the HVZK simulator for the original polynomial IOP. We construct an HVZK simulator $S$ for the compiled interactive argument as follows. 
-$S$ begins by running $S_\pro{IOP}$ on the input $x$, which produces a series of query/response pairs to arbitrarily labeled oracles that are ``sent" from the IOP prover to the verifier. $S$ simulates the view of the honest verifier in the compiled interactive proof by replacing each distinctly labeled oracle with a fresh $\Gamma$ commitment to $0$, \emph{i.e.}, the zero polynomial over $\FF_p$. By the hiding property of $\Gamma$ this has negligible distance $\delta_0$ from the commitment sent in the real protocol.
-(It places this commitment at the location in the transcript where the commitment to this oracle would be sent in the compiled protocol).
- For each query/response pair $(z, y)$ to an oracle, $S$ runs $S_\eval$ to simulate the view of an honest-verifier in the $\eval$ protocol opening a hiding polynomial commitment to the value $y$ at the point $z$. Let $P$ denote an upper bound on the total number of oracles sent and $Q$ denote an upper bound on the total number of queries to IOP oracles. 
-If the simulation of $S_\pro{IOP}$ has statistical distance $\delta_1$ from the real IOP verifier's view, and each simulated $\eval$ subprotocol has statistical distance $\delta_2$ to the real $\eval$ verifier's view, then the output of $S$ has statistical distance at most $P \delta_0 + \delta_1 + Q \delta_2$ from $\textsf{View}_{\langle P(x, w), V(x) \rangle}$. For $P, Q < \poly$ and $\delta_0, \delta_1, \delta_2 < \negl$ this statistical distance is negligible in $\lambda$. 
-\end{proof}
-
-\paragraph{Witness-extended emulation (knowledge)}
-
-\begin{proof}
-Without loss of generality, assume the original IOP makes at least one query to each oracle sent. An oracle which is never queried can be omitted from the IOP.
-
-We denote by $\verifier$ the IP verifier for the compiled IP, and $\verifier_{O}$ the verifier for the original IOP. 
-Given a record oracle $\pro{Record}(P^*, \params, x, \st)$ for an IP prover $P^*$ that produces accepting transcripts with non-negligible probability, we build an emulator $E$ for the compiled IP. $E$ begins by constructing an IOP adversary $P'_{O}$, which succeeds also with non-negligible probability on input $x$. Every successful interaction of $P'_{O}$ with $\verifier_{O}$ on input $x$ corresponds to a successful transcript of $P^*$ with $V$ on $x$. In showing how $E$ builds $P'_{O}$ we also show how $E$ can obtain this corresponding transcript. $E$ will make use of the emulator $E_\eval$ for the commitment scheme $\Gamma$. %We will describe how this is done in the later parts of the proof. Accepting that this is true. 
-
-Finally, $E$ can use the IOP knowledge extractor $E_{\pro{IOP}}^{P'_O}(x)$ in order to output a witness for $x$ along with the corresponding transcript. 
-
-\paragraph{Constructing $P'_O$ (IOP adversary)}
-$P'_O$ runs as follows on initial state $\st_0$ and input $x$. It internally simulates the interaction of $P^*$ and $V$, using the record oracle $\pro{Record}(P^*, \params, x, \st)$. It begins by running this for the first round on state $\st_0$. For every message that $P^*$ sends in this first round, $P'_O$ continues simulation until there is an $\eval$ on this commitment. (There is guaranteed to be at least one $\eval$ on each commitment, independent of the randomness). Therefore, denoting by $E_\eval$ the extractor for the $\eval$ subprotocol between $P^*$ and $\verifier$ on a given commitment and evaluation point, the record oracle can be used to simulate $E_\eval$'s record oracle.% for each $m$ evaluated at some point determined by $V$'s challenge.
-
-For each message $m$ that $P^*$ sends to $V$ at the beginning of the first round, $P'_O$ interprets $m$ as a commitment, and attempts to extract from it a polynomial by 
-running the PPT emulator $E_\eval$, simulating its record oracle as just described. \textbf{If it fails in any extraction attempt it aborts.} 
-
-If $P'_O$ succeeds in all these extractions, then it uses these extracted polynomials as its first round proof oracles that it gives to $\verifier_O$. Upon receiving the first public-coin challenge from the IOP verifier, $P'$ uses the query function to derive the corresponding queries to each of these proof oracles. Before answering, it rewinds $P^*$ and $\verifier$ back to the point immediately after $P$ sent its first messages, and now substitutes random challenge from $\verifier_O$ in order to simulate $P^*$ and $V$ on these same queries. It checks that $P^*$'s answers are consistent with the answers it can compute on its own from the extracted polynomials. \textbf{If any answers are inconsistent, $P'_O$ aborts}. Otherwise, it sends the answers to $\verifier_O$. 
-
-At the end of this first round (assuming $P'$ has not yet aborted), $P'_O$ has stored an updated state $\st'$ for $P^*$ based on this simulation. It proceeds to the next round and repeats the same process, using the record oracle $\pro{Record}(P^*, \params, x, \st')$. Finally, if $P'$ makes it through all rounds without aborting, then it has a final state $\st_V$ for $\verifier_O$ based on its internal simulation of $P^*$ and $V$ up through the end of the last round. Finally, $\verifier_O(\st_V)$ outputs $\pro{Accept}$ or $\pro{Reject}$. %(Observe that $\verifier_O$ accepts if and only if $\verifier$ would accept in the simulated transcript with $P^*$ because they run the same decision algorithm on the final state of query/response pairs). % $1$ on $\st_V$. (This is due to the fact that the verifier in the compiled IOP runs the same final decision algorithm as the IOP verifier). 
-
-\paragraph{Analysis of $P'_O$ success probability} 
-We claim that if $\pro{Record}(P^*, \params, x, \st_0)$ outputs an accepting transcript $\tr$ with non-negligible probability, then $P'_O$ succeeds with non-negligible probability. 
-
-Observe that for any accepting $\tr$ between $P^*$ and $V$, if $P'_O$ happens to follow the same exact sequence of query/responses without ever aborting then it succeeds because $\verifier_O$ and $\verifier$ run the same decision algorithm on the final state of query/response pairs. Thus, it remains only to take a closer look at what events cause $P'_O$ to abort, and bound the fraction of accepting $\tr$ for which this occurs. 
-
-As indicated in bold above, there are two kinds of events that cause $P'_O$ to abort: 
-\begin{itemize}
-\item It fails to extract from a ``commitment" message $m$ sent by $P^*$
-\item After successfully extracting a polynomial $f$ from a commitment, $P^*$ answer queries to $f$ in a way that is inconsistent with $f$. 
-\end{itemize}
-
-The second type of event contradicts the evaluation binding property of $\Gamma$, therefore it occurs with negligible probability. 
-
-To analyze the first type of event, let us define ``bad commitments" for a parameter $D$. We define this as a property of a message $m$ (purportedly a commitment) sent in a transcript state $\st$.
-
-\paragraph{Bounding probability of commitment extraction failure} 
-The pair $(m, \st)$ is a ``bad commitment" if there is less than a $1/D$ probability that extending the transcript between $P^*$ and $\verifier$, starting from state $\st$, will contain a successful execution of $\eval$ on $m$. This probability is over the randomness of the public-coins of $\verifier$ in the extended transcript. %have a succesful execution on (over the randomness of the public-coins) that $\pro{Record}(P^*, \params, x, \st)$ contains a successful execution of $\eval$ on $m$ on the queries defined by $\st$ and the next public coin challenge, where $\st$ is determined by running $\tr$ up until the point $m$ appears. 
-
-
-Let $A(\tr)$ denote the event that a transcript $\tr$ sampled from $\pro{Record}(P^*, \params, x, \st_0)$ is accepting. Let $B(\tr)$ denote the event that $\tr$ contains a ``bad commitment" (i.e. some message $m$ sent in state $\st$ such that $\pro{Bad}(m, \st) = 1$). The conditional probability of event $A(\tr)$ conditioned on event $B(\tr)$ is less than $1/D$. To see this, fix $(m, \st)$ with $\pro{Bad}(m, \st) = 1$ and consider ``sampling" a random $\tr$ that contains $m$ at state $\st$. This is done by first choosing randomly from all partial transcripts that result in $(m, \st)$ via brute force, and then running the transcript normally from state $\st$ on random public-coins. No matter how $(m, \st)$ is chosen, the probability that this process produces an accepting transcript is by definition less than $1/D$. (The second part of the transcript following $(m, \st)$ contains at least one execution of $\eval$ on $m$ by hypothesis, and by the definition of $B(m, \st) = 1$ this execution is accepting with probability less than $1/D$).
-
-Assume that $P(A(\tr)) \geq 1/\poly$. Applying Bayes' law, %letting $A(\tr)$ denote the event that $\tr$ is accepting and $P(A(\tr)) > 1/\poly$ the a-priori probability of this event, 
-\[ P[B(\tr) | A(\tr)) \leq \frac{ P[A(\tr) | B(\tr)] }{ P(A(\tr)) } \leq \poly / D \enspace . \]
-In other words, at least a $1 - \poly/D$ fraction of accepting transcripts do not contain ``bad commitments". %By a union bound, in a length $L$ transcript void of bad commitments, the transcript does not contain any failed $\eval$ with probability at least $L/B$. 
-Furthermore, so long as a commitment $m$ is not ``bad", we can invoke the witness-emulation property of $\eval$ to say that the PPT $E_\Gamma$ emulator extracts a witness polynomial from each $m$ with overwhelming probability.
-
-
-Setting $D = 2 \poly$ we get that on at least a $1/2$ fraction of accepting transcripts, $P'_O$s simulation also succeeds (i.e. successfully extracts from each prover commitment message) with probability at least $1/2$. This means that $P'_O$ has a non-negligible success probability conditioned on the event that $\tr$ is an accepting transcript. 
-
-In conclusion, if $\tr$ is accepting with non-negligible probability, then there is a non-negligible probability that $P'_O$ succeeds. 
-\end{proof}
-
-\ifappendix
-
-\section{Optimizations for Polynomial Commitment Scheme}
-\label{subsec:optimization}
-\input{sections/optimization}
-\section{Multivariate Commitment Scheme}
-\label{sec:multivariate}
-
-\input{sections/multivariate}
-\fi
-
-%\ifappendix
-%\section{Other Instantiations of Polynomial IOPs} \label{appendix:other_polynomial_iops}
-
-%\input{sections/other_polynomial_iops}
-%\fi
 
 \end{comment}

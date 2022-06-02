@@ -8,7 +8,7 @@
 \usepackage{amsthm}
 \usepackage{amsmath,amssymb}
 \usepackage[utf8x]{inputenc}
-\usepackage[colorinlistoftodos]{todonotes}
+%\usepackage[colorinlistoftodos]{todonotes}
 \usepackage{xspace}
 \usepackage[normalem]{ulem}
 \usepackage{comment}
@@ -36,6 +36,8 @@
 \newtheorem{subclaim}{Subclaim}
 \newtheorem{fact}{Fact}
 \newtheorem{remark}{Remark}
+\newtheoremstyle{named}{}{}{\itshape}{}{\bfseries}{.}{.5em}{\thmnote{#3's }#1}
+\theoremstyle{named}
 %\newtheorem{corollary}{Corollary}
 \usepackage{etoolbox}
 \patchcmd{\paragraph}{\itshape}{\bfseries\boldmath}{}{}
@@ -61,6 +63,7 @@
 \newif\ifappendix
 \appendixfalse
 \newcommand{\appendixphrase}{Appendix}
+\newcommand{\quickanddirty}[1]{}
 
 
 
@@ -98,7 +101,7 @@ This version of the paper includes a new security proof. The original proof had 
 \input{sections/intro} 
 \section{Technical Overview}\label{sec:overview} 
 \input{sections/overview}
-\section{Preliminaries}
+\section{Preliminaries (Assumptions and Commitments)}
 \input{sections/preliminaries}
 
 \section{Polynomial Commitments from Groups of Unknown Order}
