@@ -709,10 +709,11 @@ This means that with overwhelming probability all transcripts are equivalent to 
 
 
 
-\def\thetheorem{\ref{thm:darkisdarkss}}
-\begin{theorem}
+%\def\thetheorem{\ref{thm:darkisdarkss}}
+\newtheorem*{darkisdarkss}{Theorem \ref{thm:darkisdarkss}}
+\begin{darkisdarkss}
 \maintheorem
-\end{theorem}
+\end{darkisdarkss}
 
 \begin{remark} $\mathsf{CSZ}_{\mu, \lambda}$ is derived from the Multilinear Composite Schwartz Zippel Lemma (\cref{lem:CSZ}). $\mathsf{EBL}_{\mu, \lambda}$ is derived from the Evaluation Bound Lemma (\cref{lem:evalbound}) and $\mathsf{CB}$ refers to the final round check bound in the DARK protocol. We can also substitute any value for $\mathsf{CSZ}_{\mu,\lambda}$ using the table of concrete bounds in Lemma~\ref{lem:cCSZ} for fixed $120$-bit security in place of the analytical bound from Lemma~\ref{lem:CSZ}).% which gives the same result for $\log q \geq 1 + 4(121 + \max(\EBL+ \CorrectnessBound , \mathsf{CSZ}_{\mu,\lambda}))$ and $\epsilon(\lambda) = \max(\frac{3\mu}{2^\lambda}, 2^{-120})$. \ben{This should be $\lambda$-bit security not 120-bit?}  	
 \end{remark}
