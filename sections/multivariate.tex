@@ -51,9 +51,18 @@ Then it associates each monomial of the univariate polynomial with a degree vect
 
 \begin{theorem}[Multivariate Eval]
 \label{thm:mvariate}
-	The polynomial commitment scheme for multi-variate polynomials consisting of protocols $(\pro{MultiSetup},\pro{MultiCommit},\pro{MultiEval})$ has perfect correctness and witness extended emulation for $\mu$-variate polynomials of degree $d$ if the Adaptive Root Assumption holds for $\ggen$  and if $(d+1)^\mu=\poly$ if $\log q \geq 4(\lambda + 1 + \CSZ[\mu \cdot (d+1)]) + \EBL[\mu \cdot (d+1)] + \CorrectnessBound[\mu \cdot (d+1)] + 1$ where $\mathsf{CB},\mathsf{CSZ}$, and $\mathsf{EBL}$ are defined as in   \Cref{thm:darkisdarkss}
+	The polynomial commitment scheme for multi-variate polynomials consisting of protocols $(\pro{MultiSetup},\pro{MultiCommit},\pro{MultiEval})$ has perfect correctness and witness extended emulation for $\mu$-variate polynomials of degree $d$ if the Adaptive Root Assumption holds for $\ggen$  and if $(d+1)^\mu=\poly$ if $\log q \geq 4(\lambda + 1 + \CSZ[\mu \cdot (d+1)]) + \EBL[\mu \cdot (d+1)] + \CorrectnessBound[\mu \cdot (d+1)] + 1$ where $\mathsf{CB},\mathsf{CSZ}$, and $\mathsf{EBL}$ are defined as in \Cref{thm:darkisdarkss}
 \end{theorem}
+
+
+
 \quickanddirty{
+\begin{proof}
+Correctness directly follows from the correctness of the univariate commitment scheme. 
+
+We can invoke \cref{lemma:poe_security} to replace all invocations of \textsf{PoE} with direct verifications. This is secure under the adaptive root assumption. 
+Further we have that each invocation of $\textsf{EvalB}$ is $(d+1, \frac{3\mu}{2^{\lambda}},\com,\phi=(\phi_a,\phi_b))$-almost-special-sound by \cref{thm:darkisdarkss}.
+\end{proof}
 \begin{proof}
 Correctness directly follows from the correctness of the univariate commitment scheme. 
 
