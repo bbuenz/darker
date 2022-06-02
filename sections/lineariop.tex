@@ -147,7 +147,7 @@ It should be obvious that \emph{public coin} Polynomial IOPs are a subclass of p
 As a matter of concrete efficiency, it is possible to extend the Polynomial IOP definition with a second kind of interaction, one that enables the verifier to obtain a linear combination of previously transmitted polynomials. Specifically, the verifier would send a vector of $k$ weights, where $k$ is the number polynomials transmitted up until that point. The prover would respond with the polynomial $f(X)$ that is the appropriate linear combination of the previous polynomials. However, this extension does not increase the asymptotical power of Polynomial IOPs. The only thing the verifier can do with a linear combination polynomial is evaluate it in a chosen point; and this value might as well be computed directly by evaluating the summand polynomials in the same point and then computing the same linear combination. We prefer not to clutter the definition.
 \end{comment} 
 
-\subsection{Polynomial IOP reductions} 
+\subsection{Polynomial IOP Reductions} 
 
 In this section we show that one can construct any algebraic linear IOP from a (multivariate) Polynomial IOP. This construction rests on two tools for univariate Polynomial IOPs that we cover first:
 \begin{itemize}
