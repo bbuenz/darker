@@ -118,9 +118,10 @@ $\mu$ &  $\lambda=120$ \\
 
 \begin{fact}
 \label{fact:encoding}
-Let $q \in \ZZ$ be any positive integer. For any integer $E \in \ZZ$ such that $|E|\leq \frac{q^{d+2} - q}{2(q-1)}$ there exists a unique integer polynomial $f \in \ZZ[X]$ with $||f||_\infty \leq q/2$ such that $f(q) = E$. 
+Let $q \in \ZZ$ be any positive integer. For any integer $E \in \ZZ$ such that $|E|\leq \frac{q^{d+2} - q}{2(q-1)}$ there exists a unique degree $d$ integer polynomial $f \in \ZZ[X]$ with $||f||_\infty \leq q/2$ such that $f(q) = E$. 
 \end{fact} 
 
+We extend the integer encoding from \Cref{sec:encoding} to rational polynomials.
 \begin{lemma}[Rational Encoding]
 \label{lem:encoding}
 Let $q \in \ZZ$ be any positive integer. Consider any $\beta_d, \beta_n \in \mathbb{N}$ such that $\beta_d \cdot \beta_n\leq \frac{q}{2}$. Let $Z = \{z \in \ZZ: |z| \leq \beta_d \}$, let $\mathcal{F} = \{ f \in \ZZ[X]: ||f||_\infty \leq \beta_n\}$, and let $\mathcal{H} = \{f/z \in \mathbb{Q}[X]: f \in \mathcal{F} \wedge z \in Z \}$. Then for any $h_1, h_2 \in \mathcal{H}$,  if $h_1(q) = h_2(q)$ then $h_1 = h_2$. 
