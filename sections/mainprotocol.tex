@@ -245,25 +245,24 @@ In the final round we check that the constant $f$ satisfies $|f|\leq b$ and the 
 
 \begin{mdframed}
 \begin{minipage}{\textwidth}
-			$\pro{Eval}(\crs, \gr{C}\in \GG, z\in \ZZ_p, y\in \ZZ_p; f(X)\in \ZZ_p[X],) :$  \pccomment{$f(X)=\sum_{i=0}^d f_i X^i$}
+			$\pro{Eval}(\crs, \gr{C}\in \GG, \vec{z}\in \ZZ_p^{\mu}, y\in \ZZ_p; f(X_1,\dots,X_\mu)\in \ZZ_p[X_1,\dots,X_\mu],) :$  \pccomment{$f$ is $\mu$-linear}
 			\begin{enumerate}[nolistsep]
-			\item Let $d=2^{\lceil \log_2(\deg(f)+1)\rceil}$
-			\item \prover computes $\hat{f}(X) \in \ZZ(p)[X]$ such that $\hat{f} \bmod p \equiv f$
-			\item \prover and \verifier run $\pro{EvalB}(\params,\gr{C},z,y,d,p-1;f(X),\hat{f}(X))$
+			\item \prover computes $\hat{f}(X_1,\dots,X_\mu) \in \ZZ(p)[X_1,\dots,X_\mu]$ such that $\hat{f} \bmod p \equiv f$
+			\item \prover and \verifier run $\pro{EvalB}(\params,\gr{C},\vec{z},y,\mu,p-1;f,\hat{f})$
 		    \end{enumerate}
 		    		\vspace{1em}
-		$\pro{EvalB}(\crs,\gr{C}\in \GG,z\in \ZZ_p,y\in \ZZ_p,d=2^\mu-1 \in \NN,b\in \ZZ;f(X)\in\ZZ_p[X],\hat{f}(X)\in \ZZ(b)[X])$		
+		$\pro{EvalB}(\crs,\gr{C}\in \GG,\vec{z}\in \ZZ_p^{\mu},y\in \ZZ_p,\mu \in \NN,b\in \ZZ;f\in\ZZ_p[X_1,\dots,X_\mu],\hat{f}\in \ZZ(b)[X_1,\dots,X_\mu])$		
 	    \begin{enumerate}[nolistsep]
-        \item \pcif $d=0$:
-        \item \label{line:basestart}\pcind[1] \prover sends $\hat{f}(X)\in \ZZ$ to the verifier. \pccomment{$\hat{f}=\hat{f}(X)$ is a constant}
+        \item \pcif $\mu=0$:
+        \item \label{line:basestart}\pcind[1] \prover sends $\hat{f}\in \ZZ$ to the verifier. \pccomment{$\hat{f}$ is a constant}
         \item \pcind[1] \verifier checks that $|\hat{f}|\leq b$
           \item \pcind[1] \verifier checks that $\hat{f}\equiv y \bmod p$
                 \item \label{line:baseend}\pcind[1] \verifier checks that $\hat{f}\cdot \gr{g}=\gr{C}$
 \item \pcind[1] \verifier outputs $1$ \pcif all checks pass, $0$ otherwise.
          \item \pcelse:
        
-        \item \pcind[1] \prover and \verifier compute $d' \gets \frac{d+1}{2} - 1$
-        \item \pcind[1] \prover computes $\hat{f}_L(X) \gets \sum\limits_{i=0}^{d'} \hat{f}_i \cdot X^i$ and $\hat{f}_R(X)\gets\sum\limits_{i=0}^{d'} \hat{f}_{d'+1+i}\cdot X^{i}$
+        \item \pcind[1] \prover and \verifier compute $\mu' \gets \mu-1$
+        \item \pcind[1] \prover computes $\hat{f}_L(X_1,\dots,X_\mu')$ and $\hat{f}_R(X)\gets \hat{f}_{d'+1+i}\cdot X^{i}$
         \item \pcind[1] \prover computes $f_L,f_R$ analogously from $f$
         \item \pcind[1] \prover computes $y_L\gets f_L(z) \bmod p$ and $y_R\gets f_R(z)\bmod p$
         \item \pcind[1] \prover computes $\gr{C}_L \gets \hat{f}_L(q)\cdot  \gr{g}$ and $\gr{C}_R \gets \hat{f}_R(q)\cdot \gr{g}$
