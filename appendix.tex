@@ -769,12 +769,12 @@ Next, we define the algorithms $\textsf{Extract}$ and $\textsf{Extend}$.
 %\textbf{Notes:} Let $f_L/N_L = h_L$ and $f_R/N_R = h_R$ denote the reduced forms. Since $C_L^{N_L} = g^{f_L(q)}$ and $C_R^{N_R} = g^{f_R(q)}$ and $C = C_L \cdot C_R^{q^{d/2}}$ it follows that $C^N = g^{f(q)}$. Furthermore, $N \leq lcm(N_L, N_R) \leq B_0^2$ and $||f|| \leq B_0^2 \cdot max(||f_L||, ||f_R||)$. 
 
 
-\item $\textsf{Extend}(i, h, \alpha_{i+1},...,\alpha_\mu)$ on $h \in \mathbb{Q}[X_1,\dots,X_{\mu-i}]$ returns $\bot$ if $h$ is not $\mu-i$ linear, and otherwise sets $h_i := h$ and runs the following iterative algorithm: for $j = i$ to $\mu-1$ set $h_{j+1} := h_{j, L} + \alpha_{j+1} \cdot h_{j,R}$ where, treating each $h_j$ as a degree ${\mu - j}$ linear polynomial (padding with zero coefficients), $h_{j,L}$ and $h_{j, R}$ are each ${\mu -j - 1}$ linear consisting of the left/right coefficients of $h_j$, i.e. $h_j = h_{j,L} + X_{{\mu - j}}\cdot  h_{j,R}$; return $h_i,...,h_\mu$. \benedikt{double check}
+\item $\textsf{Extend}(i, h, \alpha_{i+1},...,\alpha_\mu)$ on $h \in \mathbb{Q}[X_1,\dots,X_{\mu-i}]$ returns $\bot$ if $h$ is not $\mu-i$ linear, and otherwise sets $h_i := h$ and runs the following iterative algorithm: for $j = i$ to $\mu-1$ set $h_{j+1} := h_{j, L} + \alpha_{j+1} \cdot h_{j,R}$ where, treating each $h_j$ as a degree ${\mu - j}$ linear polynomial (padding with zero coefficients), $h_{j,L}$ and $h_{j, R}$ are each ${\mu -j - 1}$ linear consisting of the left/right coefficients (i.e. the constant and linear part of $X_{\mu-j}$) of $h_j$, i.e. $h_j = h_{j,L} + X_{{\mu - j}}\cdot  h_{j,R}$; return $h_i,...,h_\mu$. \benedikt{double check the indices. I did but it's easy to be off by one}
 
 \textbf{Notes:} 
 The runtime is $O(\lambda \cdot 2^{\mu - i})$. 
 
-If $h_{i}=h_{i,L} + X_{\mu-i} h_{i,R}  \in \mathbb{Z}[X_1,\dots,X_{\mu-i}]$ is the prover's committed polynomial in the $i$th round of the (honest) interactive DARK protocol and $\alpha_{i+1},...,\alpha_\mu$ are the last $\mu - i$ round challenges then $h_\mu$ is the last prover's message sent to the verifier in the interactive DARK protocol. Then $h_\mu=h_i(\alpha_{i+1},\dots,\alpha_\mu)$
+If $h_{i}=h_{i,L} + X_{\mu-i}\cdot  h_{i,R}  \in \mathbb{Z}[X_1,\dots,X_{\mu-i}]$ is the prover's committed polynomial in the $i$th round of the (honest) interactive DARK protocol and $\alpha_{i+1},...,\alpha_\mu$ are the last $\mu - i$ round challenges then $h_\mu$ is the last prover's message sent to the verifier in the interactive DARK protocol. Then $h_\mu=h_i(\alpha_{\mu},\dots,\alpha_{i+1})$
 
 % Let $\mu' = \mu - i$. For $b = (b_1,...,b_{\mu'}) \in \{0,1\}^{\mu'}$ let $\sigma(b) = \sum_{j =1}^{\mu'} b_j \cdot 2^{\mu' - j + 1}$, i.e. $b$ is the binary big-endian representation of $\sigma(b)$. Then $h_\mu = g(r_{i+1},...,\alpha_\mu)$ where $g(X_1,...,X_{\mu'}) = \sum_{b \in \{0,1\}^{\mu'}} h_{\sigma(b)} \prod_{j=1}^{\mu'}X_j^{b_i}$ where $h_j$ is the $j$th coefficient of $h \in \mathbb{Q}[X]$. 
  
@@ -786,7 +786,7 @@ For $i \in [\mu-1]$, if all openings of commitments on children of $\nu$ in $\te
 \end{subclaim} 
 
 \begin{proof}
-We will show why this is a correct opening for $\mathcal{C}_\nu$ and bound its norm. Based on the properties of a valid transcript tree, $\forall_{j \in \{1,2\}} C_L + \alpha_j C_R =  C_{j,L} + q^{2^{\mu - i - 2}} C_{j,R}$ and $y_L + \alpha_j y_R = y_{j,L} + z^{2^{\mu - i -2}} y_{j, R}$. Furthermore, $\forall_{j \in \{1,2\}} N_j \cdot (C_L + \alpha_j C_R ) = f_j(q)$ and $h_j(z) = N_j^{-1} f_j(z) = y_L + \alpha_j y_R \bmod p$ by the assumption that $(f_j, N_j)$ are valid openings to the two children commitments $\mathcal{C}_j$.  Let $L_q(\cdot): \ZZ[X]^2 \rightarrow \ZZ^2$ denote the linear operator corresponding to component-wise evaluation of each polynomial at $q$. Using linear algebra, the following holds true if $\alpha_1 \neq \alpha_2$:
+We will show why this is a correct opening for $\mathcal{C}_\nu$ and bound its norm. Based on the properties of a valid transcript tree, $\forall_{j \in \{1,2\}} C_L + \alpha_j C_R =  C_{j,L} + q^{2^{\mu - i - 2}} C_{j,R}$ and $y_L + \alpha_j y_R = y_{j,L} + z_{{\mu - i 12}} y_{j, R}$. Furthermore, $\forall_{j \in \{1,2\}} N_j \cdot (C_L + \alpha_j C_R ) = f_j(q)$ and $h_j(z) = N_j^{-1} f_j(z) = y_L + \alpha_j y_R \bmod p$ by the assumption that $(f_j, N_j)$ are valid openings to the two children commitments $\mathcal{C}_j$.  Let $L_q(\cdot): \ZZ[X]^2 \rightarrow \ZZ^2$ denote the linear operator corresponding to component-wise evaluation of each polynomial at $\vec{q}$. Using linear algebra, the following holds true if $\alpha_1 \neq \alpha_2$:
 \begin{equation*}
 \begin{array}{c}
 \begin{bmatrix}
@@ -871,7 +871,7 @@ f_2 \\
 \bmod p
 \end{array}
 \end{equation*} 
-This shows that $N \cdot C_L = f_L(q) \cdot \gr{G}$, $N \cdot C_R = f_R(q) \cdot \gr{G}$, $N \cdot y_L = f_L(z) \bmod p$, and $N \cdot y_R = f_R(z) \bmod p$. Furthermore, if $\deg(f_1) < 2^{\mu - i - 1}$ and $\deg(f_2) < 2^{\mu - i - 1}$, then $\deg(f_L) < 2^{\mu - i-1}$ and $\deg(f_R) < 2^{\mu -i -1}$. 
+This shows that $N \cdot C_L = f_L(q) \cdot \gr{G}$, $N \cdot C_R = f_R(\vec{q}) \cdot \gr{G}$, $N \cdot y_L = f_L(\vec{z}) \bmod p$, and $N \cdot y_R = f_R(\vec{z}) \bmod p$. Furthermore, if $f_1$ and $f_2$ are $\mu-i$ linear, then so are $f_L$ and $f_R$. 
 %$$N \cdot (C_L + q^{2^{\mu - i - 1}} C_R) = (f_L(q) + q^{2^{\mu - i -1}} f_R(q)) \cdot \gr{G} = f(q) \cdot \gr{G}$$ 
 
 %$$ \frac{f_L}{N_L} = \frac{N_2 \alpha_2 f_1 - N_1 \alpha_2 f_2}{(\alpha_2 - \alpha_1)N_1 N_2 } \ \ \text{and} \ \ \frac{f_R}{N_R} = \frac{N_1 f_2 - N_2 f_1}{(\alpha_2 - \alpha_1) N_1 N_2}$$
@@ -882,28 +882,28 @@ If $\forall _j ||f_j||_\infty \leq B_i$ and $\forall_j |N_j| \leq B_i$,  then $|
 
 
 \begin{subclaim} [\emph{Key *New* Subclaim}]
-For any $i \in [\mu]$ and $h \in \mathbb{Q}[X]$, if $\phi_a(i, h) = 0$ then the probability over uniform i.i.d. $\alpha_{i+1},...,\alpha_\mu$ that $h_\mu$ returned by $\textsf{Extend}(i,h, \alpha_{i+1},...,\alpha_\mu)$ satisfies $\phi_a(\mu, h_\mu) = 1$ is at most $\frac{3(\mu - i)}{2^\lambda}$. 
+For any $i \in [\mu]$ and $h \in \mathbb{Q}[X_1,\dots,X_{\mu-i}]$, if $\phi_a(i, h) = 0$ then the probability over uniform i.i.d. $\alpha_{i+1},...,\alpha_\mu$ that $h_\mu$ returned by $\textsf{Extend}(i,h, \alpha_{i+1},...,\alpha_\mu)$ satisfies $\phi_a(\mu, h_\mu) = 1$ is at most $\frac{3(\mu - i)}{2^\lambda}$. 
 \end{subclaim} 
 
-Let $f/N = h$ for $\gcd(f, N) = 1$ denote the reduced form of $h \in \mathbb{Q}[X]$. If $\phi_a(i,h) = 0$ then either $N > D_i$ or $||f||_\infty > B_i$ while $\phi_a(\mu, h_\mu) = 1$ implies $h_\mu \in \mathbb{Z}$ and $|h_\mu| \leq B_\mu$.
+Let $f/N = h$ for $\gcd(f, N) = 1$ denote the reduced form of $h \in \mathbb{Q}[X_1,\dots,X_{\mu-i}]$. If $\phi_a(i,h) = 0$ then either $N > D_i$ or $||f||_\infty > B_i$ while $\phi_a(\mu, h_\mu) = 1$ implies $h_\mu \in \mathbb{Z}$ and $|h_\mu| \leq B_\mu$.
 
- Let $\mu' = \mu - i$. Observe that $h_\mu = \frac{1}{N} \cdot g(\alpha_{i+1},...,\alpha_\mu)$ where $g(X_1,...,X_{\mu'}) = \sum_{b \in \{0,1\}^{\mu'}} f_{\sigma(b)} \prod_{j=1}^{\mu'}X_j^{b_j}$ is a multilinear integer polynomial whose $2^{\mu'}$ coefficients are a permutation of the coefficients of $f$. Here $f_j$ denotes the $j$th coefficient of $f \in \mathbb{Z}[X]$ and $\sigma(b)$ is the integer with binary representation $b$. \\
+ Let $\mu' = \mu - i$. Observe that $h_\mu = \frac{1}{N} \cdot f(\alpha_{\mu},...,\alpha_{i+1})$. \\
  
  \noindent \textbf{Case 1 $N > D_i$}: 
  
  If $|N| > D_i$ then since $\log D_i = \mathsf{CSZ}_{\mu - i}$, the probability that $h_\mu \in \mathbb{Z}$ is:
- $$\Prob_{(\alpha_{i+1},...,\alpha_\mu) \gets [0,2^\lambda)^{\mu -i}} [g(\alpha_{i+1},...,\alpha_\mu)\equiv 0 \bmod N]  \leq \frac{\mu - i +1}{2^\lambda}$$
+ $$\Prob_{(\alpha_{i+1},...,\alpha_\mu) \gets [0,2^\lambda)^{\mu -i}} [f(\alpha_{\mu},...,\alpha_{i+1})\equiv 0 \bmod N]  \leq \frac{\mu - i +1}{2^\lambda}$$
 by the Multilinear Composite Schwartz-Zippel Lemma (Lemma~\ref{lem:CSZ}).\\
 
  
 \noindent \textbf{Case 2 $N \leq D_i \ \wedge \ ||f||_\infty > B_i$}: 
  
-In this case if $|h_\mu| \leq B_\mu$ then $|g(\alpha_{i+1},...,\alpha_{\mu})| \leq N \cdot B_\mu \leq \CSZ[\mu - i] \cdot B_\mu$. 
- Furthermore, the facts that $||g||_\infty = ||f||_\infty > B_i$ and $\log B_i = \CSZ[\mu - i] + \EBL[\mu - i] + \log B_\mu$ imply: 
- $$\log (\CSZ[\mu -i] \cdot B_\mu) \leq \log B_i - \EBL[\mu - i ] < \log ||g||_\infty - \EBL[\mu - i]$$
+In this case if $|h_\mu| \leq B_\mu$ then $|f(\alpha_{\mu},...,\alpha_{i+1})| \leq N \cdot B_\mu \leq \CSZ[\mu - i] \cdot B_\mu$. 
+ Furthermore, the fact that $||f||_\infty > B_i$ and $\log B_i = \CSZ[\mu - i] + \EBL[\mu - i] + \log B_\mu$ imply: 
+ $$\log (\CSZ[\mu -i] \cdot B_\mu) \leq \log B_i - \EBL[\mu - i ] < \log ||f||_\infty - \EBL[\mu - i]$$
  
 Hence by the Evaluation Bound Lemma (Lemma~\ref{lem:evalbound}): 
-$$\Prob[h_\mu \leq B_\mu] \leq \Prob[|g(\alpha_{i+1},...,\alpha_{\mu})| \leq D_i \cdot B_\mu] \leq \Prob[|g(\alpha_1,...,\alpha_{\mu-i})| \leq \frac{1}{2^{\EBL[\mu - i]}} \cdot ||g||_\infty] \leq  \frac{3(\mu- i)}{2^{\lambda}}$$
+$$\Prob[h_\mu \leq B_\mu] \leq \Prob[|f(\alpha_{\mu},...,\alpha_{i+1})| \leq D_i \cdot B_\mu] \leq \Prob[|f(\alpha_{\mu},...,\alpha_{i+1})| \leq \frac{1}{2^{\EBL[\mu - i]}} \cdot ||f||_\infty] \leq  \frac{3(\mu- i)}{2^{\lambda}}$$
 
  
 Together these imply that if $\deg(f) \leq 2^{\mu -i}$ but $\phi_a(i, f/N) = 0$ then, since either $|N| > B_i$ or $||f||_\infty > B_i$, the probability over the random challenges that the final element $h_\mu$ of the list returned by $\textsf{Extend}$ satisfies $\phi_a(\mu, h_\mu) = 1$ is negligible. 
@@ -919,7 +919,7 @@ Let $(h'_{i+1},...,h'_\mu)$ denote the output of $\textsf{Extend}(i, h_i, \alpha
 (Note that for $j \geq i+1$, the condition $\phi_a(j, h_j) = 1$ also implies $\phi_b(j, h_j) = 1$).
 
 Let $\mathcal{C}_{j+1} = ((C_{j+1, L}, y_{j+1,L}), (C_{j+1,R}, y_{j+1,R}))$ and $\mathcal{C}_{j} = ((C_{j,L}, y_{j,L}), (C_{j,R},y_{j,R}))$. 
-Let $o_j = (f_j, N_{j})$ denote the opening of $\mathcal{C}_{j}$ to $h_j =\frac{f_j}{N_{j}}$ where $f_{j} = f_{j, L} + X^{2^{\mu - j + 1}} f_{j, R}$. Validity of the opening implies $N_{j} \cdot C_{j,L} = f_{j,L}(q) \cdot \gr{G}$ and $N_{j} \cdot C_{j,R} = f_{j,R}(q) \cdot \gr{G}$. Furthermore, in a valid transcript: 
+Let $o_j = (f_j, N_{j})$ denote the opening of $\mathcal{C}_{j}$ to $h_j =\frac{f_j}{N_{j}}$ where $f_{j} = f_{j, L} + X_{{\mu - j }} f_{j, R}$\benedikt{Check index of $X$}. Validity of the opening implies $N_{j} \cdot C_{j,L} = f_{j,L}(q) \cdot \gr{G}$ and $N_{j} \cdot C_{j,R} = f_{j,R}(q) \cdot \gr{G}$. Furthermore, in a valid transcript: 
  $$C_{j+1}  = C_{j, L} + \alpha_{j+1} \cdot C_{j,R} =  C_{j+1,L} + q^{2^{\mu - j}} C_{j+1,R}$$
   Thus, $(N_{j}, f_{j,L} + \alpha_{j+1} \cdot f_{j, R})$ is a valid opening of $C_{j+1}$ to $h'_{j+1}$ as $N_{j} \cdot C_{j+1} = (f_{j, L}(q) + \alpha_{j+1} \cdot f_{j, R}(q)) \cdot \gr{G}$. 
   
