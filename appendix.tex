@@ -529,15 +529,15 @@ D_V(\tr) = 1  \ \wedge \epsilon(\mathsf{x}, \st) \leq \delta
 
 \item  $\textsf{Extract}(0,x,\textsf{openTree}) \rightarrow w$ takes as inputs openings for the commitments on all nodes in an entire transcript tree satisfying predicate $\phi_a$ (same condition as above for subtrees) and returns a witness $\mathsf{w}$ for the public input $\mathsf{x}$ such that $\mathcal{R}(\mathsf{x},\mathsf{w})=1$. 
 
-\item  $\textsf{Extend}(i, m, r_1,..,r_{\mu-i})$ is a deterministic $\poly$-time algorithm that is given an index $i \in [\mu-1]$, a message $m$ in the message space of the commitment scheme $\textsf{com}$, $\mu-i$ challenges from $\mathcal{X}$, and outputs $\mu-i$ messages $m'_1,...,m'_{\mu-i}$ in the message space of the commitment scheme. 
-\item For any $i \in [\mu-1]$ and $m$ where $\phi_a(i,m) = 0$, the probability over $r_i,...,r_\mu$ sampled uniformly i.i.d. from $\mathcal{X}$ that the last message $m'_{\mu-i}$ in the list returned by $\textsf{Extend}(i, m)$ satisfies $\phi_a(\mu, m'_{\mu-i}) = 1$ is bounded by $\delta(\lambda)$.   
+\item  $\textsf{Extend}(i, m, \alpha_1,..,\alpha_{\mu-i})$ is a deterministic $\poly$-time algorithm that is given an index $i \in [\mu-1]$, a message $m$ in the message space of the commitment scheme $\textsf{com}$, $\mu-i$ challenges from $\mathcal{X}$, and outputs $\mu-i$ messages $m'_1,...,m'_{\mu-i}$ in the message space of the commitment scheme. 
+\item For any $i \in [\mu-1]$ and $m$ where $\phi_a(i,m) = 0$, the probability over $\alpha_i,...,\alpha_\mu$ sampled uniformly i.i.d. from $\mathcal{X}$ that the last message $m'_{\mu-i}$ in the list returned by $\textsf{Extend}(i, m)$ satisfies $\phi_a(\mu, m'_{\mu-i}) = 1$ is bounded by $\delta(\lambda)$.   
 
-\item $\textsf{Break}(i, m, r_1,...,r_\mu, C_0,...,C_\mu, (m_i, o_i),...,(m_{\mu}, o_{\mu}))$ first runs $\textsf{Extend}(i, m, r_i,..,r_{\mu})$, which returns messages $m'_1,...,m'_{\mu-i}$. If  either $\phi_b(i, m_i) = 0$ or $\forall_j$ $m'_j = m_{i + j -1}$ then it outputs $\bot$. Otherwise it outputs an attempted opening $(m', o')$ of $C_j$ for some index $j \geq i$ where $m' \neq m_j$. %\benedikt{Change break to output bot if phib is 0.}
+\item $\textsf{Break}(i, m, \alpha_1,...,\alpha_\mu, C_0,...,C_\mu, (m_i, o_i),...,(m_{\mu}, o_{\mu}))$ first runs $\textsf{Extend}(i, m, \alpha_i,..,\alpha_{\mu})$, which returns messages $m'_1,...,m'_{\mu-i}$. If  either $\phi_b(i, m_i) = 0$ or $\forall_j$ $m'_j = m_{i + j -1}$ then it outputs $\bot$. Otherwise it outputs an attempted opening $(m', o')$ of $C_j$ for some index $j \geq i$ where $m' \neq m_j$. %\benedikt{Change break to output bot if phib is 0.}
 
 
 %\item For any $i \in [\mu-1]$ and algorithm $\mathcal{A}$ that runs in time at most $t_\mathcal{A} \in O(\poly)$ to generate a valid (accepting) transcript with commitments $(C_0,...,C_\mu)$ and openings $((m_{i+1},o_{i+1}),...,(m_\mu, o_\mu))$ to the last $\mu-i$ commitments, where $\phi_b(j, m_j, o_j) = 1$ for all $j \in [i+1,\mu]$, then $\textsf{Extend}(i, m_i)$ returns $m_{i+1},...,m_{\mu}$ in time $t_E$ with overwhelming probability $1 - \delta(t_\mathcal{A} + t_E)$ over the internal randomness of $\mathcal{A}$ (and randomness of the commitment scheme setup if applicable).  
 
-\item For any $i \in [\mu-1]$, given a valid (accepting) transcript with commitments $\mathbf{C} = (C_0,...,C_\mu)$, round challenges $\mathbf{r} = (r_1,...,r_{\mu})$, and openings $\mathbf{open} = ((m_{i},o_{i}),...,(m_\mu, o_\mu))$ to the last $\mu-i+1$ commitments, where $\phi_b(i, m_i) = 1$ and $\phi_a(j, m_j) = 1$ for all $j \in [i+1,\mu]$, either $\textsf{Extend}(i, m_i, r_{i+1},...,r_\mu)$ returns $m_{i+1},...,m_{\mu}$ or $\textsf{Break}(i, m_i, \mathbf{r}, \mathbf{C}, \mathbf{open})$ returns an opening $(m', o')$ of some $C_j$ to a conflicting message $m' \neq m_j \in \mathcal{M}$, which breaks the binding of the commitment scheme over $\mathcal{M}$.
+\item For any $i \in [\mu-1]$, given a valid (accepting) transcript with commitments $\mathbf{C} = (C_0,...,C_\mu)$, round challenges $\mathbf{r} = (\alpha_1,...,\alpha_{\mu})$, and openings $\mathbf{open} = ((m_{i},o_{i}),...,(m_\mu, o_\mu))$ to the last $\mu-i+1$ commitments, where $\phi_b(i, m_i) = 1$ and $\phi_a(j, m_j) = 1$ for all $j \in [i+1,\mu]$, either $\textsf{Extend}(i, m_i, \alpha_{i+1},...,\alpha_\mu)$ returns $m_{i+1},...,m_{\mu}$ or $\textsf{Break}(i, m_i, \mathbf{r}, \mathbf{C}, \mathbf{open})$ returns an opening $(m', o')$ of some $C_j$ to a conflicting message $m' \neq m_j \in \mathcal{M}$, which breaks the binding of the commitment scheme over $\mathcal{M}$.
 \end{enumerate} 
 
 \textbf{Short-hand notation:} An interactive proof is $(k^{(\mu)}, \delta)$-almost-special-sound if it is $(k^{(\mu)}, \delta, \com, \phi)$-almost-special-sound for some commitment scheme $\textsf{com}$ and some predicate pair $\phi$. We may omit $\delta$ and simply write $k^{(\mu)}$-almost-special-soundness if this holds for some negligible function $\delta: \mathbb{N} \rightarrow \mathbb{R}$. 
@@ -682,8 +682,8 @@ Initially, during the execution of $\eval$, the prover maps the coefficients of 
  
 If $f$ is $\mu$-linear then in round $i$ of the protocol the $\prover$ can compute $i-1$ linear polynomials $f_L$ and $f_R$ such that $f_L(X_1,\dots,X_{i-1})+X_i f_R(X_1,\dots,X_{i-1})=f(X_1,\dots,X_i)$. Consequently $f(z_1,\dots,z_{i}) \bmod p=f_L(z_1,\dots,z_{i-1})+ z_i f_R(z_1,\dots,z_{i-1})\bmod p=y_L+z_i  y_R\bmod p =y$. The \textsf{PoE} protocol has perfect correctness so {$\gr{g}^{f_L(q)+q^{\frac{d+1}{2}} f_R(X)}=\gr{C}$}.
  %\gr{C}_L\gr{C}_R^{(q^{\frac{d+1}{2}})}
- Finally $f'=\alpha f_L + f_R \in \ZZ(2^{\lambda} \cdot b)$ is an $i-1$-linear polynomial with coefficients bounded in absolute value by $(2^\lambda-1) \cdot b+b=2^{\lambda} b$, as $\alpha\in [0,2^\lambda)$. This is precisely the value of $b'$ the input to the next call of $\pro{EvalB}$. The value $y'$ is also correct:
-$f'(z_1,\dots,z_{i-1})\bmod p=\alpha f_L(z_1,\dots,z_{i-1}) +f_R(z_1,\dots,z_{i-1}) \bmod p= \alpha y_L +y_R\bmod p=y'$
+ Finally $f'= f_L +\alpha\cdot  f_R \in \ZZ(2^{\lambda} \cdot b)$ is an $i-1$-linear polynomial with coefficients bounded in absolute value by $(2^\lambda-1) \cdot b+b=2^{\lambda} b$, as $\alpha\in [0,2^\lambda)$. This is precisely the value of $b'$ the input to the next call of $\pro{EvalB}$. The value $y'$ is also correct:
+$f'(z_1,\dots,z_{i-1})\bmod p=f_L(z_1,\dots,z_{i-1}) +\alpha  \cdot f_R(z_1,\dots,z_{i-1}) \bmod p= y_L +\alpha  \cdot y_R\bmod p=y'$
  
  In the final round, the prover sends $f$, and the verifier checks that $|f|<b$ which is true by construction.
 \end{proof} 
@@ -761,32 +761,24 @@ $$2(\lambda + 1 +  \CSZ[\mu]) \leq \frac{1}{2}(\log q - 1 - \EBL[\mu] - \Correct
 Next, we define the algorithms $\textsf{Extract}$ and $\textsf{Extend}$. 
 
 \begin{itemize} 
-\item $\textsf{Extract}(i, \nu, C_\nu, \textsf{openSubtree})$ for $i < \mu$ operates as follows. Let $\mathcal{C}_\nu = (C_L, C_R)$. The node $\nu$ has two children. Let $r_1$ denote the label on the edge to the first child and $r_2$ the label on the edge to the second child. For $j \in \{1,2\}$, let $\mathcal{C}_j = ((C_{j,L}, y_{j, L}), (C_{j,R}, y_{j,R}))$ denote the commitment label of the $i$th child with openings $(f_j, N_j)$ to $h_j = f_j/N_j$ where for $i<\mu-1$ $f_j = f_{j, L} + X_{\mu - i - 1} f_{j, R}$, and $h_j(z) = y_{j,L} + z_{{\mu - i -1}}\cdot  y_{j,R} \bmod p$. Set $N = (r_2 - r_1) N_1 N_2$, $f_L = r_2 N_2 f_1 - r_1 N_1 f_2$, and $f_R = N_1 f_2 - N_2 f_1$. Set $f = f_L + X^{2^{\mu - i -1}} f_R$. Return $(f, N)$ as the opening for $C_\nu$ to $h = f/N$. 
+\item $\textsf{Extract}(i, \nu, C_\nu, \textsf{openSubtree})$ for $i < \mu$ operates as follows. Let $\mathcal{C}_\nu = (C_L, C_R)$. The node $\nu$ has two children. Let $\alpha_1$ denote the label on the edge to the first child and $\alpha_2$ the label on the edge to the second child. For $j \in \{1,2\}$, let $\mathcal{C}_j = ((C_{j,L}, y_{j, L}), (C_{j,R}, y_{j,R}))$ denote the commitment label of the $i$th child with openings $(f_j, N_j)$ to $h_j = f_j/N_j$ where for $i<\mu-1$ $f_j = f_{j, L} + X_{\mu - i - 1} f_{j, R}$, and $h_j(z) = y_{j,L} + z_{{\mu - i -1}}\cdot  y_{j,R} \bmod p$. Set $N = (\alpha_2 - \alpha_1) N_1 N_2$, $f_L = \alpha_2 N_2 f_1 - \alpha_1 N_1 f_2$, and $f_R = N_1 f_2 - N_2 f_1$. Set $f = f_L + X_{{\mu - i }}\cdot f_R$. Return $(f, N)$ as the opening for $C_\nu$ to $h = f/N$. 
 
 
- %Solve for $(f_L, N_L)$ and $(f_R, N_R)$ such that $h_j = \frac{f_L}{N_L} + r_j \frac{f_R}{N_R}$ and $N_L \cdot C_L= f_L(q) \cdot \gr{G}$ and $N_R \cdot C_R = f_R(q)\cdot \gr{G}$ for $j \in \{1,2\}$, which has a solution so long as $r_1 \neq r_2$. Let $N = lcm(N_L, N_R)$ and $f = \frac{N}{N_L} f_L + X^{2^{\mu - i}} \frac{N}{N_R} f_R$. Return $(f, N)$ as the opening for $C_\nu$.
-
-%$\textsf{Extract}(i, \nu, C_\nu, \textsf{openSubtree})$ for $i < \mu$ operates as follows. Let $\mathcal{C}_\nu = (C_L, C_R)$. The node $\nu$ has three children. Let $r_1$ denote the label on the edge to the first child and $r_2$ the label on the edge to the second child. For $j \in \{1,2\}$, let $\mathcal{C}_j = (C_{j,L}, C_{j,R})$ denote the commitment label of the $i$th child with openings $h_{j,L}, h_{j,R} \in \mathbb{Q}[X]$. Let $d_i = 2^{\mu - i -1}$. Let $h_j  = h_{j, L}+ X^{d_i/2} \cdot h_{j, R}$. Solve uniquely for $h_L$ and $h_R$ such that $h_j = h_L + r_j h_R$ for $j \in \{1,2\}$, which has a unique solution over $\mathbb{Q}[X]$ so long as $r_1 \neq r_2$. Return $(h_L, h_R)$ as the opening for $C_\nu$. 
-
-%$(f_{j,L}/N_{j,L}, f_{j,R}/N_{j,R})$. Let $d_i = 2^{\mu - i -1}$. Let $h_j  = f_{j, L}/N_{j,L} + X^{d_i/2} \cdot f_{j, R}/N_{j,R}$. Solve uniquely for reduced form rational polynomials $f_L/N_L$ and $f_R/N_R$ such that $h_j = f_L/N_L + r_j f_R/N_R$ for $j \in \{1,2\}$, which has a unique solution over $\mathbb{Q}[X]$ so long as $r_1 \neq r_2$. Return $(f_L/N_L, f_R/N_R)$ as the opening for $C_\nu$. 
-
-%\textbf{Notes:} Let $h_{j,L} = f_{j,L}/N_{j,L}$, $h_{j, R} = f_{j, R}/N_{j,R}$, $h_L = f_L/N_L$, and $h_R = f_R/N_R$ in reduced form.  If $deg(f_{j,L}), deg(f_{j,R}) < d_i/2$ then $deg(f_L), deg(f_R) < d_i$. Since $C_L \cdot C_R^{\alpha_j} = C_{j,L} \cdot C_{j, R}^{q^{d_i/2}}$ and $C_{j, L}^{N_{j,L}}= g^{f_{j,L}(q)}$ and $C_{j, R}^{N_{j,R}} = g^{f_{j,R}(q)}$ it follows that $C_L^{N_L} = g^{f_L(q)}$ and $C_R^{N_R} = g^{f_R(q)}$. Write out the matrices to show this. Furthermore, let $\ell = lcm (N_{1,L}, N_{1,R}, N_{2, L}, N_{2, R}) \leq B_i^4$ then $|N_L| \leq \alpha_2 \cdot\ell$ and $|N_R| \leq |\alpha_1 - \alpha_2| \cdot \ell$. Bound on $||f_L||$ and $||f_R||$? At most $2^{\lambda+1} B_i^3 \cdot max \{||f_{1,L}|| + ||f_{2,L}||, ||f_{1, R}|| + ||f_{2,R}||\} $. 
-
-\item \textsf{Extract}(0, (C, z, y), \textsf{openTree}) simply returns the opening $(f, N)$ for the root level commitment $((C_L, y_L), (C_R, y_R))$ to $h = f/N$, which satisfies $N \cdot C = f(q) \cdot \gr{G}$ and $h(z) = y$, since in a valid transcript tree $C = C_L + q^{2^{\mu -1}} C_R$ and $y_L + z^{2^{\mu -1}} y_R = y$.  Furthermore, if $\phi_a(0, h) = 1$ then $h \in \mathcal{M}(B_0, D_0) \subset \mathcal{M}(\beta_\textsf{n}, \beta_\textsf{d})$, and hence $\mathsf{w} = (f, N)$ is a witness for $\mathsf{x} = (C, z, y)$ such that $R(\mathsf{x}, \mathsf{w}) = 1$. 
+\item \textsf{Extract}(0, (C, z, y), \textsf{openTree}) simply returns the opening $(f, N)$ for the root level commitment $((C_L, y_L), (C_R, y_R))$ to $h = f/N$, which satisfies $N \cdot C = f(q) \cdot \gr{G}$ and $h(z) = y$, since in a valid transcript tree $C = C_L + q^{2^{\mu -1}} C_R$ and $y_L + z_{\mu} \cdot y_R = y$.  Furthermore, if $\phi_a(0, h) = 1$ then $h \in \mathcal{M}(B_0, D_0) \subset \mathcal{M}(\beta_\textsf{n}, \beta_\textsf{d})$, and hence $\mathsf{w} = (f, N)$ is a witness for $\mathsf{x} = (C, z, y)$ such that $R(\mathsf{x}, \mathsf{w}) = 1$. 
 
 %\textbf{Notes:} Let $f_L/N_L = h_L$ and $f_R/N_R = h_R$ denote the reduced forms. Since $C_L^{N_L} = g^{f_L(q)}$ and $C_R^{N_R} = g^{f_R(q)}$ and $C = C_L \cdot C_R^{q^{d/2}}$ it follows that $C^N = g^{f(q)}$. Furthermore, $N \leq lcm(N_L, N_R) \leq B_0^2$ and $||f|| \leq B_0^2 \cdot max(||f_L||, ||f_R||)$. 
 
 
-\item $\textsf{Extend}(i, h, r_{i+1},...,r_\mu)$ on $h \in \mathbb{Q}[X]$ returns $\bot$ if $\deg(h) > 2^{\mu - i}$, and otherwise sets $h_i := h$ and runs the following iterative algorithm: for $j = i$ to $\mu-1$ set $h_{j+1} := h_{j, L} + r_{j+1} \cdot h_{j,R}$ where, treating each $h_j$ as a degree $2^{\mu - j} -1$ polynomial (padding with zero coefficients), $h_{j,L}$ and $h_{j, R}$ are each degree $2^{\mu -j - 1} - 1$ consisting of the left/right coefficients of $h_j$, i.e. $h_j = h_{j,L} + X^{2^{\mu - j - 1}} h_{j,R}$; return $h_i,...,h_\mu$. 
+\item $\textsf{Extend}(i, h, \alpha_{i+1},...,\alpha_\mu)$ on $h \in \mathbb{Q}[X_1,\dots,X_{\mu-i}]$ returns $\bot$ if $h$ is not $\mu-i$ linear, and otherwise sets $h_i := h$ and runs the following iterative algorithm: for $j = i$ to $\mu-1$ set $h_{j+1} := h_{j, L} + \alpha_{j+1} \cdot h_{j,R}$ where, treating each $h_j$ as a degree ${\mu - j}$ linear polynomial (padding with zero coefficients), $h_{j,L}$ and $h_{j, R}$ are each ${\mu -j - 1}$ linear consisting of the left/right coefficients of $h_j$, i.e. $h_j = h_{j,L} + X_{{\mu - j}}\cdot  h_{j,R}$; return $h_i,...,h_\mu$. \benedikt{double check}
 
 \textbf{Notes:} 
 The runtime is $O(\lambda \cdot 2^{\mu - i})$. 
 
-If $h_{i,L}, h_{i,R}  \in \mathbb{Z}[X]$ are the prover's committed polynomials in the $i$th round of the (honest) interactive DARK protocol and $r_{i+1},...,r_\mu$ are the last $\mu - i$ round challenges then $h_\mu$ is the last prover's message sent to the verifier in the interactive DARK protocol. 
+If $h_{i}=h_{i,L} + X_{\mu-i} h_{i,R}  \in \mathbb{Z}[X_1,\dots,X_{\mu-i}]$ is the prover's committed polynomial in the $i$th round of the (honest) interactive DARK protocol and $\alpha_{i+1},...,\alpha_\mu$ are the last $\mu - i$ round challenges then $h_\mu$ is the last prover's message sent to the verifier in the interactive DARK protocol. Then $h_\mu=h_i(\alpha_{i+1},\dots,\alpha_\mu)$
 
- Let $\mu' = \mu - i$. For $b = (b_1,...,b_{\mu'}) \in \{0,1\}^{\mu'}$ let $\sigma(b) = \sum_{j =1}^{\mu'} b_j \cdot 2^{\mu' - j + 1}$, i.e. $b$ is the binary big-endian representation of $\sigma(b)$. Then $h_\mu = g(r_{i+1},...,r_\mu)$ where $g(X_1,...,X_{\mu'}) = \sum_{b \in \{0,1\}^{\mu'}} h_{\sigma(b)} \prod_{j=1}^{\mu'}X_j^{b_i}$ where $h_j$ is the $j$th coefficient of $h \in \mathbb{Q}[X]$. 
+% Let $\mu' = \mu - i$. For $b = (b_1,...,b_{\mu'}) \in \{0,1\}^{\mu'}$ let $\sigma(b) = \sum_{j =1}^{\mu'} b_j \cdot 2^{\mu' - j + 1}$, i.e. $b$ is the binary big-endian representation of $\sigma(b)$. Then $h_\mu = g(r_{i+1},...,\alpha_\mu)$ where $g(X_1,...,X_{\mu'}) = \sum_{b \in \{0,1\}^{\mu'}} h_{\sigma(b)} \prod_{j=1}^{\mu'}X_j^{b_i}$ where $h_j$ is the $j$th coefficient of $h \in \mathbb{Q}[X]$. 
  
- \item $\textsf{Break}(i, h, r_1,...,r_\mu, C_0,...,C_\mu, (f_i, N_i),...,(f_\mu, N_\mu))$\footnote{For simplicity, we omit the messages $h_i = f_i/N_i$ from the inputs because it can be computed from the opening $(f_i, N_i)$.}  first runs $\textsf{Extend}(i, h, r_i,..,r_{\mu})$, which returns rational polynomials $h'_{i+1},...,h'_{\mu}$. If $\forall_{j \geq i}$ $h'_j = f_j/N_j$ then it outputs $\bot$. Otherwise, let $j \in [i, \mu)$ be the \textit{first} index where $h'_{j+1}\neq f_{j+1}/N_{j+1}$ and output $(N_j, f_{j, L} + r_{j+1} \cdot  f_{j, R})$, where $f_{j, L}$ and $f_{j, R}$ are the left/right halves of $f_j$, as the attempted opening for $C_{j+1}$.
+ \item $\textsf{Break}(i, h, \alpha_1,...,\alpha_\mu, C_0,...,C_\mu, (f_i, N_i),...,(f_\mu, N_\mu))$\footnote{For simplicity, we omit the messages $h_i = f_i/N_i$ from the inputs because it can be computed from the opening $(f_i, N_i)$.}  first runs $\textsf{Extend}(i, h, \alpha_i,..,\alpha_{\mu})$, which returns rational polynomials $h'_{i+1},...,h'_{\mu}$. If $\forall_{j \geq i}$ $h'_j = f_j/N_j$ then it outputs $\bot$. Otherwise, let $j \in [i, \mu)$ be the \textit{first} index where $h'_{j+1}\neq f_{j+1}/N_{j+1}$ and output $(N_j, f_{j, L} + \alpha_{j+1} \cdot  f_{j, R})$, where $f_{j, L}$ and $f_{j, R}$ are the left/right halves of $f_j$, as the attempted opening for $C_{j+1}$.
 \end{itemize}
 
 \begin{subclaim} 
@@ -794,7 +786,7 @@ For $i \in [\mu-1]$, if all openings of commitments on children of $\nu$ in $\te
 \end{subclaim} 
 
 \begin{proof}
-We will show why this is a correct opening for $\mathcal{C}_\nu$ and bound its norm. Based on the properties of a valid transcript tree, $\forall_{j \in \{1,2\}} C_L + r_j C_R =  C_{j,L} + q^{2^{\mu - i - 2}} C_{j,R}$ and $y_L + r_j y_R = y_{j,L} + z^{2^{\mu - i -2}} y_{j, R}$. Furthermore, $\forall_{j \in \{1,2\}} N_j \cdot (C_L + r_j C_R ) = f_j(q)$ and $h_j(z) = N_j^{-1} f_j(z) = y_L + r_j y_R \bmod p$ by the assumption that $(f_j, N_j)$ are valid openings to the two children commitments $\mathcal{C}_j$.  Let $L_q(\cdot): \ZZ[X]^2 \rightarrow \ZZ^2$ denote the linear operator corresponding to component-wise evaluation of each polynomial at $q$. Using linear algebra, the following holds true if $r_1 \neq r_2$:
+We will show why this is a correct opening for $\mathcal{C}_\nu$ and bound its norm. Based on the properties of a valid transcript tree, $\forall_{j \in \{1,2\}} C_L + \alpha_j C_R =  C_{j,L} + q^{2^{\mu - i - 2}} C_{j,R}$ and $y_L + \alpha_j y_R = y_{j,L} + z^{2^{\mu - i -2}} y_{j, R}$. Furthermore, $\forall_{j \in \{1,2\}} N_j \cdot (C_L + \alpha_j C_R ) = f_j(q)$ and $h_j(z) = N_j^{-1} f_j(z) = y_L + \alpha_j y_R \bmod p$ by the assumption that $(f_j, N_j)$ are valid openings to the two children commitments $\mathcal{C}_j$.  Let $L_q(\cdot): \ZZ[X]^2 \rightarrow \ZZ^2$ denote the linear operator corresponding to component-wise evaluation of each polynomial at $q$. Using linear algebra, the following holds true if $\alpha_1 \neq \alpha_2$:
 \begin{equation*}
 \begin{array}{c}
 \begin{bmatrix}
@@ -802,8 +794,8 @@ N_1 & 0 \\
 0 & N_2 \\
 \end{bmatrix} 
 \begin{bmatrix}
-1 & r_1 \\
-1 & r_2 \\
+1 & \alpha_1 \\
+1 & \alpha_2 \\
 \end{bmatrix} 
 \begin{bmatrix}
 C_L \\
@@ -818,7 +810,7 @@ f_2\\
 \right)
  \cdot \gr{G} \\
 \Downarrow\\
-(r_2 - r_1) N_1 N_2 
+(\alpha_2 - \alpha_1) N_1 N_2 
 \begin{bmatrix}
 C_L \\
 C_R \\
@@ -826,7 +818,7 @@ C_R \\
 = 
 L_q\left(
 \begin{bmatrix}
-r_2 N_2 & -r_2 N_1 \\
+\alpha_2 N_2 & -\alpha_2 N_1 \\
 -N_2 & N_1 \\
 \end{bmatrix}
 \begin{bmatrix}
@@ -845,8 +837,8 @@ N_1 & 0 \\
 0 & N_2 \\
 \end{bmatrix} 
 \begin{bmatrix}
-1 & r_1 \\
-1 & r_2 \\
+1 & \alpha_1 \\
+1 & \alpha_2 \\
 \end{bmatrix} 
 \begin{bmatrix}
 y_L \\
@@ -860,7 +852,7 @@ f_2\\
 \end{bmatrix}
 \right) \bmod p\\
 \Downarrow\\
-(r_2 - r_1) N_1 N_2 
+(\alpha_2 - \alpha_1) N_1 N_2 
 \begin{bmatrix}
 y_L \\
 y_R \\
@@ -868,7 +860,7 @@ y_R \\
 = 
 L_z \left(
 \begin{bmatrix}
-r_2 N_2 & -r_2 N_1 \\
+\alpha_2 N_2 & -\alpha_2 N_1 \\
 -N_2 & N_1 \\
 \end{bmatrix}
 \begin{bmatrix}
@@ -882,7 +874,7 @@ f_2 \\
 This shows that $N \cdot C_L = f_L(q) \cdot \gr{G}$, $N \cdot C_R = f_R(q) \cdot \gr{G}$, $N \cdot y_L = f_L(z) \bmod p$, and $N \cdot y_R = f_R(z) \bmod p$. Furthermore, if $\deg(f_1) < 2^{\mu - i - 1}$ and $\deg(f_2) < 2^{\mu - i - 1}$, then $\deg(f_L) < 2^{\mu - i-1}$ and $\deg(f_R) < 2^{\mu -i -1}$. 
 %$$N \cdot (C_L + q^{2^{\mu - i - 1}} C_R) = (f_L(q) + q^{2^{\mu - i -1}} f_R(q)) \cdot \gr{G} = f(q) \cdot \gr{G}$$ 
 
-%$$ \frac{f_L}{N_L} = \frac{N_2 r_2 f_1 - N_1 r_2 f_2}{(r_2 - r_1)N_1 N_2 } \ \ \text{and} \ \ \frac{f_R}{N_R} = \frac{N_1 f_2 - N_2 f_1}{(r_2 - r_1) N_1 N_2}$$
+%$$ \frac{f_L}{N_L} = \frac{N_2 \alpha_2 f_1 - N_1 \alpha_2 f_2}{(\alpha_2 - \alpha_1)N_1 N_2 } \ \ \text{and} \ \ \frac{f_R}{N_R} = \frac{N_1 f_2 - N_2 f_1}{(\alpha_2 - \alpha_1) N_1 N_2}$$
 
 If $\forall _j ||f_j||_\infty \leq B_i$ and $\forall_j |N_j| \leq B_i$,  then $|N|  \leq 2^{\lambda + 1} D_i^2$ and $||f||_\infty \leq 2^{\lambda + 1} B_i D_i$. Thus, if the openings of the children at level $i+1$ satisfy $\phi_a(i+1, f_j/N_j) = 1$ for $j \in \{1, 2\}$, then $\phi_b(i, f/N) = 1$. %In other words, if the openings $(f_j, N_j)$ for $h_j = f_j/N_j$ of the children at level $i+1$ satisfy $\phi_a(i+1, h_j, f_j, N_j) = 1$ then $\phi_b(i, h, f, N) = 1$. 
 \end{proof} 
@@ -890,28 +882,28 @@ If $\forall _j ||f_j||_\infty \leq B_i$ and $\forall_j |N_j| \leq B_i$,  then $|
 
 
 \begin{subclaim} [\emph{Key *New* Subclaim}]
-For any $i \in [\mu]$ and $h \in \mathbb{Q}[X]$, if $\phi_a(i, h) = 0$ then the probability over uniform i.i.d. $r_{i+1},...,r_\mu$ that $h_\mu$ returned by $\textsf{Extend}(i,h, r_{i+1},...,r_\mu)$ satisfies $\phi_a(\mu, h_\mu) = 1$ is at most $\frac{3(\mu - i)}{2^\lambda}$. 
+For any $i \in [\mu]$ and $h \in \mathbb{Q}[X]$, if $\phi_a(i, h) = 0$ then the probability over uniform i.i.d. $\alpha_{i+1},...,\alpha_\mu$ that $h_\mu$ returned by $\textsf{Extend}(i,h, \alpha_{i+1},...,\alpha_\mu)$ satisfies $\phi_a(\mu, h_\mu) = 1$ is at most $\frac{3(\mu - i)}{2^\lambda}$. 
 \end{subclaim} 
 
-Let $f/N = h$ for $gcd(f, N) = 1$ denote the reduced form of $h \in \mathbb{Q}[X]$. If $\phi_a(i,h) = 0$ then either $N > D_i$ or $||f||_\infty > B_i$ while $\phi_a(\mu, h_\mu) = 1$ implies $h_\mu \in \mathbb{Z}$ and $|h_\mu| \leq B_\mu$.
+Let $f/N = h$ for $\gcd(f, N) = 1$ denote the reduced form of $h \in \mathbb{Q}[X]$. If $\phi_a(i,h) = 0$ then either $N > D_i$ or $||f||_\infty > B_i$ while $\phi_a(\mu, h_\mu) = 1$ implies $h_\mu \in \mathbb{Z}$ and $|h_\mu| \leq B_\mu$.
 
- Let $\mu' = \mu - i$. Observe that $h_\mu = \frac{1}{N} \cdot g(r_{i+1},...,r_\mu)$ where $g(X_1,...,X_{\mu'}) = \sum_{b \in \{0,1\}^{\mu'}} f_{\sigma(b)} \prod_{j=1}^{\mu'}X_j^{b_j}$ is a multilinear integer polynomial whose $2^{\mu'}$ coefficients are a permutation of the coefficients of $f$. Here $f_j$ denotes the $j$th coefficient of $f \in \mathbb{Z}[X]$ and $\sigma(b)$ is the integer with binary representation $b$. \\
+ Let $\mu' = \mu - i$. Observe that $h_\mu = \frac{1}{N} \cdot g(\alpha_{i+1},...,\alpha_\mu)$ where $g(X_1,...,X_{\mu'}) = \sum_{b \in \{0,1\}^{\mu'}} f_{\sigma(b)} \prod_{j=1}^{\mu'}X_j^{b_j}$ is a multilinear integer polynomial whose $2^{\mu'}$ coefficients are a permutation of the coefficients of $f$. Here $f_j$ denotes the $j$th coefficient of $f \in \mathbb{Z}[X]$ and $\sigma(b)$ is the integer with binary representation $b$. \\
  
  \noindent \textbf{Case 1 $N > D_i$}: 
  
  If $|N| > D_i$ then since $\log D_i = \mathsf{CSZ}_{\mu - i}$, the probability that $h_\mu \in \mathbb{Z}$ is:
- $$\Prob_{(r_{i+1},...,r_\mu) \gets [0,2^\lambda)^{\mu -i}} [g(r_{i+1},...,r_\mu)\equiv 0 \bmod N]  \leq \frac{\mu - i +1}{2^\lambda}$$
+ $$\Prob_{(\alpha_{i+1},...,\alpha_\mu) \gets [0,2^\lambda)^{\mu -i}} [g(\alpha_{i+1},...,\alpha_\mu)\equiv 0 \bmod N]  \leq \frac{\mu - i +1}{2^\lambda}$$
 by the Multilinear Composite Schwartz-Zippel Lemma (Lemma~\ref{lem:CSZ}).\\
 
  
 \noindent \textbf{Case 2 $N \leq D_i \ \wedge \ ||f||_\infty > B_i$}: 
  
-In this case if $|h_\mu| \leq B_\mu$ then $|g(r_{i+1},...,r_{\mu})| \leq N \cdot B_\mu \leq \CSZ[\mu - i] \cdot B_\mu$. 
+In this case if $|h_\mu| \leq B_\mu$ then $|g(\alpha_{i+1},...,\alpha_{\mu})| \leq N \cdot B_\mu \leq \CSZ[\mu - i] \cdot B_\mu$. 
  Furthermore, the facts that $||g||_\infty = ||f||_\infty > B_i$ and $\log B_i = \CSZ[\mu - i] + \EBL[\mu - i] + \log B_\mu$ imply: 
  $$\log (\CSZ[\mu -i] \cdot B_\mu) \leq \log B_i - \EBL[\mu - i ] < \log ||g||_\infty - \EBL[\mu - i]$$
  
 Hence by the Evaluation Bound Lemma (Lemma~\ref{lem:evalbound}): 
-$$\Prob[h_\mu \leq B_\mu] \leq \Prob[|g(r_{i+1},...,r_{\mu})| \leq D_i \cdot B_\mu] \leq \Prob[|g(r_1,...,r_{\mu-i})| \leq \frac{1}{2^{\EBL[\mu - i]}} \cdot ||g||_\infty] \leq  \frac{3(\mu- i)}{2^{\lambda}}$$
+$$\Prob[h_\mu \leq B_\mu] \leq \Prob[|g(\alpha_{i+1},...,\alpha_{\mu})| \leq D_i \cdot B_\mu] \leq \Prob[|g(\alpha_1,...,\alpha_{\mu-i})| \leq \frac{1}{2^{\EBL[\mu - i]}} \cdot ||g||_\infty] \leq  \frac{3(\mu- i)}{2^{\lambda}}$$
 
  
 Together these imply that if $\deg(f) \leq 2^{\mu -i}$ but $\phi_a(i, f/N) = 0$ then, since either $|N| > B_i$ or $||f||_\infty > B_i$, the probability over the random challenges that the final element $h_\mu$ of the list returned by $\textsf{Extend}$ satisfies $\phi_a(\mu, h_\mu) = 1$ is negligible. 
@@ -919,17 +911,17 @@ Together these imply that if $\deg(f) \leq 2^{\mu -i}$ but $\phi_a(i, f/N) = 0$ 
 \end{proof} 
 
 \begin{subclaim} 
- For any $i \in [\mu-1]$, given a valid (accepting) transcript with commitments $(\mathcal{C}_0,...,\mathcal{C}_\mu)$, round challenges $(r_1,...,r_\mu)$, and openings $(o_i,...,o_\mu)$ of the last $\mu-i + 1$ commitments to rational polynomials $(h_i,,...,h_\mu)$, where $\phi_b(i, h_i) = 1$ and $\phi_a(j, h_j) = 1$ for all $j \in [i+1,\mu]$, then either $\textsf{Extend}(i, h_i, r_{i+1},...,r_\mu)$ returns $h_{i+1},...,h_{\mu}$ or $\textsf{Break}(i, h_i, (h_i, o_i),...,(h_\mu, o_\mu))$ returns for some $j \geq i$ a valid opening of $\mathcal{C}_j$ to $h'_j \neq h_j$.  %in time $t_E$ with overwhelming probability $1 - \mathsf{RSA}(\GG, t_\mathcal{A} + t_E)$ over the internal randomness of $\mathcal{A}$, where $\mathsf{RSA}(\GG, t)$ denotes the maximum success probability of any $t$-step algorithm in breaking the Strong RSA Assumption over $\GG$. 
+ For any $i \in [\mu-1]$, given a valid (accepting) transcript with commitments $(\mathcal{C}_0,...,\mathcal{C}_\mu)$, round challenges $(\alpha_1,...,\alpha_\mu)$, and openings $(o_i,...,o_\mu)$ of the last $\mu-i + 1$ commitments to rational polynomials $(h_i,,...,h_\mu)$, where $\phi_b(i, h_i) = 1$ and $\phi_a(j, h_j) = 1$ for all $j \in [i+1,\mu]$, then either $\textsf{Extend}(i, h_i, \alpha_{i+1},...,\alpha_\mu)$ returns $h_{i+1},...,h_{\mu}$ or $\textsf{Break}(i, h_i, (h_i, o_i),...,(h_\mu, o_\mu))$ returns for some $j \geq i$ a valid opening of $\mathcal{C}_j$ to $h'_j \neq h_j$.  %in time $t_E$ with overwhelming probability $1 - \mathsf{RSA}(\GG, t_\mathcal{A} + t_E)$ over the internal randomness of $\mathcal{A}$, where $\mathsf{RSA}(\GG, t)$ denotes the maximum success probability of any $t$-step algorithm in breaking the Strong RSA Assumption over $\GG$. 
 \end{subclaim} 
 \begin{proof} 
-Let $(h'_{i+1},...,h'_\mu)$ denote the output of $\textsf{Extend}(i, h_i, r_{i+1},...,r_\mu)$ and suppose it is not equal to $(h_{i+1},..., h_\mu)$. Let $j \in [i, \mu)$ denote the \emph{first} index for which $h_{j+1} \neq h'_{j+1}$. This means that $h_j = h'_j$ and thus $h'_{j+1} = h_{j, L} + r_{j+1} \cdot h_{j, R}$ where $h_{j, L}$ and $h_{j, R}$ are the left/right halves of $h_{j}$. Additionally, $\phi_b(j, h_{j}) = 1$ implies $h'_{j+1} \in \mathcal{M}(2^{2\lambda + 2} B_{j}D_j, 2^{\lambda + 1} B_{j}^2) \subseteq \mathcal{M}(\beta_\textsf{n}, \beta_\textsf{d})$. 
+Let $(h'_{i+1},...,h'_\mu)$ denote the output of $\textsf{Extend}(i, h_i, \alpha_{i+1},...,\alpha_\mu)$ and suppose it is not equal to $(h_{i+1},..., h_\mu)$. Let $j \in [i, \mu)$ denote the \emph{first} index for which $h_{j+1} \neq h'_{j+1}$. This means that $h_j = h'_j$ and thus $h'_{j+1} = h_{j, L} + \alpha_{j+1} \cdot h_{j, R}$ where $h_{j, L}$ and $h_{j, R}$ are the left/right halves of $h_{j}$. Additionally, $\phi_b(j, h_{j}) = 1$ implies $h'_{j+1} \in \mathcal{M}(2^{2\lambda + 2} B_{j}D_j, 2^{\lambda + 1} B_{j}^2) \subseteq \mathcal{M}(\beta_\textsf{n}, \beta_\textsf{d})$. 
 
 (Note that for $j \geq i+1$, the condition $\phi_a(j, h_j) = 1$ also implies $\phi_b(j, h_j) = 1$).
 
 Let $\mathcal{C}_{j+1} = ((C_{j+1, L}, y_{j+1,L}), (C_{j+1,R}, y_{j+1,R}))$ and $\mathcal{C}_{j} = ((C_{j,L}, y_{j,L}), (C_{j,R},y_{j,R}))$. 
 Let $o_j = (f_j, N_{j})$ denote the opening of $\mathcal{C}_{j}$ to $h_j =\frac{f_j}{N_{j}}$ where $f_{j} = f_{j, L} + X^{2^{\mu - j + 1}} f_{j, R}$. Validity of the opening implies $N_{j} \cdot C_{j,L} = f_{j,L}(q) \cdot \gr{G}$ and $N_{j} \cdot C_{j,R} = f_{j,R}(q) \cdot \gr{G}$. Furthermore, in a valid transcript: 
- $$C_{j+1}  = C_{j, L} + r_{j+1} \cdot C_{j,R} =  C_{j+1,L} + q^{2^{\mu - j}} C_{j+1,R}$$
-  Thus, $(N_{j}, f_{j,L} + r_{j+1} \cdot f_{j, R})$ is a valid opening of $C_{j+1}$ to $h'_{j+1}$ as $N_{j} \cdot C_{j+1} = (f_{j, L}(q) + r_{j+1} \cdot f_{j, R}(q)) \cdot \gr{G}$. 
+ $$C_{j+1}  = C_{j, L} + \alpha_{j+1} \cdot C_{j,R} =  C_{j+1,L} + q^{2^{\mu - j}} C_{j+1,R}$$
+  Thus, $(N_{j}, f_{j,L} + \alpha_{j+1} \cdot f_{j, R})$ is a valid opening of $C_{j+1}$ to $h'_{j+1}$ as $N_{j} \cdot C_{j+1} = (f_{j, L}(q) + \alpha_{j+1} \cdot f_{j, R}(q)) \cdot \gr{G}$. 
   
 \paragraph{Witness-extended emulation}
 By \cref{cor:dsstowee} and if the DARK commitment is binding then this shows that $\eval'$ has witness extended emulation for the relation $\reval(\params)$ for polynomials in $\FF_p$. The binding property of DARK depends on the random order assumption which is implied by the adaptive root assumption (\Cref{lem:darkcommit,lem:roa-to-ar}). Further by \Cref{lemma:poe_security} this implies that $\eval$ has witness-extended emulation for the same relation under the adaptive root assumption.
@@ -968,7 +960,7 @@ $f'(z)\bmod p=\alpha f_L(z) +f_R(z) \bmod p= \alpha y_L +y_R\bmod p=y'$
 
 
 \section{Fiat-Shamir Transform of Almost-Special-Sound Protocols} 
-Recently, \cite{EPRINT:Wikstrom21,EPRINT:AttFehKlo21} showed that for $\mu$-round special sound protocols the non-interactive Fiat-Shamir transform of these protocols only suffers a security loss that is linear in the number of queries the adversary makes to the random oracle. These proofs do not directly apply to almost-special-sound protocols. In particular, in a non-interactive protocol, we cannot guarantee that the challenges on $\textsf{lpath}(\nu)$ are mutually independent. An adversary might grind each challenge and pick one depending on the previous challenges. Concretely, for DARK the composite Schwartz-Zippel lemma analyzes the probability that $f(x_1,\dots,x_\mu)\equiv 0 \bmod N$ for \emph{independently} sampled $x_1,\dots,x_\mu$. If the adversary, can grind challenges, i.e. try different challenges per prover message, then it can for each challenge $x_i$ ensure that $f(x_1,\dots,x_i,X_{i+1},\dots,X_\mu)\equiv 0 \bmod N_i$ where $N_i$ is a factor of $N$ of size roughly $N^{\frac{1}{\mu}}$. The proof of \cref{thm:darkisdarkss} relies on the fact that $\Prob_{(r_{i+1},...,r_\mu) \gets [0,2^\lambda)^{\mu -i}} [g(r_{i+1},...,r_\mu)\equiv 0 \bmod N]=\delta$ is negligible for sufficiently large $N$. Analyzing a grinding adversary of the non-interactive protocol that makes at most $T$ queries to the random oracle corresponds to analyzing the probability that for any set of $T$ values $\Prob_{S=\{r_{i,j}\}_{i\in [\mu], j \in [T]}) \gets [0,2^\lambda)^{\mu \cdot T}}  \exists (j_1,\dots,j_\mu) \text{ s.t. } [g(r_{1,j_1},...,r_{\mu,j_\mu})\equiv 0 \bmod N]$ which using a union bound is less than $T^\mu \cdot \delta$.
+Recently, \cite{EPRINT:Wikstrom21,EPRINT:AttFehKlo21} showed that for $\mu$-round special sound protocols the non-interactive Fiat-Shamir transform of these protocols only suffers a security loss that is linear in the number of queries the adversary makes to the random oracle. These proofs do not directly apply to almost-special-sound protocols. In particular, in a non-interactive protocol, we cannot guarantee that the challenges on $\textsf{lpath}(\nu)$ are mutually independent. An adversary might grind each challenge and pick one depending on the previous challenges. Concretely, for DARK the composite Schwartz-Zippel lemma analyzes the probability that $f(x_1,\dots,x_\mu)\equiv 0 \bmod N$ for \emph{independently} sampled $x_1,\dots,x_\mu$. If the adversary, can grind challenges, i.e. try different challenges per prover message, then it can for each challenge $x_i$ ensure that $f(x_1,\dots,x_i,X_{i+1},\dots,X_\mu)\equiv 0 \bmod N_i$ where $N_i$ is a factor of $N$ of size roughly $N^{\frac{1}{\mu}}$. The proof of \cref{thm:darkisdarkss} relies on the fact that $\Prob_{(\alpha_{i+1},...,\alpha_\mu) \gets [0,2^\lambda)^{\mu -i}} [g(\alpha_{i+1},...,\alpha_\mu)\equiv 0 \bmod N]=\delta$ is negligible for sufficiently large $N$. Analyzing a grinding adversary of the non-interactive protocol that makes at most $T$ queries to the random oracle corresponds to analyzing the probability that for any set of $T$ values $\Prob_{S=\{\alpha_{i,j}\}_{i\in [\mu], j \in [T]}) \gets [0,2^\lambda)^{\mu \cdot T}}  \exists (j_1,\dots,j_\mu) \text{ s.t. } [g(\alpha_{1,j_1},...,\alpha_{\mu,j_\mu})\equiv 0 \bmod N]$ which using a union bound is less than $T^\mu \cdot \delta$.
 
 However, what if it is impossible for the adversary to actually grind the prover message. We know that in almost-special-sound protocols the prover message is a commitment. If that commitment is unique, i.e. for a given opening there exists only one possible commitment, then a grinding adversary couldn't choose a different commitment. We capture this notion formally and show that even if the commitment is only \emph{computationally unique} the Fiat-Shamir transform of these almost-special-sound protocols is secure. The DARK protocol has precisely this property.
 
@@ -1053,7 +1045,7 @@ $$\mathbb{P}_{\beta_1,...,\beta_{\mu - i}}[\rho_i(m_i, m_\mu, \beta_1,...,\beta_
 
 $$\mathcal{R}^\mathcal{H}_*(\crs, \textsf{P}) = \{ (\mathsf{x}, \mathsf{w}): (\mathsf{x}, \mathsf{w}) \in \mathcal{R} \cup \mathcal{R}^{\mathcal{H}}_\textsf{ext}(\crs, \textsf{P}) \vee \mathsf{w} \in \mathcal{L}_\textsf{break}(\crs) \} $$ 	
 where $\mathcal{L}_\textsf{break}(\crs)$ is defined as in Theorem~\ref{thm:DARKExtractor} and:
-$$\mathcal{R}^{\mathcal{H}}_\textsf{ext}(\crs, \textsf{P}) = \left\{(\mathsf{x}, \mathsf{w}) = (\tr, i, M): \begin{array}{c} \tr = (\mathsf{x}, C_1,...,C_\mu) \\ \forall_{j \in [\mu]} \ r_j = \mathcal{H}_\mathsf{x}(C_1,...,C_j) \\ M = ((m_i,o_i),...,(m_\mu, o_\mu)) \\ \forall_{j \geq i} \textsf{com}.\open(\crs,C_j, m_j, o_j) = 1 \\ \textsf{ext}_i(m_i) = (m_{i+1},...,m_\mu) \\ \rho(m_i, m_\mu, r_i,...,r_\mu) = 1  \end{array} \right\} $$ 
+$$\mathcal{R}^{\mathcal{H}}_\textsf{ext}(\crs, \textsf{P}) = \left\{(\mathsf{x}, \mathsf{w}) = (\tr, i, M): \begin{array}{c} \tr = (\mathsf{x}, C_1,...,C_\mu) \\ \forall_{j \in [\mu]} \ \alpha_j = \mathcal{H}_\mathsf{x}(C_1,...,C_j) \\ M = ((m_i,o_i),...,(m_\mu, o_\mu)) \\ \forall_{j \geq i} \textsf{com}.\open(\crs,C_j, m_j, o_j) = 1 \\ \textsf{ext}_i(m_i) = (m_{i+1},...,m_\mu) \\ \rho(m_i, m_\mu, \alpha_i,...,\alpha_\mu) = 1  \end{array} \right\} $$ 
 
 \end{lemma}
 \fi 
@@ -1066,15 +1058,16 @@ $$\mathbb{P}\left[(\mathsf{x}, \mathsf{w}) \in \mathcal{R}^\mathcal{H}(\crs): \b
 \end{definition}
 \benedikt{move this to preliminaries}
 \begin{definition}[Computationally Unique Commitments]\label{def:uniqueness} 
-	A commitment scheme $\Gamma=(\setup,\commit, \open)$ is computationally-unique if for any polynomial time adversary $\adv$
+	A commitment scheme 
+	$\Gamma=(\setup,\commit,\open)$ is computationally-unique if for any polynomial time adversary $\adv$
 \[
     \Pr\left[
-        b_0 = b_1 =1 \, \wedge \, c_0 \neq c_1 \ : \
+        b_0 = b_1 =1 \, \wedge \, C_0 \neq C_1 \ : \
         \begin{array}{l}
              \params \gets \pro{Setup}(1^\lambda) \\
-             (c_0,c_1, x, r_0, r_1) \gets \adv(\params) \\
-             b_0 \gets \pro{Open}(\params, c_0, x, r_0) \\
-             b_1 \gets \pro{Open}(\params, c_1, x, r_1) \\
+             (C_0,C_1, x, r_0, r_1) \gets \adv(\params) \\
+             b_0 \gets \pro{Open}(\params, C_0, x, r_0) \\
+             b_1 \gets \pro{Open}(\params, C_1, x, r_1) \\
         \end{array}
     \right] \leq \negl \enspace 
 \]	 
@@ -1092,20 +1085,20 @@ The DARK commitment scheme satisfies computational uniqueness (Definition~\ref{d
 
 \begin{lemma}\label{lem:ExtQHard}
 For any $\mu$ and $Q = \poly$, the relation $\mathcal{R}^{\mathcal{H}}_\textsf{ext}(\crs, \mu, \rho)$ defined with respect to any computationally-unique commitment scheme $\mathsf{com}$, predicate $\rho: \mathcal{M}^2 \times \mathcal{X}^\mu \rightarrow \{0, 1\}$, and $\textsf{ext}: \mathcal{M} \times \mathcal{X}^{\leq \mu} \rightarrow \mathcal{M}$ such that $\forall i, m \in \mathcal{M}$: 
-$$\mathbb{P}_{r_1,...,r_{\mu}}[\rho_i(m, m_\mu, r_1,...,r_{\mu}) = 1: \textsf{ext}(m, r_1,...,r_{\mu}) = m_\mu] \leq \delta $$
+$$\mathbb{P}_{\alpha_1,...,\alpha_{\mu}}[\rho_i(m, m_\mu, \alpha_1,...,\alpha_{\mu}) = 1: \textsf{ext}(m, \alpha_1,...,\alpha_{\mu}) = m_\mu] \leq \delta $$
 and 
 
-$$\mathcal{R}^{\mathcal{H}}_\textsf{ext}(\crs, \mu, \rho) = \left\{(\mathsf{x} = (C, m, o), \mathsf{w} = (\tr, M)): \begin{array}{c} \tr = (C_1,...,C_\mu) \\ \forall_{i \in [\mu]} \ r_i = \mathcal{H}(C, C_1,...,C_{i-1}) \\ M = ((m_1,o_1),...,(m_\mu, o_\mu)) \\ \textsf{com}.\open(\crs, C, m, o) = 1 \\ \forall_{i \in [\mu]} \textsf{com}.\open(\crs,C_i, m_i, o_i) = 1 \\ \forall_{i \in [\mu]}\textsf{ext}(m, r_1,...,r_{i}) = m_i \\ \rho(m, m_\mu, r_1,...,r_\mu) = 1  \end{array} \right\} $$ 
+$$\mathcal{R}^{\mathcal{H}}_\textsf{ext}(\crs, \mu, \rho) = \left\{(\mathsf{x} = (C, m, o), \mathsf{w} = (\tr, M)): \begin{array}{c} \tr = (C_1,...,C_\mu) \\ \forall_{i \in [\mu]} \ \alpha_i = \mathcal{H}(C, C_1,...,C_{i-1}) \\ M = ((m_1,o_1),...,(m_\mu, o_\mu)) \\ \textsf{com}.\open(\crs, C, m, o) = 1 \\ \forall_{i \in [\mu]} \textsf{com}.\open(\crs,C_i, m_i, o_i) = 1 \\ \forall_{i \in [\mu]}\textsf{ext}(m, \alpha_1,...,\alpha_{i}) = m_i \\ \rho(m, m_\mu, \alpha_1,...,\alpha_\mu) = 1  \end{array} \right\} $$ 
 	
 is $(Q, \delta + \negl)$-hard in the RO model. 
 
 \end{lemma}
 \begin{proof} 
 Consider any pair of polynomial time random oracle algorithms $\mathsf{x} \gets \mathcal{A}_1^{\mathcal{H}'}(\crs)$ 
-and $\mathsf{w} \gets \mathcal{A}_2^{\mathcal{H}}(\crs, \mathsf{x})$ that for setup parameter $\lambda$ make at most $Q = \poly$ queries to their respective oracles $\mathcal{H}'$ and $\mathcal{H}$. For fixed $\mathsf{x}$ let $T_\mathcal{H}(\mathsf{x}) = (T_1,...,T_\mu)$ denote a random variable representing the output $\tr$ included in $\mathsf{w}$ \emph{conditioned on} the event that $w$ satisfies \underline{at least} all validity criteria other than possibly the last, i.e. $\rho(m, m_\mu, r_1,...,r_\mu) = 1$. Note that $T_\mathcal{H}(\mathsf{x})$ is also dependent on the randomness of the oracle $\mathcal{H}$. 
+and $\mathsf{w} \gets \mathcal{A}_2^{\mathcal{H}}(\crs, \mathsf{x})$ that for setup parameter $\lambda$ make at most $Q = \poly$ queries to their respective oracles $\mathcal{H}'$ and $\mathcal{H}$. For fixed $\mathsf{x}$ let $T_\mathcal{H}(\mathsf{x}) = (T_1,...,T_\mu)$ denote a random variable representing the output $\tr$ included in $\mathsf{w}$ \emph{conditioned on} the event that $w$ satisfies \underline{at least} all validity criteria other than possibly the last, i.e. $\rho(m, m_\mu, \alpha_1,...,\alpha_\mu) = 1$. Note that $T_\mathcal{H}(\mathsf{x})$ is also dependent on the randomness of the oracle $\mathcal{H}$. 
 Presuming this event occurs with probability at least $\epsilon(\mathsf{x})$, we can repeat $\mathcal{A}_2^\mathcal{H}(\crs, \mathsf{x})$ on fresh internal randomness (not changing $\mathcal{H}$) in expectation $1/\epsilon(\mathsf{x})$ times until it outputs $\mathsf{w}$ satisfying this event with a particular assignment $\tr = (C_1,...,C_\mu)$ to the random variable $T_\mathcal{H}(\mathsf{x})$. Suppose that for any $i \in [\mu]$ we then reprogrammed $\mathcal{H}$ to an oracle $\mathcal{H}^*$ by sampling new answers to any subset of the queries $\{q_j = (C, C_1,...,C_j)\}_{i \leq j < \mu}$ but keeping all other queries consistent with $\mathcal{H}$.  For $i = \mu$ we do not change the oracle and $\mathcal{H}^* = \mathcal{H}$. Define the random variable $T_\mathcal{H^*}(\mathsf{x})$ in the same way for the new oracle $\mathcal{H}^*$. 
 Suppose further that repeating the same experiment with $\mathcal{A}_2^\mathcal{H^*}(\crs, \mathsf{x})$ were to return with probability greater than $\delta'(\mathsf{x})$ a vector $\tr'= (C_1',...,C'_\mu) \neq \tr$ where the first distinct index between $\tr'$ and $\tr$ is some $k \leq i$. 
-For $i = \mu$ we just repeat the same experiment with $\mathcal{H}$. For all $i \in [\mu]$ let $r_i = \mathcal{H}(C, C_1,...,C_{i-1})$, let $m_i = \textsf{ext}(m, r_1,...,r_i)$, let $r_i' = \mathcal{H}^*(C, C'_1,...,C'_{i-1})$, and let $m'_i = \textsf{ext}(m, r'_1,...,r'_i)$. Since the oracle answers to queries $C$ and $\{q_j = (C, C_1,...,C_\ell)\}_{1 \leq \ell < k}$ have not changed and $(C_1,...,C_{k-1}) = (C_1',...,C'_{k-1})$ it follows that $(r_1,...,r_k) = (r'_1,...,r'_k)$ and $(m_1,...,m_k) = (m'_1,...,m'_k)$. The result of these two experiments would thus include openings of the distinct commitments $C_k \neq C'_k$ to the same message $m_k = m'_k$. 
+For $i = \mu$ we just repeat the same experiment with $\mathcal{H}$. For all $i \in [\mu]$ let $\alpha_i = \mathcal{H}(C, C_1,...,C_{i-1})$, let $m_i = \textsf{ext}(m, \alpha_1,...,\alpha_i)$, let $\alpha_i' = \mathcal{H}^*(C, C'_1,...,C'_{i-1})$, and let $m'_i = \textsf{ext}(m, \alpha'_1,...,\alpha'_i)$. Since the oracle answers to queries $C$ and $\{q_j = (C, C_1,...,C_\ell)\}_{1 \leq \ell < k}$ have not changed and $(C_1,...,C_{k-1}) = (C_1',...,C'_{k-1})$ it follows that $(\alpha_1,...,\alpha_k) = (\alpha'_1,...,\alpha'_k)$ and $(m_1,...,m_k) = (m'_1,...,m'_k)$. The result of these two experiments would thus include openings of the distinct commitments $C_k \neq C'_k$ to the same message $m_k = m'_k$. 
 By computational uniqueness of the commitment scheme, for $\crs \gets \setup(\lambda)$ and $\mathsf{x} \gets \mathcal{A}_1^{\mathcal{H}'}(\crs)$ 
 either $\delta'(\mathsf{x})$ or $\epsilon(\mathsf{x})$ is negligible in $\lambda$, as we have shown that it is possible to construct and adversary using $\mathcal{A}_1$ and $\mathcal{A}_2$ that on input $\crs$ breaks the uniqueness of the commitment scheme (Definition~\ref{def:uniqueness})
 in expected time $(\frac{1}{\epsilon(\mathsf{x})} + \frac{1}{\delta'(\mathsf{x})}) \cdot \mathsf{\poly}$.
@@ -1118,7 +1111,7 @@ We draw two conclusions from this. For $\crs \gets \setup(\lambda)$ and $\mathsf
 \end{enumerate}
  If (a) were false then running the experiment above for case $i = \mu$ would succeed with non-negligible probability $\delta'$ in returning a distinct assignment to $\mathcal{T}_\mathcal{H}(\mathsf{x})$, which contradicts the computational uniqueness of the commitment scheme as shown above. If (b) were false, then for some $i < \mu$ the experiment would succeed with non-negligible probability $\delta'$ in returning a distinct assignment to $\mathcal{T}_\mathcal{H}(\mathsf{x})$ where the first index of distinction is $k \leq i$, again contradicting the computational uniqueness of the commitment scheme as shown above. 
  
- Finally, (b) implies that $(r_1,...,r_\mu)$ where $r_i = \mathcal{H}(C,C_1,...,C_i)$ is uniformly distributed and hence $\mathbb{P}[\rho(m,m_\mu,r_1,...,r_\mu) = 1] \leq \delta$ as stated in the hypothesis. Thus, conditioned on the event that $w$ satisfies at least all validity criteria except the predicate, then its first component is $\tr = (C_1,...,C_\mu)$ with probability $1-\negl$, in which case it fails the last criteria (i.e., the predicate) with probability $1-\delta$. In conclusion, by a union bound it satisfies all criteria with probability at most $\delta + \negl$. \end{proof}
+ Finally, (b) implies that $(\alpha_1,...,\alpha_\mu)$ where $\alpha_i = \mathcal{H}(C,C_1,...,C_i)$ is uniformly distributed and hence $\mathbb{P}[\rho(m,m_\mu,\alpha_1,...,\alpha_\mu) = 1] \leq \delta$ as stated in the hypothesis. Thus, conditioned on the event that $w$ satisfies at least all validity criteria except the predicate, then its first component is $\tr = (C_1,...,C_\mu)$ with probability $1-\negl$, in which case it fails the last criteria (i.e., the predicate) with probability $1-\delta$. In conclusion, by a union bound it satisfies all criteria with probability at most $\delta + \negl$. \end{proof}
 
 
 \if 0 
@@ -1142,17 +1135,17 @@ is $(Q, Q \cdot \delta + \negl)$-hard in the RO model.
 	 \begin{enumerate}[label=(\alph*)]
 	 	\item Extracts a witness $w$ such that $(x, w) \in \mathcal{R}$
 	 	\item Extracts a break to the binding of the commitment scheme, i.e. an element of $\mathcal{L}_\textsf{break}(\crs)$ defined in Theorem~\ref{thm:DARKExtractor}.
-	 	\item Extracts an opening $(m_\omega, o_\omega)$ for the commitment label on some node $\omega$ at some level $i$ with rightmost child $\nu$ at level $i+1$ such that $\phi_b(i, m_\omega) = 1$, $\phi_a(i, m_\omega) = 0$, openings of all commitment labels on the leftmost path $\textsf{lpath}(\nu)$ extending down from $\nu$ to messages equal to $\textsf{Extend}(i, m, r_i,...,r_\mu) = (m_i,...,m_\mu)$ where $(r_i,...,r_\mu)$ are the verifier challenges along this path such that $\forall_{j \geq i} \phi_a(j, m_j) = 1$. 
+	 	\item Extracts an opening $(m_\omega, o_\omega)$ for the commitment label on some node $\omega$ at some level $i$ with rightmost child $\nu$ at level $i+1$ such that $\phi_b(i, m_\omega) = 1$, $\phi_a(i, m_\omega) = 0$, openings of all commitment labels on the leftmost path $\textsf{lpath}(\nu)$ extending down from $\nu$ to messages equal to $\textsf{Extend}(i, m, \alpha_i,...,\alpha_\mu) = (m_i,...,m_\mu)$ where $(\alpha_i,...,\alpha_\mu)$ are the verifier challenges along this path such that $\forall_{j \geq i} \phi_a(j, m_j) = 1$. 
 	 \end{enumerate}
 	 
 	 The third extraction event was ruled out (with overwhelming probability) from any transcript tree generated via the Path Predicate Forking Lemma, see Theorem~\ref{thm:DARKExtractor} and Lemma~\ref{lem:ppfl}. In particular, the transcript tree generated there was shown to satisfy a predicate (with overwhelming probability) that eliminates the possibility that $\phi_a(i, m_\omega) = 0$ yet $\phi_a(\mu, m_\mu) = 1$. The analysis leveraged the way that transcripts are sampled by that tree generation algorithm. However, we will need to use a slightly different analysis this time.  
 	 
 	 First, we define the relation for all $i \in [\mu]$, commitment scheme parameters $\crs$, and random oracle $\mathcal{H}^*$: 
-	 $$\mathcal{R}^{\mathcal{H^*}}_\textsf{ext}(\crs, \mu - i) = \left\{(\mathsf{x} = (C, m, o), \mathsf{w} = (\tr, M)): \begin{array}{c} \tr = (\mathsf{x}, C_1,...,C_{\mu-i}) \\ \forall_{j \in [\mu-i]} \ r_j = \mathcal{H}^*(C,C_1,...,C_{j-1}) \\ M = ((m_1,o_1),...,(m_{\mu-i}, o_{\mu-i})) \\ \forall_{j \in [\mu-i]} \textsf{com}.\open(\crs,C_j, m_j, o_j) = 1 \\ \textsf{Extend}(i,m,r_1,...,r_{\mu-i}) = (m_1,...,m_{\mu - i}) \\ \phi_b(i,m) = 1, \phi_a(i, m) = 0, \phi_a(\mu, m_{\mu - i}) = 1  \end{array} \right\} $$
+	 $$\mathcal{R}^{\mathcal{H^*}}_\textsf{ext}(\crs, \mu - i) = \left\{(\mathsf{x} = (C, m, o), \mathsf{w} = (\tr, M)): \begin{array}{c} \tr = (\mathsf{x}, C_1,...,C_{\mu-i}) \\ \forall_{j \in [\mu-i]} \ \alpha_j = \mathcal{H}^*(C,C_1,...,C_{j-1}) \\ M = ((m_1,o_1),...,(m_{\mu-i}, o_{\mu-i})) \\ \forall_{j \in [\mu-i]} \textsf{com}.\open(\crs,C_j, m_j, o_j) = 1 \\ \textsf{Extend}(i,m,\alpha_1,...,\alpha_{\mu-i}) = (m_1,...,m_{\mu - i}) \\ \phi_b(i,m) = 1, \phi_a(i, m) = 0, \phi_a(\mu, m_{\mu - i}) = 1  \end{array} \right\} $$
 	 We note that by Lemma~\ref{lem:FSSoundness}, in case (c) occurs, there is a $(Q+\mu)$-query polynomial time algorithm $\mathcal{A}_1$ that generates $(C,m,o)$ and transcript prefix $\mathbf{y}$, and an independent $(Q + \mu)$-query adversary $\mathcal{A}_2^{\mathcal{H}^*}$ which generates the witness $(\tr, M)$ such that $((C, m, o), (\tr, M)) \in \mathcal{R}^{\mathcal{H}^*_\mathbf{y}}_\textsf{ext}(\crs, \mu - i)$ for some $i$. $\mathcal{A}_1$ represents the algorithm that ran the partial tree generation that created all labels on the left $k$-ary subtree of $\omega$ and also the prefix $\mathbf{y}$ labeling the trunk (i.e., from root to $\omega$) of subtree $S_\nu$, and then also ran the tree extraction algorithm (Definition~\ref{def:TreeExtract}) on this left $k$-ary subtree of $\omega$. Note that conditioned on event (c), $\omega$ is the first node and index $i$ for which this tree extraction succeeds in producing an opening $(m_\omega, o_\omega)$ such that $\phi_b(i, m_\omega) = 1$ but $\phi_a(i, m_\omega) = 0$. By Lemma~\ref{lem:FSSoundness} the root-to-leaf path that includes the prefix $\mathbf{y}$ and $\textsf{lpath}(\nu)$ matches the output of some $\mathcal{A}_*^{\mathcal{H}^*}(x)$ with partially fresh random oracle $\mathcal{H}^*$, and there is also a subtree generation algorithm that is a $(Q+\mu)$-query algorithm which generated the labels on subtree $S_\nu$. $\mathcal{A}^{\mathcal{H}^*}_2$ represents the combination of these two algorithms and also the subtree extractor that opens the commitments on these labels. Conditioned on $(c)$, the openings of the commitment labels within this subtree all satisfy predicate $\phi_a$ and the opened messages of the commitment labels $\textsf{lpath}(\nu)_0$ along the leftmost path from $\nu$ match the output of $\textsf{Extend}(i, m, \textsf{lpath}(v)_1)$ where $\textsf{lpath}(\nu)_1$ are the challenge labels along this path. 
 	 
 	 
-	 Let $\rho_i$ denote the predicate such that $\rho_i(m, m', r_1,...,r_{\mu - i}) = 1 $ iff $\phi_b(i, m) = 1$, $\phi_a(i, m) = 0$, and $\phi_a(\mu, m') = 1$. By the definition of $(k^{(\mu)}, \delta, \textsf{com} , \phi)$-almost-special-soundness, for uniform random $\beta_1,...,\beta_{\mu -i}$: 
+	 Let $\rho_i$ denote the predicate such that $\rho_i(m, m', \alpha_1,...,\alpha_{\mu - i}) = 1 $ iff $\phi_b(i, m) = 1$, $\phi_a(i, m) = 0$, and $\phi_a(\mu, m') = 1$. By the definition of $(k^{(\mu)}, \delta, \textsf{com} , \phi)$-almost-special-soundness, for uniform random $\beta_1,...,\beta_{\mu -i}$: 
 	 $$\mathbb{P}_{\beta_1,....,\beta_{\mu -i}}[\rho(m, m_{\mu - i},\beta_1,...,\beta_{\mu - i}) = 1 : \textsf{Extend}(i,m,\beta_1,...,\beta_{\mu-i}) = (m_1,...,m_{\mu - i})] \leq \delta $$ 
 	 Thus, since $Q+\mu$ is polynomial in $\lambda$, by Lemma~\ref{lem:ExtQHard} the relation $\mathcal{R}^{\mathcal{H^*}}_\textsf{ext}(\crs, \mu - i)$ is $(Q+\mu, \delta + \negl)$-hard in the RO model for $Q = \poly$. This shows that for any particular index in the transcript tree, the event of type (c) occurs with probability at most $\delta +\negl$ when running the extractor with polynomial time provers making a polynomial number of queries to the RO. This experiment may effectively occur times over the course of the tree generation algorithm, but we can loosely union bound the probability that event (c) ever occurs by the runtime of the tree generation algorithm. Similarly, we can eliminate event (b) as occurring with $\negl$ by the computational binding property of the commitment scheme, which does not require an additional union bound.  
 	 

@@ -53,8 +53,8 @@ Statement: $(\crs,\gr{C}_1,\gr{C}_2,z,y_1,y_2,b,d)\in \mathcal{R}_{\pro{JE}}$
 			\begin{enumerate}[nolistsep]
 			\item $b=||f_1,f_2||_\infty$
         \item \verifier samples $\alpha \sample [0,2^\lambda)$ and sends it to \prover
-			\item \prover and \verifier compute $\gr{C}'\gets \alpha \cdot \gr{C}_1+\gr{C}_2$ and $y'\gets \alpha \cdot y_1 +y_2 \bmod p$
-			\item \prover computes $f'(X)\gets \alpha f_1(X) +f_2(X)$
+			\item \prover and \verifier compute $\gr{C}'\gets  \gr{C}_1+\alpha \cdot\gr{C}_2$ and $y'\gets  y_1 + \alpha \cdot y_2 \bmod p$
+			\item \prover computes $f'(X)\gets f_1(X) +\alpha  f_2(X)$
 			\item \prover and \verifier run $\pro{EvalB}(\params,\gr{C}',z,y',d,b\cdot 2^{\lambda};f'(X))$
 		    \end{enumerate}
 \end{mdframed}

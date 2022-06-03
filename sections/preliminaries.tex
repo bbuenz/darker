@@ -108,8 +108,8 @@ In defining the syntax of the various protocols, we use the following convention
 A commitment scheme $\Gamma$ is a tuple $\Gamma = (\pro{Setup}, \pro{Commit},$ $\pro{Open})$ of PPT algorithms where:
 \begin{itemize}
     \item $\pro{Setup}(1^\lambda) \rightarrow \params$ generates public parameters $\params$;
-    \item $\pro{Commit}(\params; x) \rightarrow (c; r)$ takes a secret message $x$ and outputs a public commitment $c$ and (optionally) a secret opening hint $r$ (which might or might not be the randomness used in the computation).
-    \item $\pro{Open}(\params, c, x, r) \rightarrow b \in \{0, 1\}$ verifies the opening of commitment $c$ to the message $x$ provided with the opening hint $r$. 
+    \item $\pro{Commit}(\params; x) \rightarrow (C; r)$ takes a secret message $x$ and outputs a public commitment $C$ and (optionally) a secret opening hint $r$ (which might or might not be the randomness used in the computation).
+    \item $\pro{Open}(\params, C, x, r) \rightarrow b \in \{0, 1\}$ verifies the opening of commitment $C$ to the message $x$ provided with the opening hint $r$. 
 \end{itemize}
 
 A commitment scheme $\Gamma$ is \defn{binding} if for all PPT adversaries $\adv$:
@@ -119,9 +119,9 @@ A commitment scheme $\Gamma$ is \defn{binding} if for all PPT adversaries $\adv$
         b_0 = b_1 \neq 0 \, \wedge \, x_0 \neq x_1 \ : \
         \begin{array}{l}
              \params \gets \pro{Setup}(1^\lambda) \\
-             (c, x_0, x_1, r_0, r_1) \gets \adv(\params) \\
-             b_0 \gets \pro{Open}(\params, c, x_0, r_0) \\
-             b_1 \gets \pro{Open}(\params, c, x_1, r_1) \\
+             (C, x_0, x_1, r_0, r_1) \gets \adv(\params) \\
+             b_0 \gets \pro{Open}(\params, C, x_0, r_0) \\
+             b_1 \gets \pro{Open}(\params, C, x_1, r_1) \\
         \end{array}
     \right] \leq \negl \enspace 
 \]
@@ -148,10 +148,11 @@ A commitment scheme $\Gamma$ is \defn{hiding} if for all probabilistic polynomia
 
 We now extend the syntax to polynomial commitment schemes. The following definition generalizes that of Kate~\emph{et. al.}~\cite{AC:KatZavGol10} to allow interactive evaluation proofs. It also stipulates that the polynomial's degree be an argument to the protocol, contrary to Kate~\emph{et al.} where the degree is known and fixed.
 
+
 \begin{definition} (Polynomial commitment) 
 A polynomial commitment scheme is a tuple of protocols $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ where $(\pro{Setup},$ $\pro{Commit}, \pro{Open})$ is a binding commitment scheme for a message space $R[X]$ of polynomials over some ring $R$, and
 \begin{itemize}
-    \item $\pro{Eval}(\params, c, z, y, d, \mu; f(X)) \rightarrow b \in \{0, 1\}$ is an interactive public-coin protocol between a PPT prover $\prover$ and verifier $\verifier$. Both $\prover$ and $\verifier$ have as input a commitment $c$, points $z, y \in R$, and a degree $d$. The prover additionally knows the opening of $c$ to a secret polynomial $f(X) \in R[X]$ with $\deg(f(X)) \leq d$. The protocol convinces the verifier that $f(z) = y$. {In a multivariate extension of polynomial commitments, the input $\mu > 1$ indicates the number of variables in the committed polynomial} and $z \in R^\mu$.
+    \item $\pro{Eval}(\params, C, z, y, d, \mu; f(X)) \rightarrow b \in \{0, 1\}$ is an interactive public-coin protocol between a PPT prover $\prover$ and verifier $\verifier$. Both $\prover$ and $\verifier$ have as input a commitment $C$, points $z, y \in R$, and a degree $d$. The prover additionally knows the opening of $C$ to a secret polynomial $f(X) \in R[X]$ with $\deg(f(X)) \leq d$. The protocol convinces the verifier that $f(z) = y$. {In a multivariate extension of polynomial commitments, the input $\mu > 1$ indicates the number of variables in the committed polynomial} and $z \in R^\mu$.
 \end{itemize}
 
 A polynomial commitment scheme is \defn{correct} if an honest committer can successfully convince the verifier of any evaluation. 
@@ -160,7 +161,7 @@ Specifically, if the prover is honest then for all polynomials $f(X) \in R[X]$ a
 \[
     \Pr\left[b = 1 \ : \ \begin{array}{l}
         \params \gets \setup(1^\lambda) \\
-        (c; r) \gets \pro{Commit}(\params, f(X)) \\
+        (C; r) \gets \pro{Commit}(\params, f(X)) \\
         y \gets f(z) \\
         d \gets \deg(f(X)) \\
         b \gets \pro{Eval}(\params, c, z, y, d; f(X), r) \\
@@ -192,24 +193,24 @@ The syntax generalizes naturally to multivariate polynomial commitment schemes. 
 \end{definition}
 
 \paragraph{Knowledge soundness} %In our application of polynomial commitments to the construction of arguments of knowledge, we also require the polynomial commitment to satisfy a \emph{knowledge} property. Informally, w
-Any successful prover in the $\eval$ protocol must \emph{know} a polynomial $f(X)$ such that $f(z) = y$ and $c$ is a commitment to $f(X)$. More formally, since $\eval$ is a public-coin interactive argument we define this knowledge property as a special case of witness-extended emulation (Definition~\ref{def:wee}). 
+Any successful prover in the $\eval$ protocol must \emph{know} a polynomial $f(X)$ such that $f(z) = y$ and $C$ is a commitment to $f(X)$. More formally, since $\eval$ is a public-coin interactive argument we define this knowledge property as a special case of witness-extended emulation (Definition~\ref{def:wee}). 
 
 Define the following NP relation given $\params \leftarrow \pro{Setup}(1^\lambda)$: 
 \begin{small}
 \[ 
 \reval(\params) = \left\{
-\langle (c, z, y, d), (f(X), r) \rangle
+\langle (C, z, y, d), (f(X), r) \rangle
 : 
 \begin{array}{l} 
 f \in R[X] \ \text{and} \ \deg(f(X)) \leq d \ \text{and} \ f(z) = y \\ 
- \text{and} \ \pro{Open}(\params, c, f(X), r) = 1 \\
+ \text{and} \ \pro{Open}(\params, C, f(X), r) = 1 \\
 \end{array}
 \right\}
 \] 
 \end{small}
 The correctness definition above implies that if $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ is \emph{correct} then $\eval$ is a correct interactive argument for $\mathcal{R_\textsf{Eval}}(\params)$, with overwhelming probability over the randomness of $\pro{Setup}$. We say that $\Gamma$ has \textbf{witness-extended emulation} if $\eval$ has witness-extended emulation as an interactive argument for $\mathcal{R_\textsf{Eval}}(\params)$. 
 
-It is easy to see that witness-extended emulation implies evaluation binding when the $\pro{Setup}, \pro{Commit},$ and $\pro{Open}$ part of $\Gamma$ form a binding commitment scheme. If the adversary succeeds in $\eval$ on both $(c, z, y_0, d_0)$ and $(c, z, y_1, d_1)$ for $y_0 \neq y_1$ or $d_0 \neq d_1$ then the emulator obtains two distinct witnesses $f(X) \neq f'(X)$ such that $c$ is a valid commitment to both. This would contradict the binding property of the commitment scheme. 
+It is easy to see that witness-extended emulation implies evaluation binding when the $\pro{Setup}, \pro{Commit},$ and $\pro{Open}$ part of $\Gamma$ form a binding commitment scheme. If the adversary succeeds in $\eval$ on both $(C, z, y_0, d_0)$ and $(C, z, y_1, d_1)$ for $y_0 \neq y_1$ or $d_0 \neq d_1$ then the emulator obtains two distinct witnesses $f(X) \neq f'(X)$ such that $C$ is a valid commitment to both. This would contradict the binding property of the commitment scheme. 
 
 %\paragraph{Opening individual coefficients} The coefficients of a committed polynomial can be revealed and checked all at once using $\pro{Open}$, however, in some cases it is useful to reveal an individual coefficient more efficiently (\emph{i.e.}, with sublinear communication). 
 %There is a generic one-round protocol for this that uses $\pro{Eval}$ as a black-box, and inherits the efficiency properties of $\pro{Eval}$. We present this in Section~\ref{sec:opencoefficient}. 
