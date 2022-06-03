@@ -107,7 +107,7 @@ By choosing a sufficiently large $q \gg p$ it is possible to perform several lev
 
 However, the validity of $[\![f_L(X)]\!]$ and $[\![f_R(X)]\!]$ are never checked directly. 
 The verifier only sees the opening of the commitment at the bottom level of recursion. If the intermediate encodings use integer polynomials with coefficients larger than $q/2$, or even rational coefficients the homomorphism is not necessarially preserved. Furthermore, even if $[\![f(X)]\!]$ is a commitment to $f^*(q)$ with positive $q$-bounded coefficients, an adversarial prover could find an integer polynomial $g^*$ that does not have positive $q$-bounded coefficients such that $g^*(q) = f^*(q)$ and $g^* \not\equiv f^* \bmod p$ (\emph{i.e}, $g^*$ with coefficients greater than $q$ or negative coefficients). 
-The prover could then commit to $g^*_L(q)$ and $g^*_R(q)$, and recurse on $\alpha g^*_L(q) + g^*_R(q)$ instead of $\alpha f^*_L(q) + f^*_R(q)$. This would be non-binding. (For example $f^*(X)= q-1$ and $g^*(X)=X-1$, or $f^*(X) = q +1$ and $g^*(X) = X + 1$). 
+The prover could then commit to $g^*_L(q)$ and $g^*_R(q)$, and recurse on $g^*_L(q) + \alpha  g^*_R(q)$ instead of $ f^*_L(q) + \alpha f^*_R(q)$. This would be non-binding. (For example $f^*(X)= q-1$ and $g^*(X)=X-1$, or $f^*(X) = q +1$ and $g^*(X) = X + 1$). 
 
 \paragraph{Inferring coefficient bounds}\benedikt{not wrong but not informative} So what can the verifier infer from the opened commitment $[\![f']\!]$ at the bottom level of recursion? The opened commitment is an integer $f' = \alpha f_L + f_R$. 
 From $f'$, the verifier can infer a bounds coefficients of the polynomial $f(X) = f_L + X f_R$, given that $f_L$ and $f_R$ were already committed in the second to last round. The bound holds with overwhelming probability over the randomness of $\alpha \in [0,2^{\lambda})$. This is reasoned as follows: if $f'_0 \leftarrow \alpha_0 f_L + f_R$ and $f'_1 \leftarrow \alpha_1 f_L + f_R$ but $f_L$ and $f_R$ are not bounded rational polynomials, then there is a negligibly small probability that $f'$ would have passed the bound check.
@@ -118,7 +118,7 @@ As shown above, the verifier can infer a bound on the absolute values of $f_L$ a
 
 It turns out that we also can't ensure that $f_L$ and $f_R$ but only that they are bounded rational polynomials. We show that the same encoding works even for rational polynomials in \Cref{appendix:prelimns}.
 
-\paragraph{Ensuring injectivity} How can we ensure the encoding scheme is injective over polynomials with either positive/negative coefficients bounded in absolute value? Fortunately, it is a fact that if $|f_L| < q/2$ and $|f_R| < q/2$ then at least one coefficient of $g$ must be larger than $q/2$. In other words, if the prover had committed instead to $f^*_L$ and $f^*_R$ such that $g(X) = f^*_L + Xf^*_R$ then the verifier could reject the opening of $\alpha \hat{f}^*_L + \hat{f}^*_R$ with overwhelming probability based on its size. 
+\paragraph{Ensuring injectivity} How can we ensure the encoding scheme is injective over polynomials with either positive/negative coefficients bounded in absolute value? Fortunately, it is a fact that if $|f_L| < q/2$ and $|f_R| < q/2$ then at least one coefficient of $g$ must be larger than $q/2$. In other words, if the prover had committed instead to $f^*_L$ and $f^*_R$ such that $g(X) = f^*_L + Xf^*_R$ then the verifier could reject the opening of $ \hat{f}^*_L + \alpha \hat{f}^*_R$ with overwhelming probability based on its size. 
 
 
 More generally, for every integer $z$ in the range $B = (-\frac{q^{d+1}}{2}, \frac{q^{d+1}}{2})$ there is a unique degree (at most) $d$ integer polynomial $h(X)$ with coefficients whose absolute values are bounded by $q/2$ such that $h(q) = z$. \emph{We prove this elementary fact below and show how the coefficients of $h$ can be recovered efficiently from $z$ (Fact~\ref{EncodingBijective})}. If the prover is committed to $h(q)$ at level $i$ of the protocol, there is a unique pair of integers polynomial $h_L$ and $h_R$ with coefficients of absolute value bounded by $q/2$ such that $h_L(q) + q^{\frac{d+1}{2}} h_R(q) = h(q)$, and if the prover recurses on any other $h_L^*$ and $h_R^*$ with larger coefficients then the verifier's bound check at the bottom level of recursion will fail with overwhelming probability. 
@@ -262,20 +262,20 @@ In the final round we check that the constant $f$ satisfies $|f|\leq b$ and the 
          \item \pcelse:
        
         \item \pcind[1] \prover and \verifier compute $\mu' \gets \mu-1$
-        \item \pcind[1] \prover computes $\hat{f}_L(X_1,\dots,X_\mu')$ and $\hat{f}_R(X)\gets \hat{f}_{d'+1+i}\cdot X^{i}$
-        \item \pcind[1] \prover computes $f_L,f_R$ analogously from $f$
-        \item \pcind[1] \prover computes $y_L\gets f_L(z) \bmod p$ and $y_R\gets f_R(z)\bmod p$
-        \item \pcind[1] \prover computes $\gr{C}_L \gets \hat{f}_L(q)\cdot  \gr{g}$ and $\gr{C}_R \gets \hat{f}_R(q)\cdot \gr{g}$
+        \item \pcind[1] \prover computes $\hat{f}_L(X_1,\dots,X_\mu')$ and $\hat{f}_R(X_1,\dots,X_\mu')$ such that $\hat{f}=\hat{f}_L + X_\mu \hat{f}_R$
+        \item \pcind[1] \prover computes $f_L,f_R$ analogously for $f$
+        \item \pcind[1] \prover computes $y_L\gets f_L(z_1,\dots,z_\mu') \bmod p$ and $y_R\gets f_R(z_1,\dots,z_\mu')\bmod p$
+        \item \pcind[1] \prover computes $\gr{C}_L \gets \hat{f}_L(q,q^2,\dots,q^{(2^{\mu'-1})})\cdot  \gr{g}$ and $\gr{C}_R \gets \hat{f}_R(q,q^2,\dots,q^{(2^{\mu'-1})})\cdot \gr{g}$
         \item \pcind[1] \prover sends $y_L,y_R, \gr{C}_L, \gr{C}_R$ to \verifier. \pccomment{See Section \ref{subsec:optimization} for an optimization}
-        \item \pcind[1] \verifier checks that $y=y_L+z^{d'+1}\cdot y_R \bmod p$, outputs $0$ if check fails.
-        \item \pcind[1]\label{line:PoE} \prover and \verifier run $\pro{PoE}(\gr{C}_R, \gr{C}-\gr{C}_L, q^{d'+1})$\pccomment{Showing that $\gr{C}_L+q^{d'+1}\cdot  \gr{C}_R=\gr{C}$}
+        \item \pcind[1] \verifier checks that $y=y_L+z_\mu \cdot y_R \bmod p$, outputs $0$ if check fails.
+        \item \pcind[1]\label{line:PoE} \prover and \verifier run $\pro{PoE}(\gr{C}_R, \gr{C}-\gr{C}_L, q^{(2^{\mu'})})$\pccomment{Showing that $\gr{C}_L+q^{(2^{\mu'})}\cdot  \gr{C}_R=\gr{C}$}
         \item \pcind[1] \verifier samples $\alpha \sample [0,2^\lambda)$ and sends it to \prover
-        \item \pcind[1] \prover and \verifier compute $y'\gets\alpha  y_L +y_R \bmod p$, $\gr{C}' \gets \alpha\cdot \gr{C}_L + \gr{C}_R$, $b'\gets b \cdot 2^\lambda$. 
-      \item \pcind[1]  \prover computes $f'(X) \gets \alpha \cdot f_L(X) + f_R(X) \in \ZZ_p[X]$ 
+        \item \pcind[1] \prover and \verifier compute $y'\gets  y_L +\alpha \cdot y_R \bmod p$, $\gr{C}' \gets  \gr{C}_L + \alpha\cdot \gr{C}_R$, $b'\gets b \cdot 2^\lambda$. 
+      \item \pcind[1]  \prover computes $f' \gets  f_L + \alpha\cdot f_R \in \ZZ_p[X_1,\dots,X_{\mu'}]$ 
 
-        \item \pcind[1] \prover computes $\hat{f}'(X) \gets \alpha \cdot \hat{f}_L(X) + \hat{f}_R(X) \in \ZZ[X]$ 
-        \pccomment{$\deg(f')=\deg(\hat{f}')=d'$}
-        \item \pcind[1] \prover and \verifier run $\pro{EvalB}(\params, \gr{C}', z, y', d',b' ;f'(X), \hat{f}'(X))$
+        \item \pcind[1] \prover computes $\hat{f}' \gets \hat{f}_L + \alpha\cdot \hat{f}_R \in \ZZ[X_1,\dots,X_{\mu'}]$ 
+        \pccomment{$\hat{f'}$ and $f'$ are $\mu'$-linear}
+        \item \pcind[1] \prover and \verifier run $\pro{EvalB}(\params, \gr{C}', \vec{z}'=(z_1,\dots,z_\mu'), y', \mu',b' ;f', \hat{f}')$
                \end{enumerate}
       \end{minipage}
 \end{mdframed}
@@ -290,7 +290,7 @@ The new security analysis is in a self-contained document in the appendix. We, b
 
 We show in \Cref{lem:darkcommit} that the DARK polynomial commitment scheme is binding. 
 \newcommand{\correctnesslemma}{
-The polynomial commitment scheme is correct for polynomials in $\ZZ_p[X]$ of degree at most $d$.
+The polynomial commitment scheme is correct for $\mu$-linear polynomials in $\ZZ_p[X]$.
 }
  
  \begin{lemma}
@@ -299,7 +299,7 @@ The polynomial commitment scheme is correct for polynomials in $\ZZ_p[X]$ of deg
  \end{lemma}
 
 
-The proofs of this lemmas is in Appendix~\ref{sec:darksoundness}.
+The proof of this lemma is in Appendix~\ref{sec:darksoundness}.
 Next is the main security theorem, which states that the evaluation protocol has witness-extended emulation.
 
 
