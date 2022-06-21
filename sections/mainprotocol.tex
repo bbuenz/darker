@@ -233,15 +233,14 @@ The \textsf{PoE} protocol is an argument that a large scalar multiplication in a
 
 We now specify subtleties that were previously glossed over. 
 %First, we handle the case where $d+1$ is not a power of 2.  Whenever $d+1$ is odd in the recursion, the polynomial is shifted by one degree --- specifically, $f'(X) = X f(X)$ and the protocol proceeds to prove that $f'(X)$ has degree bounded by $d' = d+1$ and evaluates to $y' = zy$ at $z$. The verifier obtains the matching commitment $\gr{C}'\gets q \cdot \gr{C}$.
-Instead of presenting a protocol for univariate degree $d$ polynomials we present one for $\mu$-linear polynomials. This is more general as for any univariate polynomial $f(X)$ there exists a $\mu=\lceil\log_2(d+1)\rceil$-linear polynomial $\hat{f}$ with the same coefficients such that $\hat{f}(X,X^2,\dots,X^{2^(\mu-1)})=f(X)$. 
-By the same argument, we can use a multi-linear polynomial commitment and evaluation scheme for arbitrary multivariate polynomials where the degree in each variable is a power of $2$. 
+Instead of presenting a protocol for univariate degree $d$ polynomials we present one for $\mu$-linear polynomials. This is more general as for any univariate polynomial $f(X)$ there exists a $\mu=\lceil\log_2(d+1)\rceil$-linear polynomial $\hat{f}$ with the same coefficients such that $\hat{f}(X,X^2,\dots,X^{2^{(\mu-1)}})=f(X)$. 
+By the same argument, we can use a multi-linear polynomial commitment and evaluation scheme for arbitrary multivariate polynomials where the degree in each variable is a power of $2$. For non-power-of-$2$ multivariate polynomials, it is possible to round up to the next power of $2$ and prove correctness using a $\textsf{PoE}$ proof.
 
 The coefficients of $f(X_1,\dots,x_\mu)$ grow by a factor of $2^\lambda$ in every recursion step, but eventually, the transmitted constant $f$ has to be tested against some bound because if it is \emph{too large} it should be rejected. However, the function interface provides no option to specify the allowable size of coefficients. We therefore define and use a subroutine $\pro{EvalB}$, which takes an additional argument $b$ and which proves, in addition to what $\pro{Eval}$ proves, that all coefficients $f_i$ of $f(X_1,\dots,X_\mu)$ satisfy $|f_i| \leq b$. Importantly, $b$ grows by a factor for $2^\lambda$, the challenge space, in every recursion step. This subroutine is also useful if commitments were homomorphically combined prior to the execution of $\pro{EvalB}$. The growth of these coefficients determines a lower bound on $q$: $q$ needs to be \emph{significantly} larger than $b$ for security. Exactly which factor constitutes ``significantly'' is determined by the knowledge-soundness proof.
 
 In the final round we check that the constant $f$ satisfies $|f|\leq b$ and the protocol's correctness is guaranteed if $b = (p-1)\cdot 2^{\lambda \mu}$, where $\mu=\log(d+1)$ are the number of rounds. However, $q$ needs to be even larger than this value in order for extraction to work (and hence, for the proof of witness-extended emulation to go through). The precise value of $q$ depends on the number of rounds $\mu$, and is defined in \Cref{thm:darkisdarkss} and is $2^{O(\mu \lambda)}$.
 
- We now present the full, formal $\eval$ protocol below. It is restricted such that $d+1$ is a power of $2$. Given the monomial homomorphism of the commitment scheme, it is easy to pad any polynomial to a power of $2$ by computing $C\gets q^{\Delta} \cdot C$ for $\Delta=2^{\lceil \log_2(d+1) \rceil}-1-d$ and setting the evaluation to $z^\Delta \cdot y$. The verification of this step can be outsourced using a $\textsf{PoE}$.
- \benedikt{fix last sentence}
+ We now present the full, formal $\eval$ protocol below. 
 %\begin{small}
 
 
@@ -338,16 +337,16 @@ As a corollary, under the adaptive root assumption for $\ggen$, the DARK polynom
 %\label{sec:multivariate}
 
 %\input{sections/multivariate}
-
+\quickanddirty{
 \subsection{Hiding Commitments and Zero-Knowledge Evaluation}
 \label{section:zeroknowlege}
 \input{sections/newzk}
-
+}
 
 \subsection{Performance}
 The polynomial commitment scheme has logarithmic proof size and verifier time in the degree $d$ of the committed polynomial. 
 It has highly batchable proofs and it is possible to evaluate $n$ degree $d$ polynomials at $k$ points using only $2\log_2(d+1)$ group elements and $(k+1)\log_2(d+1)$ field elements (see Section \ref{subsec:optimization}). Note that this means the proof size is independent of $n$ and linear in $k$ but with a small constant $(15 \log(d)$ bytes). 
-We describe the performance of our scheme for different settings in Table~\ref{tab:performance}.
+We describe the performance of our scheme for different settings for uni- and multivariate instantiations in Table~\ref{tab:performance}.
 
 \begin{table}[!htp]
 \begin{small}

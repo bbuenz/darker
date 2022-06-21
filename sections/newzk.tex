@@ -21,7 +21,7 @@ If the property holds for all algorithms then we say that the commitment is \emp
 \paragraph{Hiding Polynomial Commitment}
 We make the polynomial commitment described in Section~\ref{sec:protocol} hiding by adding a degree $d+1$ term with a large random coefficient. Let $B\geq |\GG|$ be a publicly known upper bound on the order of $\GG$. We will choose the blinding coefficient between $0$ and $B\cdot 2^\lambda$. Formally, the hiding commitment algorithm is described as follows:
 \begin{itemize}
-	\item $\pro{CommitH}(f(X) \in \ZZ_p[X]) \rightarrow (\gr{C}; \hat{f}(X), d, r)$. Lift $f(X) \in \mathbb{Z}_p[X]$ to $\hat{f}(X) \in \mathbb{Z}(\frac{p-1}{2})[X]$ and select random integer $r \sample [0,B\cdot 2^\lambda)$. Compute $d \gets \deg(f(X))$ and $\gr{C} \gets (\hat{f}(q)+q^{d+1} \cdot r)\cdot \gr{g}$ and return commitment $\gr{C}$ with secret opening information $\hat{f}(X), d, r$.
+	\item $\pro{CommitH}(f \in \ZZ_p[X_1,\dots,X_\mu]) \rightarrow (\gr{C}; \hat{f}, \mu, r)$. Lift $f(X) \in \mathbb{Z}_p[X]$ to $\hat{f}(X) \in \mathbb{Z}(\frac{p-1}{2})[X]$ and select random integer $r \sample [0,B\cdot 2^\lambda)$. Compute $d \gets \deg(f(X))$ and $\gr{C} \gets (\hat{f}(q)+q^{d+1} \cdot r)\cdot \gr{g}$ and return commitment $\gr{C}$ with secret opening information $\hat{f}(X), d, r$.
 \end{itemize}
 
 Let $\gr{h} \leftarrow q^{d+1}\cdot \gr{g}$. 

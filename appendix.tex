@@ -120,9 +120,8 @@ $\mu$ &  $\lambda=120$ \\
 \label{fact:encoding}
 Let $q \in \ZZ$ be any positive integer. For any integer $E \in \ZZ$ such that $|E|\leq \frac{q^{d+2} - q}{2(q-1)}$ there exists a unique degree $d$ integer polynomial $f \in \ZZ[X]$ with $||f||_\infty \leq q/2$ such that $f(q) = E$. 
 \end{fact} 
-\benedikt{Add fact for multi-linear? }
 
-We extend the integer encoding from \Cref{sec:encoding} to rational polynomials.
+We extend the integer encoding from \Cref{sec:encoding} to rational multi-linear polynomials.
 \begin{lemma}[Rational Encoding of multi-linear polynomials]
 \label{lem:encoding}
 Let $q \in \ZZ$ be any positive integer. Let $\vec{q}=[q^{2^{i-1}}]_{i=1}^\mu \in \ZZ^\mu$. Consider any $\beta_d, \beta_n \in \mathbb{N}$ such that $\beta_d \cdot \beta_n\leq \frac{q}{2}$. Let $Z = \{z \in \ZZ: |z| \leq \beta_d \}$, let $\mathcal{F} = \{ f \in \ZZ[X_1,\dots,X_\mu]: ||f||_\infty \leq \beta_n\}$ be a $\mu$-linear polynomial, and let $\mathcal{H} = \{f/z \in \mathbb{Q}[X_1,\dots X_\mu]: f \in \mathcal{F} \wedge z \in Z \}$. Then for any $h_1, h_2 \in \mathcal{H}$,  if $h_1(\vec{q}) = h_2(\vec{q})$ then $h_1 = h_2$. 
