@@ -152,11 +152,11 @@ We now extend the syntax to polynomial commitment schemes. The following definit
 \begin{definition} (Polynomial commitment) 
 A polynomial commitment scheme is a tuple of protocols $\Gamma = (\pro{Setup}, \pro{Commit}, \pro{Open}, \pro{Eval})$ where $(\pro{Setup},$ $\pro{Commit}, \pro{Open})$ is a binding commitment scheme for a message space $R[X]$ of polynomials over some ring $R$, and
 \begin{itemize}
-    \item $\pro{Eval}(\params, C, z, y, d, \mu; f(X)) \rightarrow b \in \{0, 1\}$ is an interactive public-coin protocol between a PPT prover $\prover$ and verifier $\verifier$. Both $\prover$ and $\verifier$ have as input a commitment $C$, points $z, y \in R$, and a degree $d$. The prover additionally knows the opening of $C$ to a secret polynomial $f(X) \in R[X]$ with $\deg(f(X)) \leq d$. The protocol convinces the verifier that $f(z) = y$. {In a multivariate extension of polynomial commitments, the input $\mu > 1$ indicates the number of variables in the committed polynomial} and $z \in R^\mu$.
+    \item $\pro{Eval}(\params, C, z, y, d, \mu; f) \rightarrow b \in \{0, 1\}$ is an interactive public-coin protocol between a PPT prover $\prover$ and verifier $\verifier$. Both $\prover$ and $\verifier$ have as input a commitment $C$, points $z, y \in R $, and a degree $d$. The prover additionally knows the opening of $C$ to a secret polynomial $f(X) \in R[X]$ with $\deg(f(X)) \leq d$. The protocol convinces the verifier that $f(z) = y$. {In a multivariate extension of polynomial commitments, the input $\mu > 1$ indicates the number of variables in the committed polynomial} and $z \in R^\mu$.
 \end{itemize}
 
 A polynomial commitment scheme is \defn{correct} if an honest committer can successfully convince the verifier of any evaluation. 
-Specifically, if the prover is honest then for all polynomials $f(X) \in R[X]$ and all points $z \in R$,
+Specifically, if the prover is honest, then for all polynomials $f(X) \in R[X]$ and all points $z \in R$,
 \begin{small}
 \[
     \Pr\left[b = 1 \ : \ \begin{array}{l}
@@ -170,26 +170,6 @@ Specifically, if the prover is honest then for all polynomials $f(X) \in R[X]$ a
 \end{small}
 
 A polynomial commitment scheme is \defn{evaluation binding} if no efficient adversary can convince the verifier that the committed polynomial $f(X)$ evaluates to different values $y_0 \neq y_1 \in R$ in the same point $z \in R$. However, our applications require a stronger property called \emph{knowledge soundness}. 
-\begin{comment}
-	Let $b \gets \pro{Eval}_{\langle \adv_1, \verifier\rangle}(c, z, y, d, \st)$ denote the verifier's output in an execution of this protocol with adversarial prover $\adv_1$ on public inputs $c, z, y, d$ and private adversary state $\st$. %(The adversary may or may not know a witness polynomial $f(X)$.)
-Evaluation binding requires that for all probabilistic polynomial-time adversaries $\adv = (\adv_0, \adv_1)$,
-\begin{small}
-\[
-    \Pr\left[
-         b_0 = b_1 \neq 0 \, \wedge \, y_0 \neq y_1 \ 
-         : \
-       \begin{array}{l}
-            \params \gets \pro{Setup}(1^\lambda) \\
-            (c, z, y_0, y_1, d_0, d_1, \st_0, \st_1) \gets \adv_0(\params) \\
-            b_0 \gets \pro{Eval}_{\langle \adv_1, \verifier} \rangle(\params, c, z, y_0, d_0; \st_0) \\
-            b_1 \gets \pro{Eval}_{\langle \adv_1, \verifier} \rangle(\params, c, z, y_1, d_1; \st_1) \\
-        \end{array}
-    \right] \leq \negl \enspace .
-\]
-\end{small}
-
-The syntax generalizes naturally to multivariate polynomial commitment schemes. Specifically, one obtains the syntax for an $\mu$-variate polynomial commitment scheme by replacing all occurrences of $X$ and $z$ by their $\mu$-dimensional vector counterparts, $\mathbf{X}$ and $\mathbf{z}$.
-\end{comment}
 \end{definition}
 
 \paragraph{Knowledge soundness} %In our application of polynomial commitments to the construction of arguments of knowledge, we also require the polynomial commitment to satisfy a \emph{knowledge} property. Informally, w
