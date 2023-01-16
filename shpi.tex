@@ -1,0 +1,153 @@
+\section{Short homomorphism pre-image}
+We present an interactive argument of knowledge for ``short" preimages of a homomorphism $\phi: \mathbb{Z}^n \rightarrow \mathbb{G}$ with respect to a norm $\mathcal{N}: \mathbb{Z}^n \rightarrow \mathbb{R}$ and bound $\beta \in \mathbb{R}$, which given $y \in \mathbb{G}$ demonstrates knowledge of a preimage $\mathbf{x}$ such that $\mathcal{N}(\mathbf{x}) \leq \beta$ and $\phi(\mathbf{x}) = y$. The protocol requires a deterministic commitment scheme that is binding to ``short" vectors in $\mathbb{Z}^n$, where the commitment function $\com$ is itself a homomorphism $\com: \mathbb{Z}^n \rightarrow \mathbb{G}_\com$ and the group $\mathbb{G}_\com$ either has prime order or unknown order (i.e., satisfies Assumption~\ref{assum:randomorder}). This protocol generalizes polynomial commitments based on groups of unknown order and integer lattices. We provide two concrete instantiations of the protocol based on Assumption~\ref{assum:randomorder} and Integer SIS respectively.
+
+\paragraph{Remark on zero-knowledge} Deterministic commitment schemes are non-hiding and our construction is focussed on producing a succinct argument of knowledge without concern for zero-knowledge. To obtain a zero-knowledge argument, the succinct argument can be composed with (i.e., applied as the pivot to) a sigma protocol for pre-images of $\phi$. See ACK21~\cite{C:AttCraKoh21} for further details. 
+
+\if 0 
+\begin{definition}[Collision resistant homomorphism distribution]
+Let $\mathcal{D}$ denote a distribution over homomorphisms $\phi: \mathbb{Z}^n \rightarrow \mathbb{G}$ where $|\mathbb{G}| \geq \lambda$ for some security parameter $\lambda$. Given a norm $\mathcal{N}:\mathbb{Z}^n \rightarrow \mathbb{R}$, we say that $\mathcal{D}$ is \emph{$(\mathcal{N}, \beta, \lambda)$ collision-resistant} if the following holds for any polynomial time adversary $\mathcal{A}$, where $0_\mathbb{G}$ denotes the identity element in $\mathbb{G}$:
+\begin{small}
+\[
+    \Pr\left[
+        \phi(\mathbf{x}) = 0_\mathbb{G} \ \wedge \mathcal{N}(\mathbf{x}) \leq \beta \ : \
+        \begin{array}{l}
+             \phi \gets \mathcal{D} \\
+            \mathbf{x} \gets \mathcal{A}(\phi)\\
+        \end{array}
+    \right] \leq \negl \enspace 
+\]
+\end{small}
+\end{definition}
+\fi 
+
+\begin{lemma}[trivial]
+If $(\setup, \com, \verify)$ is a deterministic commitment scheme that is binding over $D \subseteq \mathbb{Z}^n$ where $\com: \mathbb{Z}^n \rightarrow \mathbb{G}_\textsf{com}$ is a homomorphism and $\phi: \mathbb{Z}^n \rightarrow \mathbb{G}$ is any homomorphism, then the modified scheme $(\setup, \com^*, \verify^*)$ where: 
+\begin{itemize}
+\item $\setup(\lambda) \rightarrow \params$
+\item $\com^*(\params, \mathbf{x} \in \mathbb{Z}^n) \rightarrow (\com(\params, \mathbf{x}), \phi(\mathbf{x})) \in \mathbb{G}_\textsf{com} \times \mathbb{G}$
+\item $\verify^*(\params, \mathbf{x} \in \mathbb{Z}^n, s, (C, y) \in \mathbb{G}_\textsf{com} \times \mathbb{G}) \rightarrow \verify(\params, \mathbf{x}, s, C)$
+\end{itemize}
+is also binding over $D$. 
+\end{lemma}
+\begin{proof}
+Any break of the modified scheme includes a break of the original scheme, i.e. tuples $(\mathbf{x}, s, (C, y))$ and $(\mathbf{x}', s', (C, y))$ such that $\mathbf{x} \neq \mathbf{x}' \in D$ and $\verify(\params, \mathbf{x}, s, C) = 1 $ and $\verify(\params, \mathbf{x}', s', C) = 1$. 
+\end{proof}
+
+\begin{definition}
+We define a \emph{integer matrix norm family} $\mathcal{F}$ as an infinite collection $\mathcal{F} = \{\mathcal{N}_{m, n} \}$ of matrix norms $\mathcal{N}_{m,n}: \mathbb{Z}^{m \times n} \rightarrow \mathbb{R}$. We say that the $\mathcal{F}$ is $\alpha(m,n,k)$-submultiplicative if for all $m, n, k \in \mathbb{N}$, $M \in \mathbb{Z}^{m \times n}$, and $X \in \mathbb{Z}^{n \times k}$: 
+$$\mathcal{N}_{m, k}(M \cdot X) \leq \alpha(m,n,k) \cdot \mathcal{N}_{m,n}(M) \cdot \mathcal{N}_{n,k}(X)  $$ 
+\end{definition}
+
+\paragraph{Matrix norm family examples} 
+\begin{itemize}
+\item \emph{Frobenius norm ($L_2$):} The Frobenius norm of a matrix $M \in \mathbb{Z}^{m \times n}$ is defined as the L2 norm of the vector consisting of all $m \cdot n$ entries of $M$. As a special case, the Frobenius norm of a vector is identical to its L2 norm. The Frobenius norm family is $1$-submultiplicative, i.e. for all $m, n, k \in \mathbb{N}$, $M \in \mathbb{Z}^{m \times n}$, and $X \in \mathbb{Z}^{n \times k}$: 
+		$$||M \cdot X||_2 \leq ||M||_2 \cdot ||X||_2 $$  
+		This follows from the Cauchy-Schwartz inequality. 
+\item \emph{Max norm} ($L_\infty$): The max norm of a matrix $M \in \mathbb{Z}^{m \times n}$ is defined as the $L_\infty$ norm of the vector consisting of all its entires, i.e. the absolute value of its entry of largest absolute value. The max norm family is $n$-submultiplicative, i.e. for all $m, n, k \in \mathbb{N}$, $M \in \mathbb{Z}^{m \times n}$, and $X \in \mathbb{Z}^{n \times k}$: 
+		$$||M \cdot X||_\infty \leq n \cdot ||M||_\infty \cdot ||X||_\infty $$ 
+\end{itemize}
+
+Abusing notation, given a matrix norm family $\mathcal{F} = \{\mathcal{N}_{m,n} \}$ and any $M \in \mathbb{Z}^{m \times n}$ for some dimensions $n,m \in \mathbb{N}$ we may simply write $||M||$ in place of $\mathcal{N}_{m,n}(M)$. The appropriate norm can be inferred from the dimensions of $M$.  
+
+\begin{lemma}
+ Let $(\setup, \com, \verify)$ be any deterministic commitment scheme that is binding over $D = \{\mathbf{x} \in \mathbb{Z}^n: ||\mathbf{x}|| \leq \beta \}$, where the norm $|| \cdot ||$ belongs to an $\alpha$-submultiplicative norm family and $\com: \mathbb{Z}^n \rightarrow \mathbb{G}$ is a homomorphism. %and thus can be written as $\com(\mathbf{x}) = \sum_{i = 1}^n x_i \mathbf{g}_i$ for some basis $(\mathbf{g}_1,...,\mathbf{g}_n) \in \mathbb{G}^n$. 
+Let $U: \mathbb{Z}^m \rightarrow \mathbb{Z}^n$ denote any injective linear map, i.e. $U \in \mathbb{Z}^{m \times n}$ is a full row rank matrix. Then the modified scheme $(\setup, \com^*, \verify^*)$ over $\mathbb{Z}^m$ where: 
+\begin{itemize}
+\item $\setup(\lambda) \rightarrow \params$
+\item $\com^*(\params, \mathbf{x} \in \mathbb{Z}^m) \rightarrow  \com(\params, \mathbf{x} \cdot U)$
+\item $\verify^*(\params, \mathbf{x} \in \mathbb{Z}^m, s, C) \rightarrow \verify(\params, \mathbf{x} \cdot U, s, C)$ 
+\end{itemize}
+is binding over $D' = \{\mathbf{x} \in \mathbb{Z}^m: ||\mathbf{x}|| \leq \frac{\beta}{\alpha\cdot||U||} \}$. 
+\end{lemma}
+\begin{proof} 
+Suppose $(\mathbf{x} \in \mathbb{Z}^m, s, C)$ and $(\mathbf{x}' \in \mathbb{Z}^m, s', C)$ are both accepted by $\verify^*$ for distinct $\mathbf{x}, \mathbf{x}' \in D'$, then both $(\mathbf{x} \cdot U, s, C)$ and $(\mathbf{x}' \cdot U, s', C)$ are accepted by $\verify$. Since $U$ is injective, $\mathbf{x} \cdot U \neq \mathbf{x}' \cdot U$. Furthermore, since the norm is $\alpha$-submultiplicative, $||\mathbf{x} \cdot U|| \leq \alpha \cdot ||\mathbf{x}|| \cdot ||U|| \leq  \beta$. Similarly, $||\mathbf{x}' \cdot U || \leq \beta$. This contradicts the binding of $(\setup, \com, \verify)$. 
+\end{proof}
+
+\subsection{Interactive protocol for short preimages} 
+
+The public input of the protocol is a homomorphism $\phi: \mathbb{Z}^n \rightarrow \mathbb{G}_1$, a target value $t \in \mathbb{G}_1$, and a bound $\beta \in \mathbb{R}$. The honest prover has a witness $\mathbf{x}$ of norm at most $\beta$ such that $\phi(\mathbf{x}) = t$. The prover's claim is that it knows some witness $(a, \mathbf{x})$ such that $\phi(\mathbf{x}) = a \cdot t$ and $||\mathbf{x}|| \leq 2^{\lambda \log n} \sqrt{\xi} \cdot \beta$ and $|a| \leq \sqrt{\xi}/2^{\lambda \log n}$ for a \emph{soundness slack} parameter $\xi$. We prove that it suffices to set $\xi = 2^{4(\lambda + 1 + \CSZ[\log n]) + 2 \lambda \log n + 2}$, where $\CSZ[\log n] \in O(\log^2 n + \lambda \log \log n)$ is derived from the Multilinear Composite Schwartz Zippel Lemma (\cref{lem:CSZ}). Hence $\xi \in 2^{O(\lambda \log n + \log^2 n)}$. 
+
+
+We are also given a deterministic commitment scheme $(\setup, \com, \verify)$ that is binding over $D = \{ \mathbf{x} \in \mathbb{Z}^n: ||\mathbf{x}|| \leq \xi \cdot \beta\}$, where $\com: \mathbb{Z}^n \rightarrow \mathbb{G}_\textsf{com}$ is a homomorphism and 
+Let $\mathbb{G} := \mathbb{G}_\textsf{com} \times \mathbb{G}_1$ and $h: \mathbb{Z}^n \rightarrow \mathbb{G}$ the homomorphism $\mathbf{x} \mapsto (\com(\mathbf{x}), \phi(\mathbf{x}))$. Let $\mathbf{g} = (\mathbf{g}_1,...,\mathbf{g}_n)$ denote a basis of $h$ such that $h(\mathbf{x}) = \langle \mathbf{x}, \mathbf{g} \rangle$. The prover begins by computing the commitment $C = \com(\mathbf{x})$ and sending this to the verifer. The remainder of the interactive protocol is essentially the succinct argument for homomorphism preimages from~\cite{C:BDFG21,C:AttCra20} for the homomorphism $h$ and target $y = (\com, t)$, but where the verifier additionally checks a bound on the prover's final message. This is also a special case of a sumcheck argument with a bound check, as described in~\cite{C:BooChiSot21}. The prover's final message is an integer $x^* \in \mathbb{Z}$ and the verifier immediately rejects the proof unless $|x|^* \leq \beta \cdot 2^{\lambda \log n}$. We include the full protocol in the figure below for completeness. 
+
+\newcommand{\g}{\mathbf{g}}
+\newcommand{\x}{\mathbf{x}}
+\newcommand{\G}{\mathbb{G}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\FlowRight}[2][75pt]{%
+  \xrightarrow{\text{\normalsize\hbox to #1{\hfill \(#2\) \hfill}}}
+}
+\newcommand{\FlowLeft}[2][75pt]{%
+  \xleftarrow{\text{\normalsize\hbox to #1{\hfill \(#2\) \hfill}}}
+}
+\newcommand{\FlowLeftRight}[2][100pt]{%
+  \xleftrightarrow{\text{\normalsize\hbox to #1{\hfill \(#2\) \hfill}}}
+}
+
+
+\begin{figure}[h]
+  \centering
+  \caption{\emph{A succinct interactive protocol for short HPI}. %The common inputs are $y \in \G$ and $\g \in \G^n$. The prover's private witness input is $\mathbf{x} \in \Z^n$ such that $\langle \x, \g \rangle = y$. 
+  The honest prover's input must have norm at most $\beta$. For simplicity $n$ is a power of $2$.} 
+  \label{fig:HPI}
+  \vspace{-2mm}
+  \[\boxed
+  {\begin{array}{lcl}
+  \underline{\prover_\textsf{HPI}(n, \x \in \Z^n, y \in \G, \mathbf{g} \in \G^{n})} && 
+    \underline{\verifier_\textsf{HPI}(n, y \in \G, \mathbf{g} \in \G^{n})}\\[5mm]
+    & \FlowRight{\textbf{If $n= 1$ \text{send} $\x$}} &  \x \cdot \g  \stackrel{?}{=} y  \wedge |\mathbf{x}| \leq \beta \cdot 2^{\lambda \log n} \\ [2mm]
+    && \textbf{If yes accept, else reject} \\[2mm]
+     
+    & \textbf{Else} \ n' \leftarrow \lceil \frac{n}{2} \rceil & \\[2mm]
+     \x = (\x_L, \x_R); \g = (\g_L, \g_R) &&\\
+   y_L \gets \langle \x_L, \g_R \rangle, y_R \gets \langle \x_R,\g_L \rangle && \\ 
+    & \FlowRight{y_L, y_R} & \\ 
+    & \FlowLeft{r} & \raisebox{4mm}{$r \gets [-2^{\lambda-1},2^{\lambda-1})$} \\
+    \x' \gets \x_L + r \x_R  && \\
+    y' \gets  \langle \x', \g_R + r \g_L \rangle && \\
+    
+    &&  y' \leftarrow y_L + r^2 y_R + r y \\ 
+   && \g' \leftarrow  \g_R + r \g_L  \\ 
+   
+   \prover_\textsf{HPI}(n',\x', y', \g') & \FlowLeftRight{\text{recurse}}  & \ \verifier_\textsf{HPI}(n', y', \g')  \\
+
+          \end{array}}\]
+  \end{figure}
+
+An important observation, as first noted in~\cite{Halo}, is that the verifier does not use its input $\mathbf{g}$ unless $n = 1$. Thus, the verifier does not need to compute $\mathbf{g} \in \G^{2^i}$ at each round of recursion. Instead, it only needs to compute the final $g' \in \G$ at the final round, which can be computed as $g' = \sum_{i = 1}^n u_i \mathbf{g}_i$ where $u_i$ is the $i$th coefficient of the polynomial $u(X) = \prod_{j = 1}^{\log n} (r_j + X^{2^{j-1}})$ where $r_j$ is the verifier's challenge at the $j$th round. 
+
+\paragraph{Special case: GUO-based polynomial commitment with logarithmic verifier} In the special case that $\phi(\mathbf{x})= \sum_{i = 1}^n x_i z^i \bmod p$ for $z \in \mathbb{Z}_p$, i.e. the evaluation of the univariate polynomial $f_\mathbf{x} \in \Z_p[X]$ with coefficient vector $\mathbf{x}$ at the point $z$, and $|| \cdot ||$ is the L2 norm, then by instantiating the commitment using a group of unknown order $\mathbb{G}_\com$ as $\com(\mathbf{x}) = g^{f_\mathbf{x}(q)}$ for $q \in \mathbb{N}$ and $g$ a random element in $\G_\com$, the verifier complexity can be made logarithmic by adding $\log n$ \emph{proof-of-exponentiation} (PoE) steps. This commitment scheme is identical to DARK and is binding over vectors in $\{\x \in \Z^n: ||\x||_\infty \leq q/2 \}$. Note that $||\x||_\infty \leq ||\x||_2$ and thus it is also binding over vectors in $\{\x \in \Z^n: ||\x||_2 \leq q/2 \}$. To use this as a polynomial commitment scheme, where the honest prover may commit to any $\x \in [0, p)^n$ which has L2 norm at most $\beta = \sqrt{n} \cdot p$, we would set $q = 2\xi \beta$. The resulting interactive argument in this case is a slight variation of the DARK evaluation protocol. It is an argument of knowledge of a ``relaxed opening" of the DARK commitment, i.e. an opening of $a \cdot \com(\mathbf{x})$ to a vector $\mathbf{x}^*$ such that $|a| \cdot ||\mathbf{x}^*||\leq \xi \beta \leq q/2$ and $f_{\x^*}(z) = a \cdot t \bmod p$, which is a valid opening to the polynomial in $\Z_p[X]$ with coefficient vector $\x^* \cdot a^{-1} \bmod p$. 
+
+The verifier complexity is made logarithmic using PoEs as follows. Recall that the verifier only needs to compute the final round $g' = \sum_i u_i \g_i$ where $u_i$ are the coefficients of $u(X) = \prod_{j = 1}^{\log n} (r_j + X^{2^{j-1}})$. In this case, $\g_i = g^{q^i}$, and thus $g' = g^{\sum_i u_i q^i} = g^{u(q)}$. 
+This can be computed iteratively by setting: 
+$$A_0 := g \ \text{and} \ A_i := A_{i-1}^{r_i} \cdot A_{i-1}^{q^{2^{i-1}}} \ \ \forall i \in [1, \log n]$$
+so that $A_i = g^{\prod_{j = 1}^{i} (r_j + X^{2^{j-1}})}$ and thus $g^{u(q)} = A_{\log n}$. To assist the verifier, the prover computes and sends $(A_1,...,A_{\log n})$ to the verifier and for each pair $(A_{i-1}, A_i)$ produces a PoE that $A_{i-1}^{q^{2^{i-1}}} = A_i/A_{i-1}^{r_i}$. The verifier only computes $B_i = A_i/A_{i-1}^{r_i}$ for each $i \in [1, \log n]$ and verifies each PoE. 
+
+We remark on two different ways to instantiate the PoEs and the resulting verifier complexity and additional security assumptions required for each. 
+
+\paragraph{Wesolowski PoE} Using Wesolowski's PoE~\cite{EC:Wesolowski19}, the verification time for each PoE is dominated by $O(\lambda)$ group operations and computing $q^{2^{i-1}} \bmod \ell$ for a $\lambda$-bit prime $\ell$, which is $O(i-1)$ field multiplications. The total verification time for these $\log n$ PoE's is thus $O(\lambda \log n)$ group operations and $O(\log^2 n )$ field multiplications, which is dominated by $O(\lambda \log n)$ group operations. The Wesolowski PoE additionally requires that the \emph{adaptive root assumption} holds true for the commitment scheme group. 
+
+\paragraph{Batched Pietrzak PoEs} 
+
+\paragraph{Prover complexity} Computing $(A_1,...,A_{\log n})$ requires $\sum_{i = 1}^{\log n} 2^{i-1} = n -1$ group exponentiations, each of size $\log q$ bits, and $\log n$ additional exponentiations of size $\lambda$ bits (the size of the challenges $r_i$). Alternatively, given precomputed values $g_i = g^{q^i}$ for $i \in [1, n]$, computing each $A_j$ for $j \in [1, \log n]$ is a multi-exponentiation of length $2^j$ with coefficients $c_{ij}$ each of size at most $\lambda j$ bits: 
+$$A_j = g^{\prod_{i = 1}^j (r_i + q^{2^{i-1}})} = g^{\sum_{i = 0}^{2^{j-1}} c_{ij} q^i} = \prod_{i = 0}^{2^{j-1}} g_i^{c_{ij}} $$ 
+Thus, each $A_j$ can be computed with $O(\lambda j \cdot  2^{j-1})$ group operations, and computing $(A_1,...,A_{\log n})$ is $O(\lambda \cdot n \log n)$ group operations. \textbf{This doesn't seem to be an improvement because $\log q \in O(\lambda \log n)$.} 
+
+
+\subsection{Almost special soundness analysis} 
+
+\begin{theorem}
+Let $\CSZ[n] = 8 \log n^{2} + \log_2 (2 \log n) \lambda$.\footnote{The $\CSZ$ value can be replaced with values from the table in \Cref{lem:cCSZ}}  Let $\com$ be any deterministic commitment scheme binding over vectors with L2 norm at most $\beta$. There exists a predicate pair $\phi = (\phi_a, \phi_b)$ such that the short homomorphism pre-image protocol with $\log \xi = 4(\lambda + 1 + \CSZ[\log n]) + 2\lambda n + 1$ is an $(3^{(\log n)}, \frac{3 \log n}{2^\lambda},\com,\phi)$-almost-special-sound interactive argument for the relation: 
+
+
+
+As a corollary, under the adaptive root assumption for $\ggen$, the DARK polynomial commitment scheme with the same parameters has witness-extended-emulation (\Cref{def:wee}).
+\end{theorem}
+
+\begin{remark} $\mathsf{CSZ}_{\mu, \lambda}$ is derived from the Multilinear Composite Schwartz Zippel Lemma (\cref{lem:CSZ}). $\mathsf{EBL}_{\mu, \lambda}$ is derived from the Evaluation Bound Lemma (\cref{lem:evalbound}) and $\mathsf{CB}$ refers to the final round check bound in the DARK protocol. We can also substitute any value for $\mathsf{CSZ}_{\mu,\lambda}$ using the table of concrete bounds in Lemma~\ref{lem:cCSZ} for fixed $120$-bit security in place of the analytical bound from Lemma~\ref{lem:CSZ}).% which gives the same result for $\log q \geq 1 + 4(121 + \max(\EBL+ \CorrectnessBound , \mathsf{CSZ}_{\mu,\lambda}))$ and $\epsilon(\lambda) = \max(\frac{3\mu}{2^\lambda}, 2^{-120})$. \ben{This should be $\lambda$-bit security not 120-bit?}  	
+\end{remark}
+
+
+
+ 
